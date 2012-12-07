@@ -7,9 +7,8 @@ import sys
 from StringIO import StringIO
 #from gaia.identity import Identity
 
-""" Rename to advanceplanner """
 
-WIKIDIR = 'output'
+WIKIDIR = 'tests/testwikis/daywiki'
 PLANNERDAYFILELINK = 'currentday'
 PLANNERWEEKFILELINK = 'currentweek'
 PLANNERMONTHFILELINK = 'currentmonth'
@@ -256,7 +255,7 @@ def advancePlanner(planner, now=None):
 	resetHeadsOnPlannerFiles(planner)
 	return status
 
-def advanceFilesystemPlanner(plannerpath):
+def advanceFilesystemPlanner(plannerpath, now=None):
 	# use a bunch of StringIO buffers for the Planner object
 	# populate them here from real files
 	# after the advance() returns, the handles will be updated to the (possibly new) buffers
@@ -311,7 +310,7 @@ def advanceFilesystemPlanner(plannerpath):
 	planner.periodic_month_file = StringIO(f.read())
 	f.close()
 
-	status = advancePlanner(planner, now=datetime.datetime.now()+datetime.timedelta(hours=5))
+	status = advancePlanner(planner, now)
 
 	nextDay = planner.date
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
@@ -361,6 +360,8 @@ def advanceFilesystemPlanner(plannerpath):
 		f = open(weekfn_pre, 'w')
 		f.write(planner.weekfile.read())
 		f.close()
+	
+	return status
 
 if __name__ == '__main__':
 	advanceFilesystemPlanner(WIKIDIR)
