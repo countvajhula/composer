@@ -1,0 +1,7 @@
+# python compile output
+*pyc
+# vim noise
+*~
+*swp
+# test wikis separately managed by git
+testwikis
