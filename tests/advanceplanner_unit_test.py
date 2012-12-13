@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import unittest
-import incrementplanner
-from incrementplanner import Planner
-from incrementplanner import AdvancePlannerStatus
+import advanceplanner
+from advanceplanner import Planner
+from advanceplanner import AdvancePlannerStatus
 from StringIO import StringIO
 import datetime
 
@@ -13,6 +13,7 @@ import datetime
 3. if attempt to create already exists throw exception
 4. add if (themes) condition
 5. Check current date and day, get "successor" using python date module (unit tests for this)
+6. Add tests for different partially-done todos
 """
 class PlannerDateIntegrityTester(unittest.TestCase):
 	""" check dates are advanced correctly - edge cases, leap years """
@@ -33,6 +34,46 @@ class PlannerInvalidStateFailGracefullyTester(unittest.TestCase):
 class PlannerAdvanceTester(unittest.TestCase):
 	""" Check that planner advances and updates templates correctly """
 
+	tasklist = ("TOMORROW:\n"
+					"\n"
+					"THIS WEEK:\n"
+					"[\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
+					"[ ] help meags set up planner\n"
+						"\t[x] create life mindmap with meags\n"
+						"\t[x] incorporate life mindmap into planner with meags\n"
+						"\t[x] swap meags' Esc and CapsLock on personal laptop\n"
+						"\t[x] vim education and workflow\n"
+						"\t[x] help meags build a routine of entering data for the day\n"
+						"\t[ ] meags to schedule all activities (currently unscheduled)\n"
+						"\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
+						"\t[-] set up git access on your domain\n"
+						"\t[ ] set up dropbox+truecrypt planner access for meags\n"
+					"\n"
+					"THIS MONTH:\n"
+					"[ ] get India Tour reimbursement\n"
+						"\t[x] resend all receipts and info to Amrit\n"
+						"\t[x] send reminder email to Amrit\n"
+						"\t[x] coordinate with amrit to go to stanford campus\n"
+						"\t[x] remind amrit if no response\n"
+						"\t[x] check Stanford calendar for appropriate time\n"
+						"\t[x] email amrit re: thursday?\n"
+						"\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
+						"\t[x] wait for response\n"
+						"\t[-] send reminder on Wed night\n"
+						"\t[x] respond to amrit's email re: amount correction\n"
+						"\t[x] wait to hear back [remind $MONDAY$]\n"
+						"\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
+						"\t[x] pick up reimbursement, give difference check to raag\n"
+						"\t[x] cash check\n"
+						"\t[x] confirm deposit\n"
+						"\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
+					"[ ] do residual monthlys\n"
+					"[ ] get a good scratchy post for ferdy (fab?)\n"
+					"\n"
+					"UNSCHEDULED:\n"
+					"\n"
+					"SCHEDULED:\n")
+
 	monthtemplate = ("= December 2012 =\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
@@ -40,8 +81,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
 					"\n"
 					"AGENDA:\n"
-					"\n"
-					"TODOs:\n"
 					"\n"
 					"MONTHLYs:\n"
 					"[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
@@ -58,8 +97,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
 					"\n"
 					"AGENDA:\n"
-					"\n"
-					"TODOs:\n"
 					"\n"
 					"MONTHLYs:\n"
 					"[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
@@ -79,8 +116,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n"
 					"AGENDA:\n"
 					"\n"
-					"TODOs:\n"
-					"\n"
 					"WEEKLYs:\n"
 					"[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
 					"\n"
@@ -98,8 +133,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n\n"
 					"AGENDA:\n"
 					"\n"
-					"TODOs:\n"
-					"\n"
 					"DAILYs:\n"
 					"[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule"
 					"\n\n"
@@ -112,8 +145,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"[ ] 8:15am - gym []\n[ ] 9:00am - shower []\n[ ] 9:15am - weigh yourself (saturday) []"
 					"\n\n"
 					"AGENDA:\n"
-					"\n"
-					"TODOs:\n"
 					"\n"
 					"DAILYs:\n"
 					"[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule"
@@ -137,8 +168,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n"
 					"AGENDA:\n"
 					"\n"
-					"TODOs:\n"
-					"\n"
 					"WEEKLYs:\n"
 					"[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
 					"\n"
@@ -157,8 +186,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n"
 					"AGENDA:\n"
 					"\n"
-					"TODOs:\n"
-					"\n"
 					"WEEKLYs:\n"
 					"[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
 					"\n"
@@ -174,8 +201,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
 					"\n"
 					"AGENDA:\n"
-					"\n"
-					"TODOs:\n"
 					"\n"
 					"MONTHLYs:\n"
 					"[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
@@ -196,8 +221,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"[x] 11:30pm - sleep [12:45]\n"
 					"\n"
 					"AGENDA:\n"
-					"\n"
-					"TODOs:\n"
 					"[x] take out trash\n"
 					"[x] floss\n"
 					"\n"
@@ -227,8 +250,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n"
 					"AGENDA:\n"
 					"\n"
-					"TODOs:\n"
-					"\n"
 					"WEEKLYs:\n"
 					"[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
 					"\n"
@@ -254,6 +275,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 	def setUp(self):
 		self.planner = Planner()
 		self.planner.date = datetime.date.today()
+		self.planner.tasklistfile = StringIO(self.tasklist)
 		self.planner.dayfile = StringIO(self.daytemplate)
 		self.planner.weekfile = StringIO(self.weektemplate)
 		self.planner.monthfile = StringIO(self.monthtemplate)
@@ -269,35 +291,35 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance takes the correct decision to advance day on a typical day change boundary """
 		now = datetime.datetime(2012,12,5,19,0,0)
 		self.planner.date = now.date()
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, AdvancePlannerStatus.DayAdded)
 
 	def testDecisionForFirstWeekTooShortDayAdvance(self):
 		""" Check that planner advance takes the correct decision to advance only day when first week is too short """
 		now = datetime.datetime(2012,3,3,19,0,0) # 3/3/2012 is a Saturday, but since current week is only 3 days (too short), should advance only day
 		self.planner.date = now.date()
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, AdvancePlannerStatus.DayAdded)
 
 	def testDecisionForFirstWeekBorderlineTooShortDayAdvance(self):
 		""" Check that planner advance takes the correct decision to advance only day when first week is just below minimum length """
 		now = datetime.datetime(2012,2,4,19,0,0) # 2/4/2012 is a Saturday, but since current week is 4 days (just short of requirement), should advance only day
 		self.planner.date = now.date()
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, AdvancePlannerStatus.DayAdded)
 
 	def testDecisionForLastWeekTooShortDayAdvance(self):
 		""" Check that planner advance takes the correct decision to advance only day when last week would be too short """
 		now = datetime.datetime(2012,12,29,19,0,0) # 12/29/2012 is a Saturday, but since new week would be too short, should advance only day
 		self.planner.date = now.date()
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, AdvancePlannerStatus.DayAdded)
 
 	def testDecisionForLastWeekBorderlineTooShortDayAdvance(self):
 		""" Check that planner advance takes the correct decision to advance only day when last week would be just below minimum length """
 		now = datetime.datetime(2012,2,25,19,0,0) # 2/25/2012 is a Saturday, but since new week is 4 days (just short of requirement), should advance only day
 		self.planner.date = now.date()
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, AdvancePlannerStatus.DayAdded)
 
 	def testDecisionForTypicalWeekAdvance(self):
@@ -305,7 +327,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,8,19,0,0)
 		self.planner.date = now.date()
 		(date, day, month, year) = (self.planner.date.day, self.planner.date.strftime('%A'), self.planner.date.strftime('%B'), self.planner.date.year)
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, AdvancePlannerStatus.WeekAdded)
 
 	def testDecisionForFirstWeekBorderlineLongEnoughWeekAdvance(self):
@@ -313,7 +335,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		now = datetime.datetime(2012,5,5,19,0,0) # 5/5/2012 is Sat, and current week is exactly 5 days long (long enough), so should advance week
 		self.planner.date = now.date()
 		(date, day, month, year) = (self.planner.date.day, self.planner.date.strftime('%A'), self.planner.date.strftime('%B'), self.planner.date.year)
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, AdvancePlannerStatus.WeekAdded)
 
 	def testDecisionForLastWeekBorderlineLongEnoughWeekAdvance(self):
@@ -321,21 +343,21 @@ class PlannerAdvanceTester(unittest.TestCase):
 		now = datetime.datetime(2012,5,26,19,0,0) # 5/26/2012 is Sat, and new week would be exactly 5 days long (long enough), so should advance week
 		self.planner.date = now.date()
 		(date, day, month, year) = (self.planner.date.day, self.planner.date.strftime('%A'), self.planner.date.strftime('%B'), self.planner.date.year)
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, AdvancePlannerStatus.WeekAdded)
 
 	def testDecisionForMonthAdvance(self):
 		""" Check that planner advance takes the correct decision to advance month on a month change boundary """
 		now = datetime.datetime(2012,11,30,19,0,0)
 		self.planner.date = now.date()
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, AdvancePlannerStatus.MonthAdded)
 
 	def testPlannerAdvanceMonth(self):
 		""" Check that planner advance returns the correct new month, week, and day templates when advancing month """
 		now = datetime.datetime(2012,12,31,19,0,0)
 		self.planner.date = now.date()
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(self.planner.monthfile.read(), self.monthadvance_monthtemplate)
 		self.assertEqual(self.planner.weekfile.read(), self.monthadvance_weektemplate)
 		self.assertEqual(self.planner.dayfile.read(), self.default_weekdaytemplate)
@@ -344,7 +366,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance returns the correct new week and day templates, and updates the existing month template correctly, when advancing week """
 		now = datetime.datetime(2012,12,8,19,0,0)
 		self.planner.date = now.date()
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(self.planner.weekfile.read(), self.weekadvance_weektemplate)
 		self.assertEqual(self.planner.monthfile.read(), self.weekadvance_monthtemplate)
 		self.assertEqual(self.planner.dayfile.read(), self.default_weekendtemplate)
@@ -353,12 +375,124 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance returns the correct new day template, and updates the existing week template, when advancing day """
 		now = datetime.datetime(2012,12,5,19,0,0)
 		self.planner.date = now.date()
-		status = incrementplanner.advancePlanner(self.planner, now)
+		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(self.planner.dayfile.read(), self.default_weekdaytemplate)
 		self.assertEqual(self.planner.weekfile.read(), self.dayadvance_weektemplate)
 
 class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 	""" Check that new templates generated by the planner are as expected """
+
+	tasklist = ("TOMORROW:\n"
+					"[ ] contact dude\n"
+					"[\] make X\n"
+					"[ ] call somebody\n"
+					"[ ] finish project\n"
+					"\n"
+					"THIS WEEK:\n"
+					"[\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
+					"[ ] help meags set up planner\n"
+						"\t[x] create life mindmap with meags\n"
+						"\t[x] incorporate life mindmap into planner with meags\n"
+						"\t[x] swap meags' Esc and CapsLock on personal laptop\n"
+						"\t[x] vim education and workflow\n"
+						"\t[x] help meags build a routine of entering data for the day\n"
+						"\t[ ] meags to schedule all activities (currently unscheduled)\n"
+						"\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
+						"\t[-] set up git access on your domain\n"
+						"\t[ ] set up dropbox+truecrypt planner access for meags\n"
+					"\n"
+					"THIS MONTH:\n"
+					"[ ] get India Tour reimbursement\n"
+						"\t[x] resend all receipts and info to Amrit\n"
+						"\t[x] send reminder email to Amrit\n"
+						"\t[x] coordinate with amrit to go to stanford campus\n"
+						"\t[x] remind amrit if no response\n"
+						"\t[x] check Stanford calendar for appropriate time\n"
+						"\t[x] email amrit re: thursday?\n"
+						"\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
+						"\t[x] wait for response\n"
+						"\t[-] send reminder on Wed night\n"
+						"\t[x] respond to amrit's email re: amount correction\n"
+						"\t[x] wait to hear back [remind $MONDAY$]\n"
+						"\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
+						"\t[x] pick up reimbursement, give difference check to raag\n"
+						"\t[x] cash check\n"
+						"\t[x] confirm deposit\n"
+						"\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
+					"[ ] do residual monthlys\n"
+					"[ ] get a good scratchy post for ferdy (fab?)\n"
+					"\n"
+					"UNSCHEDULED:\n"
+					"\n"
+					"SCHEDULED:\n")
+
+	monthtemplate = ("= December 2012 =\n"
+					"\t* [[Week of December 1, 2012]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"MONTHLYs:\n"
+					"[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"Time spent on PLANNER: ")
+
+	weektemplate = ("= WEEK OF DECEMBER 1, 2012 =\n"
+					"\n"
+					"Theme: *WEEK OF THEME*\n"
+					"\n"
+					"\t* [[December 5, 2012]]\n"
+					"\t* [[December 4, 2012]]\n"
+					"\t* [[December 3, 2012]]\n"
+					"\t* [[December 2, 2012]]\n"
+					"\t* [[December 1, 2012]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"WEEKLYs:\n"
+					"[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"Time spent on PLANNER: ")
+
+	daytemplate = ("CHECKPOINTS:\n"
+					"[x] 7:00am - wake up [9:00]\n"
+					"[x] 7:05am - brush + change [11:00]\n"
+					"[ ] 7:10am - protein []\n"
+					"[ ] 7:15am - gym []\n"
+					"[x] 8:00am - shower [11:10]\n"
+					"[ ] 11:05pm - $nasal irrigation$ []\n"
+					"[x] 11:10pm - update schedule [12:25]\n"
+					"[x] 11:15pm - get stuff ready for morning((1) clothes:shirt,underwear,jeans,jacket,belt; (2) laptop+charger; (3) binder+texts+pen+pencil; (4) headphones) [8:45]\n"
+					"[x] 11:30pm - sleep [12:45]\n"
+					"\n"
+					"AGENDA:\n"
+					"[x] did do\n"
+						"[x] this\n"
+						"[x] and this\n"
+					"[ ] s'posed to do\n"
+					"[\] kinda did\n"
+					"[o] i'm waitin on you!\n"
+					"[x] take out trash\n"
+					"[x] floss\n"
+					"\n"
+					"DAILYs:\n"
+					"[ ] 40 mins gym\n"
+					"[x] Make bed\n"
+					"[x] 5 mins housework (dishes, clearing, folding, trash, ...)\n"
+					"\n"
+					"NOTES:\n"
+					"\n"
+					"\n"
+					"Time spent on PLANNER: 15 mins")
 
 	checkpoints_month = "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []"
 	checkpoints_week = "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []"
@@ -380,9 +514,10 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,4,18,50,30)
 		today = now.date()
 		nextDay = today + datetime.timedelta(days=1)
+		tasklistfile = StringIO(self.tasklist)
 		checkpointsfile = StringIO(self.checkpoints_month)
 		periodicfile = StringIO(self.periodic_month)
-		outputfile = StringIO()
+		monthfile = StringIO(self.monthtemplate)
 
 		(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 		monthtemplate = "= %s %d =\n" % (month, year)
@@ -393,26 +528,26 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 		monthtemplate += self.checkpoints_month
 		monthtemplate += "\n\n"
 		monthtemplate += "AGENDA:\n\n"
-		monthtemplate += "TODOs:\n\n"
 		monthtemplate += "MONTHLYs:\n"
 		monthtemplate += self.periodic_month
 		monthtemplate += "\n\n"
 		monthtemplate += "NOTES:\n\n\n"
 		monthtemplate += "Time spent on PLANNER: "
 
-		incrementplanner.writeNewMonthTemplate(nextDay, checkpointsfile, periodicfile, outputfile)
+		advanceplanner.writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, monthfile)
 
-		outputfile.seek(0)
-		self.assertEqual(outputfile.read(), monthtemplate)
+		monthfile.seek(0)
+		self.assertEqual(monthfile.read(), monthtemplate)
 
 	def testWeekTemplate(self):
 		""" Test that week template is generated correctly by integrating checkpoints, periodic, etc."""
 		now = datetime.datetime(2012,12,4,18,50,30)
 		today = now.date()
 		nextDay = today + datetime.timedelta(days=1)
+		tasklistfile = StringIO(self.tasklist)
 		checkpointsfile = StringIO(self.checkpoints_week)
 		periodicfile = StringIO(self.periodic_week)
-		outputfile = StringIO()
+		weekfile = StringIO(self.weektemplate)
 
 		(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 		weektemplate = ("= WEEK OF %s %d, %d =\n" % (month, date, year)).upper()
@@ -425,17 +560,16 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 		weektemplate += self.checkpoints_week
 		weektemplate += "\n\n"
 		weektemplate += "AGENDA:\n\n"
-		weektemplate += "TODOs:\n\n"
 		weektemplate += "WEEKLYs:\n"
 		weektemplate += self.periodic_week
 		weektemplate += "\n\n"
 		weektemplate += "NOTES:\n\n\n"
 		weektemplate += "Time spent on PLANNER: "
 
-		incrementplanner.writeNewWeekTemplate(nextDay, checkpointsfile, periodicfile, outputfile)
+		advanceplanner.writeNewWeekTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, weekfile)
 
-		outputfile.seek(0)
-		self.assertEqual(outputfile.read(), weektemplate)
+		weekfile.seek(0)
+		self.assertEqual(weekfile.read(), weektemplate)
 
 	def testDailyTemplates(self):
 		""" Test that templates for each day are generated correctly by integrating checkpoints, periodic, etc.
@@ -450,12 +584,13 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 			today = now.date()
 			nextDay = today + datetime.timedelta(days=1)
 			(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
+			tasklistfile = StringIO(self.tasklist)
 			if day.lower() in ('saturday', 'sunday'):
 				checkpointsfile = StringIO(self.checkpoints_weekend)
 			else:
 				checkpointsfile = StringIO(self.checkpoints_weekday)
 			periodicfile = StringIO(self.periodic_day)
-			outputfile = StringIO()
+			dayfile = StringIO(self.daytemplate)
 
 			daytemplate = ""
 			daytemplate += "CHECKPOINTS:\n"
@@ -464,18 +599,24 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 			else:
 				daytemplate += self.checkpoints_weekday
 			daytemplate += "\n\n"
-			daytemplate += "AGENDA:\n\n"
-			daytemplate += "TODOs:\n\n"
+			daytemplate += "AGENDA:\n"
+			daytemplate += "[ ] s'posed to do\n"
+			daytemplate += "[\] kinda did\n"
+			daytemplate += "[ ] contact dude\n"
+			daytemplate += "[\] make X\n"
+			daytemplate += "[ ] call somebody\n"
+			daytemplate += "[ ] finish project\n"
+			daytemplate += "\n"
 			daytemplate += "DAILYs:\n"
 			daytemplate += self.periodic_day
 			daytemplate += "\n\n"
 			daytemplate += "NOTES:\n\n\n"
 			daytemplate += "Time spent on PLANNER: "
 
-			incrementplanner.writeNewDayTemplate(nextDay, checkpointsfile, periodicfile, outputfile)
+			advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
 
-			outputfile.seek(0)
-			self.assertEqual(outputfile.read(), daytemplate)
+			dayfile.seek(0)
+			self.assertEqual(dayfile.read(), daytemplate)
 
 class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 	""" Check that updates on existing templates modifies the file as expected - does the right thing, does only that thing """
@@ -487,8 +628,6 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 					"[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
 					"\n"
 					"AGENDA:\n"
-					"\n"
-					"TODOs:\n"
 					"\n"
 					"MONTHLYs:\n"
 					"[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
@@ -505,8 +644,6 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 					"[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
 					"\n"
 					"AGENDA:\n"
-					"\n"
-					"TODOs:\n"
 					"\n"
 					"MONTHLYs:\n"
 					"[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
@@ -528,8 +665,6 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 					"[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
 					"\n"
 					"AGENDA:\n"
-					"\n"
-					"TODOs:\n"
 					"\n"
 					"WEEKLYs:\n"
 					"[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
@@ -553,8 +688,6 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 					"\n"
 					"AGENDA:\n"
 					"\n"
-					"TODOs:\n"
-					"\n"
 					"WEEKLYs:\n"
 					"[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
 					"\n"
@@ -569,7 +702,7 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 		nextDay = today + datetime.timedelta(days=1)
 		(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 		monthfile = StringIO(self.monthtemplate)
-		incrementplanner.writeExistingMonthTemplate(nextDay, monthfile)
+		advanceplanner.writeExistingMonthTemplate(nextDay, monthfile)
 		monthfile.seek(0)
 		self.assertEqual(monthfile.read(), self.monthtemplate_updated)
 
@@ -580,7 +713,7 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 		nextDay = today + datetime.timedelta(days=1)
 		(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 		weekfile = StringIO(self.weektemplate)
-		incrementplanner.writeExistingWeekTemplate(nextDay, weekfile)
+		advanceplanner.writeExistingWeekTemplate(nextDay, weekfile)
 		weekfile.seek(0)
 		self.assertEqual(weekfile.read(), self.weektemplate_updated)
 
