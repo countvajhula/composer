@@ -596,7 +596,6 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 
 		advanceplanner.writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, monthfile)
 
-		monthfile.seek(0)
 		self.assertEqual(monthfile.read(), monthtemplate)
 
 	def testWeekTemplate(self):
@@ -628,7 +627,6 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 
 		advanceplanner.writeNewWeekTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, weekfile)
 
-		weekfile.seek(0)
 		self.assertEqual(weekfile.read(), weektemplate)
 
 	def testDailyTemplates(self):
@@ -675,8 +673,6 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 
 			advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
 
-			dayfile.seek(0)
-			tasklistfile.seek(0) #TODO: remove these, fns should reset before returning
 			self.assertEqual(dayfile.read(), daytemplate)
 			self.assertEqual(tasklistfile.read(), self.tasklist_nextday)
 
@@ -765,7 +761,6 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 		(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 		monthfile = StringIO(self.monthtemplate)
 		advanceplanner.writeExistingMonthTemplate(nextDay, monthfile)
-		monthfile.seek(0)
 		self.assertEqual(monthfile.read(), self.monthtemplate_updated)
 
 	def testUpdateExistingWeekTemplate(self):
@@ -776,7 +771,6 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 		(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 		weekfile = StringIO(self.weektemplate)
 		advanceplanner.writeExistingWeekTemplate(nextDay, weekfile)
-		weekfile.seek(0)
 		self.assertEqual(weekfile.read(), self.weektemplate_updated)
 
 class PlannerTaskSchedulingTester(unittest.TestCase):
@@ -1961,7 +1955,6 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "TIME SPENT ON PLANNER: "
 
 		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
-		dayfile.seek(0)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -1989,7 +1982,6 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "TIME SPENT ON PLANNER: "
 
 		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
-		dayfile.seek(0)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2020,7 +2012,6 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "TIME SPENT ON PLANNER: "
 
 		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
-		dayfile.seek(0)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2053,7 +2044,6 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "TIME SPENT ON PLANNER: "
 
 		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
-		dayfile.seek(0)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2080,7 +2070,6 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "TIME SPENT ON PLANNER: "
 
 		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
-		dayfile.seek(0)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2110,7 +2099,6 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
-		dayfile.seek(0)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2145,7 +2133,6 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "TIME SPENT ON PLANNER: "
 
 		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
-		dayfile.seek(0)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 

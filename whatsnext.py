@@ -8,10 +8,18 @@ WIKIDIR = 'tests/testwikis/userwiki'
 if __name__ == '__main__':
 	#Moved pending tasks from today over to tomorrow's agenda
 	#could try: [Display score for today]
+
+	# simulate the changes first and then when it's all OK, make the necessary
+	# preparations (e.g. git commit) and actually perform the changes
+	simulate = True 
 	while True:
 		try:
-			advanceFilesystemPlanner(WIKIDIR)
+			advanceFilesystemPlanner(WIKIDIR, now=None, simulate=simulate)
 			break
+		except SimulationPassedError as err:
+			# TODO: git stuff
+			#print "DEV: simulation passed. let's do this thing ... for real."
+			simulate = False
 		except DayStillInProgressError as err:
 			print "Current day is still in progress! Try again after 6pm."
 			break

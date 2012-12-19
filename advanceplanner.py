@@ -127,6 +127,12 @@ class PlannerStateError(Exception):
 	def __str__(self):
 		return repr(self.value)
 
+class SimulationPassedError(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
 def resetHeadsOnPlannerFiles(planner):
 	planner.tasklistfile.seek(0)
 	planner.dayfile.seek(0)
@@ -297,6 +303,7 @@ def scheduleTasks(planner, now=None):
 	# go through any other section
 
 	if not now: now = datetime.datetime.now()
+	resetHeadsOnPlannerFiles(planner)
 
 	tasklist = planner.tasklistfile
 	tasklist_tidied = StringIO()
@@ -378,10 +385,9 @@ def scheduleTasks(planner, now=None):
 		ss = tasklist.readline()
 	tasklist = tasklist_tidied
 	tasklist.seek(0)
-	dayfile.seek(0)
 	planner.tasklistfile.truncate(0)
 	planner.tasklistfile.write(tasklist.read())
-	planner.tasklistfile.seek(0)
+	resetHeadsOnPlannerFiles(planner)
 
 def getScheduledTasks(tasklist, forDay):
 	# look at SCHEDULED section in tasklist and return if scheduled for supplied day
@@ -586,34 +592,34 @@ def writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, 
 	monthtemplate = buildMonthTemplate(nextDay, tasklistfile, monthfile, checkpointsfile, periodicfile)
 	monthfile.truncate(0)
 	monthfile.write(monthtemplate)
+	monthfile.seek(0)
 
 def writeNewWeekTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, weekfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	weektemplate = buildWeekTemplate(nextDay, tasklistfile, weekfile, checkpointsfile, periodicfile)
 	weekfile.truncate(0)
 	weekfile.write(weektemplate)
+	weekfile.seek(0)
 
 def writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	daytemplate = buildDayTemplate(nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile)
 	dayfile.truncate(0)
 	dayfile.write(daytemplate)
+	dayfile.seek(0)
 
-def updateMonthTemplate(nextDay, monthfile):
+def writeExistingMonthTemplate(nextDay, monthfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	monthcontents = monthfile.read()
 	lastWeekEntry = 'Week of'
 	previdx = monthcontents.find(lastWeekEntry)
 	idx = monthcontents.rfind('\n', 0, previdx)
 	newmonthcontents = monthcontents[:idx+1] + '\t* [[Week of %s %d, %d]]\n' % (month, date, year) + monthcontents[idx+1:]
-	return newmonthcontents
-
-def writeExistingMonthTemplate(nextDay, monthfile):
-	newmonthcontents = updateMonthTemplate(nextDay, monthfile)
-	monthfile.seek(0)
+	monthfile.truncate(0)
 	monthfile.write(newmonthcontents)
+	monthfile.seek(0)
 
-def updateWeekTemplate(nextDay, weekfile):
+def writeExistingWeekTemplate(nextDay, weekfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	weekcontents = weekfile.read()
 	previousDay = nextDay - datetime.timedelta(days=1)
@@ -622,12 +628,9 @@ def updateWeekTemplate(nextDay, weekfile):
 	previdx = weekcontents.find(previousDayEntry)
 	idx = weekcontents.rfind('\n', 0, previdx)
 	newweekcontents = weekcontents[:idx+1] + '\t* [[%s %d, %d]]\n' % (month, date, year) + weekcontents[idx+1:]
-	return newweekcontents
-
-def writeExistingWeekTemplate(nextDay, weekfile):
-	newweekcontents = updateWeekTemplate(nextDay, weekfile)
-	weekfile.seek(0) # way to close and open an existing handle in different modes?
+	weekfile.truncate(0) # way to close and open an existing handle in different modes?
 	weekfile.write(newweekcontents)
+	weekfile.seek(0)
 
 def advancePlanner(planner, now=None):
 	""" Advance planner state to next day, updating week and month info as necessary. 'now' arg used only for testing """
@@ -718,7 +721,7 @@ def advancePlanner(planner, now=None):
 	resetHeadsOnPlannerFiles(planner)
 	return status
 
-def advanceFilesystemPlanner(plannerpath, now=None):
+def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 	# use a bunch of StringIO buffers for the Planner object
 	# populate them here from real files
 	# after the advance() returns, the handles will be updated to the (possibly new) buffers
@@ -792,6 +795,10 @@ def advanceFilesystemPlanner(plannerpath, now=None):
 	if status >= AdvancePlannerStatus.DayAdded:
 		dayfn_post = '%s/%s %d, %d.wiki' % (plannerpath, month, date, year)
 		if os.path.isfile(dayfn_post): raise PlannerStateError("New day logfile already exists!")
+
+	# if this is a simulation, we're good to go - let's break out of the matrix
+	if status >= AdvancePlannerStatus.DayAdded and simulate:
+		raise SimulationPassedError('All systems GO')
 
 	if status >= AdvancePlannerStatus.MonthAdded:
 		# extract new month filename from date
