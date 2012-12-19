@@ -82,6 +82,21 @@ class LogfileNotCompletedError(Exception):
 	def __str__(self):
 		return repr(self.value)
 
+class DayLogfileNotCompletedError(LogfileNotCompletedError):
+	def __init__(self, value):
+		super(DayLogfileNotCompletedError, self).__init__(value)
+		self.type = 'day'
+
+class WeekLogfileNotCompletedError(LogfileNotCompletedError):
+	def __init__(self, value):
+		super(WeekLogfileNotCompletedError, self).__init__(value)
+		self.type = 'week'
+
+class MonthLogfileNotCompletedError(LogfileNotCompletedError):
+	def __init__(self, value):
+		super(MonthLogfileNotCompletedError, self).__init__(value)
+		self.type = 'month'
+
 class DateFormatError(Exception):
 	def __init__(self, value):
 		self.value = value
@@ -647,7 +662,7 @@ def advancePlanner(planner, now=None):
 		periodicfile = planner.periodic_day_file
 		dayfile = planner.dayfile
 		if not checkLogfileCompletion(dayfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
-			raise LogfileNotCompletedError("Looks like you haven't completed your day's log. Would you like to do that now?")
+			raise DayLogfileNotCompletedError("Looks like you haven't completed your day's log. Would you like to do that now?")
 		writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
 		#planner.dayfile = dayfile
 		status = AdvancePlannerStatus.DayAdded
@@ -658,7 +673,7 @@ def advancePlanner(planner, now=None):
 			periodicfile = planner.periodic_week_file
 			weekfile = planner.weekfile
 			if not checkLogfileCompletion(weekfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
-				raise LogfileNotCompletedError("Looks like you haven't completed your week's log. Would you like to do that now?")
+				raise WeekLogfileNotCompletedError("Looks like you haven't completed your week's log. Would you like to do that now?")
 			writeNewWeekTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, weekfile)
 			#planner.weekfile = weekfile
 			status = AdvancePlannerStatus.WeekAdded
@@ -669,7 +684,7 @@ def advancePlanner(planner, now=None):
 				periodicfile = planner.periodic_month_file
 				monthfile = planner.monthfile
 				if not checkLogfileCompletion(monthfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
-					raise LogfileNotCompletedError("Looks like you haven't completed your month's log. Would you like to do that now?")
+					raise MonthLogfileNotCompletedError("Looks like you haven't completed your month's log. Would you like to do that now?")
 				writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, monthfile)
 				#planner.monthfile = monthfile
 				status = AdvancePlannerStatus.MonthAdded

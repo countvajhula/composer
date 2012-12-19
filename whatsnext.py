@@ -26,7 +26,7 @@ if __name__ == '__main__':
 			else:
 				continue
 		except LogfileNotCompletedError as err:
-			yn = raw_input("Looks like you haven't completed your logfile (e.g. DAILYs and NOTES). Would you like to do that now?")
+			yn = raw_input("Looks like you haven't completed your %s's log (e.g. NOTES). Would you like to do that now?" % err.type)
 			if yn.lower().startswith('y'):
 				raw_input('No problem. Press any key when you are done completing your log...')
 			elif yn.lower().startswith('n'):
