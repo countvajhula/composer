@@ -863,6 +863,47 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 					"\n"
 					"SCHEDULED:\n")
 
+	tasklist_scheduledbadformat = ("TOMORROW:\n"
+					"\n"
+					"THIS WEEK:\n"
+					"[\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
+					"[ ] help meags set up planner\n"
+						"\t[x] create life mindmap with meags\n"
+						"\t[x] incorporate life mindmap into planner with meags\n"
+						"\t[x] swap meags' Esc and CapsLock on personal laptop\n"
+						"\t[x] vim education and workflow\n"
+						"\t[x] help meags build a routine of entering data for the day\n"
+						"\t[ ] meags to schedule all activities (currently unscheduled)\n"
+						"\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
+						"\t[-] set up git access on your domain\n"
+						"\t[ ] set up dropbox+truecrypt planner access for meags\n"
+					"\n"
+					"THIS MONTH:\n"
+					"[ ] get India Tour reimbursement\n"
+						"\t[x] resend all receipts and info to Amrit\n"
+						"\t[x] send reminder email to Amrit\n"
+						"\t[x] coordinate with amrit to go to stanford campus\n"
+						"\t[x] remind amrit if no response\n"
+						"\t[x] check Stanford calendar for appropriate time\n"
+						"\t[x] email amrit re: thursday?\n"
+						"\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
+						"\t[x] wait for response\n"
+						"\t[-] send reminder on Wed night\n"
+						"\t[x] respond to amrit's email re: amount correction\n"
+						"\t[x] wait to hear back [remind $MONDAY$]\n"
+						"\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
+						"\t[x] pick up reimbursement, give difference check to raag\n"
+						"\t[x] cash check\n"
+						"\t[x] confirm deposit\n"
+						"\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
+					"[ ] do residual monthlys\n"
+					"[ ] get a good scratchy post for ferdy (fab?)\n"
+					"\n"
+					"UNSCHEDULED:\n"
+					"\n"
+					"SCHEDULED:\n"
+					"[ ] remember to do this\n")
+
 	tasklist_somescheduled = ("TOMORROW:\n"
 					"[ ] contact dude\n"
 					"[\] make X\n"
@@ -1548,6 +1589,11 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		self.planner.dayfile = StringIO(self.daytemplate_noscheduledate)
 		self.assertRaises(Exception, advanceplanner.scheduleTasks, self.planner)
 	
+	def testBadlyFormattedScheduledTaskRaisesException(self):
+		""" Check that a task already present in the SCHEDULED section and formatted incorrectly raises an Exception """
+		self.planner.tasklistfile = StringIO(self.tasklist_scheduledbadformat)
+		self.assertRaises(Exception, advanceplanner.scheduleTasks, self.planner)
+
 	def testScheduleDateFormat1(self):
 		""" Check that the format MONTH DD, YYYY works (w optional space or comma or both) """
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format1)
