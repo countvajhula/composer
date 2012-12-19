@@ -10,7 +10,7 @@ import re
 
 
 #WIKIDIR = '/Users/siddhartha/log/planner'
-WIKIDIR = 'tests/testwikis/daywiki'
+WIKIDIR = 'tests/testwikis/userwiki'
 PLANNERTASKLISTFILELINK = 'TaskList.wiki'
 PLANNERDAYFILELINK = 'currentday'
 PLANNERWEEKFILELINK = 'currentweek'
@@ -35,6 +35,14 @@ class Task(Identity):
 class AdvancePlannerStatus(object):
 	(NoneAdded, DayAdded, WeekAdded, MonthAdded) = (0,1,2,3)
 
+class PlannerConfig(object):
+	(Strict, Lax) = (1,2)
+	TomorrowChecking = Strict
+	LogfileCompletionChecking = Strict
+
+class PeriodAdvanceCriteria(object):
+	(Satisfied, DayStillInProgress, PlannerInFuture) = (1,2,3)
+
 class Planner(object):
 	def __init__(self):
 		self.date = None
@@ -57,6 +65,48 @@ class DayStillInProgressError(Exception):
 		return repr(self.value)
 
 class PlannerIsInTheFutureError(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
+class TomorrowIsEmptyError(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
+class LogfileNotCompletedError(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
+class DateFormatError(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
+class BlockedTaskNotScheduledError(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
+class TasklistLayoutError(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
+class LogfileLayoutError(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
+class PlannerStateError(Exception):
 	def __init__(self, value):
 		self.value = value
 	def __str__(self):
@@ -92,64 +142,178 @@ def getNextDay(date):
 	nextDay = date + datetime.timedelta(days=1)
 	return nextDay
 
-def getAppropriateYear(date):
+def getAppropriateYear(month, day, now):
 	# if current year would result in negative, then use next year, otherwise current year
-	pass
+	today = now.date()
+	date_thisyear = datetime.date(today.year, month, day)
+	if date_thisyear < today:
+		return today.year + 1
+	else:
+		return today.year
 
-def getDateForScheduleString(datestr):
-	# try various acceptable formats and return the first one that works
-	return datetime.datetime.strptime(datestr, '%B %d, %Y').date() or datetime.datetime.strptime(datestr, '%d %B, %Y').date() # TODO: add more format options
+def getDateForScheduleString(datestr, now=None):
+	""" try various acceptable formats and return the first one that works
+	Returns both a specific python date that can be used as well as a 'standard format' date string
+	that unambiguously represents the date """
+	if not now: now = datetime.datetime.now()
+	date = None
+	monthNameToNumber = dict((v.lower(),k) for k,v in enumerate(calendar.month_name))
+	monthNumberToName = dict((k,v) for k,v in enumerate(calendar.month_name))
+	def getMonthNumber(monthname):
+		return monthNameToNumber[monthname.lower()]
+	def getMonthName(monthnumber):
+		return monthNumberToName[monthnumber]
+	dateformat1 = re.compile('^([^\d ]+) (\d\d?)[, ] ?(\d{4})$')
+	dateformat2 = re.compile('^(\d\d?) ([^\d,]+)[, ] ?(\d{4})$')
+	dateformat3 = re.compile('^([^\d ]+) (\d\d?)$')
+	dateformat4 = re.compile('^(\d\d?) ([^\d]+)$')
+	dateformat5 = re.compile('^WEEK OF ([^\d ]+) (\d\d?)[, ] ?(\d{4})$')
+	dateformat6 = re.compile('^WEEK OF (\d\d?) ([^\d,]+)[, ] ?(\d{4})$')
+	dateformat7 = re.compile('^WEEK OF ([^\d ]+) (\d\d?)$')
+	dateformat8 = re.compile('^WEEK OF (\d\d?) ([^\d,]+)$')
+	dateformat9 = re.compile('^([^\d ]+)[, ] ?(\d{4})$')
+	dateformat10 = re.compile('^([^\d ]+)$')
+	dateformat11 = re.compile('^(\d\d)/(\d\d)/(\d\d\d\d)$')
+	dateformat12 = re.compile('^(\d\d)-(\d\d)-(\d\d\d\d)$')
+	if dateformat1.search(datestr):
+		(month, day, year) = dateformat1.search(datestr).groups()
+		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		datestr_std = '%s %s, %s' % (month, day, year)
+	elif dateformat2.search(datestr):
+		(day, month, year) = dateformat2.search(datestr).groups()
+		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		datestr_std = '%s %s, %s' % (month, day, year)
+	elif dateformat3.search(datestr):
+		(month, day) = dateformat3.search(datestr).groups()
+		(monthn, dayn) = (getMonthNumber(month), int(day))
+		year = str(getAppropriateYear(monthn, dayn, now))
+		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		datestr_std = '%s %s, %s' % (month, day, year)
+	elif dateformat4.search(datestr):
+		(day, month) = dateformat4.search(datestr).groups()
+		(monthn, dayn) = (getMonthNumber(month), int(day))
+		year = str(getAppropriateYear(monthn, dayn, now))
+		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		datestr_std = '%s %s, %s' % (month, day, year)
+	elif dateformat5.search(datestr):
+		# std = Week of Month dd(sunday/1), yyyy
+		(month, day, year) = dateformat5.search(datestr).groups()
+		(monthn, dayn, yearn) = (getMonthNumber(month), int(day), int(year))
+		date = datetime.date(yearn, monthn, dayn)
+		dow = date.strftime('%A')
+		if dayn != 1:
+			while dow.lower() != 'sunday':
+				date = date - datetime.timedelta(days=1)
+				dow = date.strftime('%A')
+		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
+		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
+	elif dateformat6.search(datestr):
+		(day, month, year) = dateformat6.search(datestr).groups()
+		(monthn, dayn, yearn) = (getMonthNumber(month), int(day), int(year))
+		date = datetime.date(yearn, monthn, dayn)
+		dow = date.strftime('%A')
+		if dayn != 1:
+			while dow.lower() != 'sunday':
+				date = date - datetime.timedelta(days=1)
+				dow = date.strftime('%A')
+		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
+		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
+	elif dateformat7.search(datestr):
+		(month, day) = dateformat7.search(datestr).groups()
+		(monthn, dayn) = (getMonthNumber(month), int(day))
+		yearn = getAppropriateYear(monthn, dayn, now)
+		year = str(yearn)
+		date = datetime.date(yearn, monthn, dayn)
+		dow = date.strftime('%A')
+		if dayn != 1:
+			while dow.lower() != 'sunday':
+				date = date - datetime.timedelta(days=1)
+				dow = date.strftime('%A')
+		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
+		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
+	elif dateformat8.search(datestr):
+		(day, month) = dateformat8.search(datestr).groups()
+		(monthn, dayn) = (getMonthNumber(month), int(day))
+		yearn = getAppropriateYear(monthn, dayn, now)
+		year = str(yearn)
+		date = datetime.date(yearn, monthn, dayn)
+		dow = date.strftime('%A')
+		if dayn != 1:
+			while dow.lower() != 'sunday':
+				date = date - datetime.timedelta(days=1)
+				dow = date.strftime('%A')
+		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
+		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
+	elif dateformat9.search(datestr):
+		(month, year) = dateformat9.search(datestr).groups()
+		day = str(1)
+		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		datestr_std = '%s %s' % (month, year)
+	elif dateformat10.search(datestr):
+		month = dateformat10.search(datestr).groups()[0]
+		(monthn, dayn) = (getMonthNumber(month), 1)
+		(day, year) = (str(dayn), str(getAppropriateYear(monthn, dayn, now)))
+		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		datestr_std = '%s %s' % (month, year)
+	elif dateformat11.search(datestr):
+		(monthn, dayn, yearn) = map(lambda i:int(i), dateformat11.search(datestr).groups())
+		(month, day, year) = (getMonthName(monthn).upper(), str(dayn), str(yearn))
+		date = datetime.date(yearn, monthn, dayn)
+		datestr_std = '%s %s, %s' % (month, day, year)
+	elif dateformat12.search(datestr):
+		(monthn, dayn, yearn) = map(lambda i:int(i), dateformat12.search(datestr).groups())
+		(month, day, year) = (getMonthName(monthn).upper(), str(dayn), str(yearn))
+		date = datetime.date(yearn, monthn, dayn)
+		datestr_std = '%s %s, %s' % (month, day, year)
+	else: raise DateFormatError("Date format does not match any acceptable formats! " + datestr)
+	if date:
+		return {'date':date, 'datestr':datestr_std}
+	return None
 
-def scheduleTasks(planner):
+def scheduleTasks(planner, now=None):
 	# go through TL till SCHEDULED found
 	# if [o] then make sure [$$] and parseable
 	# move to bottom of scheduled
 	# loop through all scheduled till naother section found or eof
 	# go through any other section
+
+	if not now: now = datetime.datetime.now()
+
 	tasklist = planner.tasklistfile
 	tasklist_tidied = StringIO()
 	scheduledtasks = ""
-	s = tasklist.readline()
+	ss = tasklist.readline()
 	scheduledate = re.compile('\[\$?([^\[\$]*)\$?\]$')
-	while s != '' and s[:len('scheduled')].lower() != 'scheduled':
-		if s.startswith('[o'):
-			if scheduledate.search(s):
-				datestr = scheduledate.search(s).groups()[0]
-				matcheddate = getDateForScheduleString(datestr)
-				if not matcheddate:
-					raise Exception("Invalid format for date in scheduled task - use '<Month> <date>, <year>': " + s)
-			else:
-				raise Exception("No scheduled date for blocked task -- add a date for it:" + s)
-			scheduledtasks += s
-			s = tasklist.readline()
-			while s.startswith('\t'):
-				scheduledtasks += s
-				s = tasklist.readline()
-		else:
-			tasklist_tidied.write(s)
-			s = tasklist.readline()
-	tasklist_tidied.write(s)
-	s = tasklist.readline()
-	while s != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', s):
-		tasklist_tidied.write(s)
-		s = tasklist.readline()
-	while s != '':
-		if s.startswith('[o'):
+	while ss != '':
+		# ignore tasks in tomorrow since actively scheduled by you, and scheduled since already scheduled
+		if ss[:len('tomorrow')].lower() == 'tomorrow' or ss[:len('scheduled')].lower() == 'scheduled':
+			tasklist_tidied.write(ss)
+			ss = tasklist.readline()
+			while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+				tasklist_tidied.write(ss)
+				ss = tasklist.readline()
+		elif ss.startswith('[o'):
 			if scheduledate.search(ss):
-				datestr = scheduledate.search(s).groups()[0]
-				matcheddate = getDateForScheduleString(datestr)
-				if not matcheddate:
-					raise Exception("Invalid format for date in scheduled task - use '<Month> <date>, <year>': " + s)
+				datestr = scheduledate.search(ss).groups()[0]
+				try:
+					matcheddate = getDateForScheduleString(datestr, now)
+				except:
+					raise
 			else:
-				raise Exception("No scheduled date for blocked task -- add a date for it:" + s)
-			scheduledtasks += s
-			s = tasklist.readline()
-			while s.startswith('\t'):
-				scheduledtasks += s
-				s = tasklist.readline()
+				raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it:" + ss)
+			ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss) # replace with standard format
+			scheduledtasks += ss
+			ss = tasklist.readline()
+			while ss.startswith('\t'):
+				scheduledtasks += ss
+				ss = tasklist.readline()
 		else:
-			tasklist_tidied.write(s)
-			s = tasklist.readline()
+			tasklist_tidied.write(ss)
+			ss = tasklist.readline()
 
 	tasklist = tasklist_tidied # tasklist - misplaced scheduled tasks
 
@@ -157,75 +321,80 @@ def scheduleTasks(planner):
 	# if [o] then make sure [$$] and parseable
 	# move to scheduled
 	dayfile = planner.dayfile
-	s = dayfile.readline()
-	while s != '' and s[:len('agenda')].lower() != 'agenda':
-		s = dayfile.readline()
-	if s == '': raise Exception("No AGENDA section found in today's log file! Add one and try again.")
-	s = dayfile.readline()
-	while s != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', s):
-		if s.startswith('[o'):
-			if scheduledate.search(s):
-				datestr = scheduledate.search(s).groups()[0]
-				matcheddate = getDateForScheduleString(datestr)
-				if not matcheddate:
-					raise Exception("Invalid format for date in scheduled task - use '<Month> <date>, <year>': " + s)
+	ss = dayfile.readline()
+	while ss != '' and ss[:len('agenda')].lower() != 'agenda':
+		ss = dayfile.readline()
+	if ss == '': raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
+	ss = dayfile.readline()
+	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+		if ss.startswith('[o'):
+			if scheduledate.search(ss):
+				datestr = scheduledate.search(ss).groups()[0]
+				try:
+					matcheddate = getDateForScheduleString(datestr, now)
+				except:
+					raise
 			else:
-				raise Exception("No scheduled date for blocked task -- add a date for it:" + s)
-			scheduledtasks += s
-			s = tasklist.readline()
-			while s.startswith('\t'):
-				scheduledtasks += s
-				s = tasklist.readline()
+				raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it:" + ss)
+			ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss) # replace with standard format
+			scheduledtasks += ss
+			ss = dayfile.readline()
+			while ss.startswith('\t'):
+				scheduledtasks += ss
+				ss = dayfile.readline()
 		else:
-			s = tasklist.readline()
+			ss = dayfile.readline()
 	tasklist.seek(0)
-	s = tasklist.readline()
-	while s != '' and s[:len('scheduled')].lower() != 'scheduled':
-		s = tasklist.readline()
-	if s == '': raise Exception("Tasklist SCHEDULED section not found!")
-	s = tasklist.readline()
-	while s != '' and s != '\n':
-		s = tasklist.readline()
+	ss = tasklist.readline()
+	while ss != '' and ss[:len('scheduled')].lower() != 'scheduled':
+		ss = tasklist.readline()
+	if ss == '': raise TasklistLayoutError("Tasklist SCHEDULED section not found!")
+	ss = tasklist.readline()
+	while ss != '' and ss != '\n':
+		ss = tasklist.readline()
 	tasklist.write(scheduledtasks)
 	tasklist.seek(0)
-	#raise Exception("Just because")
-	planner.tasklist = tasklist
+	dayfile.seek(0)
+	planner.tasklistfile.truncate(0)
+	planner.tasklistfile.write(tasklist.read())
+	planner.tasklistfile.seek(0)
 
 def getScheduledTasks(tasklist, forDay):
 	# look at SCHEDULED section in tasklist and return if scheduled for supplied day
 	# remove from tasklist
 	# Note: schedule tasks should already have been performed on previous day to migrate those tasks to the tasklist
 	tasklist_updated = StringIO()
-	s = tasklist.readline()
-	while s != '' and s[:len('scheduled')].lower() != 'scheduled':
-		tasklist_updated.write(s)
-		s = tasklist.readline()
-	tasklist_updated.write(s)
-	if s == '': raise Exception("No SCHEDULED section found in TaskList!")
+	ss = tasklist.readline()
+	while ss != '' and ss[:len('scheduled')].lower() != 'scheduled':
+		tasklist_updated.write(ss)
+		ss = tasklist.readline()
+	tasklist_updated.write(ss)
+	if ss == '': raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
 	scheduledate = re.compile('\[\$?([^\[\$]*)\$?\]$')
 	scheduledtasks = ''
-	s = tasklist.readline()
-	while s != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', s):
-		if s.startswith('[o'):
-			if scheduledate.search(s):
-				datestr = scheduledate.search(s).groups()[0]
-				matcheddate = getDateForScheduleString(datestr)
-				if not matcheddate:
-					raise Exception("Invalid format for date in scheduled task - use '<Month> <date>, <year>': " + s)
-				if forDay > matcheddate:
-					scheduledtasks += s
-					s = tasklist.readline()
-					while s.startswith('\t'):
-						scheduledtasks += s
-						s = tasklist.readline()
+	ss = tasklist.readline()
+	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+		if ss.startswith('[o'):
+			if scheduledate.search(ss):
+				datestr = scheduledate.search(ss).groups()[0]
+				try:
+					matcheddate = getDateForScheduleString(datestr)
+				except:
+					raise
+				if forDay >= matcheddate['date']:
+					scheduledtasks += ss
+					ss = tasklist.readline()
+					while ss.startswith('\t'):
+						scheduledtasks += ss
+						ss = tasklist.readline()
 				else:
-					tasklist_updated.write(s)
-					s = tasklist.readline()
+					tasklist_updated.write(ss)
+					ss = tasklist.readline()
 			else:
-				raise Exception('Scheduled task has no date!' + s)
+				raise BlockedTaskNotScheduledError('Scheduled task has no date!' + ss)
 		else:
-			tasklist_updated.write(s)
-			s = tasklist.readline()
+			tasklist_updated.write(ss)
+			ss = tasklist.readline()
 
 	tasklist_updated.seek(0)
 	tasklist.truncate(0)
@@ -234,52 +403,85 @@ def getScheduledTasks(tasklist, forDay):
 	scheduledtasks = scheduledtasks.strip('\n')
 	return scheduledtasks
 
+def checkLogfileCompletion(logfile):
+	""" Check the logfile's NOTES section as a determination of whether the log has been completed """
+	completed = False
+	notes = ''
+	ss = logfile.readline()
+	while ss != '' and ss[:len('notes')].lower() != 'notes':
+		ss = logfile.readline()
+	if ss == '':
+		raise LogfileLayoutError("Error: No 'NOTES' section found in your log file: " + ss)
+	ss = logfile.readline()
+	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+		notes += ss
+		ss = logfile.readline()
+	if notes.strip('\n ') != '':
+		completed = True
+	logfile.seek(0)
+	return completed
+
 def getTasksForTomorrow(tasklist):
+	""" Read the tasklist, parse all tasks under the TOMORROW section and return those,
+	and remove them from the tasklist """
 	tasks = ''
-	s = tasklist.readline()
-	while s != '' and s[:len('tomorrow')].lower() != 'tomorrow':
-		s = tasklist.readline()
-	if s == '':
-		raise Exception("Error: No 'TOMORROW' section found in your tasklist! Please add one and try again.")
-	s = tasklist.readline()
-	while s != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', s):
+	tasklist_nextday = StringIO()
+	ss = tasklist.readline()
+	while ss != '' and ss[:len('tomorrow')].lower() != 'tomorrow':
+		tasklist_nextday.write(ss)
+		ss = tasklist.readline()
+	if ss == '':
+		raise TasklistLayoutError("Error: No 'TOMORROW' section found in your tasklist! Please add one and try again.")
+	tasklist_nextday.write(ss)
+	ss = tasklist.readline()
+	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
 		#if re.match('^\t{0,8}\[', s):
-		if re.match('^\t*\[', s):
-			tasks += s
-		s = tasklist.readline()
+		if re.match('^\t*\[', ss):
+			tasks += ss
+		else:
+			tasklist_nextday.write(ss)
+		ss = tasklist.readline()
+	if tasks == '' and PlannerConfig.TomorrowChecking == PlannerConfig.Strict:
+		raise TomorrowIsEmptyError("The tomorrow section is blank. Do you want to add some tasks for tomorrow?")
+	while ss != '':
+		tasklist_nextday.write(ss)
+		ss = tasklist.readline()
+	tasklist_nextday.seek(0)
+	tasklist.truncate(0)
+	tasklist.write(tasklist_nextday.read())
 	tasklist.seek(0)
 	tasks = tasks.strip('\n')
 	return tasks
 
 def doPostMortem(logfile):
 	tasks = {'done':'', 'undone':'', 'blocked':''}
-	s = logfile.readline()
-	while s != '' and s[:len('agenda')].lower() != 'agenda':
-		s = logfile.readline()
-	if s == '':
-		raise Exception("Error: No 'AGENDA' section found in your day's tasklist!")
-	s = logfile.readline()
-	while s != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', s):
-		if s.startswith('[x') or s.startswith('[-'):
-			tasks['done'] += s
-			s = logfile.readline()
-			while s != '' and not s.startswith('[') and not re.match(r'^[A-Z][A-Z][A-Z]+', s):
-				tasks['done'] += s
-				s = logfile.readline()
-		elif s.startswith('[ ') or s.startswith('[\\'):
-			tasks['undone'] += s
-			s = logfile.readline()
-			while s != '' and not s.startswith('[') and not re.match(r'^[A-Z][A-Z][A-Z]+', s):
-				tasks['undone'] += s
-				s = logfile.readline()
-		elif s.startswith('[o'):
-			tasks['blocked'] += s
-			s = logfile.readline()
-			while s != '' and not s.startswith('[') and not re.match(r'^[A-Z][A-Z][A-Z]+', s):
-				tasks['blocked'] += s
-				s = logfile.readline()
+	ss = logfile.readline()
+	while ss != '' and ss[:len('agenda')].lower() != 'agenda':
+		ss = logfile.readline()
+	if ss == '':
+		raise LogfileLayoutError("Error: No 'AGENDA' section found in your day's tasklist!")
+	ss = logfile.readline()
+	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+		if ss.startswith('[x') or ss.startswith('[-'):
+			tasks['done'] += ss
+			ss = logfile.readline()
+			while ss != '' and not ss.startswith('[') and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+				tasks['done'] += ss
+				ss = logfile.readline()
+		elif ss.startswith('[ ') or ss.startswith('[\\'):
+			tasks['undone'] += ss
+			ss = logfile.readline()
+			while ss != '' and not ss.startswith('[') and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+				tasks['undone'] += ss
+				ss = logfile.readline()
+		elif ss.startswith('[o'):
+			tasks['blocked'] += ss
+			ss = logfile.readline()
+			while ss != '' and not ss.startswith('[') and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+				tasks['blocked'] += ss
+				ss = logfile.readline()
 		else:
-			s = logfile.readline()
+			ss = logfile.readline()
 	logfile.seek(0)
 	tasks['done'] = tasks['done'].strip('\n')
 	tasks['undone'] = tasks['undone'].strip('\n')
@@ -298,7 +500,7 @@ def buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfi
 	template += "CHECKPOINTS:\n"
 	for line in checkpointsfile:
 		if line[:3] == '[ ]': template += line
-	template += "\n\n"
+	template += "\n"
 	template += "AGENDA:\n"
 	if agenda:
 		template += agenda
@@ -307,9 +509,9 @@ def buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfi
 	template += periodname
 	for line in periodicfile:
 		if line[:3] == '[ ]': template += line
-	template += "\n\n"
+	template += "\n"
 	template += "NOTES:\n\n\n"
-	template += "Time spent on PLANNER: "
+	template += "TIME SPENT ON PLANNER: "
 	return template
 
 def buildMonthTemplate(nextDay, tasklistfile, monthfile, checkpointsfile, periodicfile):
@@ -414,28 +616,29 @@ def advancePlanner(planner, now=None):
 
 	def newDayCriteriaMet():
 		if planner.date < today:
-			return True
+			return PeriodAdvanceCriteria.Satisfied
 		if planner.date == today:
 			if now.hour >= 18:
-				return True
+				return PeriodAdvanceCriteria.Satisfied
 			else:
-				print "Current day is still in progress! Update after 6pm"
-				return False
+				# current day still in progress
+				return PeriodAdvanceCriteria.DayStillInProgress
 		else:
-			print "Planner is in the future!"
-			return False
+			# planner is in the future
+			return PeriodAdvanceCriteria.PlannerInFuture
 
 	def newMonthCriteriaMet():
-		if date == 1: return True
+		if date == 1: return PeriodAdvanceCriteria.Satisfied
 	
 	def newWeekCriteriaMet():
 		# note that these dates are ~next~ day values
 		if newMonthCriteriaMet() or (day.lower() == 'sunday' and date > MIN_WEEK_LENGTH and calendar.monthrange(year, nextDay.month)[1] - date >= MIN_WEEK_LENGTH-1):
-			return True
+			return PeriodAdvanceCriteria.Satisfied
 
 	status = AdvancePlannerStatus.NoneAdded
 
-	if newDayCriteriaMet():
+	dayCriteriaMet = newDayCriteriaMet()
+	if dayCriteriaMet == PeriodAdvanceCriteria.Satisfied:
 		tasklistfile = planner.tasklistfile
 		if day.lower() in ('saturday', 'sunday'):
 			checkpointsfile = planner.checkpoints_weekend_file
@@ -443,22 +646,30 @@ def advancePlanner(planner, now=None):
 			checkpointsfile = planner.checkpoints_weekday_file
 		periodicfile = planner.periodic_day_file
 		dayfile = planner.dayfile
+		if not checkLogfileCompletion(dayfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
+			raise LogfileNotCompletedError("Looks like you haven't completed your day's log. Would you like to do that now?")
 		writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
 		#planner.dayfile = dayfile
 		status = AdvancePlannerStatus.DayAdded
 
-		if newWeekCriteriaMet():
+		weekCriteriaMet = newWeekCriteriaMet()
+		if weekCriteriaMet == PeriodAdvanceCriteria.Satisfied:
 			checkpointsfile = planner.checkpoints_week_file
 			periodicfile = planner.periodic_week_file
 			weekfile = planner.weekfile
+			if not checkLogfileCompletion(weekfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
+				raise LogfileNotCompletedError("Looks like you haven't completed your week's log. Would you like to do that now?")
 			writeNewWeekTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, weekfile)
 			#planner.weekfile = weekfile
 			status = AdvancePlannerStatus.WeekAdded
 
-			if newMonthCriteriaMet():
+			monthCriteriaMet = newMonthCriteriaMet()
+			if monthCriteriaMet == PeriodAdvanceCriteria.Satisfied:
 				checkpointsfile = planner.checkpoints_month_file
 				periodicfile = planner.periodic_month_file
 				monthfile = planner.monthfile
+				if not checkLogfileCompletion(monthfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
+					raise LogfileNotCompletedError("Looks like you haven't completed your month's log. Would you like to do that now?")
 				writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, monthfile)
 				#planner.monthfile = monthfile
 				status = AdvancePlannerStatus.MonthAdded
@@ -468,8 +679,13 @@ def advancePlanner(planner, now=None):
 		else:
 			weekfile = planner.weekfile
 			writeExistingWeekTemplate(nextDay, weekfile)
-
 		planner.date = nextDay
+
+	elif dayCriteriaMet == PeriodAdvanceCriteria.DayStillInProgress:
+		raise DayStillInProgressError("Current day is still in progress! Update after 6pm")
+
+	elif dayCriteriaMet == PeriodAdvanceCriteria.PlannerInFuture:
+		raise PlannerIsInTheFutureError("Planner is in the future!")
 
 	resetHeadsOnPlannerFiles(planner)
 	return status
@@ -533,17 +749,27 @@ def advanceFilesystemPlanner(plannerpath, now=None):
 	planner.periodic_month_file = StringIO(f.read())
 	f.close()
 
-	status = scheduleTasks(planner)
+	status = scheduleTasks(planner, now)
 	status = advancePlanner(planner, now)
 
 	nextDay = planner.date
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
+	# check for possible errors in planner state before making any changes
+	if status >= AdvancePlannerStatus.MonthAdded:
+		monthfn_post = '%s/Month of %s, %d.wiki' % (plannerpath, month, year)
+		if os.path.isfile(monthfn_post): raise PlannerStateError("New month logfile already exists!")
+	if status >= AdvancePlannerStatus.WeekAdded:
+		weekfn_post = '%s/Week of %s %d, %d.wiki' % (plannerpath, month, date, year)
+		if os.path.isfile(weekfn_post): raise PlannerStateError("New week logfile already exists!")
+	if status >= AdvancePlannerStatus.DayAdded:
+		dayfn_post = '%s/%s %d, %d.wiki' % (plannerpath, month, date, year)
+		if os.path.isfile(dayfn_post): raise PlannerStateError("New day logfile already exists!")
+
 	if status >= AdvancePlannerStatus.MonthAdded:
 		# extract new month filename from date
 		# write buffer to new file
 		# update currentmonth symlink
 		monthfn_post = '%s/Month of %s, %d.wiki' % (plannerpath, month, year)
-		if os.path.isfile(monthfn_post): raise Exception("New month logfile already exists!")
 		f = open(monthfn_post, 'w')
 		f.write(planner.monthfile.read())
 		f.close()
@@ -555,7 +781,6 @@ def advanceFilesystemPlanner(plannerpath, now=None):
 		# write buffer to new file
 		# update currentweek symlink
 		weekfn_post = '%s/Week of %s %d, %d.wiki' % (plannerpath, month, date, year)
-		if os.path.isfile(weekfn_post): raise Exception("New week logfile already exists!")
 		f = open(weekfn_post, 'w')
 		f.write(planner.weekfile.read())
 		f.close()
@@ -572,7 +797,6 @@ def advanceFilesystemPlanner(plannerpath, now=None):
 		# write buffer to new file
 		# update currentday symlink
 		dayfn_post = '%s/%s %d, %d.wiki' % (plannerpath, month, date, year)
-		if os.path.isfile(dayfn_post): raise Exception("New day logfile already exists!")
 		f = open(dayfn_post, 'w')
 		f.write(planner.dayfile.read())
 		f.close()
@@ -592,5 +816,4 @@ def advanceFilesystemPlanner(plannerpath, now=None):
 	return status
 
 if __name__ == '__main__':
-	advanceFilesystemPlanner(WIKIDIR)
-
+	pass
