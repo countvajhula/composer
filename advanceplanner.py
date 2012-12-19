@@ -359,15 +359,24 @@ def scheduleTasks(planner, now=None):
 				ss = dayfile.readline()
 		else:
 			ss = dayfile.readline()
+	# find SCHEDULED section and insert scheduled tasks
+	tasklist_tidied = StringIO()
 	tasklist.seek(0)
 	ss = tasklist.readline()
 	while ss != '' and ss[:len('scheduled')].lower() != 'scheduled':
+		tasklist_tidied.write(ss)
 		ss = tasklist.readline()
 	if ss == '': raise TasklistLayoutError("Tasklist SCHEDULED section not found!")
+	tasklist_tidied.write(ss)
 	ss = tasklist.readline()
 	while ss != '' and ss != '\n':
+		tasklist_tidied.write(ss)
 		ss = tasklist.readline()
-	tasklist.write(scheduledtasks)
+	tasklist_tidied.write(scheduledtasks)
+	while ss != '':
+		tasklist_tidied.write(ss)
+		ss = tasklist.readline()
+	tasklist = tasklist_tidied
 	tasklist.seek(0)
 	dayfile.seek(0)
 	planner.tasklistfile.truncate(0)
@@ -410,6 +419,10 @@ def getScheduledTasks(tasklist, forDay):
 		else:
 			tasklist_updated.write(ss)
 			ss = tasklist.readline()
+	# copy rest of the file
+	while ss != '':
+		tasklist_updated.write(ss)
+		ss = tasklist.readline()
 
 	tasklist_updated.seek(0)
 	tasklist.truncate(0)
