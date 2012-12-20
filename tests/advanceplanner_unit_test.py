@@ -107,8 +107,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 
 	monthadvance_weektemplate = ("= WEEK OF JANUARY 1, 2013 =\n"
 					"\n"
-					"Theme: *WEEK OF THEME*\n"
-					"\n"
 					"\t* [[January 1, 2013]]\n"
 					"\n"
 					"CHECKPOINTS:\n"
@@ -176,8 +174,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"TIME SPENT ON PLANNER: ")
 
 	weekadvance_weektemplate = ("= WEEK OF DECEMBER 9, 2012 =\n"
-					"\n"
-					"Theme: *WEEK OF THEME*\n"
 					"\n"
 					"\t* [[December 9, 2012]]\n"
 					"\n"
@@ -503,8 +499,6 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 
 	weektemplate = ("= WEEK OF DECEMBER 1, 2012 =\n"
 					"\n"
-					"Theme: *WEEK OF THEME*\n"
-					"\n"
 					"\t* [[December 5, 2012]]\n"
 					"\t* [[December 4, 2012]]\n"
 					"\t* [[December 3, 2012]]\n"
@@ -610,8 +604,6 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 
 		(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 		weektemplate = ("= WEEK OF %s %d, %d =\n" % (month, date, year)).upper()
-		weektemplate += "\n"
-		weektemplate += "Theme: *WEEK OF THEME*\n"
 		weektemplate += "\n"
 		weektemplate += "\t* [[%s %d, %d]]\n" % (month, date, year)
 		weektemplate += "\n"

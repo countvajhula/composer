@@ -40,6 +40,9 @@ class PlannerConfig(object):
 	TomorrowChecking = Strict
 	LogfileCompletionChecking = Strict
 
+class PlannerUserSettings(object):
+	WeekTheme = None
+
 class PeriodAdvanceCriteria(object):
 	(Satisfied, DayStillInProgress, PlannerInFuture) = (1,2,3)
 
@@ -128,8 +131,9 @@ class PlannerStateError(Exception):
 		return repr(self.value)
 
 class SimulationPassedError(Exception):
-	def __init__(self, value):
+	def __init__(self, value, status):
 		self.value = value
+		self.status = status
 	def __str__(self):
 		return repr(self.value)
 
@@ -577,8 +581,9 @@ def buildMonthTemplate(nextDay, tasklistfile, monthfile, checkpointsfile, period
 def buildWeekTemplate(nextDay, tasklistfile, weekfile, checkpointsfile, periodicfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	title = ("= WEEK OF %s %d, %d =\n" % (month, date, year)).upper()
-	title += "\n"
-	title += "Theme: *WEEK OF THEME*\n"
+	if PlannerUserSettings.WeekTheme:
+		title += "\n"
+		title += "Theme: *WEEK OF %s*\n" % PlannerUserSettings.WeekTheme.upper()
 	entry = "\t* [[%s %d, %d]]\n" % (month, date, year)
 	periodname = "WEEKLYs:\n"
 	agenda = ""
@@ -649,46 +654,51 @@ def writeExistingWeekTemplate(nextDay, weekfile):
 	weekfile.write(newweekcontents)
 	weekfile.seek(0)
 
+def newDayCriteriaMet(currentdate, now):
+	today = now.date()
+	if currentdate < today:
+		return PeriodAdvanceCriteria.Satisfied
+	if currentdate == today:
+		if now.hour >= 18:
+			return PeriodAdvanceCriteria.Satisfied
+		else:
+			# current day still in progress
+			return PeriodAdvanceCriteria.DayStillInProgress
+	else:
+		# planner is in the future
+		return PeriodAdvanceCriteria.PlannerInFuture
+
+def newMonthCriteriaMet(currentdate, now):
+	nextDay = getNextDay(currentdate)
+	if nextDay.day == 1 and newDayCriteriaMet(currentdate, now) == PeriodAdvanceCriteria.Satisfied:
+		return PeriodAdvanceCriteria.Satisfied
+
+def newWeekCriteriaMet(currentdate, now):
+	# note that these dates are ~next~ day values
+	dow = currentdate.strftime('%A')
+	year = currentdate.year
+	if newMonthCriteriaMet(currentdate, now) or (newDayCriteriaMet(currentdate, now) == PeriodAdvanceCriteria.Satisfied and dow.lower() == 'saturday' and currentdate.day >= MIN_WEEK_LENGTH and calendar.monthrange(year, currentdate.month)[1] - currentdate.day >= MIN_WEEK_LENGTH):
+		return PeriodAdvanceCriteria.Satisfied
+
 def advancePlanner(planner, now=None):
 	""" Advance planner state to next day, updating week and month info as necessary. 'now' arg used only for testing """
 	#plannerdate = getPlannerDateFromString('November 30, 2012')
 	resetHeadsOnPlannerFiles(planner)
 	nextDay = getNextDay(planner.date) # the new day to advance to
+	nextdow = nextDay.strftime('%A')
 	#writeExistingWeekTemplate(nextDay)
 	#writeNewMonthTemplate(nextDay)
 	#sys.exit(0)
-	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
+	#(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 
 	if not now: now = datetime.datetime.now()
-	today = now.date()
-
-	def newDayCriteriaMet():
-		if planner.date < today:
-			return PeriodAdvanceCriteria.Satisfied
-		if planner.date == today:
-			if now.hour >= 18:
-				return PeriodAdvanceCriteria.Satisfied
-			else:
-				# current day still in progress
-				return PeriodAdvanceCriteria.DayStillInProgress
-		else:
-			# planner is in the future
-			return PeriodAdvanceCriteria.PlannerInFuture
-
-	def newMonthCriteriaMet():
-		if date == 1: return PeriodAdvanceCriteria.Satisfied
-	
-	def newWeekCriteriaMet():
-		# note that these dates are ~next~ day values
-		if newMonthCriteriaMet() or (day.lower() == 'sunday' and date > MIN_WEEK_LENGTH and calendar.monthrange(year, nextDay.month)[1] - date >= MIN_WEEK_LENGTH-1):
-			return PeriodAdvanceCriteria.Satisfied
 
 	status = AdvancePlannerStatus.NoneAdded
 
-	dayCriteriaMet = newDayCriteriaMet()
+	dayCriteriaMet = newDayCriteriaMet(planner.date, now)
 	if dayCriteriaMet == PeriodAdvanceCriteria.Satisfied:
 		tasklistfile = planner.tasklistfile
-		if day.lower() in ('saturday', 'sunday'):
+		if nextdow.lower() in ('saturday', 'sunday'):
 			checkpointsfile = planner.checkpoints_weekend_file
 		else:
 			checkpointsfile = planner.checkpoints_weekday_file
@@ -700,7 +710,7 @@ def advancePlanner(planner, now=None):
 		#planner.dayfile = dayfile
 		status = AdvancePlannerStatus.DayAdded
 
-		weekCriteriaMet = newWeekCriteriaMet()
+		weekCriteriaMet = newWeekCriteriaMet(planner.date, now)
 		if weekCriteriaMet == PeriodAdvanceCriteria.Satisfied:
 			checkpointsfile = planner.checkpoints_week_file
 			periodicfile = planner.periodic_week_file
@@ -711,7 +721,7 @@ def advancePlanner(planner, now=None):
 			#planner.weekfile = weekfile
 			status = AdvancePlannerStatus.WeekAdded
 
-			monthCriteriaMet = newMonthCriteriaMet()
+			monthCriteriaMet = newMonthCriteriaMet(planner.date, now)
 			if monthCriteriaMet == PeriodAdvanceCriteria.Satisfied:
 				checkpointsfile = planner.checkpoints_month_file
 				periodicfile = planner.periodic_month_file
@@ -815,7 +825,7 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 
 	# if this is a simulation, we're good to go - let's break out of the matrix
 	if status >= AdvancePlannerStatus.DayAdded and simulate:
-		raise SimulationPassedError('All systems GO')
+		raise SimulationPassedError('All systems GO', status)
 
 	if status >= AdvancePlannerStatus.MonthAdded:
 		# extract new month filename from date

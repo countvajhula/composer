@@ -14,11 +14,15 @@ if __name__ == '__main__':
 	simulate = True 
 	while True:
 		try:
-			advanceFilesystemPlanner(WIKIDIR, now=None, simulate=simulate)
+			now = datetime.datetime(2012,12,31,19,0,0)
+			advanceFilesystemPlanner(WIKIDIR, now, simulate=simulate)
 			break
 		except SimulationPassedError as err:
 			# TODO: git stuff
 			#print "DEV: simulation passed. let's do this thing ... for real."
+			if err.status >= AdvancePlannerStatus.WeekAdded:
+				theme = raw_input("(Optional) Enter a theme for the upcoming week, e.g. Week of 'Timeliness', or 'Completion':__")
+				if theme: PlannerUserSettings.WeekTheme = theme
 			simulate = False
 		except DayStillInProgressError as err:
 			print "Current day is still in progress! Try again after 6pm."
@@ -26,7 +30,7 @@ if __name__ == '__main__':
 		except PlannerIsInTheFutureError as err:
 			raise
 		except TomorrowIsEmptyError as err:
-			yn = raw_input("The tomorrow section is blank. Do you want to add some tasks for tomorrow?")
+			yn = raw_input("The tomorrow section is blank. Do you want to add some tasks for tomorrow? [y/n]__")
 			if yn.lower().startswith('y'):
 				raw_input('No problem. Press any key when you are done adding tasks...')
 			elif yn.lower().startswith('n'):
@@ -34,7 +38,7 @@ if __name__ == '__main__':
 			else:
 				continue
 		except LogfileNotCompletedError as err:
-			yn = raw_input("Looks like you haven't completed your %s's log (e.g. NOTES). Would you like to do that now?" % err.type)
+			yn = raw_input("Looks like you haven't completed your %s's log (e.g. NOTES). Would you like to do that now? [y/n]__" % err.type)
 			if yn.lower().startswith('y'):
 				raw_input('No problem. Press any key when you are done completing your log...')
 			elif yn.lower().startswith('n'):
