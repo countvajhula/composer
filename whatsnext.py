@@ -4,8 +4,7 @@ from advanceplanner import *
 import updateindex
 from subprocess import call
 
-#WIKIDIR = 'tests/testwikis/userwiki'
-WIKIDIR = 'tests/testwikis/gitwiki'
+WIKIDIR = 'tests/testwikis/userwiki'
 #WIKIDIR = '/Users/siddhartha/log/planner'
 
 if __name__ == '__main__':
@@ -19,14 +18,27 @@ if __name__ == '__main__':
 		try:
 			now = datetime.datetime(2012,12,31,19,0,0)
 			advanceFilesystemPlanner(WIKIDIR, now, simulate=simulate)
+			print
+			print "Moving tasks added for tomorrow over to tomorrow's agenda..."
+			print "Carrying over any unfinished tasks from today to tomorrow's agenda..."
+			print "Checking for any other tasks previously scheduled for tomorrow..."
+			print "Creating/updating log files..."
+			print "...DONE."
 			# update index after making changes
+			print
+			print "Updating planner wiki index..."
 			updateindex.update_index(WIKIDIR)
+			print "...DONE."
 			# git commit "after"
+			print
+			print "Committing all changes..."
 			plannerdate = getPlannerDate(WIKIDIR)
 			(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
 			datestr = '%s %d, %d' % (month, date, year)
-			call(['git', 'add', '-A'], cwd=WIKIDIR)
-			call(['git', 'commit', '-m', 'SOD %s' % datestr], cwd=WIKIDIR)
+			with open(os.devnull, 'w') as null:
+				call(['git', 'add', '-A'], cwd=WIKIDIR, stdout=null)
+				call(['git', 'commit', '-m', 'SOD %s' % datestr], cwd=WIKIDIR, stdout=null)
+			print "...DONE."
 			break
 		except SimulationPassedError as err:
 			#print "DEV: simulation passed. let's do this thing ... for real."
@@ -35,20 +47,26 @@ if __name__ == '__main__':
 				if theme: PlannerUserSettings.WeekTheme = theme
 			if err.status >= AdvancePlannerStatus.DayAdded:
 				# git commit a "before", now that we know changes are about to be written to planner
+				print
+				print "Saving EOD planner state before making changes..."
 				plannerdate = getPlannerDate(WIKIDIR)
 				(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
 				datestr = '%s %d, %d' % (month, date, year)
-				call(['git', 'add', '-A'], cwd=WIKIDIR)
-				call(['git', 'commit', '-m', 'EOD %s' % datestr], cwd=WIKIDIR)
+				with open(os.devnull, 'w') as null:
+					call(['git', 'add', '-A'], cwd=WIKIDIR, stdout=null)
+					call(['git', 'commit', '-m', 'EOD %s' % datestr], cwd=WIKIDIR, stdout=null)
+				print "...DONE."
 			if err.status >= AdvancePlannerStatus.DayAdded:
 				planner = constructPlannerFromFileSystem(WIKIDIR)
 				dayagenda = extractAgendaFromLogfile(planner.dayfile)
-				updateLogfileAgenda(planner.weekfile, dayagenda)
+				if dayagenda:
+					updateLogfileAgenda(planner.weekfile, dayagenda)
 				writePlannerToFilesystem(planner, WIKIDIR)
 			if err.status >= AdvancePlannerStatus.WeekAdded:
 				planner = constructPlannerFromFileSystem(WIKIDIR)
 				weekagenda = extractAgendaFromLogfile(planner.weekfile)
-				updateLogfileAgenda(planner.monthfile, weekagenda)
+				if weekagenda:
+					updateLogfileAgenda(planner.monthfile, weekagenda)
 				writePlannerToFilesystem(planner, WIKIDIR)
 			simulate = False
 		except DayStillInProgressError as err:
