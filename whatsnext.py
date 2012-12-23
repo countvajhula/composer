@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 from advanceplanner import *
+import updateindex
+from subprocess import call
 
-WIKIDIR = 'tests/testwikis/userwiki'
+#WIKIDIR = 'tests/testwikis/userwiki'
+WIKIDIR = 'tests/testwikis/gitwiki'
 #WIKIDIR = '/Users/siddhartha/log/planner'
 
 if __name__ == '__main__':
@@ -16,13 +19,27 @@ if __name__ == '__main__':
 		try:
 			now = datetime.datetime(2012,12,31,19,0,0)
 			advanceFilesystemPlanner(WIKIDIR, now, simulate=simulate)
+			# update index after making changes
+			updateindex.update_index(WIKIDIR)
+			# git commit "after"
+			plannerdate = getPlannerDate(WIKIDIR)
+			(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
+			datestr = '%s %d, %d' % (month, date, year)
+			call(['git', 'add', '-A'], cwd=WIKIDIR)
+			call(['git', 'commit', '-m', 'SOD %s' % datestr], cwd=WIKIDIR)
 			break
 		except SimulationPassedError as err:
-			# TODO: git stuff
 			#print "DEV: simulation passed. let's do this thing ... for real."
 			if err.status >= AdvancePlannerStatus.WeekAdded:
 				theme = raw_input("(Optional) Enter a theme for the upcoming week, e.g. Week of 'Timeliness', or 'Completion':__")
 				if theme: PlannerUserSettings.WeekTheme = theme
+			if err.status >= AdvancePlannerStatus.DayAdded:
+				# git commit a "before", now that we know changes are about to be written to planner
+				plannerdate = getPlannerDate(WIKIDIR)
+				(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
+				datestr = '%s %d, %d' % (month, date, year)
+				call(['git', 'add', '-A'], cwd=WIKIDIR)
+				call(['git', 'commit', '-m', 'EOD %s' % datestr], cwd=WIKIDIR)
 			if err.status >= AdvancePlannerStatus.DayAdded:
 				planner = constructPlannerFromFileSystem(WIKIDIR)
 				dayagenda = extractAgendaFromLogfile(planner.dayfile)
