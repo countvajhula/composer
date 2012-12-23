@@ -476,6 +476,48 @@ def checkLogfileCompletion(logfile):
 	logfile.seek(0)
 	return completed
 
+def extractAgendaFromLogfile(logfile):
+	""" Go through logfile and extract all tasks under AGENDA """
+	agenda = ''
+	ss = logfile.readline()
+	while ss != '' and ss[:len('agenda')].lower() != 'agenda':
+		ss = logfile.readline()
+	if ss == '': raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
+	ss = logfile.readline()
+	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+		agenda += ss
+		ss = logfile.readline()
+	logfile.seek(0)
+	agenda = agenda.strip('\n')
+	return agenda
+
+def updateLogfileAgenda(logfile, agenda):
+	logfile_updated = StringIO()
+	ss = logfile.readline()
+	while ss != '' and ss[:len('agenda')].lower() != 'agenda':
+		logfile_updated.write(ss)
+		ss = logfile.readline()
+	if ss == '': raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
+	logfile_updated.write(ss)
+	ss = logfile.readline()
+	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+		logfile_updated.write(ss)
+		ss = logfile.readline()
+	# don't leave newlines between previous tasks and latest additions
+	logfile_updated.seek(-2,1)
+	if logfile_updated.read(2) == '\n\n':
+		logfile_updated.seek(-1,1)
+	logfile_updated.write(agenda)
+	logfile_updated.write('\n\n')
+	while ss != '':
+		logfile_updated.write(ss)
+		ss = logfile.readline()
+
+	logfile.truncate(0)
+	logfile_updated.seek(0)
+	logfile.write(logfile_updated.read())
+	logfile.seek(0)
+
 def getTasksForTomorrow(tasklist):
 	""" Read the tasklist, parse all tasks under the TOMORROW section and return those,
 	and remove them from the tasklist """
@@ -513,8 +555,7 @@ def doPostMortem(logfile):
 	ss = logfile.readline()
 	while ss != '' and ss[:len('agenda')].lower() != 'agenda':
 		ss = logfile.readline()
-	if ss == '':
-		raise LogfileLayoutError("Error: No 'AGENDA' section found in your day's tasklist!")
+	if ss == '': raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
 	ss = logfile.readline()
 	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
 		if ss.startswith('[x') or ss.startswith('[-'):
@@ -748,12 +789,7 @@ def advancePlanner(planner, now=None):
 	resetHeadsOnPlannerFiles(planner)
 	return status
 
-def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
-	# use a bunch of StringIO buffers for the Planner object
-	# populate them here from real files
-	# after the advance() returns, the handles will be updated to the (possibly new) buffers
-	# save to the known files here
-
+def constructPlannerFromFileSystem(plannerpath):
 	# CURRENT planner date used here
 	planner = Planner()
 	planner.date = getPlannerDate(plannerpath)
@@ -807,8 +843,50 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 	planner.periodic_month_file = StringIO(f.read())
 	f.close()
 
+	return planner
+
+def writePlannerToFilesystem(planner, plannerpath):
+	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILELINK)
+	dayfn_pre = '%s/%s' % (plannerpath, PLANNERDAYFILELINK)
+	dayfn_pre = '%s/%s' % (plannerpath, os.readlink(dayfn_pre))
+	weekfn_pre = '%s/%s' % (plannerpath, PLANNERWEEKFILELINK)
+	weekfn_pre = '%s/%s' % (plannerpath, os.readlink(weekfn_pre))
+	monthfn_pre = '%s/%s' % (plannerpath, PLANNERMONTHFILELINK)
+	monthfn_pre = '%s/%s' % (plannerpath, os.readlink(monthfn_pre))
+
+	f = open(tasklistfn, 'w')
+	f.write(planner.tasklistfile.read())
+	f.close()
+	f = open(monthfn_pre, 'w')
+	f.write(planner.monthfile.read())
+	f.close()
+	f = open(weekfn_pre, 'w')
+	f.write(planner.weekfile.read())
+	f.close()
+	f = open(dayfn_pre, 'w')
+	f.write(planner.dayfile.read())
+	f.close()
+
+	resetHeadsOnPlannerFiles(planner)
+
+def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
+	# use a bunch of StringIO buffers for the Planner object
+	# populate them here from real files
+	# after the advance() returns, the handles will be updated to the (possibly new) buffers
+	# save to the known files here
+
+	planner = constructPlannerFromFileSystem(plannerpath)
+
 	status = scheduleTasks(planner, now)
 	status = advancePlanner(planner, now)
+
+	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILELINK)
+	dayfn_pre = '%s/%s' % (plannerpath, PLANNERDAYFILELINK)
+	dayfn_pre = '%s/%s' % (plannerpath, os.readlink(dayfn_pre))
+	weekfn_pre = '%s/%s' % (plannerpath, PLANNERWEEKFILELINK)
+	weekfn_pre = '%s/%s' % (plannerpath, os.readlink(weekfn_pre))
+	monthfn_pre = '%s/%s' % (plannerpath, PLANNERMONTHFILELINK)
+	monthfn_pre = '%s/%s' % (plannerpath, os.readlink(monthfn_pre))
 
 	nextDay = planner.date
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)

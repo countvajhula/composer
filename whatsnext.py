@@ -23,6 +23,16 @@ if __name__ == '__main__':
 			if err.status >= AdvancePlannerStatus.WeekAdded:
 				theme = raw_input("(Optional) Enter a theme for the upcoming week, e.g. Week of 'Timeliness', or 'Completion':__")
 				if theme: PlannerUserSettings.WeekTheme = theme
+			if err.status >= AdvancePlannerStatus.DayAdded:
+				planner = constructPlannerFromFileSystem(WIKIDIR)
+				dayagenda = extractAgendaFromLogfile(planner.dayfile)
+				updateLogfileAgenda(planner.weekfile, dayagenda)
+				writePlannerToFilesystem(planner, WIKIDIR)
+			if err.status >= AdvancePlannerStatus.WeekAdded:
+				planner = constructPlannerFromFileSystem(WIKIDIR)
+				weekagenda = extractAgendaFromLogfile(planner.weekfile)
+				updateLogfileAgenda(planner.monthfile, weekagenda)
+				writePlannerToFilesystem(planner, WIKIDIR)
 			simulate = False
 		except DayStillInProgressError as err:
 			print "Current day is still in progress! Try again after 6pm."
