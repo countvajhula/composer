@@ -326,19 +326,26 @@ def scheduleTasks(planner, now=None):
 			tasklist_tidied.write(ss)
 			ss = tasklist.readline()
 			while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
-				if not ss.startswith('[o'):
-					raise BlockedTaskNotScheduledError("Task in SCHEDULED section does not appear to be formatted correctly: " + ss)
-				if scheduledate.search(ss):
-					datestr = scheduledate.search(ss).groups()[0]
-					try:
-						matcheddate = getDateForScheduleString(datestr, now)
-					except:
-						raise
+				if ss.startswith('[o'):
+					if scheduledate.search(ss):
+						datestr = scheduledate.search(ss).groups()[0]
+						try:
+							matcheddate = getDateForScheduleString(datestr, now)
+						except:
+							raise
+					else:
+						raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it: " + ss)
+					ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss) # replace with standard format
+					tasklist_tidied.write(ss)
+					ss = tasklist.readline()
+					while ss.startswith('\t'):
+						tasklist_tidied.write(ss)
+						ss = tasklist.readline()
+				elif ss.startswith('\n'):
+					tasklist_tidied.write(ss)
+					ss = tasklist.readline()
 				else:
-					raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it: " + ss)
-				ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss) # replace with standard format
-				tasklist_tidied.write(ss)
-				ss = tasklist.readline()
+					raise BlockedTaskNotScheduledError("Task in SCHEDULED section does not appear to be formatted correctly: " + ss)
 		elif ss.startswith('[o'):
 			if scheduledate.search(ss):
 				datestr = scheduledate.search(ss).groups()[0]
