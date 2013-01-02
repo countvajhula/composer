@@ -16,8 +16,7 @@ if __name__ == '__main__':
 	simulate = True 
 	while True:
 		try:
-			now = datetime.datetime(2012,12,31,19,0,0)
-			advanceFilesystemPlanner(WIKIDIR, now, simulate=simulate)
+			advanceFilesystemPlanner(WIKIDIR, now=None, simulate=simulate)
 			print
 			print "Moving tasks added for tomorrow over to tomorrow's agenda..."
 			print "Carrying over any unfinished tasks from today to tomorrow's agenda..."
