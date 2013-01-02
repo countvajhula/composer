@@ -39,6 +39,7 @@ if __name__ == '__main__':
 				call(['git', 'add', '-A'], cwd=WIKIDIR, stdout=null)
 				call(['git', 'commit', '-m', 'SOD %s' % datestr], cwd=WIKIDIR, stdout=null)
 			print "...DONE."
+			print
 			break
 		except SimulationPassedError as err:
 			#print "DEV: simulation passed. let's do this thing ... for real."
