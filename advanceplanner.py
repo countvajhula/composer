@@ -182,6 +182,7 @@ def getDateForScheduleString(datestr, now=None):
 	that unambiguously represents the date """
 	if not now: now = datetime.datetime.now()
 	date = None
+	today = now.date()
 	monthNameToNumber = dict((v.lower(),k) for k,v in enumerate(calendar.month_name))
 	monthNumberToName = dict((k,v) for k,v in enumerate(calendar.month_name))
 	def getMonthNumber(monthname):
@@ -200,6 +201,7 @@ def getDateForScheduleString(datestr, now=None):
 	dateformat10 = re.compile('^([^\d ]+)$')
 	dateformat11 = re.compile('^(\d\d)/(\d\d)/(\d\d\d\d)$')
 	dateformat12 = re.compile('^(\d\d)-(\d\d)-(\d\d\d\d)$')
+	dateformat13 = re.compile('^TOMORROW$')
 	if dateformat1.search(datestr):
 		(month, day, year) = dateformat1.search(datestr).groups()
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
@@ -278,7 +280,7 @@ def getDateForScheduleString(datestr, now=None):
 		day = str(1)
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
 		datestr_std = '%s %s' % (month, year)
-	elif dateformat10.search(datestr):
+	elif dateformat10.search(datestr) and not dateformat13.search(datestr): # matches single word as MONTH but specifically not TOMORROW
 		month = dateformat10.search(datestr).groups()[0]
 		(monthn, dayn) = (getMonthNumber(month), 1)
 		(day, year) = (str(dayn), str(getAppropriateYear(monthn, dayn, now)))
@@ -293,6 +295,10 @@ def getDateForScheduleString(datestr, now=None):
 		(monthn, dayn, yearn) = map(lambda i:int(i), dateformat12.search(datestr).groups())
 		(month, day, year) = (getMonthName(monthn).upper(), str(dayn), str(yearn))
 		date = datetime.date(yearn, monthn, dayn)
+		datestr_std = '%s %s, %s' % (month, day, year)
+	elif dateformat13.search(datestr):
+		date = getNextDay(today)
+		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	else: raise DateFormatError("Date format does not match any acceptable formats! " + datestr)
 	if date:
