@@ -1185,7 +1185,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 					"[o] i'm waitin on you! [$DECEMBER 20, 2012$]\n"
 					"[o] still waitin on you [$JANUARY 14, 2013$]\n")
 
-	tasklist_scheduled_formats5to8 = ("TOMORROW:\n"
+	tasklist_scheduled_formats5to8and14 = ("TOMORROW:\n"
 					"\n"
 					"THIS WEEK:\n"
 					"[\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
@@ -1227,7 +1227,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 					"[o] i'm waitin on you! [$WEEK OF DECEMBER 16, 2012$]\n"
 					"[o] still waitin on you [$WEEK OF JANUARY 13, 2013$]\n")
 
-	tasklist_scheduled_formats9to10 = ("TOMORROW:\n"
+	tasklist_scheduled_formats9to10and15 = ("TOMORROW:\n"
 					"\n"
 					"THIS WEEK:\n"
 					"[\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
@@ -1268,6 +1268,53 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 					"SCHEDULED:\n"
 					"[o] i'm waitin on you! [$DECEMBER 2012$]\n"
 					"[o] still waitin on you [$JANUARY 2013$]\n")
+
+	tasklist_scheduled_formats16and17 = ("TOMORROW:\n"
+					"\n"
+					"THIS WEEK:\n"
+					"[\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
+					"[ ] help meags set up planner\n"
+						"\t[x] create life mindmap with meags\n"
+						"\t[x] incorporate life mindmap into planner with meags\n"
+						"\t[x] swap meags' Esc and CapsLock on personal laptop\n"
+						"\t[x] vim education and workflow\n"
+						"\t[x] help meags build a routine of entering data for the day\n"
+						"\t[ ] meags to schedule all activities (currently unscheduled)\n"
+						"\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
+						"\t[-] set up git access on your domain\n"
+						"\t[ ] set up dropbox+truecrypt planner access for meags\n"
+					"\n"
+					"THIS MONTH:\n"
+					"[ ] get India Tour reimbursement\n"
+						"\t[x] resend all receipts and info to Amrit\n"
+						"\t[x] send reminder email to Amrit\n"
+						"\t[x] coordinate with amrit to go to stanford campus\n"
+						"\t[x] remind amrit if no response\n"
+						"\t[x] check Stanford calendar for appropriate time\n"
+						"\t[x] email amrit re: thursday?\n"
+						"\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
+						"\t[x] wait for response\n"
+						"\t[-] send reminder on Wed night\n"
+						"\t[x] respond to amrit's email re: amount correction\n"
+						"\t[x] wait to hear back [remind $MONDAY$]\n"
+						"\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
+						"\t[x] pick up reimbursement, give difference check to raag\n"
+						"\t[x] cash check\n"
+						"\t[x] confirm deposit\n"
+						"\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
+					"[ ] do residual monthlys\n"
+					"[ ] get a good scratchy post for ferdy (fab?)\n"
+					"\n"
+					"UNSCHEDULED:\n"
+					"\n"
+					"SCHEDULED:\n"
+					"[o] i'm waitin till monday! [$DECEMBER 10, 2012$]\n"
+					"[o] i'm waitin till tuesday! [$DECEMBER 4, 2012$]\n"
+					"[o] i'm waitin till wednesday! [$DECEMBER 5, 2012$]\n"
+					"[o] i'm waitin till thursday! [$DECEMBER 6, 2012$]\n"
+					"[o] i'm waitin till friday! [$DECEMBER 7, 2012$]\n"
+					"[o] i'm waitin till saturday! [$DECEMBER 8, 2012$]\n"
+					"[o] i'm waitin till sunday! [$DECEMBER 9, 2012$]\n")
 
 	monthtemplate = ("= December 2012 =\n"
 					"\t* [[Week of December 1, 2012]]\n"
@@ -1586,6 +1633,96 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 					"\n"
 					"TIME SPENT ON PLANNER: 15 mins")
 
+	daytemplate_scheduled_format14 = ("CHECKPOINTS:\n"
+					"[x] 7:00am - wake up [9:00]\n"
+					"\n"
+					"AGENDA:\n"
+					"[x] did do\n"
+						"\t[x] this\n"
+					"[ ] s'posed to do\n"
+					"[\] kinda did\n"
+					"[o] i'm waitin on you! [$NEXT WEEK$]\n"
+					"[o] still waitin on you [$WEEK OF JANUARY 14$]\n"
+					"[x] take out trash\n"
+					"\n"
+					"DAILYs:\n"
+					"[ ] 40 mins gym\n"
+					"\n"
+					"NOTES:\n"
+					"\n"
+					"\n"
+					"TIME SPENT ON PLANNER: 15 mins")
+
+	daytemplate_scheduled_format15 = ("CHECKPOINTS:\n"
+					"[x] 7:00am - wake up [9:00]\n"
+					"\n"
+					"AGENDA:\n"
+					"[x] did do\n"
+						"\t[x] this\n"
+					"[ ] s'posed to do\n"
+					"[\] kinda did\n"
+					"[o] i'm waitin on you! [$DECEMBER$]\n"
+					"[o] still waitin on you [$NEXT MONTH$]\n"
+					"[x] take out trash\n"
+					"\n"
+					"DAILYs:\n"
+					"[ ] 40 mins gym\n"
+					"\n"
+					"NOTES:\n"
+					"\n"
+					"\n"
+					"TIME SPENT ON PLANNER: 15 mins")
+
+	daytemplate_scheduled_format16 = ("CHECKPOINTS:\n"
+					"[x] 7:00am - wake up [9:00]\n"
+					"\n"
+					"AGENDA:\n"
+					"[x] did do\n"
+						"\t[x] this\n"
+					"[ ] s'posed to do\n"
+					"[\] kinda did\n"
+					"[o] i'm waitin till monday! [$MONDAY$]\n"
+					"[o] i'm waitin till tuesday! [$TUESDAY$]\n"
+					"[o] i'm waitin till wednesday! [$WEDNESDAY$]\n"
+					"[o] i'm waitin till thursday! [$THURSDAY$]\n"
+					"[o] i'm waitin till friday! [$FRIDAY$]\n"
+					"[o] i'm waitin till saturday! [$SATURDAY$]\n"
+					"[o] i'm waitin till sunday! [$SUNDAY$]\n"
+					"[x] take out trash\n"
+					"\n"
+					"DAILYs:\n"
+					"[ ] 40 mins gym\n"
+					"\n"
+					"NOTES:\n"
+					"\n"
+					"\n"
+					"TIME SPENT ON PLANNER: 15 mins")
+
+	daytemplate_scheduled_format17 = ("CHECKPOINTS:\n"
+					"[x] 7:00am - wake up [9:00]\n"
+					"\n"
+					"AGENDA:\n"
+					"[x] did do\n"
+						"\t[x] this\n"
+					"[ ] s'posed to do\n"
+					"[\] kinda did\n"
+					"[o] i'm waitin till monday! [$MON$]\n"
+					"[o] i'm waitin till tuesday! [$TUE$]\n"
+					"[o] i'm waitin till wednesday! [$WED$]\n"
+					"[o] i'm waitin till thursday! [$THU$]\n"
+					"[o] i'm waitin till friday! [$FRI$]\n"
+					"[o] i'm waitin till saturday! [$SAT$]\n"
+					"[o] i'm waitin till sunday! [$SUN$]\n"
+					"[x] take out trash\n"
+					"\n"
+					"DAILYs:\n"
+					"[ ] 40 mins gym\n"
+					"\n"
+					"NOTES:\n"
+					"\n"
+					"\n"
+					"TIME SPENT ON PLANNER: 15 mins")
+
 	daytemplate_noscheduledate = ("CHECKPOINTS:\n"
 					"[x] 7:00am - wake up [9:00]\n"
 					"\n"
@@ -1704,42 +1841,42 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format5)
 		advanceplanner.scheduleTasks(self.planner, now)
-		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat6(self):
 		""" Check that the format WEEK OF DD MONTH, YYYY works (w optional space or comma or both) """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format6)
 		advanceplanner.scheduleTasks(self.planner, now)
-		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat7(self):
 		""" Check that the format WEEK OF MONTH DD works """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format7)
 		advanceplanner.scheduleTasks(self.planner, now)
-		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat8(self):
 		""" Check that the format WEEK OF DD MONTH works """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format8)
 		advanceplanner.scheduleTasks(self.planner, now)
-		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat9(self):
 		""" Check that the format MONTH YYYY works (w optional space or comma or both) """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format9)
 		advanceplanner.scheduleTasks(self.planner, now)
-		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10and15)
 
 	def testScheduleDateFormat10(self):
 		""" Check that the format MONTH works """
 		now = datetime.datetime(2012,11,20)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format10)
 		advanceplanner.scheduleTasks(self.planner, now)
-		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10and15)
 
 	def testScheduleDateFormat11(self):
 		""" Check that the format MM/DD/YYYY works """
@@ -1761,6 +1898,34 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format13)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
+
+	def testScheduleDateFormat14(self):
+		""" Check that the format NEXT WEEK works """
+		now = datetime.datetime(2012,12,3)
+		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format14)
+		advanceplanner.scheduleTasks(self.planner, now)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
+
+	def testScheduleDateFormat15(self):
+		""" Check that the format NEXT MONTH works """
+		now = datetime.datetime(2012,12,20)
+		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format15)
+		advanceplanner.scheduleTasks(self.planner, now)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10and15)
+
+	def testScheduleDateFormat16(self):
+		""" Check that the format <DOW> works """
+		now = datetime.datetime(2012,12,3) # monday
+		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format16)
+		advanceplanner.scheduleTasks(self.planner, now)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats16and17)
+
+	def testScheduleDateFormat17(self):
+		""" Check that the format <DOW> (abbrv.) works """
+		now = datetime.datetime(2012,12,3) # monday
+		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format17)
+		advanceplanner.scheduleTasks(self.planner, now)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats16and17)
 
 class PlannerAgendaConstructionTester(unittest.TestCase):
 

@@ -202,6 +202,13 @@ def getDateForScheduleString(datestr, now=None):
 	dateformat11 = re.compile('^(\d\d)/(\d\d)/(\d\d\d\d)$')
 	dateformat12 = re.compile('^(\d\d)-(\d\d)-(\d\d\d\d)$')
 	dateformat13 = re.compile('^TOMORROW$')
+	# these 2 not yet supported
+	# TODO: need a function to test date boundary status and return monthboundary, weekboundary, or dayboundary (default)
+	dateformat14 = re.compile('^NEXT WEEK$')
+	dateformat15 = re.compile('^NEXT MONTH$')
+	#
+	dateformat16 = re.compile('^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$')
+	dateformat17 = re.compile('^(MON|TUE|WED|THU|FRI|SAT|SUN)$')
 	if dateformat1.search(datestr):
 		(month, day, year) = dateformat1.search(datestr).groups()
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
@@ -280,7 +287,25 @@ def getDateForScheduleString(datestr, now=None):
 		day = str(1)
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
 		datestr_std = '%s %s' % (month, year)
-	elif dateformat10.search(datestr) and not dateformat13.search(datestr): # matches single word as MONTH but specifically not TOMORROW
+	elif dateformat13.search(datestr): #TOMORROW
+		date = getNextDay(today)
+		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
+		datestr_std = '%s %s, %s' % (month, day, year)
+	elif dateformat16.search(datestr): #<DOW> e.g. MONDAY
+		dowToSchedule = dateformat16.search(datestr).groups()[0]
+		upcomingweek = map(lambda d:today+datetime.timedelta(days=d), range(1,8))
+		dow = [d.strftime('%A').upper() for d in upcomingweek]
+		date = upcomingweek[dow.index(dowToSchedule)]
+		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
+		datestr_std = '%s %s, %s' % (month, day, year)
+	elif dateformat17.search(datestr): #<DOW> short e.g. MON
+		dowToSchedule = dateformat17.search(datestr).groups()[0]
+		upcomingweek = map(lambda d:today+datetime.timedelta(days=d), range(1,8))
+		dow = [d.strftime('%a').upper() for d in upcomingweek]
+		date = upcomingweek[dow.index(dowToSchedule)]
+		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
+		datestr_std = '%s %s, %s' % (month, day, year)
+	elif dateformat10.search(datestr): # MONTH, e.g. DECEMBER
 		month = dateformat10.search(datestr).groups()[0]
 		(monthn, dayn) = (getMonthNumber(month), 1)
 		(day, year) = (str(dayn), str(getAppropriateYear(monthn, dayn, now)))
@@ -295,10 +320,6 @@ def getDateForScheduleString(datestr, now=None):
 		(monthn, dayn, yearn) = map(lambda i:int(i), dateformat12.search(datestr).groups())
 		(month, day, year) = (getMonthName(monthn).upper(), str(dayn), str(yearn))
 		date = datetime.date(yearn, monthn, dayn)
-		datestr_std = '%s %s, %s' % (month, day, year)
-	elif dateformat13.search(datestr):
-		date = getNextDay(today)
-		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	else: raise DateFormatError("Date format does not match any acceptable formats! " + datestr)
 	if date:
