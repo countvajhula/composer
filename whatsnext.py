@@ -3,9 +3,10 @@
 from advanceplanner import *
 import updateindex
 from subprocess import call
+import sys
 
-#WIKIDIR = 'tests/testwikis/userwiki'
-WIKIDIR = '/Users/siddhartha/log/planner'
+WIKIDIR_TEST = 'tests/testwikis/userwiki'
+WIKIDIR_PRODUCTION = '/Users/siddhartha/log/planner'
 
 if __name__ == '__main__':
 	#Moved pending tasks from today over to tomorrow's agenda
@@ -13,10 +14,18 @@ if __name__ == '__main__':
 
 	# simulate the changes first and then when it's all OK, make the necessary
 	# preparations (e.g. git commit) and actually perform the changes
+	if len(sys.argv) == 1:
+		wikidir = WIKIDIR_PRODUCTION
+	else:
+		if sys.argv[1] == '-t' or sys.argv[1] == '--test':
+			wikidir = WIKIDIR_TEST
+		else:
+			raise Exception("Invalid command line arguments")
+
 	simulate = True 
 	while True:
 		try:
-			advanceFilesystemPlanner(WIKIDIR, now=None, simulate=simulate)
+			advanceFilesystemPlanner(wikidir, now=None, simulate=simulate)
 			print
 			print "Moving tasks added for tomorrow over to tomorrow's agenda..."
 			print "Carrying over any unfinished tasks from today to tomorrow's agenda..."
@@ -26,17 +35,17 @@ if __name__ == '__main__':
 			# update index after making changes
 			print
 			print "Updating planner wiki index..."
-			updateindex.update_index(WIKIDIR)
+			updateindex.update_index(wikidir)
 			print "...DONE."
 			# git commit "after"
 			print
 			print "Committing all changes..."
-			plannerdate = getPlannerDate(WIKIDIR)
+			plannerdate = getPlannerDate(wikidir)
 			(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
 			datestr = '%s %d, %d' % (month, date, year)
 			with open(os.devnull, 'w') as null:
-				call(['git', 'add', '-A'], cwd=WIKIDIR, stdout=null)
-				call(['git', 'commit', '-m', 'SOD %s' % datestr], cwd=WIKIDIR, stdout=null)
+				call(['git', 'add', '-A'], cwd=wikidir, stdout=null)
+				call(['git', 'commit', '-m', 'SOD %s' % datestr], cwd=wikidir, stdout=null)
 			print "...DONE."
 			print
 			break
@@ -49,25 +58,25 @@ if __name__ == '__main__':
 				# git commit a "before", now that we know changes are about to be written to planner
 				print
 				print "Saving EOD planner state before making changes..."
-				plannerdate = getPlannerDate(WIKIDIR)
+				plannerdate = getPlannerDate(wikidir)
 				(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
 				datestr = '%s %d, %d' % (month, date, year)
 				with open(os.devnull, 'w') as null:
-					call(['git', 'add', '-A'], cwd=WIKIDIR, stdout=null)
-					call(['git', 'commit', '-m', 'EOD %s' % datestr], cwd=WIKIDIR, stdout=null)
+					call(['git', 'add', '-A'], cwd=wikidir, stdout=null)
+					call(['git', 'commit', '-m', 'EOD %s' % datestr], cwd=wikidir, stdout=null)
 				print "...DONE."
 			if err.status >= AdvancePlannerStatus.DayAdded:
-				planner = constructPlannerFromFileSystem(WIKIDIR)
+				planner = constructPlannerFromFileSystem(wikidir)
 				dayagenda = extractAgendaFromLogfile(planner.dayfile)
 				if dayagenda:
 					updateLogfileAgenda(planner.weekfile, dayagenda)
-				writePlannerToFilesystem(planner, WIKIDIR)
+				writePlannerToFilesystem(planner, wikidir)
 			if err.status >= AdvancePlannerStatus.WeekAdded:
-				planner = constructPlannerFromFileSystem(WIKIDIR)
+				planner = constructPlannerFromFileSystem(wikidir)
 				weekagenda = extractAgendaFromLogfile(planner.weekfile)
 				if weekagenda:
 					updateLogfileAgenda(planner.monthfile, weekagenda)
-				writePlannerToFilesystem(planner, WIKIDIR)
+				writePlannerToFilesystem(planner, wikidir)
 			simulate = False
 		except DayStillInProgressError as err:
 			print "Current day is still in progress! Try again after 6pm."
