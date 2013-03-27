@@ -1759,7 +1759,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
 	def setUp(self):
 		self.planner = Planner()
-		self.planner.date = datetime.date.today()
+		self.planner.date = datetime.date(2012,12,19)
 		self.planner.tasklistfile = StringIO(self.tasklist)
 		self.planner.dayfile = StringIO(self.daytemplate)
 		self.planner.weekfile = StringIO(self.weektemplate)
@@ -1894,7 +1894,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
 	def testScheduleDateFormat13(self):
 		""" Check that the format TOMORROW works """
-		now = datetime.datetime(2012,12,19)
+		now = datetime.datetime(2012,12,20) # schedule date should be wrt planner date, not current time
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format13)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)

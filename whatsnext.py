@@ -4,8 +4,8 @@ from advanceplanner import *
 import updateindex
 from subprocess import call
 
-WIKIDIR = 'tests/testwikis/userwiki'
-#WIKIDIR = '/Users/siddhartha/log/planner'
+#WIKIDIR = 'tests/testwikis/userwiki'
+WIKIDIR = '/Users/siddhartha/log/planner'
 
 if __name__ == '__main__':
 	#Moved pending tasks from today over to tomorrow's agenda

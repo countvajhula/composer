@@ -130,6 +130,12 @@ class PlannerStateError(Exception):
 	def __str__(self):
 		return repr(self.value)
 
+class RelativeDateError(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
 class SimulationPassedError(Exception):
 	def __init__(self, value, status):
 		self.value = value
@@ -176,7 +182,7 @@ def getAppropriateYear(month, day, now):
 	else:
 		return today.year
 
-def getDateForScheduleString(datestr, now=None):
+def getDateForScheduleString(datestr, planner=None, now=None):
 	""" try various acceptable formats and return the first one that works
 	Returns both a specific python date that can be used as well as a 'standard format' date string
 	that unambiguously represents the date """
@@ -189,26 +195,47 @@ def getDateForScheduleString(datestr, now=None):
 		return monthNameToNumber[monthname.lower()]
 	def getMonthName(monthnumber):
 		return monthNumberToName[monthnumber]
+	# TODO: change these to annotated regex's
+	# MONTH DD, YYYY (w optional space or comma or both)
 	dateformat1 = re.compile('^([^\d ]+) (\d\d?)[, ] ?(\d{4})$')
+	# DD MONTH, YYYY (w optional space or comma or both)
 	dateformat2 = re.compile('^(\d\d?) ([^\d,]+)[, ] ?(\d{4})$')
+	# MONTH DD
 	dateformat3 = re.compile('^([^\d ]+) (\d\d?)$')
+	# DD MONTH
 	dateformat4 = re.compile('^(\d\d?) ([^\d]+)$')
+	# WEEK OF MONTH DD, YYYY (w optional space or comma or both)
 	dateformat5 = re.compile('^WEEK OF ([^\d ]+) (\d\d?)[, ] ?(\d{4})$')
+	# WEEK OF DD MONTH, YYYY (w optional space or comma or both)
 	dateformat6 = re.compile('^WEEK OF (\d\d?) ([^\d,]+)[, ] ?(\d{4})$')
+	# WEEK OF MONTH DD
 	dateformat7 = re.compile('^WEEK OF ([^\d ]+) (\d\d?)$')
+	# WEEK OF DD MONTH
 	dateformat8 = re.compile('^WEEK OF (\d\d?) ([^\d,]+)$')
+	# MONTH YYYY (w optional space or comma or both)
 	dateformat9 = re.compile('^([^\d ]+)[, ] ?(\d{4})$')
+	# MONTH
 	dateformat10 = re.compile('^([^\d ]+)$')
+	# MM/DD/YYYY
 	dateformat11 = re.compile('^(\d\d)/(\d\d)/(\d\d\d\d)$')
+	# MM-DD-YYYY
 	dateformat12 = re.compile('^(\d\d)-(\d\d)-(\d\d\d\d)$')
+	# TOMORROW
 	dateformat13 = re.compile('^TOMORROW$')
-	# these 2 not yet supported
+
+	## these 2 not yet supported
 	# TODO: need a function to test date boundary status and return monthboundary, weekboundary, or dayboundary (default)
+	# NEXT WEEK
 	dateformat14 = re.compile('^NEXT WEEK$')
+	# NEXT MONTH
 	dateformat15 = re.compile('^NEXT MONTH$')
-	#
+	##
+
+	# <DOW>
 	dateformat16 = re.compile('^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$')
+	# <DOW> (abbrv.)
 	dateformat17 = re.compile('^(MON|TUE|WED|THU|FRI|SAT|SUN)$')
+
 	if dateformat1.search(datestr):
 		(month, day, year) = dateformat1.search(datestr).groups()
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
@@ -288,7 +315,9 @@ def getDateForScheduleString(datestr, now=None):
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
 		datestr_std = '%s %s' % (month, year)
 	elif dateformat13.search(datestr): #TOMORROW
-		date = getNextDay(today)
+		if not planner:
+			raise RelativeDateError("Relative date found, but no context available")
+		date = getNextDay(planner.date)
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat16.search(datestr): #<DOW> e.g. MONDAY
@@ -357,7 +386,7 @@ def scheduleTasks(planner, now=None):
 					if scheduledate.search(ss):
 						datestr = scheduledate.search(ss).groups()[0]
 						try:
-							matcheddate = getDateForScheduleString(datestr, now)
+							matcheddate = getDateForScheduleString(datestr, planner, now)
 						except:
 							raise
 					else:
@@ -377,7 +406,7 @@ def scheduleTasks(planner, now=None):
 			if scheduledate.search(ss):
 				datestr = scheduledate.search(ss).groups()[0]
 				try:
-					matcheddate = getDateForScheduleString(datestr, now)
+					matcheddate = getDateForScheduleString(datestr, planner, now)
 				except:
 					raise
 			else:
@@ -408,7 +437,7 @@ def scheduleTasks(planner, now=None):
 			if scheduledate.search(ss):
 				datestr = scheduledate.search(ss).groups()[0]
 				try:
-					matcheddate = getDateForScheduleString(datestr, now)
+					matcheddate = getDateForScheduleString(datestr, planner, now)
 				except:
 					raise
 			else:
