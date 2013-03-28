@@ -1661,7 +1661,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 						"\t[x] this\n"
 					"[ ] s'posed to do\n"
 					"[\] kinda did\n"
-					"[o] i'm waitin on you! [$DECEMBER$]\n"
+					"[o] i'm waitin on you! [$DECEMBER 2012$]\n"
 					"[o] still waitin on you [$NEXT MONTH$]\n"
 					"[x] take out trash\n"
 					"\n"
@@ -1824,14 +1824,16 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
 	def testScheduleDateFormat3(self):
 		""" Check that the format MONTH DD works """
-		now = datetime.datetime(2012,12,3)
+		now = datetime.datetime(2012,12,21)
+		self.planner.date = datetime.date(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format3)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
 
 	def testScheduleDateFormat4(self):
 		""" Check that the format DD MONTH works """
-		now = datetime.datetime(2012,12,3)
+		now = datetime.datetime(2012,12,21)
+		self.planner.date = datetime.date(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format4)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
@@ -1852,14 +1854,16 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
 	def testScheduleDateFormat7(self):
 		""" Check that the format WEEK OF MONTH DD works """
-		now = datetime.datetime(2012,12,3)
+		now = datetime.datetime(2012,12,21)
+		self.planner.date = datetime.date(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format7)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat8(self):
 		""" Check that the format WEEK OF DD MONTH works """
-		now = datetime.datetime(2012,12,3)
+		now = datetime.datetime(2012,12,21)
+		self.planner.date = datetime.date(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format8)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
@@ -1873,7 +1877,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
 	def testScheduleDateFormat10(self):
 		""" Check that the format MONTH works """
-		now = datetime.datetime(2012,11,20)
+		now = datetime.datetime(2012,12,3)
+		self.planner.date = datetime.date(2012,11,4)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format10)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10and15)
@@ -1895,20 +1900,23 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 	def testScheduleDateFormat13(self):
 		""" Check that the format TOMORROW works """
 		now = datetime.datetime(2012,12,20) # schedule date should be wrt planner date, not current time
+		self.planner.date = datetime.date(2012,12,19)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format13)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
 
 	def testScheduleDateFormat14(self):
 		""" Check that the format NEXT WEEK works """
-		now = datetime.datetime(2012,12,3)
+		now = datetime.datetime(2012,12,17)
+		self.planner.date = datetime.date(2012,12,10)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format14)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat15(self):
 		""" Check that the format NEXT MONTH works """
-		now = datetime.datetime(2012,12,20)
+		now = datetime.datetime(2013,1,1)
+		self.planner.date = datetime.date(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format15)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10and15)

@@ -173,9 +173,8 @@ def getNextDay(date):
 	nextDay = date + datetime.timedelta(days=1)
 	return nextDay
 
-def getAppropriateYear(month, day, now):
+def getAppropriateYear(month, day, today):
 	# if current year would result in negative, then use next year, otherwise current year
-	today = now.date()
 	date_thisyear = datetime.date(today.year, month, day)
 	if date_thisyear < today:
 		return today.year + 1
@@ -245,15 +244,19 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat3.search(datestr):
+		if not planner:
+			raise RelativeDateError("Relative date found, but no context available")
 		(month, day) = dateformat3.search(datestr).groups()
 		(monthn, dayn) = (getMonthNumber(month), int(day))
-		year = str(getAppropriateYear(monthn, dayn, now))
+		year = str(getAppropriateYear(monthn, dayn, planner.date))
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat4.search(datestr):
+		if not planner:
+			raise RelativeDateError("Relative date found, but no context available")
 		(day, month) = dateformat4.search(datestr).groups()
 		(monthn, dayn) = (getMonthNumber(month), int(day))
-		year = str(getAppropriateYear(monthn, dayn, now))
+		year = str(getAppropriateYear(monthn, dayn, planner.date))
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat5.search(datestr):
@@ -282,9 +285,11 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat7.search(datestr):
+		if not planner:
+			raise RelativeDateError("Relative date found, but no context available")
 		(month, day) = dateformat7.search(datestr).groups()
 		(monthn, dayn) = (getMonthNumber(month), int(day))
-		yearn = getAppropriateYear(monthn, dayn, now)
+		yearn = getAppropriateYear(monthn, dayn, planner.date)
 		year = str(yearn)
 		date = datetime.date(yearn, monthn, dayn)
 		dow = date.strftime('%A')
@@ -296,9 +301,11 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat8.search(datestr):
+		if not planner:
+			raise RelativeDateError("Relative date found, but no context available")
 		(day, month) = dateformat8.search(datestr).groups()
 		(monthn, dayn) = (getMonthNumber(month), int(day))
-		yearn = getAppropriateYear(monthn, dayn, now)
+		yearn = getAppropriateYear(monthn, dayn, planner.date)
 		year = str(yearn)
 		date = datetime.date(yearn, monthn, dayn)
 		dow = date.strftime('%A')
@@ -339,9 +346,11 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat10.search(datestr): # MONTH, e.g. DECEMBER
+		if not planner:
+			raise RelativeDateError("Relative date found, but no context available")
 		month = dateformat10.search(datestr).groups()[0]
 		(monthn, dayn) = (getMonthNumber(month), 1)
-		(day, year) = (str(dayn), str(getAppropriateYear(monthn, dayn, now)))
+		(day, year) = (str(dayn), str(getAppropriateYear(monthn, dayn, planner.date)))
 		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
 		datestr_std = '%s %s' % (month, year)
 	elif dateformat11.search(datestr):
