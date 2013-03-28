@@ -12,8 +12,6 @@ if __name__ == '__main__':
 	#Moved pending tasks from today over to tomorrow's agenda
 	#could try: [Display score for today]
 
-	# simulate the changes first and then when it's all OK, make the necessary
-	# preparations (e.g. git commit) and actually perform the changes
 	if len(sys.argv) == 1:
 		wikidir = WIKIDIR_PRODUCTION
 	else:
@@ -21,6 +19,9 @@ if __name__ == '__main__':
 			wikidir = WIKIDIR_TEST
 		else:
 			raise Exception("Invalid command line arguments")
+
+	# simulate the changes first and then when it's all OK, make the necessary
+	# preparations (e.g. git commit) and actually perform the changes
 
 	simulate = True 
 	while True:
@@ -108,5 +109,7 @@ if __name__ == '__main__':
 		except LogfileLayoutError as err:
 			raise
 		except PlannerStateError as err:
+			raise
+		except RelativeDateError as err:
 			raise
 

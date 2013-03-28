@@ -321,15 +321,19 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat16.search(datestr): #<DOW> e.g. MONDAY
+		if not planner:
+			raise RelativeDateError("Relative date found, but no context available")
 		dowToSchedule = dateformat16.search(datestr).groups()[0]
-		upcomingweek = map(lambda d:today+datetime.timedelta(days=d), range(1,8))
+		upcomingweek = map(lambda d:planner.date+datetime.timedelta(days=d), range(1,8))
 		dow = [d.strftime('%A').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat17.search(datestr): #<DOW> short e.g. MON
+		if not planner:
+			raise RelativeDateError("Relative date found, but no context available")
 		dowToSchedule = dateformat17.search(datestr).groups()[0]
-		upcomingweek = map(lambda d:today+datetime.timedelta(days=d), range(1,8))
+		upcomingweek = map(lambda d:planner.date+datetime.timedelta(days=d), range(1,8))
 		dow = [d.strftime('%a').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))

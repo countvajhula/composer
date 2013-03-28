@@ -1915,14 +1915,16 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
 	def testScheduleDateFormat16(self):
 		""" Check that the format <DOW> works """
-		now = datetime.datetime(2012,12,3) # monday
+		now = datetime.datetime(2012,12,4) # tuesday
+		self.planner.date = datetime.date(2012,12,3) # monday
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format16)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats16and17)
 
 	def testScheduleDateFormat17(self):
 		""" Check that the format <DOW> (abbrv.) works """
-		now = datetime.datetime(2012,12,3) # monday
+		now = datetime.datetime(2012,12,4) # tuesday
+		self.planner.date = datetime.date(2012,12,3) # monday
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format17)
 		advanceplanner.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats16and17)
