@@ -14,9 +14,15 @@ if __name__ == '__main__':
 
 	if len(sys.argv) == 1:
 		wikidir = WIKIDIR_PRODUCTION
+		print
+		print ">>> Operating on planner at location: %s <<<" % wikidir
+		print
 	else:
 		if sys.argv[1] == '-t' or sys.argv[1] == '--test':
 			wikidir = WIKIDIR_TEST
+			print
+			print ">>> Operating in TEST mode on planner at location: %s <<<" % wikidir
+			print
 		else:
 			raise Exception("Invalid command line arguments")
 
