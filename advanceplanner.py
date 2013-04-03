@@ -34,8 +34,8 @@ class Task(Identity):
 		self.done = False
 """
 
-class AdvancePlannerStatus(object):
-	(NoneAdded, DayAdded, WeekAdded, MonthAdded) = (0,1,2,3)
+class PlannerPeriod(object):
+	(Zero, Day, Week, Month, Quarter, Year) = (0,1,2,3,4,5)
 
 class PlannerConfig(object):
 	(Strict, Lax) = (1,2)
@@ -646,6 +646,13 @@ def buildDayTemplate(nextDay, tasklistfile, dayfile, checkpointsfile, periodicfi
 	daytemplate = buildPeriodTemplate(nextDay, title, entry, agenda, periodicname, checkpointsfile, periodicfile)
 	return daytemplate
 
+def writeNewYearTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, yearfile):
+	# TODO: implement
+	pass
+def writeNewQuarterTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, quarterfile):
+	# TODO: implement
+	pass
+
 def writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, monthfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	monthtemplate = buildMonthTemplate(nextDay, tasklistfile, monthfile, checkpointsfile, periodicfile)
@@ -666,6 +673,25 @@ def writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, da
 	dayfile.truncate(0)
 	dayfile.write(daytemplate)
 	dayfile.seek(0)
+
+def writeNewTemplate(currentPeriod, nextDay, tasklistfile, checkpointsfile, periodicfile, logfile):
+	if currentPeriod == PlannerPeriod.Day:
+		return writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
+	if currentPeriod == PlannerPeriod.Week:
+		return writeNewWeekTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
+	if currentPeriod == PlannerPeriod.Month:
+		return writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
+	if currentPeriod == PlannerPeriod.Quarter:
+		return writeNewQuarterTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
+	if currentPeriod == PlannerPeriod.Year:
+		return writeNewYearTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
+
+def writeExistingYearTemplate(nextDay, yearfile):
+	# TODO: implement
+	pass
+def writeExistingQuarterTemplate(nextDay, quarterfile):
+	# TODO: implement
+	pass
 
 def writeExistingMonthTemplate(nextDay, monthfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
@@ -690,6 +716,19 @@ def writeExistingWeekTemplate(nextDay, weekfile):
 	weekfile.truncate(0) # way to close and open an existing handle in different modes?
 	weekfile.write(newweekcontents)
 	weekfile.seek(0)
+
+def writeExistingTemplate(currentPeriod, nextDay, logfile):
+	# if period is DAY, nop
+	if currentPeriod == PlannerPeriod.Day:
+		return
+	if currentPeriod == PlannerPeriod.Week:
+		return writeExistingWeekTemplate(nextDay, logfile)
+	if currentPeriod == PlannerPeriod.Month:
+		return writeExistingMonthTemplate(nextDay, logfile)
+	if currentPeriod == PlannerPeriod.Quarter:
+		return writeExistingQuarterTemplate(nextDay, logfile)
+	if currentPeriod == PlannerPeriod.Year:
+		return writeExistingYearTemplate(nextDay, logfile)
 
 def newDayCriteriaMet(currentdate, now):
 	today = now.date()
@@ -717,8 +756,22 @@ def newWeekCriteriaMet(currentdate, now):
 	if newMonthCriteriaMet(currentdate, now) or (newDayCriteriaMet(currentdate, now) == PeriodAdvanceCriteria.Satisfied and dow.lower() == 'saturday' and currentdate.day >= MIN_WEEK_LENGTH and calendar.monthrange(year, currentdate.month)[1] - currentdate.day >= MIN_WEEK_LENGTH):
 		return PeriodAdvanceCriteria.Satisfied
 
+def newPeriodCriteriaMet(currentPeriod, currentdate, now):
+	if currentPeriod == PlannerPeriod.Day:
+		return newDayCriteriaMet(currentdate, now)
+	if currentPeriod == PlannerPeriod.Week:
+		return newWeekCriteriaMet(currentdate, now)
+	if currentPeriod == PlannerPeriod.Month:
+		return newMonthCriteriaMet(currentdate, now)
+	if currentPeriod == PlannerPeriod.Quarter:
+		return newQuarterCriteriaMet(currentdate, now)
+	if currentPeriod == PlannerPeriod.Year:
+		return newYearCriteriaMet(currentdate, now)
+
 def advancePlanner(planner, now=None):
-	""" Advance planner state to next day, updating week and month info as necessary. 'now' arg used only for testing """
+	""" Advance planner state to next day, updating week and month info as necessary. 'now' arg used only for testing
+	TODO: use function compositor thingies to de-duplify these
+	"""
 	#plannerdate = getPlannerDateFromString('November 30, 2012')
 	resetHeadsOnPlannerFiles(planner)
 	nextDay = getNextDay(planner.date) # the new day to advance to
@@ -730,57 +783,66 @@ def advancePlanner(planner, now=None):
 
 	if not now: now = datetime.datetime.now()
 
-	status = AdvancePlannerStatus.NoneAdded
-
-	dayCriteriaMet = newDayCriteriaMet(planner.date, now)
-	if dayCriteriaMet == PeriodAdvanceCriteria.Satisfied:
-		tasklistfile = planner.tasklistfile
-		if nextdow.lower() in ('saturday', 'sunday'):
-			checkpointsfile = planner.checkpoints_weekend_file
-		else:
-			checkpointsfile = planner.checkpoints_weekday_file
-		periodicfile = planner.periodic_day_file
-		dayfile = planner.dayfile
-		if not checkLogfileCompletion(dayfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
-			raise DayLogfileNotCompletedError("Looks like you haven't completed your day's log. Would you like to do that now?")
-		writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
-		#planner.dayfile = dayfile
-		status = AdvancePlannerStatus.DayAdded
-
-		weekCriteriaMet = newWeekCriteriaMet(planner.date, now)
-		if weekCriteriaMet == PeriodAdvanceCriteria.Satisfied:
+	def get_period_files(currentPeriod):
+		if currentPeriod == PlannerPeriod.Day:
+			if nextdow.lower() in ('saturday', 'sunday'):
+				checkpointsfile = planner.checkpoints_weekend_file
+			else:
+				checkpointsfile = planner.checkpoints_weekday_file
+			periodicfile = planner.periodic_day_file
+			logfile = planner.dayfile
+		elif currentPeriod == PlannerPeriod.Week:
 			checkpointsfile = planner.checkpoints_week_file
 			periodicfile = planner.periodic_week_file
-			weekfile = planner.weekfile
-			if not checkLogfileCompletion(weekfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
-				raise WeekLogfileNotCompletedError("Looks like you haven't completed your week's log. Would you like to do that now?")
-			writeNewWeekTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, weekfile)
-			#planner.weekfile = weekfile
-			status = AdvancePlannerStatus.WeekAdded
+			logfile = planner.weekfile
+		elif currentPeriod == PlannerPeriod.Month:
+			checkpointsfile = planner.checkpoints_month_file
+			periodicfile = planner.periodic_month_file
+			logfile = planner.monthfile
+		elif currentPeriod == PlannerPeriod.Quarter:
+			checkpointsfile = planner.checkpoints_quarter_file
+			periodicfile = planner.periodic_quarter_file
+			logfile = planner.quarterfile
+		elif currentPeriod == PlannerPeriod.Year:
+			checkpointsfile = planner.checkpoints_year_file
+			periodicfile = planner.periodic_year_file
+			logfile = planner.yearfile
+		return (checkpointsfile, periodicfile, logfile)
 
-			monthCriteriaMet = newMonthCriteriaMet(planner.date, now)
-			if monthCriteriaMet == PeriodAdvanceCriteria.Satisfied:
-				checkpointsfile = planner.checkpoints_month_file
-				periodicfile = planner.periodic_month_file
-				monthfile = planner.monthfile
-				if not checkLogfileCompletion(monthfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
-					raise MonthLogfileNotCompletedError("Looks like you haven't completed your month's log. Would you like to do that now?")
-				writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, monthfile)
-				#planner.monthfile = monthfile
-				status = AdvancePlannerStatus.MonthAdded
-			else:
-				monthfile = planner.monthfile
-				writeExistingMonthTemplate(nextDay, monthfile)
+	def get_period_name(currentPeriod):
+		periods = {PlannerPeriod.Day: 'day', PlannerPeriod.Week: 'week', PlannerPeriod.Month: 'month',
+				PlannerPeriod.Quarter: 'quarter', PlannerPeriod.Year: 'year'}
+		return periods[currentPeriod]
+
+	def advancePeriod(currentPeriod):
+		""" Recursive function to advance planner by day, week, month, quarter, or year
+		as the case may be.
+		"""
+		periodCriteriaMet = newPeriodCriteriaMet(currentPeriod + 1, planner.date, now)
+		if periodCriteriaMet == PeriodAdvanceCriteria.Satisfied:
+			currentPeriod += 1
+			tasklistfile = planner.tasklistfile
+			(checkpointsfile, periodicfile, logfile) = get_period_files(currentPeriod)
+			if not checkLogfileCompletion(logfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
+				periodstr = get_period_name(currentPeriod)
+				msg = "Looks like you haven't completed your %s's log. Would you like to do that now?" % periodstr
+				raise LogfileNotCompletedError(msg, periodstr)
+			writeNewTemplate(currentPeriod, nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
+
+			if currentPeriod < PlannerPeriod.Month: #TODO: change back to Year
+				return advancePeriod(currentPeriod)
+		elif periodCriteriaMet == PeriodAdvanceCriteria.DayStillInProgress:
+			raise DayStillInProgressError("Current day is still in progress! Update after 6pm")
+		elif periodCriteriaMet == PeriodAdvanceCriteria.PlannerInFuture:
+			raise PlannerIsInTheFutureError("Planner is in the future!")
 		else:
-			weekfile = planner.weekfile
-			writeExistingWeekTemplate(nextDay, weekfile)
+			logfile = get_period_files(currentPeriod + 1)[2]
+			writeExistingTemplate(currentPeriod + 1, nextDay, logfile)
+		return currentPeriod
+
+	status = advancePeriod(PlannerPeriod.Zero)
+	if status > PlannerPeriod.Zero:
 		planner.date = nextDay
-
-	elif dayCriteriaMet == PeriodAdvanceCriteria.DayStillInProgress:
-		raise DayStillInProgressError("Current day is still in progress! Update after 6pm")
-
-	elif dayCriteriaMet == PeriodAdvanceCriteria.PlannerInFuture:
-		raise PlannerIsInTheFutureError("Planner is in the future!")
 
 	resetHeadsOnPlannerFiles(planner)
 	return status
@@ -887,21 +949,21 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 	nextDay = planner.date
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	# check for possible errors in planner state before making any changes
-	if status >= AdvancePlannerStatus.MonthAdded:
+	if status >= PlannerPeriod.Month:
 		monthfn_post = '%s/Month of %s, %d.wiki' % (plannerpath, month, year)
 		if os.path.isfile(monthfn_post): raise PlannerStateError("New month logfile already exists!")
-	if status >= AdvancePlannerStatus.WeekAdded:
+	if status >= PlannerPeriod.Week:
 		weekfn_post = '%s/Week of %s %d, %d.wiki' % (plannerpath, month, date, year)
 		if os.path.isfile(weekfn_post): raise PlannerStateError("New week logfile already exists!")
-	if status >= AdvancePlannerStatus.DayAdded:
+	if status >= PlannerPeriod.Day:
 		dayfn_post = '%s/%s %d, %d.wiki' % (plannerpath, month, date, year)
 		if os.path.isfile(dayfn_post): raise PlannerStateError("New day logfile already exists!")
 
 	# if this is a simulation, we're good to go - let's break out of the matrix
-	if status >= AdvancePlannerStatus.DayAdded and simulate:
+	if status >= PlannerPeriod.Day and simulate:
 		raise SimulationPassedError('All systems GO', status)
 
-	if status >= AdvancePlannerStatus.MonthAdded:
+	if status >= PlannerPeriod.Month:
 		# extract new month filename from date
 		# write buffer to new file
 		# update currentmonth symlink
@@ -912,7 +974,7 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 		filelinkfn = '%s/%s' % (plannerpath, PLANNERMONTHFILELINK)
 		if os.path.islink(filelinkfn): os.remove(filelinkfn)
 		os.symlink(monthfn_post[monthfn_post.rfind('/')+1:], filelinkfn) # remove path from filename so it isn't "double counted"
-	if status >= AdvancePlannerStatus.WeekAdded:
+	if status >= PlannerPeriod.Week:
 		# extract new week filename from date
 		# write buffer to new file
 		# update currentweek symlink
@@ -923,12 +985,12 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 		filelinkfn = '%s/%s' % (plannerpath, PLANNERWEEKFILELINK)
 		if os.path.islink(filelinkfn): os.remove(filelinkfn)
 		os.symlink(weekfn_post[weekfn_post.rfind('/')+1:], filelinkfn) # remove path from filename so it isn't "double counted"
-	if status == AdvancePlannerStatus.WeekAdded:
+	if status == PlannerPeriod.Week:
 		# write month buffer to existing file
 		f = open(monthfn_pre, 'w')
 		f.write(planner.monthfile.read())
 		f.close()
-	if status >= AdvancePlannerStatus.DayAdded:
+	if status >= PlannerPeriod.Day:
 		# extract new day filename from date
 		# write buffer to new file
 		# update currentday symlink
@@ -943,7 +1005,7 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 		f = open(tasklistfn, 'w')
 		f.write(planner.tasklistfile.read())
 		f.close()
-	if status == AdvancePlannerStatus.DayAdded:
+	if status == PlannerPeriod.Day:
 		# write week buffer to existing file
 		f = open(weekfn_pre, 'w')
 		f.write(planner.weekfile.read())

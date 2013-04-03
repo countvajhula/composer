@@ -58,10 +58,10 @@ if __name__ == '__main__':
 			break
 		except SimulationPassedError as err:
 			#print "DEV: simulation passed. let's do this thing ... for real."
-			if err.status >= AdvancePlannerStatus.WeekAdded:
+			if err.status >= PlannerPeriod.Week:
 				theme = raw_input("(Optional) Enter a theme for the upcoming week, e.g. Week of 'Timeliness', or 'Completion':__")
 				if theme: PlannerUserSettings.WeekTheme = theme
-			if err.status >= AdvancePlannerStatus.DayAdded:
+			if err.status >= PlannerPeriod.Day:
 				# git commit a "before", now that we know changes are about to be written to planner
 				print
 				print "Saving EOD planner state before making changes..."
@@ -72,13 +72,13 @@ if __name__ == '__main__':
 					call(['git', 'add', '-A'], cwd=wikidir, stdout=null)
 					call(['git', 'commit', '-m', 'EOD %s' % datestr], cwd=wikidir, stdout=null)
 				print "...DONE."
-			if err.status >= AdvancePlannerStatus.DayAdded:
+			if err.status >= PlannerPeriod.Day:
 				planner = constructPlannerFromFileSystem(wikidir)
 				dayagenda = extractAgendaFromLogfile(planner.dayfile)
 				if dayagenda:
 					updateLogfileAgenda(planner.weekfile, dayagenda)
 				writePlannerToFilesystem(planner, wikidir)
-			if err.status >= AdvancePlannerStatus.WeekAdded:
+			if err.status >= PlannerPeriod.Week:
 				planner = constructPlannerFromFileSystem(wikidir)
 				weekagenda = extractAgendaFromLogfile(planner.weekfile)
 				if weekagenda:
@@ -99,7 +99,7 @@ if __name__ == '__main__':
 			else:
 				continue
 		except LogfileNotCompletedError as err:
-			yn = raw_input("Looks like you haven't completed your %s's log (e.g. NOTES). Would you like to do that now? [y/n]__" % err.type)
+			yn = raw_input("Looks like you haven't completed your %s's log (e.g. NOTES). Would you like to do that now? [y/n]__" % err.period)
 			if yn.lower().startswith('y'):
 				raw_input('No problem. Press any key when you are done completing your log...')
 			elif yn.lower().startswith('n'):

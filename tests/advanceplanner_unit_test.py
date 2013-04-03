@@ -3,7 +3,7 @@
 import unittest
 import advanceplanner
 from advanceplanner import Planner
-from advanceplanner import AdvancePlannerStatus
+from advanceplanner import PlannerPeriod
 from StringIO import StringIO
 import datetime
 
@@ -330,7 +330,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		self.planner.date = now.date()
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
-		self.assertEqual(status, AdvancePlannerStatus.DayAdded)
+		self.assertEqual(status, PlannerPeriod.Day)
 
 	def testDecisionForFirstWeekTooShortDayAdvance(self):
 		""" Check that planner advance takes the correct decision to advance only day when first week is too short """
@@ -339,7 +339,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
-		self.assertEqual(status, AdvancePlannerStatus.DayAdded)
+		self.assertEqual(status, PlannerPeriod.Day)
 
 	def testDecisionForFirstWeekBorderlineTooShortDayAdvance(self):
 		""" Check that planner advance takes the correct decision to advance only day when first week is just below minimum length """
@@ -348,7 +348,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
-		self.assertEqual(status, AdvancePlannerStatus.DayAdded)
+		self.assertEqual(status, PlannerPeriod.Day)
 
 	def testDecisionForLastWeekTooShortDayAdvance(self):
 		""" Check that planner advance takes the correct decision to advance only day when last week would be too short """
@@ -356,7 +356,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		self.planner.date = now.date()
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
-		self.assertEqual(status, AdvancePlannerStatus.DayAdded)
+		self.assertEqual(status, PlannerPeriod.Day)
 
 	def testDecisionForLastWeekBorderlineTooShortDayAdvance(self):
 		""" Check that planner advance takes the correct decision to advance only day when last week would be just below minimum length """
@@ -364,7 +364,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		self.planner.date = now.date()
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
-		self.assertEqual(status, AdvancePlannerStatus.DayAdded)
+		self.assertEqual(status, PlannerPeriod.Day)
 
 	def testDecisionForTypicalWeekAdvance(self):
 		""" Check that planner advance takes the correct decision to advance week on a typical week change boundary """
@@ -373,7 +373,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		(date, day, month, year) = (self.planner.date.day, self.planner.date.strftime('%A'), self.planner.date.strftime('%B'), self.planner.date.year)
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
-		self.assertEqual(status, AdvancePlannerStatus.WeekAdded)
+		self.assertEqual(status, PlannerPeriod.Week)
 
 	def testDecisionForFirstWeekBorderlineLongEnoughWeekAdvance(self):
 		""" Check that planner advance takes the correct decision to advance week when last week would be just at minimum length """
@@ -383,7 +383,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
-		self.assertEqual(status, AdvancePlannerStatus.WeekAdded)
+		self.assertEqual(status, PlannerPeriod.Week)
 
 	def testDecisionForLastWeekBorderlineLongEnoughWeekAdvance(self):
 		""" Check that planner advance takes the correct decision to advance week when last week would be just at minimum length """
@@ -393,7 +393,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
-		self.assertEqual(status, AdvancePlannerStatus.WeekAdded)
+		self.assertEqual(status, PlannerPeriod.Week)
 
 	def testDecisionForMonthAdvance(self):
 		""" Check that planner advance takes the correct decision to advance month on a month change boundary """
@@ -402,7 +402,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
-		self.assertEqual(status, AdvancePlannerStatus.MonthAdded)
+		self.assertEqual(status, PlannerPeriod.Month)
 
 	def testPlannerAdvanceMonth(self):
 		""" Check that planner advance returns the correct new month, week, and day templates when advancing month """

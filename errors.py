@@ -18,25 +18,11 @@ class TomorrowIsEmptyError(Exception):
 		return repr(self.value)
 
 class LogfileNotCompletedError(Exception):
-	def __init__(self, value):
+	def __init__(self, value, period):
 		self.value = value
+		self.period = period
 	def __str__(self):
 		return repr(self.value)
-
-class DayLogfileNotCompletedError(LogfileNotCompletedError):
-	def __init__(self, value):
-		super(DayLogfileNotCompletedError, self).__init__(value)
-		self.type = 'day'
-
-class WeekLogfileNotCompletedError(LogfileNotCompletedError):
-	def __init__(self, value):
-		super(WeekLogfileNotCompletedError, self).__init__(value)
-		self.type = 'week'
-
-class MonthLogfileNotCompletedError(LogfileNotCompletedError):
-	def __init__(self, value):
-		super(MonthLogfileNotCompletedError, self).__init__(value)
-		self.type = 'month'
 
 class DateFormatError(Exception):
 	def __init__(self, value):
