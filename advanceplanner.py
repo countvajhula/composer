@@ -15,8 +15,8 @@ PLANNERTASKLISTFILELINK = 'TaskList.wiki'
 PLANNERDAYFILELINK = 'currentday'
 PLANNERWEEKFILELINK = 'currentweek'
 PLANNERMONTHFILELINK = 'currentmonth'
-#PLANNERQUARTERFILELINK = 'currentquarter' # TODO: implement
-#PLANNERYEARFILELINK = 'currentyear' # TODO: implement
+PLANNERQUARTERFILELINK = 'currentquarter'
+PLANNERYEARFILELINK = 'currentyear'
 CHECKPOINTSWEEKDAYFILE = 'Checkpoints_Weekday.wiki'
 CHECKPOINTSWEEKENDFILE = 'Checkpoints_Weekend.wiki'
 CHECKPOINTSWEEKFILE = 'Checkpoints_Week.wiki'
@@ -646,45 +646,21 @@ def buildDayTemplate(nextDay, tasklistfile, dayfile, checkpointsfile, periodicfi
 	daytemplate = buildPeriodTemplate(nextDay, title, entry, agenda, periodicname, checkpointsfile, periodicfile)
 	return daytemplate
 
-def writeNewYearTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, yearfile):
-	# TODO: implement
-	pass
-def writeNewQuarterTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, quarterfile):
-	# TODO: implement
-	pass
-
-def writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, monthfile):
+def writeNewTemplate(period, nextDay, tasklistfile, logfile, checkpointsfile, periodicfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
-	monthtemplate = buildMonthTemplate(nextDay, tasklistfile, monthfile, checkpointsfile, periodicfile)
-	monthfile.truncate(0)
-	monthfile.write(monthtemplate)
-	monthfile.seek(0)
-
-def writeNewWeekTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, weekfile):
-	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
-	weektemplate = buildWeekTemplate(nextDay, tasklistfile, weekfile, checkpointsfile, periodicfile)
-	weekfile.truncate(0)
-	weekfile.write(weektemplate)
-	weekfile.seek(0)
-
-def writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile):
-	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
-	daytemplate = buildDayTemplate(nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile)
-	dayfile.truncate(0)
-	dayfile.write(daytemplate)
-	dayfile.seek(0)
-
-def writeNewTemplate(currentPeriod, nextDay, tasklistfile, checkpointsfile, periodicfile, logfile):
-	if currentPeriod == PlannerPeriod.Day:
-		return writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
-	if currentPeriod == PlannerPeriod.Week:
-		return writeNewWeekTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
-	if currentPeriod == PlannerPeriod.Month:
-		return writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
-	if currentPeriod == PlannerPeriod.Quarter:
-		return writeNewQuarterTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
-	if currentPeriod == PlannerPeriod.Year:
-		return writeNewYearTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
+	if period == PlannerPeriod.Day:
+		template = buildDayTemplate(nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
+	if period == PlannerPeriod.Week:
+		template = buildWeekTemplate(nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
+	if period == PlannerPeriod.Month:
+		template = buildMonthTemplate(nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
+	if period == PlannerPeriod.Quarter:
+		template = buildQuarterTemplate(nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
+	if period == PlannerPeriod.Year:
+		template = buildYearTemplate(nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
+	logfile.truncate(0)
+	logfile.write(template)
+	logfile.seek(0)
 
 def writeExistingYearTemplate(nextDay, yearfile):
 	# TODO: implement
@@ -827,7 +803,7 @@ def advancePlanner(planner, now=None):
 				periodstr = get_period_name(currentPeriod)
 				msg = "Looks like you haven't completed your %s's log. Would you like to do that now?" % periodstr
 				raise LogfileNotCompletedError(msg, periodstr)
-			writeNewTemplate(currentPeriod, nextDay, tasklistfile, checkpointsfile, periodicfile, logfile)
+			writeNewTemplate(currentPeriod, nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
 
 			if currentPeriod < PlannerPeriod.Month: #TODO: change back to Year
 				return advancePeriod(currentPeriod)

@@ -650,7 +650,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 		monthtemplate += "NOTES:\n\n\n"
 		monthtemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewMonthTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, monthfile)
+		advanceplanner.writeNewTemplate(PlannerPeriod.Month, nextDay, tasklistfile, monthfile, checkpointsfile, periodicfile)
 
 		self.assertEqual(monthfile.read(), monthtemplate)
 
@@ -679,7 +679,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 		weektemplate += "NOTES:\n\n\n"
 		weektemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewWeekTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, weekfile)
+		advanceplanner.writeNewTemplate(PlannerPeriod.Week, nextDay, tasklistfile, weekfile, checkpointsfile, periodicfile)
 
 		self.assertEqual(weekfile.read(), weektemplate)
 
@@ -725,7 +725,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 			daytemplate += "NOTES:\n\n\n"
 			daytemplate += "TIME SPENT ON PLANNER: "
 
-			advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
+			advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile)
 
 			self.assertEqual(dayfile.read(), daytemplate)
 			self.assertEqual(tasklistfile.read(), self.tasklist_nextday)
@@ -2267,7 +2267,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
+		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2294,7 +2294,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
+		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2324,7 +2324,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
+		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2356,7 +2356,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
+		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2382,7 +2382,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
+		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2411,7 +2411,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "TIME SPENT ON PLANNER: "
 
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
+		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2445,7 +2445,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewDayTemplate(nextDay, tasklistfile, checkpointsfile, periodicfile, dayfile)
+		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
