@@ -74,6 +74,36 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n"
 					"SCHEDULED:\n")
 
+	yeartemplate = ("= 2012 =\n"
+					"\t* [[Q4 2012]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"YEARLYs:\n"
+					"[ ] 1 significant life achievement\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
+	quartertemplate = ("= Q4 2012 =\n"
+					"\t* [[Week of December 1, 2012]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"QUARTERLYs:\n"
+					"[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
 	monthtemplate = ("= December 2012 =\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
@@ -294,6 +324,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n\n"
 					"TIME SPENT ON PLANNER: ")
 
+	checkpoints_year = "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+	checkpoints_quarter = "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
 	checkpoints_month = "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
 	checkpoints_week = "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
 	checkpoints_weekday = ("[ ] 7:00am - wake up []\n[ ] 7:05am - brush + change []\n[ ] 7:10am - protein []\n"
@@ -305,6 +337,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 	checkpoints_weekend = ("[ ] 8:00am - wake up []\n[ ] 8:05am - brush + change []\n[ ] 8:10am - protein []\n"
 			"[ ] 8:15am - gym []\n[ ] 9:00am - shower []\n[ ] 9:15am - weigh yourself (saturday) []\n")
 
+	periodic_year = "[ ] 1 significant life achievement\n"
+	periodic_quarter = "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
 	periodic_month = "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
 	periodic_week = "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
 	periodic_day = "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
@@ -316,10 +350,16 @@ class PlannerAdvanceTester(unittest.TestCase):
 		self.planner.dayfile = StringIO(self.daytemplate)
 		self.planner.weekfile = StringIO(self.weektemplate)
 		self.planner.monthfile = StringIO(self.monthtemplate)
+		self.planner.quarterfile = StringIO(self.quartertemplate)
+		self.planner.yearfile = StringIO(self.yeartemplate)
+		self.planner.checkpoints_year_file = StringIO(self.checkpoints_year)
+		self.planner.checkpoints_quarter_file = StringIO(self.checkpoints_quarter)
 		self.planner.checkpoints_month_file = StringIO(self.checkpoints_month)
 		self.planner.checkpoints_week_file = StringIO(self.checkpoints_week)
 		self.planner.checkpoints_weekday_file = StringIO(self.checkpoints_weekday)
 		self.planner.checkpoints_weekend_file = StringIO(self.checkpoints_weekend)
+		self.planner.periodic_year_file = StringIO(self.periodic_year)
+		self.planner.periodic_quarter_file = StringIO(self.periodic_quarter)
 		self.planner.periodic_month_file = StringIO(self.periodic_month)
 		self.planner.periodic_week_file = StringIO(self.periodic_week)
 		self.planner.periodic_day_file = StringIO(self.periodic_day)
@@ -1316,6 +1356,36 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 					"[o] i'm waitin till saturday! [$DECEMBER 8, 2012$]\n"
 					"[o] i'm waitin till sunday! [$DECEMBER 9, 2012$]\n")
 
+	yeartemplate = ("= 2012 =\n"
+					"\t* [[Q4 2012]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"YEARLYs:\n"
+					"[ ] 1 significant life achievement\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
+	quartertemplate = ("= Q4 2012 =\n"
+					"\t* [[Week of December 1, 2012]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"QUARTERLYs:\n"
+					"[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
 	monthtemplate = ("= December 2012 =\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
@@ -1742,6 +1812,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 					"\n"
 					"TIME SPENT ON PLANNER: 15 mins")
 
+	checkpoints_year = "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+	checkpoints_quarter = "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
 	checkpoints_month = "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
 	checkpoints_week = "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
 	checkpoints_weekday = ("[ ] 7:00am - wake up []\n[ ] 7:05am - brush + change []\n[ ] 7:10am - protein []\n"
@@ -1753,6 +1825,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 	checkpoints_weekend = ("[ ] 8:00am - wake up []\n[ ] 8:05am - brush + change []\n[ ] 8:10am - protein []\n"
 			"[ ] 8:15am - gym []\n[ ] 9:00am - shower []\n[ ] 9:15am - weigh yourself (saturday) []\n")
 
+	periodic_year = "[ ] 1 significant life achievement\n"
+	periodic_quarter = "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
 	periodic_month = "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
 	periodic_week = "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
 	periodic_day = "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
@@ -1764,10 +1838,16 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		self.planner.dayfile = StringIO(self.daytemplate)
 		self.planner.weekfile = StringIO(self.weektemplate)
 		self.planner.monthfile = StringIO(self.monthtemplate)
+		self.planner.quarterfile = StringIO(self.quartertemplate)
+		self.planner.yearfile = StringIO(self.yeartemplate)
+		self.planner.checkpoints_year_file = StringIO(self.checkpoints_year)
+		self.planner.checkpoints_quarter_file = StringIO(self.checkpoints_quarter)
 		self.planner.checkpoints_month_file = StringIO(self.checkpoints_month)
 		self.planner.checkpoints_week_file = StringIO(self.checkpoints_week)
 		self.planner.checkpoints_weekday_file = StringIO(self.checkpoints_weekday)
 		self.planner.checkpoints_weekend_file = StringIO(self.checkpoints_weekend)
+		self.planner.periodic_year_file = StringIO(self.periodic_year)
+		self.planner.periodic_quarter_file = StringIO(self.periodic_quarter)
 		self.planner.periodic_month_file = StringIO(self.periodic_month)
 		self.planner.periodic_week_file = StringIO(self.periodic_week)
 		self.planner.periodic_day_file = StringIO(self.periodic_day)

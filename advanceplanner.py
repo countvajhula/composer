@@ -21,6 +21,10 @@ CHECKPOINTSWEEKDAYFILE = 'Checkpoints_Weekday.wiki'
 CHECKPOINTSWEEKENDFILE = 'Checkpoints_Weekend.wiki'
 CHECKPOINTSWEEKFILE = 'Checkpoints_Week.wiki'
 CHECKPOINTSMONTHFILE = 'Checkpoints_Month.wiki'
+CHECKPOINTSQUARTERFILE = 'Checkpoints_Quarter.wiki'
+CHECKPOINTSYEARFILE = 'Checkpoints_Year.wiki'
+PERIODICYEARLYFILE = 'Periodic_Yearly.wiki'
+PERIODICQUARTERLYFILE = 'Periodic_Quarterly.wiki'
 PERIODICMONTHLYFILE = 'Periodic_Monthly.wiki'
 PERIODICWEEKLYFILE = 'Periodic_Weekly.wiki'
 PERIODICDAILYFILE = 'Periodic_Daily.wiki'
@@ -55,19 +59,31 @@ class Planner(object):
 		self.dayfile = None
 		self.weekfile = None
 		self.monthfile = None
+		self.quarterfile = None
+		self.yearfile = None
 		self.checkpoints_weekday_file = None
 		self.checkpoints_weekend_file = None
 		self.checkpoints_week_file = None
 		self.checkpoints_month_file = None
+		self.checkpoints_quarter_file = None
+		self.checkpoints_year_file = None
 		self.periodic_day_file = None
 		self.periodic_week_file = None
 		self.periodic_month_file = None
+		self.periodic_quarter_file = None
+		self.periodic_year_file = None
 
 def resetHeadsOnPlannerFiles(planner):
 	planner.tasklistfile.seek(0)
 	planner.dayfile.seek(0)
 	planner.weekfile.seek(0)
 	planner.monthfile.seek(0)
+	planner.quarterfile.seek(0)
+	planner.yearfile.seek(0)
+	planner.checkpoints_year_file.seek(0)
+	planner.periodic_year_file.seek(0)
+	planner.checkpoints_quarter_file.seek(0)
+	planner.periodic_quarter_file.seek(0)
 	planner.checkpoints_month_file.seek(0)
 	planner.periodic_month_file.seek(0)
 	planner.checkpoints_week_file.seek(0)
@@ -580,6 +596,16 @@ def doPostMortem(logfile):
 	tasks['blocked'] = tasks['blocked'].strip('\n')
 	return tasks
 
+def quarter_for_month(month):
+	if month.lower() in ('january', 'february', 'march'):
+		return "Q1"
+	elif month.lower() in ('april', 'may', 'june'):
+		return "Q2"
+	elif month.lower() in ('july', 'august', 'september'):
+		return "Q3"
+	elif month.lower() in ('october', 'november', 'december'):
+		return "Q4"
+
 def buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfile, periodicfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	template = ""
@@ -606,9 +632,27 @@ def buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfi
 	template += "TIME SPENT ON PLANNER: "
 	return template
 
+def buildYearTemplate(nextDay, tasklistfile, yearfile, checkpointsfile, periodicfile):
+	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
+	title = "= %d =\n" % year
+	entry = "\t* [[%s %d]]\n" % (quarter_for_month(month), year)
+	periodname = "YEARLYs:\n"
+	agenda = ""
+	monthtemplate = buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfile, periodicfile)
+	return monthtemplate
+
+def buildQuarterTemplate(nextDay, tasklistfile, quarterfile, checkpointsfile, periodicfile):
+	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
+	title = "= %s %d =\n" % (quarter_for_month(month), year)
+	entry = "\t* [[Month of %s, %d]]\n" % (month, year)
+	periodname = "QUARTERLYs:\n"
+	agenda = ""
+	monthtemplate = buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfile, periodicfile)
+	return monthtemplate
+
 def buildMonthTemplate(nextDay, tasklistfile, monthfile, checkpointsfile, periodicfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
-	title = "= %s %d =\n" % (month, year)
+	title = "= %s %d =\n" % (month, year) #TODO: month.upper()
 	entry = "\t* [[Week of %s %d, %d]]\n" % (month, date, year)
 	periodname = "MONTHLYs:\n"
 	agenda = ""
@@ -663,11 +707,26 @@ def writeNewTemplate(period, nextDay, tasklistfile, logfile, checkpointsfile, pe
 	logfile.seek(0)
 
 def writeExistingYearTemplate(nextDay, yearfile):
-	# TODO: implement
-	pass
+	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
+	yearcontents = yearfile.read()
+	lastQuarterEntry = 'Q'
+	previdx = yearcontents.find(lastQuarterEntry)
+	idx = yearcontents.rfind('\n', 0, previdx)
+	newyearcontents = yearcontents[:idx+1] + '\t* [[%s %d]]\n' % (quarter_for_month(month), year) + yearcontents[idx+1:]
+	yearfile.truncate(0)
+	yearfile.write(newyearcontents)
+	yearfile.seek(0)
+
 def writeExistingQuarterTemplate(nextDay, quarterfile):
-	# TODO: implement
-	pass
+	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
+	quartercontents = quarterfile.read()
+	lastMonthEntry = 'Month of'
+	previdx = quartercontents.find(lastMonthEntry)
+	idx = quartercontents.rfind('\n', 0, previdx)
+	newquartercontents = quartercontents[:idx+1] + '\t* [[Month of %s, %d]]\n' % (month, year) + quartercontents[idx+1:]
+	quarterfile.truncate(0)
+	quarterfile.write(newquartercontents)
+	quarterfile.seek(0)
 
 def writeExistingMonthTemplate(nextDay, monthfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
@@ -730,6 +789,18 @@ def newWeekCriteriaMet(currentdate, now):
 	dow = currentdate.strftime('%A')
 	year = currentdate.year
 	if newMonthCriteriaMet(currentdate, now) or (newDayCriteriaMet(currentdate, now) == PeriodAdvanceCriteria.Satisfied and dow.lower() == 'saturday' and currentdate.day >= MIN_WEEK_LENGTH and calendar.monthrange(year, currentdate.month)[1] - currentdate.day >= MIN_WEEK_LENGTH):
+		return PeriodAdvanceCriteria.Satisfied
+
+def newQuarterCriteriaMet(currentdate, now):
+	nextDay = getNextDay(currentdate)
+	month = nextDay.strftime('%B')
+	if newMonthCriteriaMet(currentdate, now) and month.lower() in ('january', 'april', 'july', 'october'):
+		return PeriodAdvanceCriteria.Satisfied
+
+def newYearCriteriaMet(currentdate, now):
+	nextDay = getNextDay(currentdate)
+	month = nextDay.strftime('%B')
+	if newQuarterCriteriaMet(currentdate, now) and month.lower() == 'january':
 		return PeriodAdvanceCriteria.Satisfied
 
 def newPeriodCriteriaMet(currentPeriod, currentdate, now):
@@ -805,7 +876,7 @@ def advancePlanner(planner, now=None):
 				raise LogfileNotCompletedError(msg, periodstr)
 			writeNewTemplate(currentPeriod, nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
 
-			if currentPeriod < PlannerPeriod.Month: #TODO: change back to Year
+			if currentPeriod < PlannerPeriod.Year:
 				return advancePeriod(currentPeriod)
 		elif periodCriteriaMet == PeriodAdvanceCriteria.DayStillInProgress:
 			raise DayStillInProgressError("Current day is still in progress! Update after 6pm")
@@ -846,6 +917,16 @@ def constructPlannerFromFileSystem(plannerpath):
 	f = open(monthfn_pre, 'r')
 	planner.monthfile = StringIO(f.read())
 	f.close()
+	quarterfn_pre = '%s/%s' % (plannerpath, PLANNERQUARTERFILELINK)
+	quarterfn_pre = '%s/%s' % (plannerpath, os.readlink(quarterfn_pre))
+	f = open(quarterfn_pre, 'r')
+	planner.quarterfile = StringIO(f.read())
+	f.close()
+	yearfn_pre = '%s/%s' % (plannerpath, PLANNERYEARFILELINK)
+	yearfn_pre = '%s/%s' % (plannerpath, os.readlink(yearfn_pre))
+	f = open(yearfn_pre, 'r')
+	planner.yearfile = StringIO(f.read())
+	f.close()
 
 	# daily, weekly, monthly checkpoints, periodic items
 	fn = '%s/%s' % (plannerpath, CHECKPOINTSWEEKDAYFILE)
@@ -876,6 +957,22 @@ def constructPlannerFromFileSystem(plannerpath):
 	f = open(fn, 'r')
 	planner.periodic_month_file = StringIO(f.read())
 	f.close()
+	fn = '%s/%s' % (plannerpath, CHECKPOINTSQUARTERFILE)
+	f = open(fn, 'r')
+	planner.checkpoints_quarter_file = StringIO(f.read())
+	f.close()
+	fn = '%s/%s' % (plannerpath, PERIODICQUARTERLYFILE)
+	f = open(fn, 'r')
+	planner.periodic_quarter_file = StringIO(f.read())
+	f.close()
+	fn = '%s/%s' % (plannerpath, CHECKPOINTSYEARFILE)
+	f = open(fn, 'r')
+	planner.checkpoints_year_file = StringIO(f.read())
+	f.close()
+	fn = '%s/%s' % (plannerpath, PERIODICYEARLYFILE)
+	f = open(fn, 'r')
+	planner.periodic_year_file = StringIO(f.read())
+	f.close()
 
 	return planner
 
@@ -887,9 +984,19 @@ def writePlannerToFilesystem(planner, plannerpath):
 	weekfn_pre = '%s/%s' % (plannerpath, os.readlink(weekfn_pre))
 	monthfn_pre = '%s/%s' % (plannerpath, PLANNERMONTHFILELINK)
 	monthfn_pre = '%s/%s' % (plannerpath, os.readlink(monthfn_pre))
+	quarterfn_pre = '%s/%s' % (plannerpath, PLANNERQUARTERFILELINK)
+	quarterfn_pre = '%s/%s' % (plannerpath, os.readlink(quarterfn_pre))
+	yearfn_pre = '%s/%s' % (plannerpath, PLANNERYEARFILELINK)
+	yearfn_pre = '%s/%s' % (plannerpath, os.readlink(yearfn_pre))
 
 	f = open(tasklistfn, 'w')
 	f.write(planner.tasklistfile.read())
+	f.close()
+	f = open(yearfn_pre, 'w')
+	f.write(planner.yearfile.read())
+	f.close()
+	f = open(quarterfn_pre, 'w')
+	f.write(planner.quarterfile.read())
 	f.close()
 	f = open(monthfn_pre, 'w')
 	f.write(planner.monthfile.read())
@@ -921,10 +1028,20 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 	weekfn_pre = '%s/%s' % (plannerpath, os.readlink(weekfn_pre))
 	monthfn_pre = '%s/%s' % (plannerpath, PLANNERMONTHFILELINK)
 	monthfn_pre = '%s/%s' % (plannerpath, os.readlink(monthfn_pre))
+	quarterfn_pre = '%s/%s' % (plannerpath, PLANNERQUARTERFILELINK)
+	quarterfn_pre = '%s/%s' % (plannerpath, os.readlink(quarterfn_pre))
+	yearfn_pre = '%s/%s' % (plannerpath, PLANNERYEARFILELINK)
+	yearfn_pre = '%s/%s' % (plannerpath, os.readlink(yearfn_pre))
 
 	nextDay = planner.date
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	# check for possible errors in planner state before making any changes
+	if status >= PlannerPeriod.Year:
+		yearfn_post = '%s/%d.wiki' % (plannerpath, year)
+		if os.path.isfile(yearfn_post): raise PlannerStateError("New year logfile already exists!")
+	if status >= PlannerPeriod.Quarter:
+		quarterfn_post = '%s/%s %d.wiki' % (plannerpath, quarter_for_month(month), year)
+		if os.path.isfile(quarterfn_post): raise PlannerStateError("New quarter logfile already exists!")
 	if status >= PlannerPeriod.Month:
 		monthfn_post = '%s/Month of %s, %d.wiki' % (plannerpath, month, year)
 		if os.path.isfile(monthfn_post): raise PlannerStateError("New month logfile already exists!")
@@ -939,6 +1056,33 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 	if status >= PlannerPeriod.Day and simulate:
 		raise SimulationPassedError('All systems GO', status)
 
+	if status >= PlannerPeriod.Year:
+		# extract new year filename from date
+		# write buffer to new file
+		# update currentyear symlink
+		yearfn_post = '%s/%d.wiki' % (plannerpath, year)
+		f = open(yearfn_post, 'w')
+		f.write(planner.yearfile.read())
+		f.close()
+		filelinkfn = '%s/%s' % (plannerpath, PLANNERYEARFILELINK)
+		if os.path.islink(filelinkfn): os.remove(filelinkfn)
+		os.symlink(yearfn_post[yearfn_post.rfind('/')+1:], filelinkfn) # remove path from filename so it isn't "double counted"
+	if status >= PlannerPeriod.Quarter:
+		# extract new quarter filename from date
+		# write buffer to new file
+		# update currentquarter symlink
+		quarterfn_post = '%s/%s %d.wiki' % (plannerpath, quarter_for_month(month), year)
+		f = open(quarterfn_post, 'w')
+		f.write(planner.quarterfile.read())
+		f.close()
+		filelinkfn = '%s/%s' % (plannerpath, PLANNERQUARTERFILELINK)
+		if os.path.islink(filelinkfn): os.remove(filelinkfn)
+		os.symlink(quarterfn_post[quarterfn_post.rfind('/')+1:], filelinkfn) # remove path from filename so it isn't "double counted"
+	if status == PlannerPeriod.Quarter:
+		# write year buffer to existing file
+		f = open(yearfn_pre, 'w')
+		f.write(planner.yearfile.read())
+		f.close()
 	if status >= PlannerPeriod.Month:
 		# extract new month filename from date
 		# write buffer to new file
@@ -950,6 +1094,11 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 		filelinkfn = '%s/%s' % (plannerpath, PLANNERMONTHFILELINK)
 		if os.path.islink(filelinkfn): os.remove(filelinkfn)
 		os.symlink(monthfn_post[monthfn_post.rfind('/')+1:], filelinkfn) # remove path from filename so it isn't "double counted"
+	if status == PlannerPeriod.Month:
+		# write quarter buffer to existing file
+		f = open(quarterfn_pre, 'w')
+		f.write(planner.quarterfile.read())
+		f.close()
 	if status >= PlannerPeriod.Week:
 		# extract new week filename from date
 		# write buffer to new file

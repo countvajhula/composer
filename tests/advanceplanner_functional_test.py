@@ -36,3 +36,23 @@ class AdvancePlanner(unittest.TestCase):
 		now = datetime.datetime(2012,12,31,19,0,0)
 		status = advanceplanner.advanceFilesystemPlanner(WIKIPATH, now)
 		self.assertEqual(status, PlannerPeriod.Month)
+
+	def testAdvancePlannerQuarter(self):
+		""" Actually operate on a wiki that's configured such that a quarter advance
+		is in order. After running the test check that this is what has happened
+		(git status / diff if git managed test wikis)
+		"""
+		WIKIPATH = 'tests/testwikis/quarterwiki'
+		now = datetime.datetime(2012,12,31,19,0,0)
+		status = advanceplanner.advanceFilesystemPlanner(WIKIPATH, now)
+		self.assertEqual(status, PlannerPeriod.Quarter)
+
+	def testAdvancePlannerYear(self):
+		""" Actually operate on a wiki that's configured such that a year advance
+		is in order. After running the test check that this is what has happened
+		(git status / diff if git managed test wikis)
+		"""
+		WIKIPATH = 'tests/testwikis/yearwiki'
+		now = datetime.datetime(2012,12,31,19,0,0)
+		status = advanceplanner.advanceFilesystemPlanner(WIKIPATH, now)
+		self.assertEqual(status, PlannerPeriod.Year)
