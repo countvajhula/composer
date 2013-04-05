@@ -138,7 +138,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n\n"
 					"TIME SPENT ON PLANNER: ")
 
-	yearadvance_monthtemplate = ("= January 2013 =\n"
+	yearadvance_monthtemplate = ("= JANUARY 2013 =\n"
 					"\n"
 					"\t* [[Week of January 1, 2013]]\n"
 					"\n"
@@ -222,7 +222,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 
 	quarteradvance_quartertemplate = quartertemplate
 
-	quarteradvance_monthtemplate = ("= October 2012 =\n"
+	quarteradvance_monthtemplate = ("= OCTOBER 2012 =\n"
 					"\n"
 					"\t* [[Week of October 1, 2012]]\n"
 					"\n"
@@ -254,7 +254,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n\n"
 					"TIME SPENT ON PLANNER: ")
 
-	monthtemplate = ("= December 2012 =\n"
+	monthtemplate = ("= DECEMBER 2012 =\n"
 					"\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
@@ -270,7 +270,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n\n"
 					"TIME SPENT ON PLANNER: ")
 
-	monthtemplate_agendaupdated = ("= December 2012 =\n"
+	monthtemplate_agendaupdated = ("= DECEMBER 2012 =\n"
 					"\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
@@ -374,7 +374,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n\n"
 					"TIME SPENT ON PLANNER: ")
 
-	weekadvance_monthtemplate = ("= December 2012 =\n"
+	weekadvance_monthtemplate = ("= DECEMBER 2012 =\n"
 					"\n"
 					"\t* [[Week of December 9, 2012]]\n"
 					"\t* [[Week of December 1, 2012]]\n"
@@ -788,7 +788,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 					"\n"
 					"SCHEDULED:\n")
 
-	monthtemplate = ("= December 2012 =\n"
+	monthtemplate = ("= DECEMBER 2012 =\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
 					"CHECKPOINTS:\n"
@@ -880,7 +880,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 		monthfile = StringIO(self.monthtemplate)
 
 		(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
-		monthtemplate = "= %s %d =\n" % (month, year)
+		monthtemplate = "= %s %d =\n" % (month.upper(), year)
 		monthtemplate += "\n"
 		monthtemplate += "\t* [[Week of %s %d, %d]]\n" % (month, date, year)
 		monthtemplate += "\n"
@@ -977,7 +977,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 	""" Check that updates on existing templates modifies the file as expected - does the right thing, does only that thing """
 
-	monthtemplate = ("= December 2012 =\n"
+	monthtemplate = ("= DECEMBER 2012 =\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
 					"CHECKPOINTS:\n"
@@ -992,7 +992,7 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 					"\n\n"
 					"TIME SPENT ON PLANNER: ")
 
-	monthtemplate_updated = ("= December 2012 =\n"
+	monthtemplate_updated = ("= DECEMBER 2012 =\n"
 					"\t* [[Week of December 5, 2012]]\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
@@ -1590,7 +1590,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 					"\n\n"
 					"TIME SPENT ON PLANNER: ")
 
-	monthtemplate = ("= December 2012 =\n"
+	monthtemplate = ("= DECEMBER 2012 =\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
 					"CHECKPOINTS:\n"
@@ -2443,7 +2443,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 					"[o] this task could be the one you need to do! [$DECEMBER 10, 2012$]\n"
 					"[o] this task is def not the one you need to do [$DECEMBER 19, 2012$]\n")
 
-	monthtemplate = ("= December 2012 =\n"
+	monthtemplate = ("= DECEMBER 2012 =\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
 					"CHECKPOINTS:\n"

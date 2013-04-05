@@ -652,7 +652,7 @@ def buildQuarterTemplate(nextDay, tasklistfile, quarterfile, checkpointsfile, pe
 
 def buildMonthTemplate(nextDay, tasklistfile, monthfile, checkpointsfile, periodicfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
-	title = "= %s %d =\n" % (month, year) #TODO: month.upper()
+	title = "= %s %d =\n" % (month.upper(), year)
 	entry = "\t* [[Week of %s %d, %d]]\n" % (month, date, year)
 	periodname = "MONTHLYs:\n"
 	agenda = ""
