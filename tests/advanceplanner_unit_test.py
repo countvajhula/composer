@@ -89,8 +89,25 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n\n"
 					"TIME SPENT ON PLANNER: ")
 
-	quartertemplate = ("= Q4 2012 =\n"
-					"\t* [[Week of December 1, 2012]]\n"
+	yearadvance_yeartemplate = ("= 2013 =\n"
+					"\n"
+					"\t* [[Q1 2013]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"YEARLYs:\n"
+					"[ ] 1 significant life achievement\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
+	yearadvance_quartertemplate = ("= Q1 2013 =\n"
+					"\n"
+					"\t* [[Month of January, 2013]]\n"
 					"\n"
 					"CHECKPOINTS:\n"
 					"[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
@@ -104,7 +121,106 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n\n"
 					"TIME SPENT ON PLANNER: ")
 
+	yearadvance_monthtemplate = ("= January 2013 =\n"
+					"\n"
+					"\t* [[Week of January 1, 2013]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"MONTHLYs:\n"
+					"[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
+	yearadvance_weektemplate = ("= WEEK OF JANUARY 1, 2013 =\n"
+					"\n"
+					"\t* [[January 1, 2013]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"WEEKLYs:\n"
+					"[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
+	quartertemplate = ("= Q4 2012 =\n"
+					"\n"
+					"\t* [[Month of October, 2012]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"QUARTERLYs:\n"
+					"[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
+	quarteradvance_yeartemplate = ("= 2012 =\n"
+					"\t* [[Q4 2012]]\n"
+					"\t* [[Q3 2012]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"YEARLYs:\n"
+					"[ ] 1 significant life achievement\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
+	quarteradvance_quartertemplate = quartertemplate
+
+	quarteradvance_monthtemplate = ("= October 2012 =\n"
+					"\n"
+					"\t* [[Week of October 1, 2012]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"MONTHLYs:\n"
+					"[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
+	quarteradvance_weektemplate = ("= WEEK OF OCTOBER 1, 2012 =\n"
+					"\n"
+					"\t* [[October 1, 2012]]\n"
+					"\n"
+					"CHECKPOINTS:\n"
+					"[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
+					"\n"
+					"AGENDA:\n"
+					"\n"
+					"WEEKLYs:\n"
+					"[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
+					"\n"
+					"NOTES:\n"
+					"\n\n"
+					"TIME SPENT ON PLANNER: ")
+
 	monthtemplate = ("= December 2012 =\n"
+					"\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
 					"CHECKPOINTS:\n"
@@ -120,6 +236,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"TIME SPENT ON PLANNER: ")
 
 	monthtemplate_agendaupdated = ("= December 2012 =\n"
+					"\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
 					"CHECKPOINTS:\n"
@@ -136,25 +253,11 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"\n\n"
 					"TIME SPENT ON PLANNER: ")
 
-	monthadvance_monthtemplate = ("= January 2013 =\n"
-					"\n"
-					"\t* [[Week of January 1, 2013]]\n"
-					"\n"
-					"CHECKPOINTS:\n"
-					"[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
-					"\n"
-					"AGENDA:\n"
-					"\n"
-					"MONTHLYs:\n"
-					"[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
-					"\n"
-					"NOTES:\n"
-					"\n\n"
-					"TIME SPENT ON PLANNER: ")
+	monthadvance_monthtemplate = monthtemplate
 
-	monthadvance_weektemplate = ("= WEEK OF JANUARY 1, 2013 =\n"
+	monthadvance_weektemplate = ("= WEEK OF DECEMBER 1, 2012 =\n"
 					"\n"
-					"\t* [[January 1, 2013]]\n"
+					"\t* [[December 1, 2012]]\n"
 					"\n"
 					"CHECKPOINTS:\n"
 					"[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
@@ -237,6 +340,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 					"TIME SPENT ON PLANNER: ")
 
 	weekadvance_monthtemplate = ("= December 2012 =\n"
+					"\n"
 					"\t* [[Week of December 9, 2012]]\n"
 					"\t* [[Week of December 1, 2012]]\n"
 					"\n"
@@ -444,16 +548,59 @@ class PlannerAdvanceTester(unittest.TestCase):
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Month)
 
+	def testDecisionForQuarterAdvance(self):
+		""" Check that planner advance takes the correct decision to advance quarter on a quarter change boundary """
+		now = datetime.datetime(2012,3,31,19,0,0)
+		self.planner.date = now.date()
+		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
+		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		status = advanceplanner.advancePlanner(self.planner, now)
+		self.assertEqual(status, PlannerPeriod.Quarter)
+
+	def testDecisionForYearAdvance(self):
+		""" Check that planner advance takes the correct decision to advance year on a year change boundary """
+		now = datetime.datetime(2012,12,31,19,0,0)
+		self.planner.date = now.date()
+		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
+		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		status = advanceplanner.advancePlanner(self.planner, now)
+		self.assertEqual(status, PlannerPeriod.Year)
+
+	def testPlannerAdvanceYear(self):
+		""" Check that planner advance returns the correct new year, quarter, month, week, and day templates when advancing year """
+		now = datetime.datetime(2012,12,31,19,0,0)
+		self.planner.date = now.date()
+		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
+		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		status = advanceplanner.advancePlanner(self.planner, now)
+		self.assertEqual(self.planner.yearfile.read(), self.yearadvance_yeartemplate)
+		self.assertEqual(self.planner.quarterfile.read(), self.yearadvance_quartertemplate)
+		self.assertEqual(self.planner.monthfile.read(), self.yearadvance_monthtemplate)
+		self.assertEqual(self.planner.weekfile.read(), self.yearadvance_weektemplate)
+		self.assertEqual(self.planner.dayfile.read(), self.default_weekdaytemplate)
+
+	def testPlannerAdvanceQuarter(self):
+		""" Check that planner advance returns the correct new quarter, month, week, and day templates when advancing quarter """
+		now = datetime.datetime(2012,9,30,19,0,0)
+		self.planner.date = now.date()
+		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
+		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		status = advanceplanner.advancePlanner(self.planner, now)
+		self.assertEqual(self.planner.quarterfile.read(), self.quarteradvance_quartertemplate)
+		self.assertEqual(self.planner.monthfile.read(), self.quarteradvance_monthtemplate)
+		self.assertEqual(self.planner.weekfile.read(), self.quarteradvance_weektemplate)
+		self.assertEqual(self.planner.dayfile.read(), self.default_weekdaytemplate)
+
 	def testPlannerAdvanceMonth(self):
 		""" Check that planner advance returns the correct new month, week, and day templates when advancing month """
-		now = datetime.datetime(2012,12,31,19,0,0)
+		now = datetime.datetime(2012,11,30,19,0,0)
 		self.planner.date = now.date()
 		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
 		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(self.planner.monthfile.read(), self.monthadvance_monthtemplate)
 		self.assertEqual(self.planner.weekfile.read(), self.monthadvance_weektemplate)
-		self.assertEqual(self.planner.dayfile.read(), self.default_weekdaytemplate)
+		self.assertEqual(self.planner.dayfile.read(), self.default_weekendtemplate)
 
 	def testPlannerAdvanceWeek(self):
 		""" Check that planner advance returns the correct new week and day templates, and updates the existing month template correctly, when advancing week """
@@ -496,6 +643,34 @@ class PlannerAdvanceTester(unittest.TestCase):
 		weekagenda = advanceplanner.extractAgendaFromLogfile(self.planner.weekfile)
 		advanceplanner.updateLogfileAgenda(self.planner.monthfile, weekagenda)
 		self.assertEqual(self.planner.monthfile.read(), self.monthtemplate_agendaupdated)
+
+	def testPlannerAdvanceQuarterAgenda(self):
+		""" Check that, on month advance, current month's agenda is appended to the current quarter """
+		raise NotImplementedError()
+		"""
+		now = datetime.datetime(2012,12,5,19,0,0)
+		self.planner.date = now.date()
+		self.planner.weekfile = StringIO(self.weektemplate_agendaupdated)
+		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
+		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		weekagenda = advanceplanner.extractAgendaFromLogfile(self.planner.weekfile)
+		advanceplanner.updateLogfileAgenda(self.planner.monthfile, weekagenda)
+		self.assertEqual(self.planner.monthfile.read(), self.monthtemplate_agendaupdated)
+		"""
+
+	def testPlannerAdvanceYearAgenda(self):
+		""" Check that, on quarter advance, current quarter's agenda is appended to the current year """
+		raise NotImplementedError()
+		"""
+		now = datetime.datetime(2012,12,5,19,0,0)
+		self.planner.date = now.date()
+		self.planner.weekfile = StringIO(self.weektemplate_agendaupdated)
+		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
+		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		weekagenda = advanceplanner.extractAgendaFromLogfile(self.planner.weekfile)
+		advanceplanner.updateLogfileAgenda(self.planner.monthfile, weekagenda)
+		self.assertEqual(self.planner.monthfile.read(), self.monthtemplate_agendaupdated)
+		"""
 
 class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 	""" Check that new templates generated by the planner are as expected """
