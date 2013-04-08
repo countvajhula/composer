@@ -45,6 +45,7 @@ class PlannerConfig(object):
 	(Strict, Lax) = (1,2)
 	TomorrowChecking = Strict
 	LogfileCompletionChecking = Strict
+	PreferredBulletChar = '*'
 
 class PlannerUserSettings(object):
 	WeekTheme = None
@@ -635,7 +636,7 @@ def buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfi
 def buildYearTemplate(nextDay, tasklistfile, yearfile, checkpointsfile, periodicfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	title = "= %d =\n" % year
-	entry = "\t* [[%s %d]]\n" % (quarter_for_month(month), year)
+	entry = "\t%s [[%s %d]]\n" % (PlannerConfig.PreferredBulletChar, quarter_for_month(month), year)
 	periodname = "YEARLYs:\n"
 	agenda = ""
 	monthtemplate = buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfile, periodicfile)
@@ -644,7 +645,7 @@ def buildYearTemplate(nextDay, tasklistfile, yearfile, checkpointsfile, periodic
 def buildQuarterTemplate(nextDay, tasklistfile, quarterfile, checkpointsfile, periodicfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	title = "= %s %d =\n" % (quarter_for_month(month), year)
-	entry = "\t* [[Month of %s, %d]]\n" % (month, year)
+	entry = "\t%s [[Month of %s, %d]]\n" % (PlannerConfig.PreferredBulletChar, month, year)
 	periodname = "QUARTERLYs:\n"
 	agenda = ""
 	monthtemplate = buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfile, periodicfile)
@@ -653,7 +654,7 @@ def buildQuarterTemplate(nextDay, tasklistfile, quarterfile, checkpointsfile, pe
 def buildMonthTemplate(nextDay, tasklistfile, monthfile, checkpointsfile, periodicfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	title = "= %s %d =\n" % (month.upper(), year)
-	entry = "\t* [[Week of %s %d, %d]]\n" % (month, date, year)
+	entry = "\t%s [[Week of %s %d, %d]]\n" % (PlannerConfig.PreferredBulletChar, month, date, year)
 	periodname = "MONTHLYs:\n"
 	agenda = ""
 	monthtemplate = buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfile, periodicfile)
@@ -665,7 +666,7 @@ def buildWeekTemplate(nextDay, tasklistfile, weekfile, checkpointsfile, periodic
 	if PlannerUserSettings.WeekTheme:
 		title += "\n"
 		title += "Theme: *WEEK OF %s*\n" % PlannerUserSettings.WeekTheme.upper()
-	entry = "\t* [[%s %d, %d]]\n" % (month, date, year)
+	entry = "\t%s [[%s %d, %d]]\n" % (PlannerConfig.PreferredBulletChar, month, date, year)
 	periodname = "WEEKLYs:\n"
 	agenda = ""
 	weektemplate = buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfile, periodicfile)
@@ -712,7 +713,7 @@ def writeExistingYearTemplate(nextDay, yearfile):
 	lastQuarterEntry = 'Q'
 	previdx = yearcontents.find(lastQuarterEntry)
 	idx = yearcontents.rfind('\n', 0, previdx)
-	newyearcontents = yearcontents[:idx+1] + '\t* [[%s %d]]\n' % (quarter_for_month(month), year) + yearcontents[idx+1:]
+	newyearcontents = yearcontents[:idx+1] + '\t%s [[%s %d]]\n' % (PlannerConfig.PreferredBulletChar, quarter_for_month(month), year) + yearcontents[idx+1:]
 	yearfile.truncate(0)
 	yearfile.write(newyearcontents)
 	yearfile.seek(0)
@@ -723,7 +724,7 @@ def writeExistingQuarterTemplate(nextDay, quarterfile):
 	lastMonthEntry = 'Month of'
 	previdx = quartercontents.find(lastMonthEntry)
 	idx = quartercontents.rfind('\n', 0, previdx)
-	newquartercontents = quartercontents[:idx+1] + '\t* [[Month of %s, %d]]\n' % (month, year) + quartercontents[idx+1:]
+	newquartercontents = quartercontents[:idx+1] + '\t%s [[Month of %s, %d]]\n' % (PlannerConfig.PreferredBulletChar, month, year) + quartercontents[idx+1:]
 	quarterfile.truncate(0)
 	quarterfile.write(newquartercontents)
 	quarterfile.seek(0)
@@ -734,7 +735,7 @@ def writeExistingMonthTemplate(nextDay, monthfile):
 	lastWeekEntry = 'Week of'
 	previdx = monthcontents.find(lastWeekEntry)
 	idx = monthcontents.rfind('\n', 0, previdx)
-	newmonthcontents = monthcontents[:idx+1] + '\t* [[Week of %s %d, %d]]\n' % (month, date, year) + monthcontents[idx+1:]
+	newmonthcontents = monthcontents[:idx+1] + '\t%s [[Week of %s %d, %d]]\n' % (PlannerConfig.PreferredBulletChar, month, date, year) + monthcontents[idx+1:]
 	monthfile.truncate(0)
 	monthfile.write(newmonthcontents)
 	monthfile.seek(0)
@@ -747,7 +748,7 @@ def writeExistingWeekTemplate(nextDay, weekfile):
 	previousDayEntry = '%s %d, %d' % (monthprev, dateprev, yearprev)
 	previdx = weekcontents.find(previousDayEntry)
 	idx = weekcontents.rfind('\n', 0, previdx)
-	newweekcontents = weekcontents[:idx+1] + '\t* [[%s %d, %d]]\n' % (month, date, year) + weekcontents[idx+1:]
+	newweekcontents = weekcontents[:idx+1] + '\t%s [[%s %d, %d]]\n' % (PlannerConfig.PreferredBulletChar, month, date, year) + weekcontents[idx+1:]
 	weekfile.truncate(0) # way to close and open an existing handle in different modes?
 	weekfile.write(newweekcontents)
 	weekfile.seek(0)
