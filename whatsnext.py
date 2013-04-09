@@ -9,7 +9,7 @@ WIKIDIR_TEST = 'tests/testwikis/userwiki'
 WIKIDIR_PRODUCTION = '/Users/siddhartha/log/planner'
 
 def set_preferences():
-	PlannerConfig.PreferredBulletChar = '-'
+	PlannerConfig.PreferredBulletChar = '*'
 
 if __name__ == '__main__':
 	#Moved pending tasks from today over to tomorrow's agenda
