@@ -12,6 +12,7 @@ from errors import *
 #WIKIDIR = '/Users/siddhartha/log/planner'
 WIKIDIR = 'tests/testwikis/userwiki'
 PLANNERTASKLISTFILELINK = 'TaskList.wiki'
+PLANNERDAYTHEMESFILELINK = 'DayThemes.wiki'
 PLANNERDAYFILELINK = 'currentday'
 PLANNERWEEKFILELINK = 'currentweek'
 PLANNERMONTHFILELINK = 'currentmonth'
@@ -57,6 +58,7 @@ class Planner(object):
 	def __init__(self):
 		self.date = None
 		self.tasklistfile = None
+		self.daythemesfile = None
 		self.dayfile = None
 		self.weekfile = None
 		self.monthfile = None
@@ -76,6 +78,7 @@ class Planner(object):
 
 def resetHeadsOnPlannerFiles(planner):
 	planner.tasklistfile.seek(0)
+	planner.daythemesfile.seek(0)
 	planner.dayfile.seek(0)
 	planner.weekfile.seek(0)
 	planner.monthfile.seek(0)
@@ -672,9 +675,20 @@ def buildWeekTemplate(nextDay, tasklistfile, weekfile, checkpointsfile, periodic
 	weektemplate = buildPeriodTemplate(nextDay, title, entry, agenda, periodname, checkpointsfile, periodicfile)
 	return weektemplate
 
-def buildDayTemplate(nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile):
+def buildDayTemplate(nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
-	title = ""
+	title = ("= %s %s %d, %d =\n" % (day, month[:3], date, year)).upper()
+	def getDaysTheme(day):
+		dailythemes = daythemesfile.read().lower()
+		theme = dailythemes[dailythemes.index(day.lower()):]
+		theme = theme[theme.index(':'):].strip(': ')
+		theme = theme[:theme.index('\n')].strip().upper()
+		theme = "*" + theme + "*"
+		if len(theme) > 2: return theme
+	theme = getDaysTheme(day)
+	if theme:
+		title += "\n"
+		title += "Theme: %s\n" % theme
 	entry = None
 	periodicname = "DAILYs:\n"
 	undone = doPostMortem(dayfile)['undone']
@@ -691,10 +705,10 @@ def buildDayTemplate(nextDay, tasklistfile, dayfile, checkpointsfile, periodicfi
 	daytemplate = buildPeriodTemplate(nextDay, title, entry, agenda, periodicname, checkpointsfile, periodicfile)
 	return daytemplate
 
-def writeNewTemplate(period, nextDay, tasklistfile, logfile, checkpointsfile, periodicfile):
+def writeNewTemplate(period, nextDay, tasklistfile, logfile, checkpointsfile, periodicfile, daythemesfile):
 	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 	if period == PlannerPeriod.Day:
-		template = buildDayTemplate(nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
+		template = buildDayTemplate(nextDay, tasklistfile, logfile, checkpointsfile, periodicfile, daythemesfile)
 	if period == PlannerPeriod.Week:
 		template = buildWeekTemplate(nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
 	if period == PlannerPeriod.Month:
@@ -870,12 +884,13 @@ def advancePlanner(planner, now=None):
 		if periodCriteriaMet == PeriodAdvanceCriteria.Satisfied:
 			currentPeriod += 1
 			tasklistfile = planner.tasklistfile
+			daythemesfile = planner.daythemesfile
 			(checkpointsfile, periodicfile, logfile) = get_period_files(currentPeriod)
 			if not checkLogfileCompletion(logfile) and PlannerConfig.LogfileCompletionChecking == PlannerConfig.Strict:
 				periodstr = get_period_name(currentPeriod)
 				msg = "Looks like you haven't completed your %s's log. Would you like to do that now?" % periodstr
 				raise LogfileNotCompletedError(msg, periodstr)
-			writeNewTemplate(currentPeriod, nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
+			writeNewTemplate(currentPeriod, nextDay, tasklistfile, logfile, checkpointsfile, periodicfile, daythemesfile)
 
 			if currentPeriod < PlannerPeriod.Year:
 				return advancePeriod(currentPeriod)
@@ -902,6 +917,10 @@ def constructPlannerFromFileSystem(plannerpath):
 	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILELINK)
 	f = open(tasklistfn, 'r')
 	planner.tasklistfile = StringIO(f.read())
+	f.close()
+	daythemesfn = '%s/%s' % (plannerpath, PLANNERDAYTHEMESFILELINK)
+	f = open(daythemesfn, 'r')
+	planner.daythemesfile = StringIO(f.read())
 	f.close()
 	dayfn_pre = '%s/%s' % (plannerpath, PLANNERDAYFILELINK)
 	dayfn_pre = '%s/%s' % (plannerpath, os.readlink(dayfn_pre))
