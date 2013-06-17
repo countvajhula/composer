@@ -303,6 +303,23 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		(month, day, year) = (getMonthName(monthn).upper(), str(dayn), str(yearn))
 		date = datetime.date(yearn, monthn, dayn)
 		datestr_std = '%s %s, %s' % (month, day, year)
+	elif dateformat14.search(datestr): #NEXT WEEK
+		if not planner:
+			raise RelativeDateError("Relative date found, but no context available")
+		dowToSchedule = 'SUNDAY' # start of next week
+		upcomingweek = map(lambda d:planner.date+datetime.timedelta(days=d), range(1,8))
+		dow = [d.strftime('%A').upper() for d in upcomingweek]
+		date = upcomingweek[dow.index(dowToSchedule)]
+		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
+		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
+	elif dateformat15.search(datestr): #NEXT MONTH
+		if not planner:
+			raise RelativeDateError("Relative date found, but no context available")
+		upcomingmonth = map(lambda d:planner.date+datetime.timedelta(days=d), range(1,31))
+		dates = [d.day for d in upcomingmonth]
+		date = upcomingmonth[dates.index(1)]
+		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
+		datestr_std = '%s %s' % (month, year)
 	else: raise DateFormatError("Date format does not match any acceptable formats! " + datestr)
 	if date:
 		return {'date':date, 'datestr':datestr_std}
