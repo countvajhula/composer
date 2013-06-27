@@ -161,15 +161,11 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 	dateformat12 = re.compile('^(\d\d)-(\d\d)-(\d\d\d\d)$')
 	# TOMORROW
 	dateformat13 = re.compile('^TOMORROW$')
-
-	## these 2 not yet supported
 	# TODO: need a function to test date boundary status and return monthboundary, weekboundary, or dayboundary (default)
 	# NEXT WEEK
 	dateformat14 = re.compile('^NEXT WEEK$')
 	# NEXT MONTH
 	dateformat15 = re.compile('^NEXT MONTH$')
-	##
-
 	# <DOW>
 	dateformat16 = re.compile('^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$')
 	# <DOW> (abbrv.)
