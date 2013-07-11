@@ -3,19 +3,25 @@
 import re
 from random import choice
 import sys
+from StringIO import StringIO
 
-def get_advice(lessons_files):
+def extract_lessons(lessons_files):
 	# a list containing all lines in a file with leading # removed and trailing \n added
-	def extract_lessons(f):
+	def extract_lessons_raw(f):
 		line = f.readline()
 		if not line: return []
 		line_fmt = re.sub('^\d+[a-z]?[A-Z]?\. ?', '', line).rstrip('\n') + '\n'
-		return [line_fmt] + extract_lessons(f)
+		if line_fmt == '\n': return extract_lessons_raw(f)
+		else: return [line_fmt] + extract_lessons_raw(f)
 
 	# combine all lessons from different files into one list
-	lessons = map(lambda f: extract_lessons(f), lessons_files)
+	lessons = map(lambda f: extract_lessons_raw(f), lessons_files)
 	lessons = [item for sublist in lessons for item in sublist] # flatten
+	return lessons
 
+def get_advice(lessons_files):
+	# extract individual lessons from files into a flat list
+	lessons = extract_lessons(lessons_files)
 	# return lesson by choosing a random element of this list
 	if lessons:
 		return choice(lessons)
@@ -38,6 +44,10 @@ if __name__ == '__main__':
 			raise Exception("Invalid command line arguments")
 
 	filepaths = map(lambda f: wikidir + '/' + f, LESSONS_FILES)
-	lessons_files = map(lambda f: open(f, 'r'), filepaths)
+	def openfile(fn):
+		try: f = open(fn, 'r')
+		except: f = StringIO('')
+		return f
+	lessons_files = map(openfile, filepaths)
 
 	print get_advice(lessons_files)

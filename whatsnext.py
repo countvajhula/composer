@@ -2,11 +2,14 @@
 
 from advanceplanner import *
 import updateindex
+import advice
 from subprocess import call
 import sys
+from StringIO import StringIO
 
 WIKIDIR_TEST = 'tests/testwikis/userwiki'
 WIKIDIR_PRODUCTION = '/Users/siddhartha/log/planner'
+LESSONS_FILES = ('Lessons_Introspective.wiki', 'Lessons_General.wiki', 'Lessons_Advice.wiki', 'Lessons_Experimental.wiki')
 
 def set_preferences():
 	PlannerConfig.PreferredBulletChar = '*'
@@ -60,6 +63,15 @@ if __name__ == '__main__':
 				call(['git', 'commit', '-m', 'SOD %s' % datestr], cwd=wikidir, stdout=null)
 			print "...DONE."
 			print
+			print "~~~ THOUGHT FOR THE DAY ~~~"
+			print
+			filepaths = map(lambda f: wikidir + '/' + f, LESSONS_FILES)
+			def openfile(fn):
+				try: f = open(fn, 'r')
+				except: f = StringIO('')
+				return f
+			lessons_files = map(openfile, filepaths)
+			print advice.get_advice(lessons_files)
 			break
 		except SimulationPassedError as err:
 			#print "DEV: simulation passed. let's do this thing ... for real."
