@@ -1943,6 +1943,26 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 					"\n"
 					"TIME SPENT ON PLANNER: 15 mins")
 
+	daytemplate_scheduled_format10_lowercase = ("CHECKPOINTS:\n"
+					"[x] 7:00am - wake up [9:00]\n"
+					"\n"
+					"AGENDA:\n"
+					"[x] did do\n"
+						"\t[x] this\n"
+					"[ ] s'posed to do\n"
+					"[\] kinda did\n"
+					"[o] i'm waitin on you! [$December$]\n"
+					"[o] still waitin on you [$january$]\n"
+					"[x] take out trash\n"
+					"\n"
+					"DAILYs:\n"
+					"[ ] 40 mins gym\n"
+					"\n"
+					"NOTES:\n"
+					"\n"
+					"\n"
+					"TIME SPENT ON PLANNER: 15 mins")
+
 	daytemplate_scheduled_format11 = ("CHECKPOINTS:\n"
 					"[x] 7:00am - wake up [9:00]\n"
 					"\n"
@@ -2318,6 +2338,14 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format17)
 		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats16and17)
+
+	def testScheduleDateIsCaseInsensitive(self):
+		""" Check that schedule date is case insensitive, by testing a lowercase month """
+		now = datetime.datetime(2012,12,3)
+		self.planner.date = datetime.date(2012,11,4)
+		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format10_lowercase)
+		scheduling.scheduleTasks(self.planner, now)
+		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10and15)
 
 class PlannerAgendaConstructionTester(unittest.TestCase):
 

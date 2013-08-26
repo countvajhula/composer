@@ -29,40 +29,40 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		return monthNumberToName[monthnumber]
 	# TODO: change these to annotated regex's
 	# MONTH DD, YYYY (w optional space or comma or both)
-	dateformat1 = re.compile('^([^\d ]+) (\d\d?)[, ] ?(\d{4})$')
+	dateformat1 = re.compile('^([^\d ]+) (\d\d?)[, ] ?(\d{4})$', re.IGNORECASE)
 	# DD MONTH, YYYY (w optional space or comma or both)
-	dateformat2 = re.compile('^(\d\d?) ([^\d,]+)[, ] ?(\d{4})$')
+	dateformat2 = re.compile('^(\d\d?) ([^\d,]+)[, ] ?(\d{4})$', re.IGNORECASE)
 	# MONTH DD
-	dateformat3 = re.compile('^([^\d ]+) (\d\d?)$')
+	dateformat3 = re.compile('^([^\d ]+) (\d\d?)$', re.IGNORECASE)
 	# DD MONTH
-	dateformat4 = re.compile('^(\d\d?) ([^\d]+)$')
+	dateformat4 = re.compile('^(\d\d?) ([^\d]+)$', re.IGNORECASE)
 	# WEEK OF MONTH DD, YYYY (w optional space or comma or both)
-	dateformat5 = re.compile('^WEEK OF ([^\d ]+) (\d\d?)[, ] ?(\d{4})$')
+	dateformat5 = re.compile('^WEEK OF ([^\d ]+) (\d\d?)[, ] ?(\d{4})$', re.IGNORECASE)
 	# WEEK OF DD MONTH, YYYY (w optional space or comma or both)
-	dateformat6 = re.compile('^WEEK OF (\d\d?) ([^\d,]+)[, ] ?(\d{4})$')
+	dateformat6 = re.compile('^WEEK OF (\d\d?) ([^\d,]+)[, ] ?(\d{4})$', re.IGNORECASE)
 	# WEEK OF MONTH DD
-	dateformat7 = re.compile('^WEEK OF ([^\d ]+) (\d\d?)$')
+	dateformat7 = re.compile('^WEEK OF ([^\d ]+) (\d\d?)$', re.IGNORECASE)
 	# WEEK OF DD MONTH
-	dateformat8 = re.compile('^WEEK OF (\d\d?) ([^\d,]+)$')
+	dateformat8 = re.compile('^WEEK OF (\d\d?) ([^\d,]+)$', re.IGNORECASE)
 	# MONTH YYYY (w optional space or comma or both)
-	dateformat9 = re.compile('^([^\d ]+)[, ] ?(\d{4})$')
+	dateformat9 = re.compile('^([^\d ]+)[, ] ?(\d{4})$', re.IGNORECASE)
 	# MONTH
-	dateformat10 = re.compile('^([^\d ]+)$')
+	dateformat10 = re.compile('^([^\d ]+)$', re.IGNORECASE)
 	# MM/DD/YYYY
-	dateformat11 = re.compile('^(\d\d)/(\d\d)/(\d\d\d\d)$')
+	dateformat11 = re.compile('^(\d\d)/(\d\d)/(\d\d\d\d)$', re.IGNORECASE)
 	# MM-DD-YYYY
-	dateformat12 = re.compile('^(\d\d)-(\d\d)-(\d\d\d\d)$')
+	dateformat12 = re.compile('^(\d\d)-(\d\d)-(\d\d\d\d)$', re.IGNORECASE)
 	# TOMORROW
-	dateformat13 = re.compile('^TOMORROW$')
+	dateformat13 = re.compile('^TOMORROW$', re.IGNORECASE)
 	# TODO: need a function to test date boundary status and return monthboundary, weekboundary, or dayboundary (default)
 	# NEXT WEEK
-	dateformat14 = re.compile('^NEXT WEEK$')
+	dateformat14 = re.compile('^NEXT WEEK$', re.IGNORECASE)
 	# NEXT MONTH
-	dateformat15 = re.compile('^NEXT MONTH$')
+	dateformat15 = re.compile('^NEXT MONTH$', re.IGNORECASE)
 	# <DOW>
-	dateformat16 = re.compile('^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$')
+	dateformat16 = re.compile('^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$', re.IGNORECASE)
 	# <DOW> (abbrv.)
-	dateformat17 = re.compile('^(MON|TUE|WED|THU|FRI|SAT|SUN)$')
+	dateformat17 = re.compile('^(MON|TUE|WED|THU|FRI|SAT|SUN)$', re.IGNORECASE)
 
 	if dateformat1.search(datestr):
 		(month, day, year) = dateformat1.search(datestr).groups()
@@ -211,7 +211,7 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		datestr_std = '%s %s' % (month, year)
 	else: raise DateFormatError("Date format does not match any acceptable formats! " + datestr)
 	if date:
-		return {'date':date, 'datestr':datestr_std}
+		return {'date':date, 'datestr':datestr_std.upper()}
 	return None
 
 def scheduleTasks(planner, now=None):
