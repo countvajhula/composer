@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import unittest
-import advanceplanner
-from advanceplanner import PlannerPeriod
+from filesystem import *
+from utils import PlannerPeriod
 import datetime
 
 class AdvancePlanner(unittest.TestCase):
@@ -14,7 +14,7 @@ class AdvancePlanner(unittest.TestCase):
 		"""
 		WIKIPATH = 'tests/testwikis/daywiki'
 		now = datetime.datetime(2012,12,6,19,0,0)
-		status = advanceplanner.advanceFilesystemPlanner(WIKIPATH, now)
+		status = advanceFilesystemPlanner(WIKIPATH, now)
 		self.assertEqual(status, PlannerPeriod.Day)
 
 	def testAdvancePlannerWeek(self):
@@ -24,7 +24,7 @@ class AdvancePlanner(unittest.TestCase):
 		"""
 		WIKIPATH = 'tests/testwikis/weekwiki'
 		now = datetime.datetime(2012,12,8,19,0,0)
-		status = advanceplanner.advanceFilesystemPlanner(WIKIPATH, now)
+		status = advanceFilesystemPlanner(WIKIPATH, now)
 		self.assertEqual(status, PlannerPeriod.Week)
 
 	def testAdvancePlannerMonth(self):
@@ -34,7 +34,7 @@ class AdvancePlanner(unittest.TestCase):
 		"""
 		WIKIPATH = 'tests/testwikis/monthwiki'
 		now = datetime.datetime(2012,12,31,19,0,0)
-		status = advanceplanner.advanceFilesystemPlanner(WIKIPATH, now)
+		status = advanceFilesystemPlanner(WIKIPATH, now)
 		self.assertEqual(status, PlannerPeriod.Month)
 
 	def testAdvancePlannerQuarter(self):
@@ -44,7 +44,7 @@ class AdvancePlanner(unittest.TestCase):
 		"""
 		WIKIPATH = 'tests/testwikis/quarterwiki'
 		now = datetime.datetime(2012,12,31,19,0,0)
-		status = advanceplanner.advanceFilesystemPlanner(WIKIPATH, now)
+		status = advanceFilesystemPlanner(WIKIPATH, now)
 		self.assertEqual(status, PlannerPeriod.Quarter)
 
 	def testAdvancePlannerYear(self):
@@ -54,5 +54,5 @@ class AdvancePlanner(unittest.TestCase):
 		"""
 		WIKIPATH = 'tests/testwikis/yearwiki'
 		now = datetime.datetime(2012,12,31,19,0,0)
-		status = advanceplanner.advanceFilesystemPlanner(WIKIPATH, now)
+		status = advanceFilesystemPlanner(WIKIPATH, now)
 		self.assertEqual(status, PlannerPeriod.Year)

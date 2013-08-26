@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 
-from advanceplanner import *
-import updateindex
-import advice
+import os
 from subprocess import call
 import sys
 from StringIO import StringIO
+import advanceplanner
+import utils
+import filesystem
+import updateindex
+import advice
+from errors import *
 
 WIKIDIR_TEST = 'tests/testwikis/userwiki'
 WIKIDIR_PRODUCTION = '/Users/siddhartha/log/planner'
 LESSONS_FILES = ('Lessons_Introspective.wiki', 'Lessons_General.wiki', 'Lessons_Advice.wiki', 'Lessons_Experimental.wiki')
 
 def set_preferences():
-	PlannerConfig.PreferredBulletChar = '*'
+	utils.PlannerConfig.PreferredBulletChar = '*'
 
 if __name__ == '__main__':
 	#Moved pending tasks from today over to tomorrow's agenda
@@ -40,7 +44,7 @@ if __name__ == '__main__':
 	simulate = True 
 	while True:
 		try:
-			advanceFilesystemPlanner(wikidir, now=None, simulate=simulate)
+			filesystem.advanceFilesystemPlanner(wikidir, now=None, simulate=simulate)
 			print
 			print "Moving tasks added for tomorrow over to tomorrow's agenda..."
 			print "Carrying over any unfinished tasks from today to tomorrow's agenda..."
@@ -55,7 +59,7 @@ if __name__ == '__main__':
 			# git commit "after"
 			print
 			print "Committing all changes..."
-			plannerdate = getPlannerDate(wikidir)
+			plannerdate = filesystem.getPlannerDate(wikidir)
 			(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
 			datestr = '%s %d, %d' % (month, date, year)
 			with open(os.devnull, 'w') as null:
@@ -75,32 +79,32 @@ if __name__ == '__main__':
 			break
 		except SimulationPassedError as err:
 			#print "DEV: simulation passed. let's do this thing ... for real."
-			if err.status >= PlannerPeriod.Week:
+			if err.status >= utils.PlannerPeriod.Week:
 				theme = raw_input("(Optional) Enter a theme for the upcoming week, e.g. Week of 'Timeliness', or 'Completion':__")
-				if theme: PlannerUserSettings.WeekTheme = theme
-			if err.status >= PlannerPeriod.Day:
+				if theme: utils.PlannerUserSettings.WeekTheme = theme
+			if err.status >= utils.PlannerPeriod.Day:
 				# git commit a "before", now that we know changes are about to be written to planner
 				print
 				print "Saving EOD planner state before making changes..."
-				plannerdate = getPlannerDate(wikidir)
+				plannerdate = filesystem.getPlannerDate(wikidir)
 				(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
 				datestr = '%s %d, %d' % (month, date, year)
 				with open(os.devnull, 'w') as null:
 					call(['git', 'add', '-A'], cwd=wikidir, stdout=null)
 					call(['git', 'commit', '-m', 'EOD %s' % datestr], cwd=wikidir, stdout=null)
 				print "...DONE."
-			if err.status >= PlannerPeriod.Day:
-				planner = constructPlannerFromFileSystem(wikidir)
-				dayagenda = extractAgendaFromLogfile(planner.dayfile)
+			if err.status >= utils.PlannerPeriod.Day:
+				planner = filesystem.constructPlannerFromFileSystem(wikidir)
+				dayagenda = advanceplanner.extractAgendaFromLogfile(planner.dayfile)
 				if dayagenda:
-					updateLogfileAgenda(planner.weekfile, dayagenda)
-				writePlannerToFilesystem(planner, wikidir)
-			if err.status >= PlannerPeriod.Week:
-				planner = constructPlannerFromFileSystem(wikidir)
-				weekagenda = extractAgendaFromLogfile(planner.weekfile)
+					advanceplanner.updateLogfileAgenda(planner.weekfile, dayagenda)
+				filesystem.writePlannerToFilesystem(planner, wikidir)
+			if err.status >= utils.PlannerPeriod.Week:
+				planner = filesystem.constructPlannerFromFileSystem(wikidir)
+				weekagenda = advanceplanner.extractAgendaFromLogfile(planner.weekfile)
 				if weekagenda:
-					updateLogfileAgenda(planner.monthfile, weekagenda)
-				writePlannerToFilesystem(planner, wikidir)
+					advanceplanner.updateLogfileAgenda(planner.monthfile, weekagenda)
+				filesystem.writePlannerToFilesystem(planner, wikidir)
 			simulate = False
 		except DayStillInProgressError as err:
 			print "Current day is still in progress! Try again after 6pm."
@@ -112,7 +116,7 @@ if __name__ == '__main__':
 			if yn.lower().startswith('y'):
 				raw_input('No problem. Press any key when you are done adding tasks...')
 			elif yn.lower().startswith('n'):
-				PlannerConfig.TomorrowChecking = PlannerConfig.Lax
+				utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
 			else:
 				continue
 		except LogfileNotCompletedError as err:
@@ -120,7 +124,7 @@ if __name__ == '__main__':
 			if yn.lower().startswith('y'):
 				raw_input('No problem. Press any key when you are done completing your log...')
 			elif yn.lower().startswith('n'):
-				PlannerConfig.LogfileCompletionChecking = PlannerConfig.Lax
+				utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 			else:
 				continue
 		except DateFormatError as err:

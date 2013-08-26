@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
 import unittest
-import advanceplanner
-from advanceplanner import Planner
-from advanceplanner import PlannerPeriod
 from StringIO import StringIO
 import datetime
+import advanceplanner
+import templates
+import scheduling
+import utils
+from utils import Planner
+from utils import PlannerPeriod
 
 """ 
 1. add year later
@@ -14,6 +17,7 @@ import datetime
 4. add if (themes) condition
 5. Check current date and day, get "successor" using python date module (unit tests for this)
 6. Add tests for different partially-done todos
+7. Add tests for assert raises, esp in scheduling
 """
 class PlannerDateIntegrityTester(unittest.TestCase):
 	""" check dates are advanced correctly - edge cases, leap years """
@@ -509,7 +513,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance takes the correct decision to advance day on a typical day change boundary """
 		now = datetime.datetime(2012,12,5,19,0,0)
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax # seems this happens even without declaring it here - some kind of scope issue
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Day)
 
@@ -517,8 +522,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance takes the correct decision to advance only day when first week is too short """
 		now = datetime.datetime(2012,3,3,19,0,0) # 3/3/2012 is a Saturday, but since current week is only 3 days (too short), should advance only day
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Day)
 
@@ -526,8 +531,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance takes the correct decision to advance only day when first week is just below minimum length """
 		now = datetime.datetime(2012,2,4,19,0,0) # 2/4/2012 is a Saturday, but since current week is 4 days (just short of requirement), should advance only day
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Day)
 
@@ -535,7 +540,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance takes the correct decision to advance only day when last week would be too short """
 		now = datetime.datetime(2012,12,29,19,0,0) # 12/29/2012 is a Saturday, but since new week would be too short, should advance only day
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Day)
 
@@ -543,7 +548,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance takes the correct decision to advance only day when last week would be just below minimum length """
 		now = datetime.datetime(2012,2,25,19,0,0) # 2/25/2012 is a Saturday, but since new week is 4 days (just short of requirement), should advance only day
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Day)
 
@@ -552,7 +557,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,8,19,0,0)
 		self.planner.date = now.date()
 		(date, day, month, year) = (self.planner.date.day, self.planner.date.strftime('%A'), self.planner.date.strftime('%B'), self.planner.date.year)
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Week)
 
@@ -561,8 +566,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		now = datetime.datetime(2012,5,5,19,0,0) # 5/5/2012 is Sat, and current week is exactly 5 days long (long enough), so should advance week
 		self.planner.date = now.date()
 		(date, day, month, year) = (self.planner.date.day, self.planner.date.strftime('%A'), self.planner.date.strftime('%B'), self.planner.date.year)
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Week)
 
@@ -571,8 +576,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		now = datetime.datetime(2012,5,26,19,0,0) # 5/26/2012 is Sat, and new week would be exactly 5 days long (long enough), so should advance week
 		self.planner.date = now.date()
 		(date, day, month, year) = (self.planner.date.day, self.planner.date.strftime('%A'), self.planner.date.strftime('%B'), self.planner.date.year)
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Week)
 
@@ -580,8 +585,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance takes the correct decision to advance month on a month change boundary """
 		now = datetime.datetime(2012,11,30,19,0,0)
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Month)
 
@@ -589,8 +594,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance takes the correct decision to advance quarter on a quarter change boundary """
 		now = datetime.datetime(2012,3,31,19,0,0)
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Quarter)
 
@@ -598,8 +603,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that planner advance takes the correct decision to advance year on a year change boundary """
 		now = datetime.datetime(2012,12,31,19,0,0)
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Year)
 
@@ -622,8 +627,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 			daytemplate += "\n"
 		daytemplate += self.default_weekdaytemplate
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(self.planner.yearfile.read(), self.yearadvance_yeartemplate)
 		self.assertEqual(self.planner.quarterfile.read(), self.yearadvance_quartertemplate)
@@ -650,8 +655,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 			daytemplate += "Theme: %s\n" % theme
 			daytemplate += "\n"
 		daytemplate += self.default_weekdaytemplate
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(self.planner.quarterfile.read(), self.quarteradvance_quartertemplate)
 		self.assertEqual(self.planner.monthfile.read(), self.quarteradvance_monthtemplate)
@@ -677,8 +682,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 			daytemplate += "\n"
 		daytemplate += self.default_weekendtemplate
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(self.planner.monthfile.read(), self.monthadvance_monthtemplate)
 		self.assertEqual(self.planner.weekfile.read(), self.monthadvance_weektemplate)
@@ -703,8 +708,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 			daytemplate += "\n"
 		daytemplate += self.default_weekendtemplate
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(self.planner.weekfile.read(), self.weekadvance_weektemplate)
 		self.assertEqual(self.planner.monthfile.read(), self.weekadvance_monthtemplate)
@@ -729,8 +734,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 			daytemplate += "\n"
 		daytemplate += self.default_weekdaytemplate
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(self.planner.dayfile.read(), daytemplate)
 		self.assertEqual(self.planner.weekfile.read(), self.dayadvance_weektemplate)
@@ -739,8 +744,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		""" Check that, on day advance, current day's agenda is appended to the current week """
 		now = datetime.datetime(2012,12,5,19,0,0)
 		self.planner.date = now.date()
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		dayagenda = advanceplanner.extractAgendaFromLogfile(self.planner.dayfile)
 		advanceplanner.updateLogfileAgenda(self.planner.weekfile, dayagenda)
 		self.assertEqual(self.planner.weekfile.read(), self.weektemplate_agendaupdated)
@@ -750,8 +755,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,5,19,0,0)
 		self.planner.date = now.date()
 		self.planner.weekfile = StringIO(self.weektemplate_agendaupdated)
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		weekagenda = advanceplanner.extractAgendaFromLogfile(self.planner.weekfile)
 		advanceplanner.updateLogfileAgenda(self.planner.monthfile, weekagenda)
 		self.assertEqual(self.planner.monthfile.read(), self.monthtemplate_agendaupdated)
@@ -761,8 +766,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,5,19,0,0)
 		self.planner.date = now.date()
 		self.planner.monthfile = StringIO(self.monthtemplate_agendaupdated)
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		monthagenda = advanceplanner.extractAgendaFromLogfile(self.planner.monthfile)
 		advanceplanner.updateLogfileAgenda(self.planner.quarterfile, monthagenda)
 		self.assertEqual(self.planner.quarterfile.read(), self.quartertemplate_agendaupdated)
@@ -772,8 +777,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,5,19,0,0)
 		self.planner.date = now.date()
 		self.planner.quarterfile = StringIO(self.quartertemplate_agendaupdated)
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.PlannerConfig.LogfileCompletionChecking = advanceplanner.PlannerConfig.Lax
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
 		quarteragenda = advanceplanner.extractAgendaFromLogfile(self.planner.quarterfile)
 		advanceplanner.updateLogfileAgenda(self.planner.yearfile, quarteragenda)
 		self.assertEqual(self.planner.yearfile.read(), self.yeartemplate_agendaupdated)
@@ -973,7 +978,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 		monthtemplate += "NOTES:\n\n\n"
 		monthtemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewTemplate(PlannerPeriod.Month, nextDay, tasklistfile, monthfile, checkpointsfile, periodicfile, daythemesfile)
+		templates.writeNewTemplate(PlannerPeriod.Month, nextDay, tasklistfile, monthfile, checkpointsfile, periodicfile, daythemesfile)
 
 		self.assertEqual(monthfile.read(), monthtemplate)
 
@@ -1003,7 +1008,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 		weektemplate += "NOTES:\n\n\n"
 		weektemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewTemplate(PlannerPeriod.Week, nextDay, tasklistfile, weekfile, checkpointsfile, periodicfile, daythemesfile)
+		templates.writeNewTemplate(PlannerPeriod.Week, nextDay, tasklistfile, weekfile, checkpointsfile, periodicfile, daythemesfile)
 
 		self.assertEqual(weekfile.read(), weektemplate)
 
@@ -1060,7 +1065,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 			daytemplate += "NOTES:\n\n\n"
 			daytemplate += "TIME SPENT ON PLANNER: "
 
-			advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+			templates.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
 
 			self.assertEqual(dayfile.read(), daytemplate)
 			self.assertEqual(tasklistfile.read(), self.tasklist_nextday)
@@ -1149,7 +1154,7 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 		nextDay = today + datetime.timedelta(days=1)
 		(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 		monthfile = StringIO(self.monthtemplate)
-		advanceplanner.writeExistingMonthTemplate(nextDay, monthfile)
+		templates.writeExistingMonthTemplate(nextDay, monthfile)
 		self.assertEqual(monthfile.read(), self.monthtemplate_updated)
 
 	def testUpdateExistingWeekTemplate(self):
@@ -1159,7 +1164,7 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
 		nextDay = today + datetime.timedelta(days=1)
 		(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 		weekfile = StringIO(self.weektemplate)
-		advanceplanner.writeExistingWeekTemplate(nextDay, weekfile)
+		templates.writeExistingWeekTemplate(nextDay, weekfile)
 		self.assertEqual(weekfile.read(), self.weektemplate_updated)
 
 class PlannerTaskSchedulingTester(unittest.TestCase):
@@ -2154,7 +2159,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		into the SCHEDULED section of the tasklist """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_agenda)
 
 	def testTaskListScheduledTasksAreScheduled(self):
@@ -2162,7 +2167,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		into the SCHEDULED section of the tasklist """
 		now = datetime.datetime(2012,12,3)
 		self.planner.tasklistfile = StringIO(self.tasklist_somescheduled)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_tasklist)
 
 	def testBothAgendaAndTaskListScheduledTasksAreScheduled(self):
@@ -2171,32 +2176,32 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,3)
 		self.planner.tasklistfile = StringIO(self.tasklist_somescheduled)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_tasklist_agenda)
 
 	def testScheduledTaskWithoutDateRaisesException(self):
 		""" Check that is a task is marked as scheduled but no date is provided, that
 		an exception is thrown """
 		self.planner.dayfile = StringIO(self.daytemplate_noscheduledate)
-		self.assertRaises(Exception, advanceplanner.scheduleTasks, self.planner)
+		self.assertRaises(Exception, scheduling.scheduleTasks, self.planner)
 	
 	def testBadlyFormattedScheduledTaskRaisesException(self):
 		""" Check that a task already present in the SCHEDULED section and formatted incorrectly raises an Exception """
 		self.planner.tasklistfile = StringIO(self.tasklist_scheduledbadformat)
-		self.assertRaises(Exception, advanceplanner.scheduleTasks, self.planner)
+		self.assertRaises(Exception, scheduling.scheduleTasks, self.planner)
 
 	def testScheduleDateFormat1(self):
 		""" Check that the format MONTH DD, YYYY works (w optional space or comma or both) """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format1)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
 
 	def testScheduleDateFormat2(self):
 		""" Check that the format DD MONTH, YYYY works (w optional space or comma or both) """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format2)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
 
 	def testScheduleDateFormat3(self):
@@ -2204,7 +2209,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,21)
 		self.planner.date = datetime.date(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format3)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
 
 	def testScheduleDateFormat4(self):
@@ -2212,21 +2217,21 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,21)
 		self.planner.date = datetime.date(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format4)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
 
 	def testScheduleDateFormat5(self):
 		""" Check that the format WEEK OF MONTH DD, YYYY works (w optional space or comma or both) """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format5)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat6(self):
 		""" Check that the format WEEK OF DD MONTH, YYYY works (w optional space or comma or both) """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format6)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat7(self):
@@ -2234,7 +2239,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,21)
 		self.planner.date = datetime.date(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format7)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat8(self):
@@ -2242,14 +2247,14 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,21)
 		self.planner.date = datetime.date(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format8)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat9(self):
 		""" Check that the format MONTH YYYY works (w optional space or comma or both) """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format9)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10and15)
 
 	def testScheduleDateFormat10(self):
@@ -2257,21 +2262,21 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,3)
 		self.planner.date = datetime.date(2012,11,4)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format10)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10and15)
 
 	def testScheduleDateFormat11(self):
 		""" Check that the format MM/DD/YYYY works """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format11)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
 
 	def testScheduleDateFormat12(self):
 		""" Check that the format MM-DD-YYYY works """
 		now = datetime.datetime(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format12)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
 
 	def testScheduleDateFormat13(self):
@@ -2279,7 +2284,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,20) # schedule date should be wrt planner date, not current time
 		self.planner.date = datetime.date(2012,12,19)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format13)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats1to4and11to13)
 
 	def testScheduleDateFormat14(self):
@@ -2287,7 +2292,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,17)
 		self.planner.date = datetime.date(2012,12,10)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format14)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats5to8and14)
 
 	def testScheduleDateFormat15(self):
@@ -2295,7 +2300,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2013,1,1)
 		self.planner.date = datetime.date(2012,12,3)
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format15)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats9to10and15)
 
 	def testScheduleDateFormat16(self):
@@ -2303,7 +2308,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,4) # tuesday
 		self.planner.date = datetime.date(2012,12,3) # monday
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format16)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats16and17)
 
 	def testScheduleDateFormat17(self):
@@ -2311,7 +2316,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,4) # tuesday
 		self.planner.date = datetime.date(2012,12,3) # monday
 		self.planner.dayfile = StringIO(self.daytemplate_scheduled_format17)
-		advanceplanner.scheduleTasks(self.planner, now)
+		scheduling.scheduleTasks(self.planner, now)
 		self.assertEqual(self.planner.tasklistfile.read(), self.tasklist_scheduled_formats16and17)
 
 class PlannerAgendaConstructionTester(unittest.TestCase):
@@ -2658,7 +2663,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+		templates.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2698,7 +2703,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+		templates.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2741,7 +2746,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+		templates.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2786,7 +2791,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+		templates.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2825,7 +2830,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+		templates.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2866,8 +2871,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.PlannerConfig.TomorrowChecking = advanceplanner.PlannerConfig.Lax
-		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+		templates.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
@@ -2914,7 +2919,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 		daytemplate += "NOTES:\n\n\n"
 		daytemplate += "TIME SPENT ON PLANNER: "
 
-		advanceplanner.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+		templates.writeNewTemplate(PlannerPeriod.Day, nextDay, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
 
 		self.assertEqual(dayfile.read(), daytemplate)
 
