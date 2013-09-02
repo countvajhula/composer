@@ -33,7 +33,7 @@ def checkLogfileCompletion(logfile):
 	if ss == '':
 		raise LogfileLayoutError("Error: No 'NOTES' section found in your log file: " + ss)
 	ss = logfile.readline()
-	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
+	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z ]+:', ss):
 		notes += ss
 		ss = logfile.readline()
 	if notes.strip('\n ') != '':

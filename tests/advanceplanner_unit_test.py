@@ -18,6 +18,8 @@ from utils import PlannerPeriod
 5. Check current date and day, get "successor" using python date module (unit tests for this)
 6. Add tests for different partially-done todos
 7. Add tests for assert raises, esp in scheduling
+8. Add tests for logfile completion checking: (1) quarter bug, (2) regexp matches for log (^OCI matched giving logfile incomplete): 
+	ASDFADF :,ASFASfdfad:,ASDFASDF:,ASDFSADF adfadf asd: asdfAf,ASDFASDFAF,AASFDFD ASDF:,ASDFFD:ASDFSF,NEW SECTION:,ASDFFD:ASDFSF:,NEW SECTION IS HERE: and some data 5:56
 """
 class PlannerDateIntegrityTester(unittest.TestCase):
 	""" check dates are advanced correctly - edge cases, leap years """
@@ -514,7 +516,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 		now = datetime.datetime(2012,12,5,19,0,0)
 		self.planner.date = now.date()
 		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
-		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax # seems this happens even without declaring it here - some kind of scope issue
+		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax # seems this happens even without declaring it here - need to reset these in tearDown()
 		status = advanceplanner.advancePlanner(self.planner, now)
 		self.assertEqual(status, PlannerPeriod.Day)
 
