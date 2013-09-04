@@ -4,6 +4,7 @@ import os
 from subprocess import call
 import sys
 from StringIO import StringIO
+import datetime
 import advanceplanner
 import utils
 import filesystem
@@ -24,27 +25,42 @@ if __name__ == '__main__':
 
 	set_preferences()
 
+	simulate = True
+	jumping = False
+	now = None
+
 	if len(sys.argv) == 1:
 		wikidir = WIKIDIR_PRODUCTION
 		print
 		print ">>> Operating on planner at location: %s <<<" % wikidir
 		print
 	else:
-		if sys.argv[1] == '-t' or sys.argv[1] == '--test':
+		validargs = False
+		args = sys.argv[1:]
+		if '-t' in args or '--test' in args:
+			validargs = True
 			wikidir = WIKIDIR_TEST
 			print
 			print ">>> Operating in TEST mode on planner at location: %s <<<" % wikidir
 			print
-		else:
+			now = datetime.datetime(2013,1,8,19,0,0) # so jump can be tested on test wiki
+		if '-j' in args or '--jump' in args:
+			validargs = True
+			print
+			print ">>> Get ready to JUMP! <<<"
+			print
+			utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
+			utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+			jumping = True
+		if not validargs:
 			raise Exception("Invalid command line arguments")
 
 	# simulate the changes first and then when it's all OK, make the necessary
 	# preparations (e.g. git commit) and actually perform the changes
 
-	simulate = True 
 	while True:
 		try:
-			filesystem.advanceFilesystemPlanner(wikidir, now=None, simulate=simulate)
+			filesystem.advanceFilesystemPlanner(wikidir, now=now, simulate=simulate)
 			print
 			print "Moving tasks added for tomorrow over to tomorrow's agenda..."
 			print "Carrying over any unfinished tasks from today to tomorrow's agenda..."
@@ -76,7 +92,10 @@ if __name__ == '__main__':
 				return f
 			lessons_files = map(openfile, filepaths)
 			print advice.get_advice(lessons_files)
-			break
+			if jumping: # if jumping, keep repeating until present-day error thrown
+				simulate = True
+			else:
+				break
 		except SimulationPassedError as err:
 			#print "DEV: simulation passed. let's do this thing ... for real."
 			if err.status >= utils.PlannerPeriod.Week:
