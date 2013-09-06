@@ -31,9 +31,11 @@ class PlannerUserSettings(object):
 
 class PlannerConfig(object):
 	(Strict, Lax) = (1,2)
+	(Standard, Wolf) = (1,2)
 	TomorrowChecking = Strict
 	LogfileCompletionChecking = Strict
 	PreferredBulletChar = '*'
+	ScheduleMode = Standard
 
 def getNextDay(date):
 	""" Given a date, return the next day by consulting the python date module """
