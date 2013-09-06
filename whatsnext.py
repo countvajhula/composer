@@ -10,28 +10,16 @@ import utils
 import filesystem
 import updateindex
 import advice
+import config
 from errors import *
 
 TEST_WIKIDIRS = ('tests/testwikis/userwiki',)
 PRODUCTION_WIKIDIRS = ('/Users/siddhartha/log/ferdywiki', '/Users/siddhartha/log/planner')
 LESSONS_FILES = ('Lessons_Introspective.wiki', 'Lessons_General.wiki', 'Lessons_Advice.wiki', 'Lessons_Experimental.wiki')
 
-def set_preferences():
-	utils.PlannerConfig.PreferredBulletChar = '*'
-
-def set_planner_config(jumping):
-	if jumping:
-		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
-		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
-	else:
-		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Strict
-		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Strict
-
 if __name__ == '__main__':
 	#Moved pending tasks from today over to tomorrow's agenda
 	#could try: [Display score for today]
-
-	set_preferences()
 
 	jumping = False
 	now = None
@@ -61,7 +49,7 @@ if __name__ == '__main__':
 
 	for wikidir in wikidirs:
 		simulate = True
-		set_planner_config(jumping)
+		config.set_preferences(jumping)
 		print
 		if testmode:
 			print ">>> Operating in TEST mode on planner at location: %s <<<" % wikidir
