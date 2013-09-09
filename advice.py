@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import config
 import re
 from random import choice
 import sys
@@ -28,22 +29,20 @@ def get_advice(lessons_files):
 	return ""
 
 if __name__ == '__main__':
-	WIKIDIR_TEST = 'tests/testwikis/userwiki'
-	WIKIDIR_PRODUCTION = '/Users/siddhartha/log/planner'
-	LESSONS_FILES = ('Lessons_Introspective.wiki', 'Lessons_General.wiki', 'Lessons_Advice.wiki', 'Lessons_Experimental.wiki')
-
 	if len(sys.argv) == 1:
-		wikidir = WIKIDIR_PRODUCTION
+		wikidirs = config.PRODUCTION_WIKIDIRS
 	else:
 		if sys.argv[1] == '-t' or sys.argv[1] == '--test':
-			wikidir = WIKIDIR_TEST
+			wikidirs = config.TEST_WIKIDIRS
 			print
-			print ">>> Operating in TEST mode on planner at location: %s <<<" % wikidir
+			print ">>> Operating in TEST mode on planners at locations: %s <<<" % wikidirs
 			print
 		else:
 			raise Exception("Invalid command line arguments")
 
-	filepaths = map(lambda f: wikidir + '/' + f, LESSONS_FILES)
+	filepaths = []
+	for wikidir in wikidirs:
+		filepaths.extend(map(lambda f: wikidir + '/' + f, config.LESSONS_FILES))
 	def openfile(fn):
 		try: f = open(fn, 'r')
 		except: f = StringIO('')

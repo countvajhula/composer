@@ -13,9 +13,6 @@ import advice
 import config
 from errors import *
 
-TEST_WIKIDIRS = ('tests/testwikis/userwiki',)
-PRODUCTION_WIKIDIRS = ('/Users/siddhartha/log/ferdywiki', '/Users/siddhartha/log/planner')
-LESSONS_FILES = ('Lessons_Introspective.wiki', 'Lessons_General.wiki', 'Lessons_Advice.wiki', 'Lessons_Experimental.wiki')
 
 if __name__ == '__main__':
 	#Moved pending tasks from today over to tomorrow's agenda
@@ -26,13 +23,13 @@ if __name__ == '__main__':
 	testmode = False
 
 	if len(sys.argv) == 1:
-		wikidirs = PRODUCTION_WIKIDIRS
+		wikidirs = config.PRODUCTION_WIKIDIRS
 	else:
 		validargs = False
 		args = sys.argv[1:]
 		if '-t' in args or '--test' in args:
 			validargs = True
-			wikidirs = TEST_WIKIDIRS
+			wikidirs = config.TEST_WIKIDIRS
 			testmode = True
 			now = datetime.datetime(2013,1,8,19,0,0) # so jump can be tested on test wiki
 		if '-j' in args or '--jump' in args:
@@ -83,7 +80,7 @@ if __name__ == '__main__':
 				print
 				print "~~~ THOUGHT FOR THE DAY ~~~"
 				print
-				filepaths = map(lambda f: wikidir + '/' + f, LESSONS_FILES)
+				filepaths = map(lambda f: wikidir + '/' + f, config.LESSONS_FILES)
 				def openfile(fn):
 					try: f = open(fn, 'r')
 					except: f = StringIO('')

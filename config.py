@@ -1,5 +1,9 @@
 import utils
 
+TEST_WIKIDIRS = ('tests/testwikis/userwiki',)
+PRODUCTION_WIKIDIRS = ('/Users/siddhartha/log/ferdywiki', '/Users/siddhartha/log/planner')
+LESSONS_FILES = ('Lessons_Introspective.wiki', 'Lessons_General.wiki', 'Lessons_Advice.wiki', 'Lessons_Experimental.wiki')
+
 def set_preferences(jumping):
 	utils.PlannerConfig.ScheduleMode = utils.PlannerConfig.Wolf
 	utils.PlannerConfig.PreferredBulletChar = '*'

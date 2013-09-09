@@ -7,8 +7,6 @@ import advanceplanner
 from errors import *
 
 
-#WIKIDIR = '/Users/siddhartha/log/planner'
-WIKIDIR = 'tests/testwikis/userwiki'
 PLANNERTASKLISTFILELINK = 'TaskList.wiki'
 PLANNERDAYTHEMESFILELINK = 'DayThemes.wiki'
 PLANNERDAYFILELINK = 'currentday'
