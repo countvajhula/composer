@@ -32,6 +32,8 @@ if __name__ == '__main__':
 			wikidirs = config.TEST_WIKIDIRS
 			testmode = True
 			now = datetime.datetime(2013,1,8,19,0,0) # so jump can be tested on test wiki
+		else:
+			wikidirs = config.PRODUCTION_WIKIDIRS
 		if '-j' in args or '--jump' in args:
 			validargs = True
 			print
