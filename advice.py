@@ -11,9 +11,11 @@ def extract_lessons(lessons_files):
 	def extract_lessons_raw(f):
 		line = f.readline()
 		if not line: return []
-		line_fmt = re.sub('^\d+[a-z]?[A-Z]?\. ?', '', line).rstrip('\n') + '\n'
-		if line_fmt == '\n': return extract_lessons_raw(f)
-		else: return [line_fmt] + extract_lessons_raw(f)
+		line_fmt = re.sub('^\d+[a-z]?[A-Z]?\. ?', '', line)
+		if len(line_fmt) <= 1 or line_fmt == line:
+			return extract_lessons_raw(f)
+		line_fmt = line_fmt.rstrip('\n') + '\n'
+		return [line_fmt] + extract_lessons_raw(f)
 
 	# combine all lessons from different files into one list
 	lessons = map(lambda f: extract_lessons_raw(f), lessons_files)

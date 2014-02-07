@@ -11,9 +11,10 @@ class TestAdvice(unittest.TestCase):
 	lesson_nonewline = 'Always add newlines.'
 	lessonfile1 = StringIO("1. %s12. %s" % (lessons[0], lessons[1]))
 	lessonfile2 = StringIO("1a. %s" % lessons[2])
-	emptyfile = StringIO("")
 	lessonfile_nonewline = StringIO("1. %s" % lesson_nonewline)
 	lessonfile_newlines = StringIO("1. %s\n\n2. %s\n3. %s" % (lessons[0], lessons[0], lessons[0]))
+	lessonfile_misctext = StringIO("TIPS\n1.%s" % lessons[0])
+	emptyfile = StringIO("")
 	advicefiles_good = [lessonfile1, lessonfile2]
 	advicefiles_empty = [emptyfile]
 	advicefiles_nonewline = [lessonfile_nonewline]
@@ -34,6 +35,10 @@ class TestAdvice(unittest.TestCase):
 	def testHangingNewlinesAreIgnored(self):
 		lessons = advice.extract_lessons(self.advicefiles_newlines)
 		self.assertEqual(len(lessons), 3)
+
+	def testNonLessonTextIsIgnored(self):
+		lessons = advice.extract_lessons([self.lessonfile_misctext])
+		self.assertEqual(lessons, [self.lessons[0]])
 
 
 if __name__ == '__main__':
