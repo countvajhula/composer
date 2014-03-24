@@ -1914,7 +1914,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 					"[ ] s'posed to do\n"
 					"[\] kinda did\n"
 					"[o] i'm waitin on you! [$DECEMBER 2012$]\n"
-					"[o] still waitin on you [$JANUARY 2013$]\n"
+					"[o] still waitin on you [$JANUARY, 2013$]\n"
 					"[x] take out trash\n"
 					"\n"
 					"DAILYs:\n"

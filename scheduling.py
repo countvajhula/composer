@@ -45,7 +45,7 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 	# WEEK OF DD MONTH
 	dateformat8 = re.compile('^WEEK OF (\d\d?) ([^\d,]+)$', re.IGNORECASE)
 	# MONTH YYYY (w optional space or comma or both)
-	dateformat9 = re.compile('^([^\d ]+)[, ] ?(\d{4})$', re.IGNORECASE)
+	dateformat9 = re.compile('^([^\d, ]+)[, ] ?(\d{4})$', re.IGNORECASE)
 	# MONTH
 	dateformat10 = re.compile('^([^\d ]+)$', re.IGNORECASE)
 	# MM/DD/YYYY
