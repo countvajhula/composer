@@ -5,6 +5,7 @@ to help save time on retrospectives """
 
 import os
 import config
+import advanceplanner
 import datetime
 import re
 
@@ -76,7 +77,10 @@ def get_logs_times_this_month(wikidir):
 		(log, time) = extract_log_time_from_text(logtext)
 		logs += "Week of " + str(curday) + '\n' + log + '\n\n'
 		times.append(time)
-		curday += datetime.timedelta(weeks=1)
+		curday += datetime.timedelta(days=1)
+		while not advanceplanner.newWeekCriteriaMet(curday, datetime.datetime.now()):
+			curday += datetime.timedelta(days=1)
+		curday += datetime.timedelta(days=1) # next day is the one we're looking for
 		fnpath = "%s/Week of %s.wiki" % (wikidir, curday.strftime('%B %d, %Y').replace(' 0', ' '))
 	return (logs, times)
 
