@@ -5,7 +5,7 @@ PRODUCTION_WIKIDIRS = ('/Users/siddhartha/log/ferdywiki', '/Users/siddhartha/log
 LESSONS_FILES = ('Lessons_Introspective.wiki', 'Lessons_General.wiki', 'Lessons_Advice.wiki', 'Lessons_Experimental.wiki')
 
 def set_preferences(jumping):
-	utils.PlannerConfig.ScheduleMode = utils.PlannerConfig.Wolf
+	utils.PlannerConfig.ScheduleMode = utils.PlannerConfig.Standard #Standard,Wolf
 	utils.PlannerConfig.PreferredBulletChar = '*'
 	if jumping:
 		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
