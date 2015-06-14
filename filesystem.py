@@ -17,6 +17,7 @@ PLANNERYEARFILELINK = 'currentyear'
 CHECKPOINTSWEEKDAYFILE = 'Checkpoints_Weekday.wiki'
 CHECKPOINTSWEEKENDFILE = 'Checkpoints_Weekend.wiki'
 CHECKPOINTSWOLFFILE = 'Checkpoints_Wolf.wiki'
+CHECKPOINTSTHEMANFILE = 'Checkpoints_TheMan.wiki'
 CHECKPOINTSWEEKFILE = 'Checkpoints_Week.wiki'
 CHECKPOINTSMONTHFILE = 'Checkpoints_Month.wiki'
 CHECKPOINTSQUARTERFILE = 'Checkpoints_Quarter.wiki'
@@ -81,15 +82,17 @@ def constructPlannerFromFileSystem(plannerpath):
 	# daily, weekly, monthly checkpoints, periodic items
 	if utils.PlannerConfig.ScheduleMode == utils.PlannerConfig.Standard:
 		fn = '%s/%s' % (plannerpath, CHECKPOINTSWEEKDAYFILE)
+	elif utils.PlannerConfig.ScheduleMode == utils.PlannerConfig.TheMan:
+		fn = '%s/%s' % (plannerpath, CHECKPOINTSTHEMANFILE)
 	else:
 		fn = '%s/%s' % (plannerpath, CHECKPOINTSWOLFFILE)
 	f = open(fn, 'r')
 	planner.checkpoints_weekday_file = StringIO(f.read())
 	f.close()
-	if utils.PlannerConfig.ScheduleMode == utils.PlannerConfig.Standard:
-		fn = '%s/%s' % (plannerpath, CHECKPOINTSWEEKENDFILE)
-	else:
+	if utils.PlannerConfig.ScheduleMode == utils.PlannerConfig.Wolf:
 		fn = '%s/%s' % (plannerpath, CHECKPOINTSWOLFFILE)
+	else:
+		fn = '%s/%s' % (plannerpath, CHECKPOINTSWEEKENDFILE)
 	f = open(fn, 'r')
 	planner.checkpoints_weekend_file = StringIO(f.read())
 	f.close()

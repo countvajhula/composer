@@ -31,7 +31,7 @@ class PlannerUserSettings(object):
 
 class PlannerConfig(object):
 	(Strict, Lax) = (1,2)
-	(Standard, Wolf) = (1,2)
+	(Standard, Wolf, TheMan) = (1,2,3)
 	TomorrowChecking = Strict
 	LogfileCompletionChecking = Strict
 	PreferredBulletChar = '*'
