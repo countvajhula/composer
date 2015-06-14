@@ -97,7 +97,7 @@ if __name__ == '__main__':
 				#print "DEV: simulation passed. let's do this thing ... for real."
 				if err.status >= utils.PlannerPeriod.Week:
 					theme = raw_input("(Optional) Enter a theme for the upcoming week, e.g. Week of 'Timeliness', or 'Completion':__")
-					if theme: utils.PlannerUserSettings.WeekTheme = theme
+					utils.PlannerUserSettings.WeekTheme = theme if theme else None
 				if err.status >= utils.PlannerPeriod.Day:
 					# git commit a "before", now that we know changes are about to be written to planner
 					print
