@@ -99,26 +99,42 @@ def newDayCriteriaMet(currentdate, now):
 
 def newMonthCriteriaMet(currentdate, now):
 	nextDay = utils.getNextDay(currentdate)
-	if nextDay.day == 1 and newDayCriteriaMet(currentdate, now) == PeriodAdvanceCriteria.Satisfied:
+	day_criteria_met = newDayCriteriaMet(currentdate, now)
+	if day_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
+		return PeriodAdvanceCriteria.PlannerInFuture
+	elif nextDay.day == 1 and day_criteria_met == PeriodAdvanceCriteria.Satisfied:
 		return PeriodAdvanceCriteria.Satisfied
 
 def newWeekCriteriaMet(currentdate, now):
 	# note that these dates are ~next~ day values
 	dow = currentdate.strftime('%A')
 	year = currentdate.year
-	if newMonthCriteriaMet(currentdate, now) or (newDayCriteriaMet(currentdate, now) == PeriodAdvanceCriteria.Satisfied and dow.lower() == 'saturday' and currentdate.day >= MIN_WEEK_LENGTH and calendar.monthrange(year, currentdate.month)[1] - currentdate.day >= MIN_WEEK_LENGTH):
+	day_criteria_met = newDayCriteriaMet(currentdate, now)
+	if day_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
+		return PeriodAdvanceCriteria.PlannerInFuture
+	elif (newMonthCriteriaMet(currentdate, now) or
+			(day_criteria_met == PeriodAdvanceCriteria.Satisfied
+				and dow.lower() == 'saturday'
+				and currentdate.day >= MIN_WEEK_LENGTH
+				and calendar.monthrange(year, currentdate.month)[1] - currentdate.day >= MIN_WEEK_LENGTH)):
 		return PeriodAdvanceCriteria.Satisfied
 
 def newQuarterCriteriaMet(currentdate, now):
 	nextDay = utils.getNextDay(currentdate)
 	month = nextDay.strftime('%B')
-	if newMonthCriteriaMet(currentdate, now) and month.lower() in ('january', 'april', 'july', 'october'):
+	day_criteria_met = newDayCriteriaMet(currentdate, now)
+	if day_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
+		return PeriodAdvanceCriteria.PlannerInFuture
+	elif newMonthCriteriaMet(currentdate, now) and month.lower() in ('january', 'april', 'july', 'october'):
 		return PeriodAdvanceCriteria.Satisfied
 
 def newYearCriteriaMet(currentdate, now):
 	nextDay = utils.getNextDay(currentdate)
 	month = nextDay.strftime('%B')
-	if newQuarterCriteriaMet(currentdate, now) and month.lower() == 'january':
+	day_criteria_met = newDayCriteriaMet(currentdate, now)
+	if day_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
+		return PeriodAdvanceCriteria.PlannerInFuture
+	elif newQuarterCriteriaMet(currentdate, now) and month.lower() == 'january':
 		return PeriodAdvanceCriteria.Satisfied
 
 def newPeriodCriteriaMet(currentPeriod, currentdate, now):

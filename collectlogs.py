@@ -41,7 +41,7 @@ def get_logs_times_this_week(wikidir):
 	"""
 	(logs, times) = ("", [])
 	fn = get_filename(wikidir, PLANNERWEEKFILELINK)
-	startday_str = re.search("[^\.]*", fn[8:]).group() # confirm what group does
+	startday_str = re.search("[^\.]*", fn[8:]).group()  # confirm what group does
 	curday = datetime.datetime.strptime(startday_str, '%B %d, %Y').date()
 	fnpath = "%s/%s.wiki" % (wikidir, curday.strftime('%B %d, %Y').replace(' 0', ' '))
 	while True:
@@ -53,7 +53,7 @@ def get_logs_times_this_week(wikidir):
 		logs += str(curday) + '\n' + log + '\n\n'
 		times.append(time)
 		curday += datetime.timedelta(days=1)
-		fnpath = "%s/%s.wiki" % (wikidir, curday.strftime('%B %d, %Y').replace(' 0', ' ')) # handle "January 01" as "January 1"
+		fnpath = "%s/%s.wiki" % (wikidir, curday.strftime('%B %d, %Y').replace(' 0', ' '))  # handle "January 01" as "January 1"
 	return (logs, times)
 
 def get_logs_times_this_month(wikidir):
@@ -80,7 +80,7 @@ def get_logs_times_this_month(wikidir):
 		curday += datetime.timedelta(days=1)
 		while not advanceplanner.newWeekCriteriaMet(curday, datetime.datetime.now()):
 			curday += datetime.timedelta(days=1)
-		curday += datetime.timedelta(days=1) # next day is the one we're looking for
+		curday += datetime.timedelta(days=1)  # next day is the one we're looking for
 		fnpath = "%s/Week of %s.wiki" % (wikidir, curday.strftime('%B %d, %Y').replace(' 0', ' '))
 	return (logs, times)
 
@@ -115,7 +115,7 @@ def get_logs_times_this_quarter(wikidir):
 		(log, time) = extract_log_time_from_text(logtext)
 		logs += "Month of " + curday.strftime('%B, %Y') + '\n' + log + '\n\n'
 		times.append(time)
-		curday = datetime.date(curday.year, curday.month + 1, curday.day) # not robust to wraparounds but unnecessary here
+		curday = datetime.date(curday.year, curday.month + 1, curday.day)  # not robust to wraparounds but unnecessary here
 		fnpath = "%s/Month of %s.wiki" % (wikidir, curday.strftime('%B, %Y'))
 	return (logs, times)
 
