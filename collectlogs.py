@@ -115,7 +115,10 @@ def get_logs_times_this_quarter(wikidir):
 		(log, time) = extract_log_time_from_text(logtext)
 		logs += "Month of " + curday.strftime('%B, %Y') + '\n' + log + '\n\n'
 		times.append(time)
-		curday = datetime.date(curday.year, curday.month + 1, curday.day)  # not robust to wraparounds but unnecessary here
+		if curday.month < 12:
+			curday = datetime.date(curday.year, curday.month + 1, curday.day)
+		else:
+			curday = datetime.date(curday.year + 1, 1, curday.day)
 		fnpath = "%s/Month of %s.wiki" % (wikidir, curday.strftime('%B, %Y'))
 	return (logs, times)
 
