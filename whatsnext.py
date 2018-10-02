@@ -15,8 +15,8 @@ from errors import *
 
 
 if __name__ == '__main__':
-	#Moved pending tasks from today over to tomorrow's agenda
-	#could try: [Display score for today]
+	# Moved pending tasks from today over to tomorrow's agenda
+	# could try: [Display score for today]
 
 	jumping = False
 	now = None
