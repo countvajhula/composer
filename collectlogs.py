@@ -14,15 +14,18 @@ PLANNERWEEKFILELINK = 'currentweek'
 PLANNERMONTHFILELINK = 'currentmonth'
 PLANNERQUARTERFILELINK = 'currentquarter'
 
+
 def get_filename(wikidir, filelink):
 	flink = "%s/%s" % (wikidir, filelink)
 	return os.readlink(flink)
+
 
 def read_file_contents(fnpath):
 	fd = open(fnpath, 'r')
 	file_contents = fd.read()
 	fd.close()
 	return file_contents
+
 
 def extract_log_time_from_text(logtext):
 	notes_idx = re.search('NOTES:\n', logtext).end()
@@ -31,6 +34,7 @@ def extract_log_time_from_text(logtext):
 	time_idx = end_idx + logtext[end_idx:].find(':') + 1
 	time = logtext[time_idx:].strip(' \n')
 	return (log, time)
+
 
 def get_logs_times_this_week(wikidir):
 	""" read currentweek link as filename;
@@ -47,7 +51,7 @@ def get_logs_times_this_week(wikidir):
 	while True:
 		try:
 			logtext = read_file_contents(fnpath)
-		except:
+		except Exception:
 			break
 		(log, time) = extract_log_time_from_text(logtext)
 		logs += str(curday) + '\n' + log + '\n\n'
@@ -55,6 +59,7 @@ def get_logs_times_this_week(wikidir):
 		curday += datetime.timedelta(days=1)
 		fnpath = "%s/%s.wiki" % (wikidir, curday.strftime('%B %d, %Y').replace(' 0', ' '))  # handle "January 01" as "January 1"
 	return (logs, times)
+
 
 def get_logs_times_this_month(wikidir):
 	""" read currentmonth link as filename;
@@ -72,7 +77,7 @@ def get_logs_times_this_month(wikidir):
 	while True:
 		try:
 			logtext = read_file_contents(fnpath)
-		except:
+		except Exception:
 			break
 		(log, time) = extract_log_time_from_text(logtext)
 		logs += "Week of " + str(curday) + '\n' + log + '\n\n'
@@ -83,6 +88,7 @@ def get_logs_times_this_month(wikidir):
 		curday += datetime.timedelta(days=1)  # next day is the one we're looking for
 		fnpath = "%s/Week of %s.wiki" % (wikidir, curday.strftime('%B %d, %Y').replace(' 0', ' '))
 	return (logs, times)
+
 
 def get_logs_times_this_quarter(wikidir):
 	""" read currentquarter link as filename;
@@ -110,7 +116,7 @@ def get_logs_times_this_quarter(wikidir):
 	while True:
 		try:
 			logtext = read_file_contents(fnpath)
-		except:
+		except Exception:
 			break
 		(log, time) = extract_log_time_from_text(logtext)
 		logs += "Month of " + curday.strftime('%B, %Y') + '\n' + log + '\n\n'
@@ -122,25 +128,25 @@ def get_logs_times_this_quarter(wikidir):
 		fnpath = "%s/Month of %s.wiki" % (wikidir, curday.strftime('%B, %Y'))
 	return (logs, times)
 
+
 if __name__ == '__main__':
 	wikidirs = config.PRODUCTION_WIKIDIRS
 	for wikidir in wikidirs:
 		(weeklogs, weektimes) = get_logs_times_this_week(wikidir)
 		(monthlogs, monthtimes) = get_logs_times_this_month(wikidir)
 		(quarterlogs, quartertimes) = get_logs_times_this_quarter(wikidir)
-		print "Daily logs for the past week (%s)" % wikidir
-		print weeklogs
-		print "Daily Times:"
-		print weektimes
-		print
-		print "Weekly logs for the past month (%s)" % wikidir
-		print monthlogs
-		print "Weekly Times:"
-		print monthtimes
-		print
-		print "Monthly logs for the past quarter (%s)" % wikidir
-		print quarterlogs
-		print "Monthly Times:"
-		print quartertimes
-		print
-
+		print("Daily logs for the past week (%s)" % wikidir)
+		print(weeklogs)
+		print("Daily Times:")
+		print(weektimes)
+		print()
+		print("Weekly logs for the past month (%s)" % wikidir)
+		print(monthlogs)
+		print("Weekly Times:")
+		print(monthtimes)
+		print()
+		print("Monthly logs for the past quarter (%s)" % wikidir)
+		print(quarterlogs)
+		print("Monthly Times:")
+		print(quartertimes)
+		print()

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import unittest
-from StringIO import StringIO
 import datetime
 import advanceplanner
 import templates
@@ -9,6 +8,12 @@ import scheduling
 import utils
 from utils import Planner
 from utils import PlannerPeriod
+
+try:  # py3
+	from io import StringIO
+except ImportError:  # py2
+	from StringIO import StringIO
+
 
 """ 
 1. add year later

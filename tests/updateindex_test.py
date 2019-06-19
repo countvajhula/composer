@@ -2,6 +2,7 @@
 import unittest
 import updateindex
 
+
 class WikiPagesKnownValues(unittest.TestCase):
 	dummyfiles = ['hold on thar.wiki', "what's this?.wiki", "blah.wiki", "blah.wik", "blah", "blah.wiki.swp", "blah.wiki~", "bleh.wiki"]
 	wikifiles = ['hold on thar', "what's this?", "blah",  "bleh"]
@@ -15,6 +16,7 @@ class WikiPagesKnownValues(unittest.TestCase):
 		""" Check that an empty list is returned if an empty file list is supplied"""
 		wikipages = updateindex.get_wiki_pages_among_files([])
 		self.assertEqual(wikipages, [])
+
 
 class BadInput(unittest.TestCase):
 	def testWikiPagesAmongFilesWithBadInput(self):

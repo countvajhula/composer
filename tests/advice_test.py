@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 import unittest
 import advice
-from StringIO import StringIO
+
+try:  # py3
+	from io import StringIO
+except ImportError:  # py2
+	from StringIO import StringIO
 
 
 class TestAdvice(unittest.TestCase):

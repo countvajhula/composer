@@ -1,10 +1,14 @@
 import os
-from StringIO import StringIO
 import utils
 import datetime
 import scheduling
 import advanceplanner
 from errors import *
+
+try:  # py3
+	from io import StringIO
+except ImportError:  # py2
+	from StringIO import StringIO
 
 
 PLANNERTASKLISTFILELINK = 'TaskList.wiki'
@@ -32,14 +36,16 @@ PERIODICDAILYFILE = 'Periodic_Daily.wiki'
 def getPlannerDateFromString(datestr):
 	return datetime.datetime.strptime(datestr, '%B %d, %Y').date()
 
+
 def getPlannerDate(plannerlocation):
 	""" get planner date, currently looks for the file 'currentday', if dne throw exception """
 	plannerdatelink = '%s/%s' % (plannerlocation, PLANNERDAYFILELINK)
 	plannerdatefn = os.readlink(plannerdatelink)
 	pathidx = plannerdatefn.rfind('/')
-	datestr = plannerdatefn[pathidx+1:-5] # trim path from beginning and '.wiki' from end
+	datestr = plannerdatefn[pathidx + 1:-5]  # trim path from beginning and '.wiki' from end
 	plannerdate = getPlannerDateFromString(datestr)
 	return plannerdate
+
 
 def constructPlannerFromFileSystem(plannerpath):
 	# CURRENT planner date used here
@@ -135,6 +141,7 @@ def constructPlannerFromFileSystem(plannerpath):
 
 	return planner
 
+
 def writePlannerToFilesystem(planner, plannerpath):
 	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILELINK)
 	dayfn_pre = '%s/%s' % (plannerpath, PLANNERDAYFILELINK)
@@ -168,6 +175,7 @@ def writePlannerToFilesystem(planner, plannerpath):
 	f.close()
 
 	utils.resetHeadsOnPlannerFiles(planner)
+
 
 def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 	# use a bunch of StringIO buffers for the Planner object
@@ -224,8 +232,9 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 		f.write(planner.yearfile.read())
 		f.close()
 		filelinkfn = '%s/%s' % (plannerpath, PLANNERYEARFILELINK)
-		if os.path.islink(filelinkfn): os.remove(filelinkfn)
-		os.symlink(yearfn_post[yearfn_post.rfind('/')+1:], filelinkfn) # remove path from filename so it isn't "double counted"
+		if os.path.islink(filelinkfn):
+			os.remove(filelinkfn)
+		os.symlink(yearfn_post[yearfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
 	if status >= utils.PlannerPeriod.Quarter:
 		# extract new quarter filename from date
 		# write buffer to new file
@@ -235,8 +244,9 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 		f.write(planner.quarterfile.read())
 		f.close()
 		filelinkfn = '%s/%s' % (plannerpath, PLANNERQUARTERFILELINK)
-		if os.path.islink(filelinkfn): os.remove(filelinkfn)
-		os.symlink(quarterfn_post[quarterfn_post.rfind('/')+1:], filelinkfn) # remove path from filename so it isn't "double counted"
+		if os.path.islink(filelinkfn):
+			os.remove(filelinkfn)
+		os.symlink(quarterfn_post[quarterfn_post.rfind('/') + 1:], filelinkfn) # remove path from filename so it isn't "double counted"
 	if status == utils.PlannerPeriod.Quarter:
 		# write year buffer to existing file
 		f = open(yearfn_pre, 'w')
@@ -251,8 +261,9 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 		f.write(planner.monthfile.read())
 		f.close()
 		filelinkfn = '%s/%s' % (plannerpath, PLANNERMONTHFILELINK)
-		if os.path.islink(filelinkfn): os.remove(filelinkfn)
-		os.symlink(monthfn_post[monthfn_post.rfind('/')+1:], filelinkfn) # remove path from filename so it isn't "double counted"
+		if os.path.islink(filelinkfn):
+			os.remove(filelinkfn)
+		os.symlink(monthfn_post[monthfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
 	if status == utils.PlannerPeriod.Month:
 		# write quarter buffer to existing file
 		f = open(quarterfn_pre, 'w')
@@ -267,8 +278,9 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 		f.write(planner.weekfile.read())
 		f.close()
 		filelinkfn = '%s/%s' % (plannerpath, PLANNERWEEKFILELINK)
-		if os.path.islink(filelinkfn): os.remove(filelinkfn)
-		os.symlink(weekfn_post[weekfn_post.rfind('/')+1:], filelinkfn) # remove path from filename so it isn't "double counted"
+		if os.path.islink(filelinkfn):
+			os.remove(filelinkfn)
+		os.symlink(weekfn_post[weekfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
 	if status == utils.PlannerPeriod.Week:
 		# write month buffer to existing file
 		f = open(monthfn_pre, 'w')
@@ -283,8 +295,9 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 		f.write(planner.dayfile.read())
 		f.close()
 		filelinkfn = '%s/%s' % (plannerpath, PLANNERDAYFILELINK)
-		if os.path.islink(filelinkfn): os.remove(filelinkfn)
-		os.symlink(dayfn_post[dayfn_post.rfind('/')+1:], filelinkfn) # remove path from filename so it isn't "double counted"
+		if os.path.islink(filelinkfn):
+			os.remove(filelinkfn)
+		os.symlink(dayfn_post[dayfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
 		# in any event if day was advanced, update tasklist
 		f = open(tasklistfn, 'w')
 		f.write(planner.tasklistfile.read())
@@ -294,5 +307,5 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 		f = open(weekfn_pre, 'w')
 		f.write(planner.weekfile.read())
 		f.close()
-	
+
 	return status

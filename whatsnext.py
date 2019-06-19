@@ -3,7 +3,6 @@
 import os
 from subprocess import call
 import sys
-from StringIO import StringIO
 import datetime
 import advanceplanner
 import utils
@@ -12,6 +11,13 @@ import updateindex
 import advice
 import config
 from errors import *
+
+try:  # py3
+	from io import StringIO
+except ImportError:  # py2
+	from StringIO import StringIO
+
+raw_input = input
 
 
 if __name__ == '__main__':
@@ -31,14 +37,15 @@ if __name__ == '__main__':
 			validargs = True
 			wikidirs = config.TEST_WIKIDIRS
 			testmode = True
-			now = datetime.datetime(2013,1,8,19,0,0) # so jump can be tested on test wiki
+			# so jump can be tested on test wiki
+			now = datetime.datetime(2013, 1, 8, 19, 0, 0)
 		else:
 			wikidirs = config.PRODUCTION_WIKIDIRS
 		if '-j' in args or '--jump' in args:
 			validargs = True
-			print
-			print ">>> Get ready to JUMP! <<<"
-			print
+			print()
+			print(">>> Get ready to JUMP! <<<")
+			print()
 			jumping = True
 		if not validargs:
 			raise Exception("Invalid command line arguments")
@@ -49,52 +56,55 @@ if __name__ == '__main__':
 	for wikidir in wikidirs:
 		simulate = True
 		config.set_preferences(jumping)
-		print
+		print()
 		if testmode:
-			print ">>> Operating in TEST mode on planner at location: %s <<<" % wikidir
+			print(">>> Operating in TEST mode on planner at location: %s <<<" % wikidir)
 		else:
-			print ">>> Operating on planner at location: %s <<<" % wikidir
-		print
+			print(">>> Operating on planner at location: %s <<<" % wikidir)
+		print()
 		while True:
 			try:
 				filesystem.advanceFilesystemPlanner(wikidir, now=now, simulate=simulate)
-				print
-				print "Moving tasks added for tomorrow over to tomorrow's agenda..."
-				print "Carrying over any unfinished tasks from today to tomorrow's agenda..."
-				print "Checking for any other tasks previously scheduled for tomorrow..."
-				print "Creating/updating log files..."
-				print "...DONE."
+				print()
+				print("Moving tasks added for tomorrow over to tomorrow's agenda...")
+				print("Carrying over any unfinished tasks from today to tomorrow's agenda...")
+				print("Checking for any other tasks previously scheduled for tomorrow...")
+				print("Creating/updating log files...")
+				print("...DONE.")
 				# update index after making changes
-				print
-				print "Updating planner wiki index..."
+				print()
+				print("Updating planner wiki index...")
 				updateindex.update_index(wikidir)
-				print "...DONE."
+				print("...DONE.")
 				# git commit "after"
-				print
-				print "Committing all changes..."
+				print()
+				print("Committing all changes...")
 				plannerdate = filesystem.getPlannerDate(wikidir)
 				(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
 				datestr = '%s %d, %d' % (month, date, year)
 				with open(os.devnull, 'w') as null:
 					call(['git', 'add', '-A'], cwd=wikidir, stdout=null)
 					call(['git', 'commit', '-m', 'SOD %s' % datestr], cwd=wikidir, stdout=null)
-				print "...DONE."
-				print
-				print "~~~ THOUGHT FOR THE DAY ~~~"
-				print
+				print("...DONE.")
+				print()
+				print("~~~ THOUGHT FOR THE DAY ~~~")
+				print()
 				filepaths = map(lambda f: wikidir + '/' + f, config.LESSONS_FILES)
+
 				def openfile(fn):
-					try: f = open(fn, 'r')
-					except: f = StringIO('')
+					try:
+						f = open(fn, 'r')
+					except Exception:
+						f = StringIO('')
 					return f
 				lessons_files = map(openfile, filepaths)
-				print advice.get_advice(lessons_files)
-				if jumping: # if jumping, keep repeating until present-day error thrown
+				print(advice.get_advice(lessons_files))
+				if jumping:  # if jumping, keep repeating until present-day error thrown
 					simulate = True
 				else:
 					break
 			except SimulationPassedError as err:
-				#print "DEV: simulation passed. let's do this thing ... for real."
+				# print "DEV: simulation passed. let's do this thing ... for real."
 				if err.status >= utils.PlannerPeriod.Week:
 					theme = raw_input("(Optional) Enter a theme for the upcoming week, e.g. Week of 'Timeliness', or 'Completion':__")
 					utils.PlannerUserSettings.WeekTheme = theme if theme else None
@@ -155,4 +165,3 @@ if __name__ == '__main__':
 				raise
 			except RelativeDateError as err:
 				raise
-

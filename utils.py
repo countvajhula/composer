@@ -23,24 +23,29 @@ class Planner(object):
 		self.periodic_quarter_file = None
 		self.periodic_year_file = None
 
+
 class PlannerPeriod(object):
-	(Zero, Day, Week, Month, Quarter, Year) = (0,1,2,3,4,5)
+	(Zero, Day, Week, Month, Quarter, Year) = (0, 1, 2, 3, 4, 5)
+
 
 class PlannerUserSettings(object):
 	WeekTheme = None
 
+
 class PlannerConfig(object):
-	(Strict, Lax) = (1,2)
-	(Standard, Wolf, TheMan) = (1,2,3)
+	(Strict, Lax) = (1, 2)
+	(Standard, Wolf, TheMan) = (1, 2, 3)
 	TomorrowChecking = Strict
 	LogfileCompletionChecking = Strict
 	PreferredBulletChar = '*'
 	ScheduleMode = Standard
 
+
 def getNextDay(date):
 	""" Given a date, return the next day by consulting the python date module """
 	nextDay = date + datetime.timedelta(days=1)
 	return nextDay
+
 
 def quarter_for_month(month):
 	if month.lower() in ('january', 'february', 'march'):
@@ -51,6 +56,7 @@ def quarter_for_month(month):
 		return "Q3"
 	elif month.lower() in ('october', 'november', 'december'):
 		return "Q4"
+
 
 def resetHeadsOnPlannerFiles(planner):
 	planner.tasklistfile.seek(0)
@@ -71,4 +77,3 @@ def resetHeadsOnPlannerFiles(planner):
 	planner.checkpoints_weekday_file.seek(0)
 	planner.checkpoints_weekend_file.seek(0)
 	planner.periodic_day_file.seek(0)
-

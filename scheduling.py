@@ -1,9 +1,13 @@
 import datetime
 import calendar
-from StringIO import StringIO
 import re
 import utils
 from errors import *
+
+try:  # py3
+	from io import StringIO
+except ImportError:  # py2
+	from StringIO import StringIO
 
 
 def getAppropriateYear(month, day, today):
@@ -14,6 +18,7 @@ def getAppropriateYear(month, day, today):
 	else:
 		return today.year
 
+
 def getDateForScheduleString(datestr, planner=None, now=None):
 	""" try various acceptable formats and return the first one that works
 	Returns both a specific python date that can be used as well as a 'standard format' date string
@@ -21,12 +26,15 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 	if not now: now = datetime.datetime.now()
 	date = None
 	today = now.date()
-	monthNameToNumber = dict((v.lower(),k) for k,v in enumerate(calendar.month_name))
-	monthNumberToName = dict((k,v) for k,v in enumerate(calendar.month_name))
+	monthNameToNumber = dict((v.lower(), k) for k, v in enumerate(calendar.month_name))
+	monthNumberToName = dict((k, v) for k, v in enumerate(calendar.month_name))
+
 	def getMonthNumber(monthname):
 		return monthNameToNumber[monthname.lower()]
+
 	def getMonthName(monthnumber):
 		return monthNumberToName[monthnumber]
+
 	# TODO: change these to annotated regex's
 	# MONTH DD, YYYY (w optional space or comma or both)
 	dateformat1 = re.compile('^([^\d ]+) (\d\d?)[, ] ?(\d{4})$', re.IGNORECASE)
@@ -66,11 +74,11 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 
 	if dateformat1.search(datestr):
 		(month, day, year) = dateformat1.search(datestr).groups()
-		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat2.search(datestr):
 		(day, month, year) = dateformat2.search(datestr).groups()
-		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat3.search(datestr):
 		if not planner:
@@ -78,7 +86,7 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		(month, day) = dateformat3.search(datestr).groups()
 		(monthn, dayn) = (getMonthNumber(month), int(day))
 		year = str(getAppropriateYear(monthn, dayn, planner.date))
-		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat4.search(datestr):
 		if not planner:
@@ -86,7 +94,7 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		(day, month) = dateformat4.search(datestr).groups()
 		(monthn, dayn) = (getMonthNumber(month), int(day))
 		year = str(getAppropriateYear(monthn, dayn, planner.date))
-		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat5.search(datestr):
 		# std = Week of Month dd(sunday/1), yyyy
@@ -99,7 +107,7 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 				date = date - datetime.timedelta(days=1)
 				dow = date.strftime('%A')
 		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
-		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat6.search(datestr):
 		(day, month, year) = dateformat6.search(datestr).groups()
@@ -111,7 +119,7 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 				date = date - datetime.timedelta(days=1)
 				dow = date.strftime('%A')
 		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
-		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat7.search(datestr):
 		if not planner:
@@ -127,7 +135,7 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 				date = date - datetime.timedelta(days=1)
 				dow = date.strftime('%A')
 		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
-		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat8.search(datestr):
 		if not planner:
@@ -143,47 +151,47 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 				date = date - datetime.timedelta(days=1)
 				dow = date.strftime('%A')
 		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
-		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat9.search(datestr):
 		(month, year) = dateformat9.search(datestr).groups()
 		day = str(1)
-		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s' % (month, year)
-	elif dateformat13.search(datestr): #TOMORROW
+	elif dateformat13.search(datestr):  # TOMORROW
 		if not planner:
 			raise RelativeDateError("Relative date found, but no context available")
 		date = utils.getNextDay(planner.date)
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
-	elif dateformat16.search(datestr): #<DOW> e.g. MONDAY
+	elif dateformat16.search(datestr):  # <DOW> e.g. MONDAY
 		if not planner:
 			raise RelativeDateError("Relative date found, but no context available")
 		dowToSchedule = dateformat16.search(datestr).groups()[0]
-		upcomingweek = map(lambda d:planner.date+datetime.timedelta(days=d), range(1,8))
+		upcomingweek = map(lambda d: planner.date + datetime.timedelta(days=d), range(1, 8))
 		dow = [d.strftime('%A').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
-	elif dateformat17.search(datestr): #<DOW> short e.g. MON
+	elif dateformat17.search(datestr):  # <DOW> short e.g. MON
 		if not planner:
 			raise RelativeDateError("Relative date found, but no context available")
 		dowToSchedule = dateformat17.search(datestr).groups()[0]
-		upcomingweek = map(lambda d:planner.date+datetime.timedelta(days=d), range(1,8))
+		upcomingweek = map(lambda d: planner.date + datetime.timedelta(days=d), range(1, 8))
 		dow = [d.strftime('%a').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
-	elif dateformat10.search(datestr): # MONTH, e.g. DECEMBER
+	elif dateformat10.search(datestr):  # MONTH, e.g. DECEMBER
 		if not planner:
 			raise RelativeDateError("Relative date found, but no context available")
 		month = dateformat10.search(datestr).groups()[0]
 		(monthn, dayn) = (getMonthNumber(month), 1)
 		(day, year) = (str(dayn), str(getAppropriateYear(monthn, dayn, planner.date)))
-		date = datetime.datetime.strptime(month+'-'+day+'-'+year, '%B-%d-%Y').date()
+		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s' % (month, year)
 	elif dateformat11.search(datestr):
-		(monthn, dayn, yearn) = map(lambda i:int(i), dateformat11.search(datestr).groups())
+		(monthn, dayn, yearn) = map(lambda i: int(i), dateformat11.search(datestr).groups())
 		(month, day, year) = (getMonthName(monthn).upper(), str(dayn), str(yearn))
 		date = datetime.date(yearn, monthn, dayn)
 		datestr_std = '%s %s, %s' % (month, day, year)
@@ -192,27 +200,29 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 		(month, day, year) = (getMonthName(monthn).upper(), str(dayn), str(yearn))
 		date = datetime.date(yearn, monthn, dayn)
 		datestr_std = '%s %s, %s' % (month, day, year)
-	elif dateformat14.search(datestr): #NEXT WEEK
+	elif dateformat14.search(datestr):  # NEXT WEEK
 		if not planner:
 			raise RelativeDateError("Relative date found, but no context available")
-		dowToSchedule = 'SUNDAY' # start of next week
-		upcomingweek = map(lambda d:planner.date+datetime.timedelta(days=d), range(1,8))
+		dowToSchedule = 'SUNDAY'  # start of next week
+		upcomingweek = map(lambda d: planner.date + datetime.timedelta(days=d), range(1, 8))
 		dow = [d.strftime('%A').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
-	elif dateformat15.search(datestr): #NEXT MONTH
+	elif dateformat15.search(datestr):  # NEXT MONTH
 		if not planner:
 			raise RelativeDateError("Relative date found, but no context available")
-		upcomingmonth = map(lambda d:planner.date+datetime.timedelta(days=d), range(1,31))
+		upcomingmonth = map(lambda d: planner.date + datetime.timedelta(days=d), range(1, 31))
 		dates = [d.day for d in upcomingmonth]
 		date = upcomingmonth[dates.index(1)]
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s' % (month, year)
-	else: raise DateFormatError("Date format does not match any acceptable formats! " + datestr)
+	else:
+		raise DateFormatError("Date format does not match any acceptable formats! " + datestr)
 	if date:
-		return {'date':date, 'datestr':datestr_std.upper()}
+		return {'date': date, 'datestr': datestr_std.upper()}
 	return None
+
 
 def scheduleTasks(planner, now=None):
 	# go through TL till SCHEDULED found
@@ -221,7 +231,8 @@ def scheduleTasks(planner, now=None):
 	# loop through all scheduled till naother section found or eof
 	# go through any other section
 
-	if not now: now = datetime.datetime.now()
+	if not now:
+		now = datetime.datetime.now()
 	utils.resetHeadsOnPlannerFiles(planner)
 
 	tasklist = planner.tasklistfile
@@ -246,11 +257,11 @@ def scheduleTasks(planner, now=None):
 						datestr = scheduledate.search(ss).groups()[0]
 						try:
 							matcheddate = getDateForScheduleString(datestr, planner, now)
-						except:
+						except Exception:
 							raise
 					else:
 						raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it: " + ss)
-					ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss) # replace with standard format
+					ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss)  # replace with standard format
 					tasklist_tidied.write(ss)
 					ss = tasklist.readline()
 					while ss.startswith('\t'):
@@ -266,11 +277,11 @@ def scheduleTasks(planner, now=None):
 				datestr = scheduledate.search(ss).groups()[0]
 				try:
 					matcheddate = getDateForScheduleString(datestr, planner, now)
-				except:
+				except Exception:
 					raise
 			else:
 				raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it: " + ss)
-			ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss) # replace with standard format
+			ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss)  # replace with standard format
 			scheduledtasks += ss
 			ss = tasklist.readline()
 			while ss.startswith('\t'):
@@ -280,7 +291,7 @@ def scheduleTasks(planner, now=None):
 			tasklist_tidied.write(ss)
 			ss = tasklist.readline()
 
-	tasklist = tasklist_tidied # tasklist - misplaced scheduled tasks
+	tasklist = tasklist_tidied  # tasklist - misplaced scheduled tasks
 
 	# go through TODAY file
 	# if [o] then make sure [$$] and parseable
@@ -289,7 +300,8 @@ def scheduleTasks(planner, now=None):
 	ss = dayfile.readline()
 	while ss != '' and ss[:len('agenda')].lower() != 'agenda':
 		ss = dayfile.readline()
-	if ss == '': raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
+	if ss == '':
+		raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
 	ss = dayfile.readline()
 	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
 		if ss.startswith('[o'):
@@ -297,11 +309,11 @@ def scheduleTasks(planner, now=None):
 				datestr = scheduledate.search(ss).groups()[0]
 				try:
 					matcheddate = getDateForScheduleString(datestr, planner, now)
-				except:
+				except Exception:
 					raise
 			else:
 				raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it:" + ss)
-			ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss) # replace with standard format
+			ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss)  # replace with standard format
 			scheduledtasks += ss
 			ss = dayfile.readline()
 			while ss.startswith('\t'):
@@ -316,7 +328,8 @@ def scheduleTasks(planner, now=None):
 	while ss != '' and ss[:len('scheduled')].lower() != 'scheduled':
 		tasklist_tidied.write(ss)
 		ss = tasklist.readline()
-	if ss == '': raise TasklistLayoutError("Tasklist SCHEDULED section not found!")
+	if ss == '':
+		raise TasklistLayoutError("Tasklist SCHEDULED section not found!")
 	tasklist_tidied.write(ss)
 	ss = tasklist.readline()
 	while ss != '' and ss != '\n':
@@ -332,6 +345,7 @@ def scheduleTasks(planner, now=None):
 	planner.tasklistfile.write(tasklist.read())
 	utils.resetHeadsOnPlannerFiles(planner)
 
+
 def getScheduledTasks(tasklist, forDay):
 	# look at SCHEDULED section in tasklist and return if scheduled for supplied day
 	# remove from tasklist
@@ -342,7 +356,8 @@ def getScheduledTasks(tasklist, forDay):
 		tasklist_updated.write(ss)
 		ss = tasklist.readline()
 	tasklist_updated.write(ss)
-	if ss == '': raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
+	if ss == '':
+		raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
 	scheduledate = re.compile('\[\$?([^\[\$]*)\$?\]$')
 	scheduledtasks = ''
 	ss = tasklist.readline()
@@ -352,7 +367,7 @@ def getScheduledTasks(tasklist, forDay):
 				datestr = scheduledate.search(ss).groups()[0]
 				try:
 					matcheddate = getDateForScheduleString(datestr)
-				except:
+				except Exception:
 					raise
 				if forDay >= matcheddate['date']:
 					scheduledtasks += ss
@@ -379,5 +394,3 @@ def getScheduledTasks(tasklist, forDay):
 	tasklist.seek(0)
 	scheduledtasks = scheduledtasks.strip('\n')
 	return scheduledtasks
-
-

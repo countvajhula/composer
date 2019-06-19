@@ -2,26 +2,23 @@
 
 import datetime
 import calendar
-from StringIO import StringIO
 import re
 from errors import *
 import templates
 import utils
-#from gaia.identity import Identity
+
+try:  # py3
+	from io import StringIO
+except ImportError:  # py2
+	from StringIO import StringIO
 
 
 MIN_WEEK_LENGTH = 5
 
-"""
-class Task(Identity):
-	def __init__(self, name, description=None):
-		self.name = name
-		if description: self.description = description
-		self.done = False
-"""
 
 class PeriodAdvanceCriteria(object):
-	(Satisfied, DayStillInProgress, PlannerInFuture) = (1,2,3)
+	(Satisfied, DayStillInProgress, PlannerInFuture) = (1, 2, 3)
+
 
 def checkLogfileCompletion(logfile):
 	""" Check the logfile's NOTES section as a determination of whether the log has been completed """
@@ -41,6 +38,7 @@ def checkLogfileCompletion(logfile):
 	logfile.seek(0)
 	return completed
 
+
 def extractAgendaFromLogfile(logfile):
 	""" Go through logfile and extract all tasks under AGENDA """
 	agenda = ''
@@ -56,22 +54,24 @@ def extractAgendaFromLogfile(logfile):
 	agenda = agenda.strip('\n')
 	return agenda
 
+
 def updateLogfileAgenda(logfile, agenda):
 	logfile_updated = StringIO()
 	ss = logfile.readline()
 	while ss != '' and ss[:len('agenda')].lower() != 'agenda':
 		logfile_updated.write(ss)
 		ss = logfile.readline()
-	if ss == '': raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
+	if ss == '':
+		raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
 	logfile_updated.write(ss)
 	ss = logfile.readline()
 	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
 		logfile_updated.write(ss)
 		ss = logfile.readline()
 	# don't leave newlines between previous tasks and latest additions
-	logfile_updated.seek(-2,1)
+	logfile_updated.seek(-2, 1)
 	if logfile_updated.read(2) == '\n\n':
-		logfile_updated.seek(-1,1)
+		logfile_updated.seek(-1, 1)
 	logfile_updated.write(agenda)
 	logfile_updated.write('\n\n')
 	while ss != '':
@@ -82,6 +82,7 @@ def updateLogfileAgenda(logfile, agenda):
 	logfile_updated.seek(0)
 	logfile.write(logfile_updated.read())
 	logfile.seek(0)
+
 
 def newDayCriteriaMet(currentdate, now):
 	today = now.date()
@@ -97,6 +98,7 @@ def newDayCriteriaMet(currentdate, now):
 		# planner is in the future
 		return PeriodAdvanceCriteria.PlannerInFuture
 
+
 def newMonthCriteriaMet(currentdate, now):
 	nextDay = utils.getNextDay(currentdate)
 	day_criteria_met = newDayCriteriaMet(currentdate, now)
@@ -104,6 +106,7 @@ def newMonthCriteriaMet(currentdate, now):
 		return PeriodAdvanceCriteria.PlannerInFuture
 	elif nextDay.day == 1 and day_criteria_met == PeriodAdvanceCriteria.Satisfied:
 		return PeriodAdvanceCriteria.Satisfied
+
 
 def newWeekCriteriaMet(currentdate, now):
 	# note that these dates are ~next~ day values
@@ -119,6 +122,7 @@ def newWeekCriteriaMet(currentdate, now):
 				and calendar.monthrange(year, currentdate.month)[1] - currentdate.day >= MIN_WEEK_LENGTH)):
 		return PeriodAdvanceCriteria.Satisfied
 
+
 def newQuarterCriteriaMet(currentdate, now):
 	nextDay = utils.getNextDay(currentdate)
 	month = nextDay.strftime('%B')
@@ -128,6 +132,7 @@ def newQuarterCriteriaMet(currentdate, now):
 	elif newMonthCriteriaMet(currentdate, now) and month.lower() in ('january', 'april', 'july', 'october'):
 		return PeriodAdvanceCriteria.Satisfied
 
+
 def newYearCriteriaMet(currentdate, now):
 	nextDay = utils.getNextDay(currentdate)
 	month = nextDay.strftime('%B')
@@ -136,6 +141,7 @@ def newYearCriteriaMet(currentdate, now):
 		return PeriodAdvanceCriteria.PlannerInFuture
 	elif newQuarterCriteriaMet(currentdate, now) and month.lower() == 'january':
 		return PeriodAdvanceCriteria.Satisfied
+
 
 def newPeriodCriteriaMet(currentPeriod, currentdate, now):
 	if currentPeriod == utils.PlannerPeriod.Day:
@@ -149,20 +155,22 @@ def newPeriodCriteriaMet(currentPeriod, currentdate, now):
 	if currentPeriod == utils.PlannerPeriod.Year:
 		return newYearCriteriaMet(currentdate, now)
 
+
 def advancePlanner(planner, now=None):
 	""" Advance planner state to next day, updating week and month info as necessary. 'now' arg used only for testing
 	TODO: use function compositor thingies to de-duplify these
 	"""
-	#plannerdate = getPlannerDateFromString('November 30, 2012')
+	# plannerdate = getPlannerDateFromString('November 30, 2012')
 	utils.resetHeadsOnPlannerFiles(planner)
-	nextDay = utils.getNextDay(planner.date) # the new day to advance to
+	nextDay = utils.getNextDay(planner.date)  # the new day to advance to
 	nextdow = nextDay.strftime('%A')
-	#writeExistingWeekTemplate(nextDay)
-	#writeNewMonthTemplate(nextDay)
-	#sys.exit(0)
-	#(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
+	# writeExistingWeekTemplate(nextDay)
+	# writeNewMonthTemplate(nextDay)
+	# sys.exit(0)
+	# (date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
 
-	if not now: now = datetime.datetime.now()
+	if not now:
+		now = datetime.datetime.now()
 
 	def get_period_files(currentPeriod):
 		if currentPeriod == utils.PlannerPeriod.Day:

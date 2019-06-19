@@ -1,6 +1,7 @@
 import unittest
 import collectlogs
 
+
 class SampleLogs(unittest.TestCase):
 	daylog = ("= WEDNESDAY APR 1, 2015 =\n"
 					"\n"
@@ -43,4 +44,3 @@ class SampleLogs(unittest.TestCase):
 		expected_log = "Notes for the day."
 		expected_time = "10 mins"
 		self.assertEqual(collectlogs.extract_log_time_from_text(self.daylog), (expected_log, expected_time))
-
