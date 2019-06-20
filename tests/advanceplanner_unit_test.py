@@ -1028,7 +1028,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
 				newdt = now + datetime.timedelta(days=1)
 				yield newdt
 		for i in range(7):
-			now = incDate().next()
+			now = next(incDate())
 			today = now.date()
 			nextDay = today + datetime.timedelta(days=1)
 			(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
