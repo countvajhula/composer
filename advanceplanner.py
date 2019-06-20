@@ -78,6 +78,7 @@ def updateLogfileAgenda(logfile, agenda):
 		logfile_updated.write(ss)
 		ss = logfile.readline()
 
+	logfile.seek(0)
 	logfile.truncate(0)
 	logfile_updated.seek(0)
 	logfile.write(logfile_updated.read())

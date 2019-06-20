@@ -72,6 +72,7 @@ def getTasksForTomorrow(tasklist):
 		tasklist_nextday.write(ss)
 		ss = tasklist.readline()
 	tasklist_nextday.seek(0)
+	tasklist.seek(0)
 	tasklist.truncate(0)
 	tasklist.write(tasklist_nextday.read())
 	tasklist.seek(0)
@@ -202,6 +203,7 @@ def writeNewTemplate(period, nextDay, tasklistfile, logfile, checkpointsfile, pe
 		template = buildQuarterTemplate(nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
 	if period == utils.PlannerPeriod.Year:
 		template = buildYearTemplate(nextDay, tasklistfile, logfile, checkpointsfile, periodicfile)
+	logfile.seek(0)
 	logfile.truncate(0)
 	logfile.write(template)
 	logfile.seek(0)
@@ -214,6 +216,7 @@ def writeExistingYearTemplate(nextDay, yearfile):
 	previdx = yearcontents.find(lastQuarterEntry)
 	idx = yearcontents.rfind('\n', 0, previdx)
 	newyearcontents = yearcontents[:idx + 1] + '\t%s [[%s %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, utils.quarter_for_month(month), year) + yearcontents[idx + 1:]
+	yearfile.seek(0)
 	yearfile.truncate(0)
 	yearfile.write(newyearcontents)
 	yearfile.seek(0)
@@ -226,6 +229,7 @@ def writeExistingQuarterTemplate(nextDay, quarterfile):
 	previdx = quartercontents.find(lastMonthEntry)
 	idx = quartercontents.rfind('\n', 0, previdx)
 	newquartercontents = quartercontents[:idx + 1] + '\t%s [[Month of %s, %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, month, year) + quartercontents[idx + 1:]
+	quarterfile.seek(0)
 	quarterfile.truncate(0)
 	quarterfile.write(newquartercontents)
 	quarterfile.seek(0)
@@ -238,6 +242,7 @@ def writeExistingMonthTemplate(nextDay, monthfile):
 	previdx = monthcontents.find(lastWeekEntry)
 	idx = monthcontents.rfind('\n', 0, previdx)
 	newmonthcontents = monthcontents[:idx + 1] + '\t%s [[Week of %s %d, %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, month, date, year) + monthcontents[idx + 1:]
+	monthfile.seek(0)
 	monthfile.truncate(0)
 	monthfile.write(newmonthcontents)
 	monthfile.seek(0)
@@ -252,6 +257,7 @@ def writeExistingWeekTemplate(nextDay, weekfile):
 	previdx = weekcontents.find(previousDayEntry)
 	idx = weekcontents.rfind('\n', 0, previdx)
 	newweekcontents = weekcontents[:idx+1] + '\t%s [[%s %d, %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, month, date, year) + weekcontents[idx + 1:]
+	weekfile.seek(0)
 	weekfile.truncate(0)  # way to close and open an existing handle in different modes?
 	weekfile.write(newweekcontents)
 	weekfile.seek(0)

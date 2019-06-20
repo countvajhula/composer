@@ -341,6 +341,7 @@ def scheduleTasks(planner, now=None):
 		ss = tasklist.readline()
 	tasklist = tasklist_tidied
 	tasklist.seek(0)
+	planner.tasklistfile.seek(0)
 	planner.tasklistfile.truncate(0)
 	planner.tasklistfile.write(tasklist.read())
 	utils.resetHeadsOnPlannerFiles(planner)
@@ -389,6 +390,7 @@ def getScheduledTasks(tasklist, forDay):
 		ss = tasklist.readline()
 
 	tasklist_updated.seek(0)
+	tasklist.seek(0)
 	tasklist.truncate(0)
 	tasklist.write(tasklist_updated.read())
 	tasklist.seek(0)
