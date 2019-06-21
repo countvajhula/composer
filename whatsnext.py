@@ -17,7 +17,10 @@ try:  # py3
 except ImportError:  # py2
 	from StringIO import StringIO
 
-raw_input = input
+try:  # py2
+	raw_input
+except NameError:  # py3
+	raw_input = input
 
 
 if __name__ == '__main__':
