@@ -24,7 +24,7 @@ def extract_lessons(lessons_files):
 		return [line_fmt] + extract_lessons_raw(f)
 
 	# combine all lessons from different files into one list
-	lessons = map(lambda f: extract_lessons_raw(f), lessons_files)
+	lessons = map(extract_lessons_raw, lessons_files)
 	lessons = [item for sublist in lessons for item in sublist]  # flatten
 	return lessons
 

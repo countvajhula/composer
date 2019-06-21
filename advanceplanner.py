@@ -69,9 +69,9 @@ def updateLogfileAgenda(logfile, agenda):
 		logfile_updated.write(ss)
 		ss = logfile.readline()
 	# don't leave newlines between previous tasks and latest additions
-	logfile_updated.seek(-2, 1)
+	logfile_updated.seek(logfile_updated.tell() - 2)
 	if logfile_updated.read(2) == '\n\n':
-		logfile_updated.seek(-1, 1)
+		logfile_updated.seek(logfile_updated.tell() - 1)
 	logfile_updated.write(agenda)
 	logfile_updated.write('\n\n')
 	while ss != '':
