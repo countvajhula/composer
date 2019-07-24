@@ -113,15 +113,15 @@ if __name__ == '__main__':
 					utils.PlannerUserSettings.WeekTheme = theme if theme else None
 				if err.status >= utils.PlannerPeriod.Day:
 					# git commit a "before", now that we know changes are about to be written to planner
-					print
-					print "Saving EOD planner state before making changes..."
+					print()
+					print("Saving EOD planner state before making changes...")
 					plannerdate = filesystem.getPlannerDate(wikidir)
 					(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
 					datestr = '%s %d, %d' % (month, date, year)
 					with open(os.devnull, 'w') as null:
 						call(['git', 'add', '-A'], cwd=wikidir, stdout=null)
 						call(['git', 'commit', '-m', 'EOD %s' % datestr], cwd=wikidir, stdout=null)
-					print "...DONE."
+					print("...DONE.")
 				if err.status >= utils.PlannerPeriod.Day:
 					planner = filesystem.constructPlannerFromFileSystem(wikidir)
 					dayagenda = advanceplanner.extractAgendaFromLogfile(planner.dayfile)
@@ -136,7 +136,7 @@ if __name__ == '__main__':
 					filesystem.writePlannerToFilesystem(planner, wikidir)
 				simulate = False
 			except DayStillInProgressError as err:
-				print "Current day is still in progress! Try again after 6pm."
+				print("Current day is still in progress! Try again after 6pm.")
 				break
 			except PlannerIsInTheFutureError as err:
 				raise
