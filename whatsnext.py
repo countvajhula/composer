@@ -23,7 +23,7 @@ except NameError:  # py3
 	raw_input = input
 
 
-if __name__ == '__main__':
+def main():
 	# Moved pending tasks from today over to tomorrow's agenda
 	# could try: [Display score for today]
 
@@ -123,17 +123,17 @@ if __name__ == '__main__':
 						call(['git', 'commit', '-m', 'EOD %s' % datestr], cwd=wikidir, stdout=null)
 					print("...DONE.")
 				if err.status >= utils.PlannerPeriod.Day:
-					planner = filesystem.constructPlannerFromFileSystem(wikidir)
+					planner = filesystem.construct_planner_from_filesystem(wikidir)
 					dayagenda = advanceplanner.extractAgendaFromLogfile(planner.dayfile)
 					if dayagenda:
 						advanceplanner.updateLogfileAgenda(planner.weekfile, dayagenda)
-					filesystem.writePlannerToFilesystem(planner, wikidir)
+					filesystem.write_planner_to_filesystem(planner, wikidir)
 				if err.status >= utils.PlannerPeriod.Week:
-					planner = filesystem.constructPlannerFromFileSystem(wikidir)
+					planner = filesystem.construct_planner_from_filesystem(wikidir)
 					weekagenda = advanceplanner.extractAgendaFromLogfile(planner.weekfile)
 					if weekagenda:
 						advanceplanner.updateLogfileAgenda(planner.monthfile, weekagenda)
-					filesystem.writePlannerToFilesystem(planner, wikidir)
+					filesystem.write_planner_to_filesystem(planner, wikidir)
 				simulate = False
 			except DayStillInProgressError as err:
 				print("Current day is still in progress! Try again after 6pm.")
@@ -168,3 +168,7 @@ if __name__ == '__main__':
 				raise
 			except RelativeDateError as err:
 				raise
+
+
+if __name__ == '__main__':
+	main()

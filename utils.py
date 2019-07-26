@@ -1,29 +1,6 @@
 import datetime
 
 
-class Planner(object):
-	def __init__(self):
-		self.date = None
-		self.tasklistfile = None
-		self.daythemesfile = None
-		self.dayfile = None
-		self.weekfile = None
-		self.monthfile = None
-		self.quarterfile = None
-		self.yearfile = None
-		self.checkpoints_weekday_file = None
-		self.checkpoints_weekend_file = None
-		self.checkpoints_week_file = None
-		self.checkpoints_month_file = None
-		self.checkpoints_quarter_file = None
-		self.checkpoints_year_file = None
-		self.periodic_day_file = None
-		self.periodic_week_file = None
-		self.periodic_month_file = None
-		self.periodic_quarter_file = None
-		self.periodic_year_file = None
-
-
 class PlannerPeriod(object):
 	(Zero, Day, Week, Month, Quarter, Year) = (0, 1, 2, 3, 4, 5)
 

@@ -19,7 +19,7 @@ def getAppropriateYear(month, day, today):
 		return today.year
 
 
-def getDateForScheduleString(datestr, planner=None, now=None):
+def get_date_for_schedule_string(datestr, planner=None, now=None):
 	""" try various acceptable formats and return the first one that works
 	Returns both a specific python date that can be used as well as a 'standard format' date string
 	that unambiguously represents the date """
@@ -224,13 +224,14 @@ def getDateForScheduleString(datestr, planner=None, now=None):
 	return None
 
 
-def scheduleTasks(planner, now=None):
-	# go through TL till SCHEDULED found
-	# if [o] then make sure [$$] and parseable
-	# move to bottom of scheduled
-	# loop through all scheduled till naother section found or eof
-	# go through any other section
-
+def schedule_tasks(planner, now=None):
+	""" 1. Go through the Tasklist till SCHEDULED section found
+	2. If task is marked as scheduled/blocked (i.e. "[o]"), then make sure a
+	follow-up date is indicated (via "[$<date>$]") and that it is parseable
+	3. move to bottom of scheduled
+	4. loop through all scheduled till naother section found or eof
+	5. go through any other section
+	"""
 	if not now:
 		now = datetime.datetime.now()
 	utils.resetHeadsOnPlannerFiles(planner)
@@ -256,7 +257,7 @@ def scheduleTasks(planner, now=None):
 					if scheduledate.search(ss):
 						datestr = scheduledate.search(ss).groups()[0]
 						try:
-							matcheddate = getDateForScheduleString(datestr, planner, now)
+							matcheddate = get_date_for_schedule_string(datestr, planner, now)
 						except Exception:
 							raise
 					else:
@@ -276,7 +277,7 @@ def scheduleTasks(planner, now=None):
 			if scheduledate.search(ss):
 				datestr = scheduledate.search(ss).groups()[0]
 				try:
-					matcheddate = getDateForScheduleString(datestr, planner, now)
+					matcheddate = get_date_for_schedule_string(datestr, planner, now)
 				except Exception:
 					raise
 			else:
@@ -308,7 +309,7 @@ def scheduleTasks(planner, now=None):
 			if scheduledate.search(ss):
 				datestr = scheduledate.search(ss).groups()[0]
 				try:
-					matcheddate = getDateForScheduleString(datestr, planner, now)
+					matcheddate = get_date_for_schedule_string(datestr, planner, now)
 				except Exception:
 					raise
 			else:
@@ -367,7 +368,7 @@ def getScheduledTasks(tasklist, forDay):
 			if scheduledate.search(ss):
 				datestr = scheduledate.search(ss).groups()[0]
 				try:
-					matcheddate = getDateForScheduleString(datestr)
+					matcheddate = get_date_for_schedule_string(datestr)
 				except Exception:
 					raise
 				if forDay >= matcheddate['date']:

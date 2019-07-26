@@ -3,6 +3,7 @@ import utils
 import datetime
 import scheduling
 import advanceplanner
+from planner import Planner
 from errors import *
 
 try:  # py3
@@ -11,7 +12,7 @@ except ImportError:  # py2
 	from StringIO import StringIO
 
 
-PLANNERTASKLISTFILELINK = 'TaskList.wiki'
+PLANNERTASKLISTFILE = 'TaskList.wiki'
 PLANNERDAYTHEMESFILELINK = 'DayThemes.wiki'
 PLANNERDAYFILELINK = 'currentday'
 PLANNERWEEKFILELINK = 'currentweek'
@@ -47,11 +48,12 @@ def getPlannerDate(plannerlocation):
 	return plannerdate
 
 
-def constructPlannerFromFileSystem(plannerpath):
+def construct_planner_from_filesystem(plannerpath):
+	""" Construct a planner object from a filesystem representation."""
 	# CURRENT planner date used here
-	planner = utils.Planner()
+	planner = Planner()
 	planner.date = getPlannerDate(plannerpath)
-	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILELINK)
+	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILE)
 	f = open(tasklistfn, 'r')
 	planner.tasklistfile = StringIO(f.read())
 	f.close()
@@ -142,35 +144,32 @@ def constructPlannerFromFileSystem(plannerpath):
 	return planner
 
 
-def writePlannerToFilesystem(planner, plannerpath):
-	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILELINK)
-	dayfn_pre = '%s/%s' % (plannerpath, PLANNERDAYFILELINK)
-	dayfn_pre = '%s/%s' % (plannerpath, os.readlink(dayfn_pre))
-	weekfn_pre = '%s/%s' % (plannerpath, PLANNERWEEKFILELINK)
-	weekfn_pre = '%s/%s' % (plannerpath, os.readlink(weekfn_pre))
-	monthfn_pre = '%s/%s' % (plannerpath, PLANNERMONTHFILELINK)
-	monthfn_pre = '%s/%s' % (plannerpath, os.readlink(monthfn_pre))
-	quarterfn_pre = '%s/%s' % (plannerpath, PLANNERQUARTERFILELINK)
-	quarterfn_pre = '%s/%s' % (plannerpath, os.readlink(quarterfn_pre))
-	yearfn_pre = '%s/%s' % (plannerpath, PLANNERYEARFILELINK)
-	yearfn_pre = '%s/%s' % (plannerpath, os.readlink(yearfn_pre))
+def write_planner_to_filesystem(planner, plannerpath):
+	""" Write the planner object to the filesystem at the given path."""
+	pathspec = '{}/{}'
+	tasklist_filename = pathspec.format(plannerpath, PLANNERTASKLISTFILE)
+	day_filename = os.path.realpath(pathspec.format(plannerpath, PLANNERDAYFILELINK))
+	week_filename = os.path.realpath(pathspec.format(plannerpath, PLANNERWEEKFILELINK))
+	month_filename = os.path.realpath(pathspec.format(plannerpath, PLANNERMONTHFILELINK))
+	quarter_filename = os.path.realpath(pathspec.format(plannerpath, PLANNERQUARTERFILELINK))
+	year_filename = os.path.realpath(pathspec.format(plannerpath, PLANNERYEARFILELINK))
 
-	f = open(tasklistfn, 'w')
+	f = open(tasklist_filename, 'w')
 	f.write(planner.tasklistfile.read())
 	f.close()
-	f = open(yearfn_pre, 'w')
+	f = open(year_filename, 'w')
 	f.write(planner.yearfile.read())
 	f.close()
-	f = open(quarterfn_pre, 'w')
+	f = open(quarter_filename, 'w')
 	f.write(planner.quarterfile.read())
 	f.close()
-	f = open(monthfn_pre, 'w')
+	f = open(month_filename, 'w')
 	f.write(planner.monthfile.read())
 	f.close()
-	f = open(weekfn_pre, 'w')
+	f = open(week_filename, 'w')
 	f.write(planner.weekfile.read())
 	f.close()
-	f = open(dayfn_pre, 'w')
+	f = open(day_filename, 'w')
 	f.write(planner.dayfile.read())
 	f.close()
 
@@ -183,12 +182,12 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 	# after the advance() returns, the handles will be updated to the (possibly new) buffers
 	# save to the known files here
 
-	planner = constructPlannerFromFileSystem(plannerpath)
+	planner = construct_planner_from_filesystem(plannerpath)
 
-	status = scheduling.scheduleTasks(planner, now)
+	status = scheduling.schedule_tasks(planner, now)
 	status = advanceplanner.advancePlanner(planner, now)
 
-	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILELINK)
+	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILE)
 	dayfn_pre = '%s/%s' % (plannerpath, PLANNERDAYFILELINK)
 	dayfn_pre = '%s/%s' % (plannerpath, os.readlink(dayfn_pre))
 	weekfn_pre = '%s/%s' % (plannerpath, PLANNERWEEKFILELINK)
