@@ -304,8 +304,13 @@ def _extract_scheduled_items_from_logfile(logfile, scheduledtasks, reference_dat
 	return scheduledtasks
 
 
-def _add_scheduled_tasks(tasklist, scheduledtasks):
-	# find SCHEDULED section and insert scheduled tasks
+def _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks):
+	""" Find SCHEDULED section and insert scheduled tasks.
+	This disregards any contents of the SCHEDULED section in the tasklist
+	and simply places the provided scheduled tasks in that section of
+	the tasklist. Any scheduled items in the tasklist should already have
+	been extracted into the scheduled tasks provided to this function.
+	"""
 	tasklist_tidied = StringIO()
 	tasklist.seek(0)
 	line = tasklist.readline()
@@ -344,7 +349,7 @@ def schedule_tasks(planner, now=None):
 
 	scheduledtasks = _extract_scheduled_items_from_logfile(planner.dayfile, scheduledtasks, planner.date, now)
 
-	tasklist = _add_scheduled_tasks(tasklist, scheduledtasks)
+	tasklist = _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks)
 
 	planner.tasklistfile.seek(0)
 	planner.tasklistfile.truncate(0)
