@@ -21,7 +21,7 @@ def getAppropriateYear(month, day, today):
 		return today.year
 
 
-def get_date_for_schedule_string(datestr, planner=None, now=None):
+def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 	""" try various acceptable formats and return the first one that works
 	Returns both a specific python date that can be used as well as a 'standard format' date string
 	that unambiguously represents the date """
@@ -83,19 +83,19 @@ def get_date_for_schedule_string(datestr, planner=None, now=None):
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat3.search(datestr):
-		if not planner:
+		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		(month, day) = dateformat3.search(datestr).groups()
 		(monthn, dayn) = (getMonthNumber(month), int(day))
-		year = str(getAppropriateYear(monthn, dayn, planner.date))
+		year = str(getAppropriateYear(monthn, dayn, reference_date))
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat4.search(datestr):
-		if not planner:
+		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		(day, month) = dateformat4.search(datestr).groups()
 		(monthn, dayn) = (getMonthNumber(month), int(day))
-		year = str(getAppropriateYear(monthn, dayn, planner.date))
+		year = str(getAppropriateYear(monthn, dayn, reference_date))
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat5.search(datestr):
@@ -124,11 +124,11 @@ def get_date_for_schedule_string(datestr, planner=None, now=None):
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat7.search(datestr):
-		if not planner:
+		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		(month, day) = dateformat7.search(datestr).groups()
 		(monthn, dayn) = (getMonthNumber(month), int(day))
-		yearn = getAppropriateYear(monthn, dayn, planner.date)
+		yearn = getAppropriateYear(monthn, dayn, reference_date)
 		year = str(yearn)
 		date = datetime.date(yearn, monthn, dayn)
 		dow = date.strftime('%A')
@@ -140,11 +140,11 @@ def get_date_for_schedule_string(datestr, planner=None, now=None):
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat8.search(datestr):
-		if not planner:
+		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		(day, month) = dateformat8.search(datestr).groups()
 		(monthn, dayn) = (getMonthNumber(month), int(day))
-		yearn = getAppropriateYear(monthn, dayn, planner.date)
+		yearn = getAppropriateYear(monthn, dayn, reference_date)
 		year = str(yearn)
 		date = datetime.date(yearn, monthn, dayn)
 		dow = date.strftime('%A')
@@ -161,35 +161,35 @@ def get_date_for_schedule_string(datestr, planner=None, now=None):
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s' % (month, year)
 	elif dateformat13.search(datestr):  # TOMORROW
-		if not planner:
+		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
-		date = utils.getNextDay(planner.date)
+		date = utils.getNextDay(reference_date)
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat16.search(datestr):  # <DOW> e.g. MONDAY
-		if not planner:
+		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		dowToSchedule = dateformat16.search(datestr).groups()[0]
-		upcomingweek = [planner.date + datetime.timedelta(days=d) for d in range(1, 8)]
+		upcomingweek = [reference_date + datetime.timedelta(days=d) for d in range(1, 8)]
 		dow = [d.strftime('%A').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat17.search(datestr):  # <DOW> short e.g. MON
-		if not planner:
+		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		dowToSchedule = dateformat17.search(datestr).groups()[0]
-		upcomingweek = [planner.date + datetime.timedelta(days=d) for d in range(1, 8)]
+		upcomingweek = [reference_date + datetime.timedelta(days=d) for d in range(1, 8)]
 		dow = [d.strftime('%a').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat10.search(datestr):  # MONTH, e.g. DECEMBER
-		if not planner:
+		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		month = dateformat10.search(datestr).groups()[0]
 		(monthn, dayn) = (getMonthNumber(month), 1)
-		(day, year) = (str(dayn), str(getAppropriateYear(monthn, dayn, planner.date)))
+		(day, year) = (str(dayn), str(getAppropriateYear(monthn, dayn, reference_date)))
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s' % (month, year)
 	elif dateformat11.search(datestr):
@@ -203,18 +203,18 @@ def get_date_for_schedule_string(datestr, planner=None, now=None):
 		date = datetime.date(yearn, monthn, dayn)
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat14.search(datestr):  # NEXT WEEK
-		if not planner:
+		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		dowToSchedule = 'SUNDAY'  # start of next week
-		upcomingweek = [planner.date + datetime.timedelta(days=d) for d in range(1, 8)]
+		upcomingweek = [reference_date + datetime.timedelta(days=d) for d in range(1, 8)]
 		dow = [d.strftime('%A').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat15.search(datestr):  # NEXT MONTH
-		if not planner:
+		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
-		upcomingmonth = [planner.date + datetime.timedelta(days=d) for d in range(1, 31)]
+		upcomingmonth = [reference_date + datetime.timedelta(days=d) for d in range(1, 31)]
 		dates = [d.day for d in upcomingmonth]
 		date = upcomingmonth[dates.index(1)]
 		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
@@ -226,11 +226,11 @@ def get_date_for_schedule_string(datestr, planner=None, now=None):
 	return None
 
 
-def _process_scheduled_task(planner, taskfile, scheduledtasks, line, now):
+def _process_scheduled_task(taskfile, scheduledtasks, line, reference_date, now):
 	if SCHEDULED_DATE_PATTERN.search(line):
 		datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]
 		try:
-			matcheddate = get_date_for_schedule_string(datestr, planner, now)
+			matcheddate = get_date_for_schedule_string(datestr, reference_date, now)
 		except Exception:
 			raise
 	else:
@@ -253,12 +253,12 @@ def _parse_tomorrow_section(line, tasklist, tasklist_tidied):
 	return line
 
 
-def _parse_scheduled_section(planner, tasklist, tasklist_tidied, scheduledtasks, line, now):
+def _parse_scheduled_section(tasklist, tasklist_tidied, scheduledtasks, line, reference_date, now):
 	tasklist_tidied.write(line)
 	line = tasklist.readline()
 	while line != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', line):
 		if line.startswith('[o'):
-			line, scheduledtasks = _process_scheduled_task(planner, tasklist, scheduledtasks, line, now)
+			line, scheduledtasks = _process_scheduled_task(tasklist, scheduledtasks, line, reference_date, now)
 		elif line.startswith('\n'):
 			tasklist_tidied.write(line)
 			line = tasklist.readline()
@@ -267,8 +267,7 @@ def _parse_scheduled_section(planner, tasklist, tasklist_tidied, scheduledtasks,
 	return line
 
 
-def _parse_tasklist(planner, now):
-	tasklist = planner.tasklistfile
+def _extract_scheduled_items_from_tasklist(tasklist, reference_date, now):
 	tasklist_tidied = StringIO()
 	scheduledtasks = ""
 	line = tasklist.readline()
@@ -277,9 +276,9 @@ def _parse_tasklist(planner, now):
 		if line[:len('tomorrow')].lower() == 'tomorrow':
 			line = _parse_tomorrow_section(line, tasklist, tasklist_tidied)
 		elif line[:len('scheduled')].lower() == 'scheduled':
-			line = _parse_scheduled_section(planner, tasklist, tasklist_tidied, scheduledtasks, line, now)
+			line = _parse_scheduled_section(tasklist, tasklist_tidied, scheduledtasks, line, reference_date, now)
 		elif line.startswith('[o'):
-			line, scheduledtasks = _process_scheduled_task(planner, tasklist, scheduledtasks, line, now)
+			line, scheduledtasks = _process_scheduled_task(tasklist, scheduledtasks, line, reference_date, now)
 		else:
 			tasklist_tidied.write(line)
 			line = tasklist.readline()
@@ -287,22 +286,21 @@ def _parse_tasklist(planner, now):
 	return tasklist_tidied, scheduledtasks
 
 
-def _parse_today_file(planner, scheduledtasks, now):
-	# go through TODAY file
+def _extract_scheduled_items_from_logfile(logfile, scheduledtasks, reference_date, now):
+	# go through a log file (e.g. today's log file)
 	# if [o] then make sure [$$] and parseable
 	# move to scheduled
-	dayfile = planner.dayfile
-	line = dayfile.readline()
+	line = logfile.readline()
 	while line != '' and line[:len('agenda')].lower() != 'agenda':
-		line = dayfile.readline()
+		line = logfile.readline()
 	if line == '':
 		raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
-	line = dayfile.readline()
+	line = logfile.readline()
 	while line != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', line):
 		if line.startswith('[o'):
-			line, scheduledtasks = _process_scheduled_task(planner, dayfile, scheduledtasks, line, now)
+			line, scheduledtasks = _process_scheduled_task(logfile, scheduledtasks, line, reference_date, now)
 		else:
-			line = dayfile.readline()
+			line = logfile.readline()
 	return scheduledtasks
 
 
@@ -342,9 +340,9 @@ def schedule_tasks(planner, now=None):
 		now = datetime.datetime.now()
 	utils.resetHeadsOnPlannerFiles(planner)
 
-	tasklist, scheduledtasks = _parse_tasklist(planner, now)  # tasklist - scheduled tasks
+	tasklist, scheduledtasks = _extract_scheduled_items_from_tasklist(planner.tasklistfile, planner.date, now)  # tasklist - scheduled tasks
 
-	scheduledtasks = _parse_today_file(planner, scheduledtasks, now)
+	scheduledtasks = _extract_scheduled_items_from_logfile(planner.dayfile, scheduledtasks, planner.date, now)
 
 	tasklist = _add_scheduled_tasks(tasklist, scheduledtasks)
 
