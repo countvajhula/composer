@@ -2211,7 +2211,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 		an exception is thrown """
 		self.planner.dayfile = StringIO(self.daytemplate_noscheduledate)
 		self.assertRaises(Exception, scheduling.schedule_tasks, self.planner)
-	
+
 	def testBadlyFormattedScheduledTaskRaisesException(self):
 		""" Check that a task already present in the SCHEDULED section and formatted incorrectly raises an Exception """
 		self.planner.tasklistfile = StringIO(self.tasklist_scheduledbadformat)

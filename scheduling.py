@@ -10,6 +10,8 @@ except ImportError:  # py2
 	from StringIO import StringIO
 
 
+SCHEDULED_DATE_PATTERN = re.compile('\[\$?([^\[\$]*)\$?\]$')
+
 def getAppropriateYear(month, day, today):
 	# if current year would result in negative, then use next year, otherwise current year
 	date_thisyear = datetime.date(today.year, month, day)
@@ -224,6 +226,110 @@ def get_date_for_schedule_string(datestr, planner=None, now=None):
 	return None
 
 
+def _process_scheduled_task(planner, taskfile, scheduledtasks, line, now):
+	if SCHEDULED_DATE_PATTERN.search(line):
+		datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]
+		try:
+			matcheddate = get_date_for_schedule_string(datestr, planner, now)
+		except Exception:
+			raise
+	else:
+		raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it: " + line)
+	line = SCHEDULED_DATE_PATTERN.sub('[$' + matcheddate['datestr'] + '$]', line)  # replace with standard format
+	scheduledtasks += line
+	line = taskfile.readline()
+	while line.startswith('\t'):
+		scheduledtasks += line
+		line = taskfile.readline()
+	return line, scheduledtasks
+
+
+def _parse_tomorrow_section(line, tasklist, tasklist_tidied):
+	tasklist_tidied.write(line)
+	line = tasklist.readline()
+	while line != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', line):
+		tasklist_tidied.write(line)
+		line = tasklist.readline()
+	return line
+
+
+def _parse_scheduled_section(planner, tasklist, tasklist_tidied, scheduledtasks, line, now):
+	tasklist_tidied.write(line)
+	line = tasklist.readline()
+	while line != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', line):
+		if line.startswith('[o'):
+			line, scheduledtasks = _process_scheduled_task(planner, tasklist, scheduledtasks, line, now)
+		elif line.startswith('\n'):
+			tasklist_tidied.write(line)
+			line = tasklist.readline()
+		else:
+			raise BlockedTaskNotScheduledError("Task in SCHEDULED section does not appear to be formatted correctly: " + line)
+	return line
+
+
+def _parse_tasklist(planner, now):
+	tasklist = planner.tasklistfile
+	tasklist_tidied = StringIO()
+	scheduledtasks = ""
+	line = tasklist.readline()
+	while line != '':
+		# ignore tasks in tomorrow since actively scheduled by you
+		if line[:len('tomorrow')].lower() == 'tomorrow':
+			line = _parse_tomorrow_section(line, tasklist, tasklist_tidied)
+		elif line[:len('scheduled')].lower() == 'scheduled':
+			line = _parse_scheduled_section(planner, tasklist, tasklist_tidied, scheduledtasks, line, now)
+		elif line.startswith('[o'):
+			line, scheduledtasks = _process_scheduled_task(planner, tasklist, scheduledtasks, line, now)
+		else:
+			tasklist_tidied.write(line)
+			line = tasklist.readline()
+	tasklist_tidied.seek(0)
+	return tasklist_tidied, scheduledtasks
+
+
+def _parse_today_file(planner, scheduledtasks, now):
+	# go through TODAY file
+	# if [o] then make sure [$$] and parseable
+	# move to scheduled
+	dayfile = planner.dayfile
+	line = dayfile.readline()
+	while line != '' and line[:len('agenda')].lower() != 'agenda':
+		line = dayfile.readline()
+	if line == '':
+		raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
+	line = dayfile.readline()
+	while line != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', line):
+		if line.startswith('[o'):
+			line, scheduledtasks = _process_scheduled_task(planner, dayfile, scheduledtasks, line, now)
+		else:
+			line = dayfile.readline()
+	return scheduledtasks
+
+
+def _add_scheduled_tasks(tasklist, scheduledtasks):
+	# find SCHEDULED section and insert scheduled tasks
+	tasklist_tidied = StringIO()
+	tasklist.seek(0)
+	line = tasklist.readline()
+	while line != '' and line[:len('scheduled')].lower() != 'scheduled':
+		tasklist_tidied.write(line)
+		line = tasklist.readline()
+	if line == '':
+		raise TasklistLayoutError("Tasklist SCHEDULED section not found!")
+	tasklist_tidied.write(line)
+
+	tasklist_tidied.write(scheduledtasks)
+
+	line = tasklist.readline()
+	while line != '':
+		tasklist_tidied.write(line)
+		line = tasklist.readline()
+
+	tasklist = tasklist_tidied
+	tasklist.seek(0)
+	return tasklist
+
+
 def schedule_tasks(planner, now=None):
 	""" 1. Go through the Tasklist till SCHEDULED section found
 	2. If task is marked as scheduled/blocked (i.e. "[o]"), then make sure a
@@ -236,112 +342,12 @@ def schedule_tasks(planner, now=None):
 		now = datetime.datetime.now()
 	utils.resetHeadsOnPlannerFiles(planner)
 
-	tasklist = planner.tasklistfile
-	tasklist_tidied = StringIO()
-	scheduledtasks = ""
-	ss = tasklist.readline()
-	scheduledate = re.compile('\[\$?([^\[\$]*)\$?\]$')
-	while ss != '':
-		# ignore tasks in tomorrow since actively scheduled by you
-		if ss[:len('tomorrow')].lower() == 'tomorrow':
-			tasklist_tidied.write(ss)
-			ss = tasklist.readline()
-			while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
-				tasklist_tidied.write(ss)
-				ss = tasklist.readline()
-		elif ss[:len('scheduled')].lower() == 'scheduled':
-			tasklist_tidied.write(ss)
-			ss = tasklist.readline()
-			while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
-				if ss.startswith('[o'):
-					if scheduledate.search(ss):
-						datestr = scheduledate.search(ss).groups()[0]
-						try:
-							matcheddate = get_date_for_schedule_string(datestr, planner, now)
-						except Exception:
-							raise
-					else:
-						raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it: " + ss)
-					ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss)  # replace with standard format
-					tasklist_tidied.write(ss)
-					ss = tasklist.readline()
-					while ss.startswith('\t'):
-						tasklist_tidied.write(ss)
-						ss = tasklist.readline()
-				elif ss.startswith('\n'):
-					tasklist_tidied.write(ss)
-					ss = tasklist.readline()
-				else:
-					raise BlockedTaskNotScheduledError("Task in SCHEDULED section does not appear to be formatted correctly: " + ss)
-		elif ss.startswith('[o'):
-			if scheduledate.search(ss):
-				datestr = scheduledate.search(ss).groups()[0]
-				try:
-					matcheddate = get_date_for_schedule_string(datestr, planner, now)
-				except Exception:
-					raise
-			else:
-				raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it: " + ss)
-			ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss)  # replace with standard format
-			scheduledtasks += ss
-			ss = tasklist.readline()
-			while ss.startswith('\t'):
-				scheduledtasks += ss
-				ss = tasklist.readline()
-		else:
-			tasklist_tidied.write(ss)
-			ss = tasklist.readline()
+	tasklist, scheduledtasks = _parse_tasklist(planner, now)  # tasklist - scheduled tasks
 
-	tasklist = tasklist_tidied  # tasklist - misplaced scheduled tasks
+	scheduledtasks = _parse_today_file(planner, scheduledtasks, now)
 
-	# go through TODAY file
-	# if [o] then make sure [$$] and parseable
-	# move to scheduled
-	dayfile = planner.dayfile
-	ss = dayfile.readline()
-	while ss != '' and ss[:len('agenda')].lower() != 'agenda':
-		ss = dayfile.readline()
-	if ss == '':
-		raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
-	ss = dayfile.readline()
-	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
-		if ss.startswith('[o'):
-			if scheduledate.search(ss):
-				datestr = scheduledate.search(ss).groups()[0]
-				try:
-					matcheddate = get_date_for_schedule_string(datestr, planner, now)
-				except Exception:
-					raise
-			else:
-				raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it:" + ss)
-			ss = scheduledate.sub('[$' + matcheddate['datestr'] + '$]', ss)  # replace with standard format
-			scheduledtasks += ss
-			ss = dayfile.readline()
-			while ss.startswith('\t'):
-				scheduledtasks += ss
-				ss = dayfile.readline()
-		else:
-			ss = dayfile.readline()
-	# find SCHEDULED section and insert scheduled tasks
-	tasklist_tidied = StringIO()
-	tasklist.seek(0)
-	ss = tasklist.readline()
-	while ss != '' and ss[:len('scheduled')].lower() != 'scheduled':
-		tasklist_tidied.write(ss)
-		ss = tasklist.readline()
-	if ss == '':
-		raise TasklistLayoutError("Tasklist SCHEDULED section not found!")
-	tasklist_tidied.write(ss)
-	ss = tasklist.readline()
-	while ss != '' and ss != '\n':
-		tasklist_tidied.write(ss)
-		ss = tasklist.readline()
-	tasklist_tidied.write(scheduledtasks)
-	while ss != '':
-		tasklist_tidied.write(ss)
-		ss = tasklist.readline()
-	tasklist = tasklist_tidied
-	tasklist.seek(0)
+	tasklist = _add_scheduled_tasks(tasklist, scheduledtasks)
+
 	planner.tasklistfile.seek(0)
 	planner.tasklistfile.truncate(0)
 	planner.tasklistfile.write(tasklist.read())
@@ -353,42 +359,41 @@ def getScheduledTasks(tasklist, forDay):
 	# remove from tasklist
 	# Note: schedule tasks should already have been performed on previous day to migrate those tasks to the tasklist
 	tasklist_updated = StringIO()
-	ss = tasklist.readline()
-	while ss != '' and ss[:len('scheduled')].lower() != 'scheduled':
-		tasklist_updated.write(ss)
-		ss = tasklist.readline()
-	tasklist_updated.write(ss)
-	if ss == '':
+	line = tasklist.readline()
+	while line != '' and line[:len('scheduled')].lower() != 'scheduled':
+		tasklist_updated.write(line)
+		line = tasklist.readline()
+	tasklist_updated.write(line)
+	if line == '':
 		raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
-	scheduledate = re.compile('\[\$?([^\[\$]*)\$?\]$')
 	scheduledtasks = ''
-	ss = tasklist.readline()
-	while ss != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', ss):
-		if ss.startswith('[o'):
-			if scheduledate.search(ss):
-				datestr = scheduledate.search(ss).groups()[0]
+	line = tasklist.readline()
+	while line != '' and not re.match(r'^[A-Z][A-Z][A-Z]+', line):
+		if line.startswith('[o'):
+			if SCHEDULED_DATE_PATTERN.search(line):
+				datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]
 				try:
 					matcheddate = get_date_for_schedule_string(datestr)
 				except Exception:
 					raise
 				if forDay >= matcheddate['date']:
-					scheduledtasks += ss
-					ss = tasklist.readline()
-					while ss.startswith('\t'):
-						scheduledtasks += ss
-						ss = tasklist.readline()
+					scheduledtasks += line
+					line = tasklist.readline()
+					while line.startswith('\t'):
+						scheduledtasks += line
+						line = tasklist.readline()
 				else:
-					tasklist_updated.write(ss)
-					ss = tasklist.readline()
+					tasklist_updated.write(line)
+					line = tasklist.readline()
 			else:
-				raise BlockedTaskNotScheduledError('Scheduled task has no date!' + ss)
+				raise BlockedTaskNotScheduledError('Scheduled task has no date!' + line)
 		else:
-			tasklist_updated.write(ss)
-			ss = tasklist.readline()
+			tasklist_updated.write(line)
+			line = tasklist.readline()
 	# copy rest of the file
-	while ss != '':
-		tasklist_updated.write(ss)
-		ss = tasklist.readline()
+	while line != '':
+		tasklist_updated.write(line)
+		line = tasklist.readline()
 
 	tasklist_updated.seek(0)
 	tasklist.seek(0)
