@@ -212,8 +212,8 @@ def write_new_template(period, next_day, tasklistfile, logfile, checkpointsfile,
 def write_existing_year_template(next_day, yearfile):
 	(date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
 	yearcontents = yearfile.read()
-	lastQuarterEntry = 'Q'
-	previdx = yearcontents.find(lastQuarterEntry)
+	last_quarter_entry = 'Q'
+	previdx = yearcontents.find(last_quarter_entry)
 	idx = yearcontents.rfind('\n', 0, previdx)
 	newyearcontents = yearcontents[:idx + 1] + '\t%s [[%s %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, utils.quarter_for_month(month), year) + yearcontents[idx + 1:]
 	yearfile.seek(0)
@@ -225,8 +225,8 @@ def write_existing_year_template(next_day, yearfile):
 def write_existing_quarter_template(next_day, quarterfile):
 	(date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
 	quartercontents = quarterfile.read()
-	lastMonthEntry = 'Month of'
-	previdx = quartercontents.find(lastMonthEntry)
+	last_month_entry = 'Month of'
+	previdx = quartercontents.find(last_month_entry)
 	idx = quartercontents.rfind('\n', 0, previdx)
 	newquartercontents = quartercontents[:idx + 1] + '\t%s [[Month of %s, %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, month, year) + quartercontents[idx + 1:]
 	quarterfile.seek(0)
@@ -238,8 +238,8 @@ def write_existing_quarter_template(next_day, quarterfile):
 def write_existing_month_template(next_day, monthfile):
 	(date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
 	monthcontents = monthfile.read()
-	lastWeekEntry = 'Week of'
-	previdx = monthcontents.find(lastWeekEntry)
+	last_week_entry = 'Week of'
+	previdx = monthcontents.find(last_week_entry)
 	idx = monthcontents.rfind('\n', 0, previdx)
 	newmonthcontents = monthcontents[:idx + 1] + '\t%s [[Week of %s %d, %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, month, date, year) + monthcontents[idx + 1:]
 	monthfile.seek(0)
