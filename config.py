@@ -6,11 +6,11 @@ LESSONS_FILES = ('Lessons_Introspective.wiki', 'Lessons_General.wiki', 'Lessons_
 
 
 def set_preferences(jumping):
-	utils.PlannerConfig.ScheduleMode = utils.PlannerConfig.TheMan  # Standard, Wolf, TheMan
-	utils.PlannerConfig.PreferredBulletChar = '*'
-	if jumping:
-		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
-		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
-	else:
-		utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Strict
-		utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Strict
+    utils.PlannerConfig.ScheduleMode = utils.PlannerConfig.TheMan  # Standard, Wolf, TheMan
+    utils.PlannerConfig.PreferredBulletChar = '*'
+    if jumping:
+        utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
+        utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+    else:
+        utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Strict
+        utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Strict
