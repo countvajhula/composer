@@ -34,17 +34,17 @@ PERIODICWEEKLYFILE = 'Periodic_Weekly.wiki'
 PERIODICDAILYFILE = 'Periodic_Daily.wiki'
 
 
-def getPlannerDateFromString(datestr):
+def get_planner_date_from_string(datestr):
 	return datetime.datetime.strptime(datestr, '%B %d, %Y').date()
 
 
-def getPlannerDate(plannerlocation):
+def get_planner_date(plannerlocation):
 	""" get planner date, currently looks for the file 'currentday', if dne throw exception """
 	plannerdatelink = '%s/%s' % (plannerlocation, PLANNERDAYFILELINK)
 	plannerdatefn = os.readlink(plannerdatelink)
 	pathidx = plannerdatefn.rfind('/')
 	datestr = plannerdatefn[pathidx + 1:-5]  # trim path from beginning and '.wiki' from end
-	plannerdate = getPlannerDateFromString(datestr)
+	plannerdate = get_planner_date_from_string(datestr)
 	return plannerdate
 
 
@@ -52,7 +52,7 @@ def construct_planner_from_filesystem(plannerpath):
 	""" Construct a planner object from a filesystem representation."""
 	# CURRENT planner date used here
 	planner = Planner()
-	planner.date = getPlannerDate(plannerpath)
+	planner.date = get_planner_date(plannerpath)
 	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILE)
 	f = open(tasklistfn, 'r')
 	planner.tasklistfile = StringIO(f.read())
@@ -173,10 +173,10 @@ def write_planner_to_filesystem(planner, plannerpath):
 	f.write(planner.dayfile.read())
 	f.close()
 
-	utils.resetHeadsOnPlannerFiles(planner)
+	utils.reset_heads_on_planner_files(planner)
 
 
-def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
+def advance_filesystem_planner(plannerpath, now=None, simulate=False):
 	# use a bunch of StringIO buffers for the Planner object
 	# populate them here from real files
 	# after the advance() returns, the handles will be updated to the (possibly new) buffers
@@ -185,7 +185,7 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 	planner = construct_planner_from_filesystem(plannerpath)
 
 	status = scheduling.schedule_tasks(planner, now)
-	status = advanceplanner.advancePlanner(planner, now)
+	status = advanceplanner.advance_planner(planner, now)
 
 	tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILE)
 	dayfn_pre = '%s/%s' % (plannerpath, PLANNERDAYFILELINK)
@@ -199,8 +199,8 @@ def advanceFilesystemPlanner(plannerpath, now=None, simulate=False):
 	yearfn_pre = '%s/%s' % (plannerpath, PLANNERYEARFILELINK)
 	yearfn_pre = '%s/%s' % (plannerpath, os.readlink(yearfn_pre))
 
-	nextDay = planner.date
-	(date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
+	next_day = planner.date
+	(date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
 	# check for possible errors in planner state before making any changes
 	if status >= utils.PlannerPeriod.Year:
 		yearfn_post = '%s/%d.wiki' % (plannerpath, year)

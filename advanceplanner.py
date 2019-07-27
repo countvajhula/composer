@@ -20,7 +20,7 @@ class PeriodAdvanceCriteria(object):
 	(Satisfied, DayStillInProgress, PlannerInFuture) = (1, 2, 3)
 
 
-def checkLogfileCompletion(logfile):
+def check_logfile_completion(logfile):
 	""" Check the logfile's NOTES section as a determination of whether the log has been completed """
 	completed = False
 	notes = ''
@@ -39,7 +39,7 @@ def checkLogfileCompletion(logfile):
 	return completed
 
 
-def extractAgendaFromLogfile(logfile):
+def extract_agenda_from_logfile(logfile):
 	""" Go through logfile and extract all tasks under AGENDA """
 	agenda = ''
 	ss = logfile.readline()
@@ -55,7 +55,7 @@ def extractAgendaFromLogfile(logfile):
 	return agenda
 
 
-def updateLogfileAgenda(logfile, agenda):
+def update_logfile_agenda(logfile, agenda):
 	logfile_updated = StringIO()
 	ss = logfile.readline()
 	while ss != '' and ss[:len('agenda')].lower() != 'agenda':
@@ -85,7 +85,7 @@ def updateLogfileAgenda(logfile, agenda):
 	logfile.seek(0)
 
 
-def newDayCriteriaMet(currentdate, now):
+def new_day_criteria_met(currentdate, now):
 	today = now.date()
 	if currentdate < today:
 		return PeriodAdvanceCriteria.Satisfied
@@ -100,23 +100,23 @@ def newDayCriteriaMet(currentdate, now):
 		return PeriodAdvanceCriteria.PlannerInFuture
 
 
-def newMonthCriteriaMet(currentdate, now):
-	nextDay = utils.getNextDay(currentdate)
-	day_criteria_met = newDayCriteriaMet(currentdate, now)
+def new_month_criteria_met(currentdate, now):
+	next_day = utils.get_next_day(currentdate)
+	day_criteria_met = new_day_criteria_met(currentdate, now)
 	if day_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
 		return PeriodAdvanceCriteria.PlannerInFuture
-	elif nextDay.day == 1 and day_criteria_met == PeriodAdvanceCriteria.Satisfied:
+	elif next_day.day == 1 and day_criteria_met == PeriodAdvanceCriteria.Satisfied:
 		return PeriodAdvanceCriteria.Satisfied
 
 
-def newWeekCriteriaMet(currentdate, now):
+def new_week_criteria_met(currentdate, now):
 	# note that these dates are ~next~ day values
 	dow = currentdate.strftime('%A')
 	year = currentdate.year
-	day_criteria_met = newDayCriteriaMet(currentdate, now)
+	day_criteria_met = new_day_criteria_met(currentdate, now)
 	if day_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
 		return PeriodAdvanceCriteria.PlannerInFuture
-	elif (newMonthCriteriaMet(currentdate, now) or
+	elif (new_month_criteria_met(currentdate, now) or
 			(day_criteria_met == PeriodAdvanceCriteria.Satisfied
 				and dow.lower() == 'saturday'
 				and currentdate.day >= MIN_WEEK_LENGTH
@@ -124,118 +124,118 @@ def newWeekCriteriaMet(currentdate, now):
 		return PeriodAdvanceCriteria.Satisfied
 
 
-def newQuarterCriteriaMet(currentdate, now):
-	nextDay = utils.getNextDay(currentdate)
-	month = nextDay.strftime('%B')
-	day_criteria_met = newDayCriteriaMet(currentdate, now)
+def new_quarter_criteria_met(currentdate, now):
+	next_day = utils.get_next_day(currentdate)
+	month = next_day.strftime('%B')
+	day_criteria_met = new_day_criteria_met(currentdate, now)
 	if day_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
 		return PeriodAdvanceCriteria.PlannerInFuture
-	elif newMonthCriteriaMet(currentdate, now) and month.lower() in ('january', 'april', 'july', 'october'):
+	elif new_month_criteria_met(currentdate, now) and month.lower() in ('january', 'april', 'july', 'october'):
 		return PeriodAdvanceCriteria.Satisfied
 
 
-def newYearCriteriaMet(currentdate, now):
-	nextDay = utils.getNextDay(currentdate)
-	month = nextDay.strftime('%B')
-	day_criteria_met = newDayCriteriaMet(currentdate, now)
+def new_year_criteria_met(currentdate, now):
+	next_day = utils.get_next_day(currentdate)
+	month = next_day.strftime('%B')
+	day_criteria_met = new_day_criteria_met(currentdate, now)
 	if day_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
 		return PeriodAdvanceCriteria.PlannerInFuture
-	elif newQuarterCriteriaMet(currentdate, now) and month.lower() == 'january':
+	elif new_quarter_criteria_met(currentdate, now) and month.lower() == 'january':
 		return PeriodAdvanceCriteria.Satisfied
 
 
-def newPeriodCriteriaMet(currentPeriod, currentdate, now):
-	if currentPeriod == utils.PlannerPeriod.Day:
-		return newDayCriteriaMet(currentdate, now)
-	if currentPeriod == utils.PlannerPeriod.Week:
-		return newWeekCriteriaMet(currentdate, now)
-	if currentPeriod == utils.PlannerPeriod.Month:
-		return newMonthCriteriaMet(currentdate, now)
-	if currentPeriod == utils.PlannerPeriod.Quarter:
-		return newQuarterCriteriaMet(currentdate, now)
-	if currentPeriod == utils.PlannerPeriod.Year:
-		return newYearCriteriaMet(currentdate, now)
+def new_period_criteria_met(current_period, currentdate, now):
+	if current_period == utils.PlannerPeriod.Day:
+		return new_day_criteria_met(currentdate, now)
+	if current_period == utils.PlannerPeriod.Week:
+		return new_week_criteria_met(currentdate, now)
+	if current_period == utils.PlannerPeriod.Month:
+		return new_month_criteria_met(currentdate, now)
+	if current_period == utils.PlannerPeriod.Quarter:
+		return new_quarter_criteria_met(currentdate, now)
+	if current_period == utils.PlannerPeriod.Year:
+		return new_year_criteria_met(currentdate, now)
 
 
-def advancePlanner(planner, now=None):
+def advance_planner(planner, now=None):
 	""" Advance planner state to next day, updating week and month info as necessary. 'now' arg used only for testing
 	TODO: use function compositor thingies to de-duplify these
 	"""
-	# plannerdate = getPlannerDateFromString('November 30, 2012')
-	utils.resetHeadsOnPlannerFiles(planner)
-	nextDay = utils.getNextDay(planner.date)  # the new day to advance to
-	nextdow = nextDay.strftime('%A')
-	# writeExistingWeekTemplate(nextDay)
-	# writeNewMonthTemplate(nextDay)
+	# plannerdate = get_planner_date_from_string('November 30, 2012')
+	utils.reset_heads_on_planner_files(planner)
+	next_day = utils.get_next_day(planner.date)  # the new day to advance to
+	nextdow = next_day.strftime('%A')
+	# write_existing_week_template(next_day)
+	# write_new_month_template(next_day)
 	# sys.exit(0)
-	# (date, day, month, year) = (nextDay.day, nextDay.strftime('%A'), nextDay.strftime('%B'), nextDay.year)
+	# (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
 
 	if not now:
 		now = datetime.datetime.now()
 
-	def get_period_files(currentPeriod):
-		if currentPeriod == utils.PlannerPeriod.Day:
+	def get_period_files(current_period):
+		if current_period == utils.PlannerPeriod.Day:
 			if nextdow.lower() in ('saturday', 'sunday'):
 				checkpointsfile = planner.checkpoints_weekend_file
 			else:
 				checkpointsfile = planner.checkpoints_weekday_file
 			periodicfile = planner.periodic_day_file
 			logfile = planner.dayfile
-		elif currentPeriod == utils.PlannerPeriod.Week:
+		elif current_period == utils.PlannerPeriod.Week:
 			checkpointsfile = planner.checkpoints_week_file
 			periodicfile = planner.periodic_week_file
 			logfile = planner.weekfile
-		elif currentPeriod == utils.PlannerPeriod.Month:
+		elif current_period == utils.PlannerPeriod.Month:
 			checkpointsfile = planner.checkpoints_month_file
 			periodicfile = planner.periodic_month_file
 			logfile = planner.monthfile
-		elif currentPeriod == utils.PlannerPeriod.Quarter:
+		elif current_period == utils.PlannerPeriod.Quarter:
 			checkpointsfile = planner.checkpoints_quarter_file
 			periodicfile = planner.periodic_quarter_file
 			logfile = planner.quarterfile
-		elif currentPeriod == utils.PlannerPeriod.Year:
+		elif current_period == utils.PlannerPeriod.Year:
 			checkpointsfile = planner.checkpoints_year_file
 			periodicfile = planner.periodic_year_file
 			logfile = planner.yearfile
 		return (checkpointsfile, periodicfile, logfile)
 
-	def get_period_name(currentPeriod):
+	def get_period_name(current_period):
 		periods = {utils.PlannerPeriod.Day: 'day', utils.PlannerPeriod.Week: 'week', utils.PlannerPeriod.Month: 'month',
 				utils.PlannerPeriod.Quarter: 'quarter', utils.PlannerPeriod.Year: 'year'}
-		return periods[currentPeriod]
+		return periods[current_period]
 
-	def advancePeriod(currentPeriod):
+	def advance_period(current_period):
 		""" Recursive function to advance planner by day, week, month, quarter, or year
 		as the case may be.
 		"""
-		periodCriteriaMet = newPeriodCriteriaMet(currentPeriod + 1, planner.date, now)
-		if periodCriteriaMet == PeriodAdvanceCriteria.Satisfied:
-			currentPeriod += 1
+		period_criteria_met = new_period_criteria_met(current_period + 1, planner.date, now)
+		if period_criteria_met == PeriodAdvanceCriteria.Satisfied:
+			current_period += 1
 			tasklistfile = planner.tasklistfile
 			daythemesfile = planner.daythemesfile
-			(checkpointsfile, periodicfile, logfile) = get_period_files(currentPeriod)
-			if not checkLogfileCompletion(logfile) and utils.PlannerConfig.LogfileCompletionChecking == utils.PlannerConfig.Strict:
-				periodstr = get_period_name(currentPeriod)
+			(checkpointsfile, periodicfile, logfile) = get_period_files(current_period)
+			if not check_logfile_completion(logfile) and utils.PlannerConfig.LogfileCompletionChecking == utils.PlannerConfig.Strict:
+				periodstr = get_period_name(current_period)
 				msg = "Looks like you haven't completed your %s's log. Would you like to do that now?" % periodstr
 				raise LogfileNotCompletedError(msg, periodstr)
-			templates.writeNewTemplate(currentPeriod, nextDay, tasklistfile, logfile, checkpointsfile, periodicfile, daythemesfile)
+			templates.write_new_template(current_period, next_day, tasklistfile, logfile, checkpointsfile, periodicfile, daythemesfile)
 
-			if currentPeriod < utils.PlannerPeriod.Year:
-				return advancePeriod(currentPeriod)
-		elif periodCriteriaMet == PeriodAdvanceCriteria.DayStillInProgress:
+			if current_period < utils.PlannerPeriod.Year:
+				return advance_period(current_period)
+		elif period_criteria_met == PeriodAdvanceCriteria.DayStillInProgress:
 			raise DayStillInProgressError("Current day is still in progress! Update after 6pm")
-		elif periodCriteriaMet == PeriodAdvanceCriteria.PlannerInFuture:
+		elif period_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
 			raise PlannerIsInTheFutureError("Planner is in the future!")
 		else:
-			logfile = get_period_files(currentPeriod + 1)[2]
-			templates.writeExistingTemplate(currentPeriod + 1, nextDay, logfile)
-		return currentPeriod
+			logfile = get_period_files(current_period + 1)[2]
+			templates.write_existing_template(current_period + 1, next_day, logfile)
+		return current_period
 
-	status = advancePeriod(utils.PlannerPeriod.Zero)
+	status = advance_period(utils.PlannerPeriod.Zero)
 	if status > utils.PlannerPeriod.Zero:
-		planner.date = nextDay
+		planner.date = next_day
 
-	utils.resetHeadsOnPlannerFiles(planner)
+	utils.reset_heads_on_planner_files(planner)
 	return status
 
 

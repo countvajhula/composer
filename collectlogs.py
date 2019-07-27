@@ -83,7 +83,7 @@ def get_logs_times_this_month(wikidir):
 		logs += "Week of " + str(curday) + '\n' + log + '\n\n'
 		times.append(time)
 		curday += datetime.timedelta(days=1)
-		while not advanceplanner.newWeekCriteriaMet(curday, datetime.datetime.now()):
+		while not advanceplanner.new_week_criteria_met(curday, datetime.datetime.now()):
 			curday += datetime.timedelta(days=1)
 		curday += datetime.timedelta(days=1)  # next day is the one we're looking for
 		fnpath = "%s/Week of %s.wiki" % (wikidir, curday.strftime('%B %d, %Y').replace(' 0', ' '))
@@ -129,7 +129,7 @@ def get_logs_times_this_quarter(wikidir):
 	return (logs, times)
 
 
-if __name__ == '__main__':
+def main():
 	wikidirs = config.PRODUCTION_WIKIDIRS
 	for wikidir in wikidirs:
 		(weeklogs, weektimes) = get_logs_times_this_week(wikidir)
@@ -150,3 +150,7 @@ if __name__ == '__main__':
 		print("Monthly Times:")
 		print(quartertimes)
 		print()
+
+
+if __name__ == '__main__':
+	main()

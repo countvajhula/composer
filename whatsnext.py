@@ -67,7 +67,7 @@ def main():
 		print()
 		while True:
 			try:
-				filesystem.advanceFilesystemPlanner(wikidir, now=now, simulate=simulate)
+				filesystem.advance_filesystem_planner(wikidir, now=now, simulate=simulate)
 				print()
 				print("Moving tasks added for tomorrow over to tomorrow's agenda...")
 				print("Carrying over any unfinished tasks from today to tomorrow's agenda...")
@@ -82,7 +82,7 @@ def main():
 				# git commit "after"
 				print()
 				print("Committing all changes...")
-				plannerdate = filesystem.getPlannerDate(wikidir)
+				plannerdate = filesystem.get_planner_date(wikidir)
 				(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
 				datestr = '%s %d, %d' % (month, date, year)
 				with open(os.devnull, 'w') as null:
@@ -115,7 +115,7 @@ def main():
 					# git commit a "before", now that we know changes are about to be written to planner
 					print()
 					print("Saving EOD planner state before making changes...")
-					plannerdate = filesystem.getPlannerDate(wikidir)
+					plannerdate = filesystem.get_planner_date(wikidir)
 					(date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
 					datestr = '%s %d, %d' % (month, date, year)
 					with open(os.devnull, 'w') as null:
@@ -124,15 +124,15 @@ def main():
 					print("...DONE.")
 				if err.status >= utils.PlannerPeriod.Day:
 					planner = filesystem.construct_planner_from_filesystem(wikidir)
-					dayagenda = advanceplanner.extractAgendaFromLogfile(planner.dayfile)
+					dayagenda = advanceplanner.extract_agenda_from_logfile(planner.dayfile)
 					if dayagenda:
-						advanceplanner.updateLogfileAgenda(planner.weekfile, dayagenda)
+						advanceplanner.update_logfile_agenda(planner.weekfile, dayagenda)
 					filesystem.write_planner_to_filesystem(planner, wikidir)
 				if err.status >= utils.PlannerPeriod.Week:
 					planner = filesystem.construct_planner_from_filesystem(wikidir)
-					weekagenda = advanceplanner.extractAgendaFromLogfile(planner.weekfile)
+					weekagenda = advanceplanner.extract_agenda_from_logfile(planner.weekfile)
 					if weekagenda:
-						advanceplanner.updateLogfileAgenda(planner.monthfile, weekagenda)
+						advanceplanner.update_logfile_agenda(planner.monthfile, weekagenda)
 					filesystem.write_planner_to_filesystem(planner, wikidir)
 				simulate = False
 			except DayStillInProgressError as err:

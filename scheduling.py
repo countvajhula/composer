@@ -12,7 +12,7 @@ except ImportError:  # py2
 
 SCHEDULED_DATE_PATTERN = re.compile('\[\$?([^\[\$]*)\$?\]$')
 
-def getAppropriateYear(month, day, today):
+def get_appropriate_year(month, day, today):
 	# if current year would result in negative, then use next year, otherwise current year
 	date_thisyear = datetime.date(today.year, month, day)
 	if date_thisyear < today:
@@ -28,14 +28,14 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 	if not now: now = datetime.datetime.now()
 	date = None
 	today = now.date()
-	monthNameToNumber = dict((v.lower(), k) for k, v in enumerate(calendar.month_name))
-	monthNumberToName = dict((k, v) for k, v in enumerate(calendar.month_name))
+	month_name_to_number = dict((v.lower(), k) for k, v in enumerate(calendar.month_name))
+	month_number_to_name = dict((k, v) for k, v in enumerate(calendar.month_name))
 
-	def getMonthNumber(monthname):
-		return monthNameToNumber[monthname.lower()]
+	def get_month_number(monthname):
+		return month_name_to_number[monthname.lower()]
 
-	def getMonthName(monthnumber):
-		return monthNumberToName[monthnumber]
+	def get_month_name(monthnumber):
+		return month_number_to_name[monthnumber]
 
 	# TODO: change these to annotated regex's
 	# MONTH DD, YYYY (w optional space or comma or both)
@@ -86,49 +86,49 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		(month, day) = dateformat3.search(datestr).groups()
-		(monthn, dayn) = (getMonthNumber(month), int(day))
-		year = str(getAppropriateYear(monthn, dayn, reference_date))
+		(monthn, dayn) = (get_month_number(month), int(day))
+		year = str(get_appropriate_year(monthn, dayn, reference_date))
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat4.search(datestr):
 		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		(day, month) = dateformat4.search(datestr).groups()
-		(monthn, dayn) = (getMonthNumber(month), int(day))
-		year = str(getAppropriateYear(monthn, dayn, reference_date))
+		(monthn, dayn) = (get_month_number(month), int(day))
+		year = str(get_appropriate_year(monthn, dayn, reference_date))
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat5.search(datestr):
 		# std = Week of Month dd(sunday/1), yyyy
 		(month, day, year) = dateformat5.search(datestr).groups()
-		(monthn, dayn, yearn) = (getMonthNumber(month), int(day), int(year))
+		(monthn, dayn, yearn) = (get_month_number(month), int(day), int(year))
 		date = datetime.date(yearn, monthn, dayn)
 		dow = date.strftime('%A')
 		if dayn != 1:
 			while dow.lower() != 'sunday':
 				date = date - datetime.timedelta(days=1)
 				dow = date.strftime('%A')
-		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
+		(month, day, year) = (get_month_name(date.month), str(date.day), str(date.year))
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat6.search(datestr):
 		(day, month, year) = dateformat6.search(datestr).groups()
-		(monthn, dayn, yearn) = (getMonthNumber(month), int(day), int(year))
+		(monthn, dayn, yearn) = (get_month_number(month), int(day), int(year))
 		date = datetime.date(yearn, monthn, dayn)
 		dow = date.strftime('%A')
 		if dayn != 1:
 			while dow.lower() != 'sunday':
 				date = date - datetime.timedelta(days=1)
 				dow = date.strftime('%A')
-		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
+		(month, day, year) = (get_month_name(date.month), str(date.day), str(date.year))
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat7.search(datestr):
 		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		(month, day) = dateformat7.search(datestr).groups()
-		(monthn, dayn) = (getMonthNumber(month), int(day))
-		yearn = getAppropriateYear(monthn, dayn, reference_date)
+		(monthn, dayn) = (get_month_number(month), int(day))
+		yearn = get_appropriate_year(monthn, dayn, reference_date)
 		year = str(yearn)
 		date = datetime.date(yearn, monthn, dayn)
 		dow = date.strftime('%A')
@@ -136,15 +136,15 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 			while dow.lower() != 'sunday':
 				date = date - datetime.timedelta(days=1)
 				dow = date.strftime('%A')
-		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
+		(month, day, year) = (get_month_name(date.month), str(date.day), str(date.year))
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat8.search(datestr):
 		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		(day, month) = dateformat8.search(datestr).groups()
-		(monthn, dayn) = (getMonthNumber(month), int(day))
-		yearn = getAppropriateYear(monthn, dayn, reference_date)
+		(monthn, dayn) = (get_month_number(month), int(day))
+		yearn = get_appropriate_year(monthn, dayn, reference_date)
 		year = str(yearn)
 		date = datetime.date(yearn, monthn, dayn)
 		dow = date.strftime('%A')
@@ -152,7 +152,7 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 			while dow.lower() != 'sunday':
 				date = date - datetime.timedelta(days=1)
 				dow = date.strftime('%A')
-		(month, day, year) = (getMonthName(date.month), str(date.day), str(date.year))
+		(month, day, year) = (get_month_name(date.month), str(date.day), str(date.year))
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat9.search(datestr):
@@ -163,8 +163,8 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 	elif dateformat13.search(datestr):  # TOMORROW
 		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
-		date = utils.getNextDay(reference_date)
-		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
+		date = utils.get_next_day(reference_date)
+		(month, day, year) = (get_month_name(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat16.search(datestr):  # <DOW> e.g. MONDAY
 		if not reference_date:
@@ -173,7 +173,7 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 		upcomingweek = [reference_date + datetime.timedelta(days=d) for d in range(1, 8)]
 		dow = [d.strftime('%A').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
-		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
+		(month, day, year) = (get_month_name(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat17.search(datestr):  # <DOW> short e.g. MON
 		if not reference_date:
@@ -182,24 +182,24 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 		upcomingweek = [reference_date + datetime.timedelta(days=d) for d in range(1, 8)]
 		dow = [d.strftime('%a').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
-		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
+		(month, day, year) = (get_month_name(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat10.search(datestr):  # MONTH, e.g. DECEMBER
 		if not reference_date:
 			raise RelativeDateError("Relative date found, but no context available")
 		month = dateformat10.search(datestr).groups()[0]
-		(monthn, dayn) = (getMonthNumber(month), 1)
-		(day, year) = (str(dayn), str(getAppropriateYear(monthn, dayn, reference_date)))
+		(monthn, dayn) = (get_month_number(month), 1)
+		(day, year) = (str(dayn), str(get_appropriate_year(monthn, dayn, reference_date)))
 		date = datetime.datetime.strptime(month + '-' + day + '-' + year, '%B-%d-%Y').date()
 		datestr_std = '%s %s' % (month, year)
 	elif dateformat11.search(datestr):
 		(monthn, dayn, yearn) = map(int, dateformat11.search(datestr).groups())
-		(month, day, year) = (getMonthName(monthn).upper(), str(dayn), str(yearn))
+		(month, day, year) = (get_month_name(monthn).upper(), str(dayn), str(yearn))
 		date = datetime.date(yearn, monthn, dayn)
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat12.search(datestr):
 		(monthn, dayn, yearn) = map(int, dateformat12.search(datestr).groups())
-		(month, day, year) = (getMonthName(monthn).upper(), str(dayn), str(yearn))
+		(month, day, year) = (get_month_name(monthn).upper(), str(dayn), str(yearn))
 		date = datetime.date(yearn, monthn, dayn)
 		datestr_std = '%s %s, %s' % (month, day, year)
 	elif dateformat14.search(datestr):  # NEXT WEEK
@@ -209,7 +209,7 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 		upcomingweek = [reference_date + datetime.timedelta(days=d) for d in range(1, 8)]
 		dow = [d.strftime('%A').upper() for d in upcomingweek]
 		date = upcomingweek[dow.index(dowToSchedule)]
-		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
+		(month, day, year) = (get_month_name(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = 'WEEK OF %s %s, %s' % (month.upper(), day, year)
 	elif dateformat15.search(datestr):  # NEXT MONTH
 		if not reference_date:
@@ -217,7 +217,7 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 		upcomingmonth = [reference_date + datetime.timedelta(days=d) for d in range(1, 31)]
 		dates = [d.day for d in upcomingmonth]
 		date = upcomingmonth[dates.index(1)]
-		(month, day, year) = (getMonthName(date.month).upper(), str(date.day), str(date.year))
+		(month, day, year) = (get_month_name(date.month).upper(), str(date.day), str(date.year))
 		datestr_std = '%s %s' % (month, year)
 	else:
 		raise DateFormatError("Date format does not match any acceptable formats! " + datestr)
@@ -343,7 +343,7 @@ def schedule_tasks(planner, now=None):
 	"""
 	if not now:
 		now = datetime.datetime.now()
-	utils.resetHeadsOnPlannerFiles(planner)
+	utils.reset_heads_on_planner_files(planner)
 
 	tasklist, scheduledtasks = _extract_scheduled_items_from_tasklist(planner.tasklistfile, planner.date, now)  # tasklist - scheduled tasks
 
@@ -354,10 +354,10 @@ def schedule_tasks(planner, now=None):
 	planner.tasklistfile.seek(0)
 	planner.tasklistfile.truncate(0)
 	planner.tasklistfile.write(tasklist.read())
-	utils.resetHeadsOnPlannerFiles(planner)
+	utils.reset_heads_on_planner_files(planner)
 
 
-def getScheduledTasks(tasklist, forDay):
+def get_scheduled_tasks(tasklist, for_day):
 	# look at SCHEDULED section in tasklist and return if scheduled for supplied day
 	# remove from tasklist
 	# Note: schedule tasks should already have been performed on previous day to migrate those tasks to the tasklist
@@ -379,7 +379,7 @@ def getScheduledTasks(tasklist, forDay):
 					matcheddate = get_date_for_schedule_string(datestr)
 				except Exception:
 					raise
-				if forDay >= matcheddate['date']:
+				if for_day >= matcheddate['date']:
 					scheduledtasks += line
 					line = tasklist.readline()
 					while line.startswith('\t'):

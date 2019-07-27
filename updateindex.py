@@ -30,7 +30,7 @@ def update_index(plannerpath, indexfile=None, indextitle=None):
 	wikiindex.close()
 
 
-if __name__ == '__main__':
+def main():
 	if len(sys.argv) == 1:
 		print('\nUsage: "./updateindex.py <WIKI/PATH> <-f Index filename> <-t Index title>"\n')
 		exit(0)
@@ -53,3 +53,7 @@ if __name__ == '__main__':
 	print()
 
 	update_index(wikidir, indexfile, indextitle)
+
+
+if __name__ == '__main__':
+    main()

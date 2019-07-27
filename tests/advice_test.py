@@ -24,23 +24,23 @@ class TestAdvice(unittest.TestCase):
 	advicefiles_nonewline = [lessonfile_nonewline]
 	advicefiles_newlines = [lessonfile_newlines]
 
-	def testAdviceIsProvidedCorrectlyFromFiles(self):
+	def test_advice_is_provided_correctly_from_files(self):
 		s = advice.get_advice(self.advicefiles_good)
 		self.assertIn(s, self.lessons)
 
-	def testAdviceIsEmptyIfFileIsEmpty(self):
+	def test_advice_is_empty_if_file_is_empty(self):
 		s = advice.get_advice(self.advicefiles_empty)
 		self.assertEqual('', s)
 
-	def testNewlineIsAddedIfNotPresent(self):
+	def test_newline_is_added_if_not_present(self):
 		s = advice.get_advice(self.advicefiles_nonewline)
 		self.assertEqual(self.lesson_nonewline + '\n', s)
 
-	def testHangingNewlinesAreIgnored(self):
+	def test_hanging_newlines_are_ignored(self):
 		lessons = advice.extract_lessons(self.advicefiles_newlines)
 		self.assertEqual(len(lessons), 3)
 
-	def testNonLessonTextIsIgnored(self):
+	def test_non_lesson_text_is_ignored(self):
 		lessons = advice.extract_lessons([self.lessonfile_misctext])
 		self.assertEqual(lessons, [self.lessons[0]])
 

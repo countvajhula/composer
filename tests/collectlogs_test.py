@@ -40,7 +40,7 @@ class SampleLogs(unittest.TestCase):
 					"\n"
 					"TIME SPENT ON PLANNER: 10 mins")
 
-	def testDayLogExtraction(self):
+	def test_day_log_extraction(self):
 		expected_log = "Notes for the day."
 		expected_time = "10 mins"
 		self.assertEqual(collectlogs.extract_log_time_from_text(self.daylog), (expected_log, expected_time))

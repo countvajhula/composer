@@ -18,10 +18,10 @@ class PlannerConfig(object):
 	ScheduleMode = Standard
 
 
-def getNextDay(date):
+def get_next_day(date):
 	""" Given a date, return the next day by consulting the python date module """
-	nextDay = date + datetime.timedelta(days=1)
-	return nextDay
+	next_day = date + datetime.timedelta(days=1)
+	return next_day
 
 
 def quarter_for_month(month):
@@ -35,7 +35,7 @@ def quarter_for_month(month):
 		return "Q4"
 
 
-def resetHeadsOnPlannerFiles(planner):
+def reset_heads_on_planner_files(planner):
 	planner.tasklistfile.seek(0)
 	planner.daythemesfile.seek(0)
 	planner.dayfile.seek(0)
