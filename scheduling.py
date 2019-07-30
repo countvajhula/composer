@@ -2,7 +2,12 @@ import datetime
 import calendar
 import re
 import utils
-from errors import *
+from errors import (
+    BlockedTaskNotScheduledError,
+    DateFormatError,
+    LogfileLayoutError,
+    RelativeDateError,
+    TasklistLayoutError)
 
 try:  # py3
     from io import StringIO

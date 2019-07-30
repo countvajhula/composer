@@ -2,7 +2,10 @@ import re
 import datetime
 import utils
 import scheduling
-from errors import *
+from errors import (
+    LogfileLayoutError,
+    TasklistLayoutError,
+    TomorrowIsEmptyError)
 
 try:  # py3
     from io import StringIO

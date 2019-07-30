@@ -4,7 +4,10 @@ import datetime
 import scheduling
 import advanceplanner
 from planner import Planner
-from errors import *
+from errors import (
+    PlannerStateError,
+    SimulationPassedError)
+
 
 try:  # py3
     from io import StringIO

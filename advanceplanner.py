@@ -3,9 +3,15 @@
 import datetime
 import calendar
 import re
-from errors import *
+
 import templates
 import utils
+from errors import (
+    DayStillInProgressError,
+    LogfileLayoutError,
+    LogfileNotCompletedError,
+    PlannerIsInTheFutureError)
+
 
 try:  # py3
     from io import StringIO
