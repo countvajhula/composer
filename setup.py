@@ -1,5 +1,11 @@
 from setuptools import setup
 
+requirements = []
+
+test_requirements = []
+
+dev_requirements = []
+
 setup(
     name='composer',
     version='1.0.0',
@@ -10,5 +16,9 @@ setup(
     include_package_data=True,
     packages=['composer'],
     test_suite='tests',
-    install_requires=[],
+    install_requires=requirements,
+    tests_require=test_requirements,
+    extras_require={
+        'dev': dev_requirements,
+    }
 )
