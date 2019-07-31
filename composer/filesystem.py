@@ -1,10 +1,11 @@
-import os
-import utils
 import datetime
-import scheduling
-import advanceplanner
-from planner import Planner
-from errors import (
+import os
+
+from . import utils
+from . import scheduling
+from . import advanceplanner
+from .planner import Planner
+from .errors import (
     PlannerStateError,
     SimulationPassedError)
 

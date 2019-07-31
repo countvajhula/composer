@@ -4,9 +4,9 @@ import datetime
 import calendar
 import re
 
-import templates
-import utils
-from errors import (
+from . import templates
+from . import utils
+from .errors import (
     DayStillInProgressError,
     LogfileLayoutError,
     LogfileNotCompletedError,

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import unittest
-import advice
+
+import composer.advice as advice
 
 try:  # py3
     from io import StringIO

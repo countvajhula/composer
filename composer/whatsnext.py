@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 
-import os
-from subprocess import call
-import sys
 import datetime
-import advanceplanner
-import utils
-import filesystem
-import updateindex
-import advice
-import config
-from errors import (
+import os
+import sys
+from subprocess import call
+
+from . import advanceplanner
+from . import advice
+from . import config
+from . import filesystem
+from . import updateindex
+from . import utils
+
+from .errors import (
     BlockedTaskNotScheduledError,
     DateFormatError,
     DayStillInProgressError,

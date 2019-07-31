@@ -1,5 +1,6 @@
 import unittest
-import collectlogs
+
+import composer.collectlogs as collectlogs
 
 
 class SampleLogs(unittest.TestCase):

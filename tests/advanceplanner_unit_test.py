@@ -2,12 +2,13 @@
 
 import unittest
 import datetime
-import advanceplanner
-import templates
-import scheduling
-import utils
-from planner import Planner
-from utils import PlannerPeriod
+
+import composer.advanceplanner as advanceplanner
+import composer.templates as templates
+import composer.scheduling as scheduling
+import composer.utils as utils
+from composer.planner import Planner
+from composer.utils import PlannerPeriod
 
 try:  # py3
     from io import StringIO

@@ -3,11 +3,12 @@
 """ Just a hacked-together script to collect notes from the present week, month, ...,
 to help save time on retrospectives """
 
-import os
-import config
-import advanceplanner
 import datetime
+import os
 import re
+
+from . import advanceplanner
+from . import config
 
 PLANNERDAYFILELINK = 'currentday'
 PLANNERWEEKFILELINK = 'currentweek'

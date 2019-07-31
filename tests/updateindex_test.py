@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import unittest
-import updateindex
+
+import composer.updateindex as updateindex
 
 
 class WikiPagesKnownValues(unittest.TestCase):

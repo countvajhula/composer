@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import unittest
-from filesystem import *
-from utils import PlannerPeriod
 import datetime
+
+from composer.filesystem import *
+from composer.utils import PlannerPeriod
 
 
 class AdvancePlanner(unittest.TestCase):

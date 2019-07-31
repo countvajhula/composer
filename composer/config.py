@@ -1,4 +1,4 @@
-import utils
+from . import utils
 
 TEST_WIKIDIRS = ('tests/testwikis/userwiki',)
 PRODUCTION_WIKIDIRS = ('/Users/siddhartha/log/themanwiki', '/Users/siddhartha/log/ferdywiki', '/Users/siddhartha/log/planner')

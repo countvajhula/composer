@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-import config
 import re
-from random import choice
 import sys
+from random import choice
+
+from . import config
 
 try:  # py3
     from io import StringIO

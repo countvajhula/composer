@@ -1,8 +1,9 @@
 import re
 import datetime
-import utils
-import scheduling
-from errors import (
+
+from . import scheduling
+from . import utils
+from .errors import (
     LogfileLayoutError,
     TasklistLayoutError,
     TomorrowIsEmptyError)
