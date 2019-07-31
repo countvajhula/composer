@@ -13,10 +13,10 @@ from .errors import (
     PlannerIsInTheFutureError)
 
 
-try:  # py3
-    from io import StringIO
-except ImportError:  # py2
+try:  # py2
     from StringIO import StringIO
+except ImportError:  # py3
+    from io import StringIO
 
 
 MIN_WEEK_LENGTH = 5

@@ -6,10 +6,10 @@ from random import choice
 
 from . import config
 
-try:  # py3
-    from io import StringIO
-except ImportError:  # py2
+try:  # py2
     from StringIO import StringIO
+except ImportError:  # py3
+    from io import StringIO
 
 
 def extract_lessons(lessons_files):

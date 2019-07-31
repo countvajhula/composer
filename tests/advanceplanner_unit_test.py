@@ -10,10 +10,10 @@ import composer.utils as utils
 from composer.planner import Planner
 from composer.utils import PlannerPeriod
 
-try:  # py3
-    from io import StringIO
-except ImportError:  # py2
+try:  # py2
     from StringIO import StringIO
+except ImportError:  # py3
+    from io import StringIO
 
 
 """ 

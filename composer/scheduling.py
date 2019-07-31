@@ -10,10 +10,10 @@ from .errors import (
     RelativeDateError,
     TasklistLayoutError)
 
-try:  # py3
-    from io import StringIO
-except ImportError:  # py2
+try:  # py2
     from StringIO import StringIO
+except ImportError:  # py3
+    from io import StringIO
 
 
 SCHEDULED_DATE_PATTERN = re.compile('\[\$?([^\[\$]*)\$?\]$')
