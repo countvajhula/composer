@@ -25,6 +25,6 @@ Drafting a Release
 .. code-block:: bash
 
   # increment the version
-  bumpversion [major|minor|patch]
+  bump2version [major|minor|patch]
   # push new release tag upstream
   git push --follow-tags

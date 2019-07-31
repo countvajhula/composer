@@ -4,7 +4,11 @@ requirements = []
 
 test_requirements = []
 
-dev_requirements = []
+dev_requirements = [
+    'flake8',
+    'tox',
+    'bump2version',
+]
 
 setup(
     name='composer',
