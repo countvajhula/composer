@@ -10,7 +10,18 @@ import filesystem
 import updateindex
 import advice
 import config
-from errors import *
+from errors import (
+    BlockedTaskNotScheduledError,
+    DateFormatError,
+    DayStillInProgressError,
+    LogfileLayoutError,
+    LogfileNotCompletedError,
+    PlannerIsInTheFutureError,
+    PlannerStateError,
+    SimulationPassedError,
+    RelativeDateError,
+    TasklistLayoutError,
+    TomorrowIsEmptyError)
 
 try:  # py3
     from io import StringIO
