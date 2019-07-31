@@ -27,7 +27,7 @@ clean-test:
 	rm -fr .tox/
 	rm -f .coverage
 	rm -fr coverage_html_report/
-	cd tests/testwikis && ./reset.sh
+	./reset-tests.sh
 
 lint:
 	flake8 composer tests
