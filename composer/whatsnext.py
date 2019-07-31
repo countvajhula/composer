@@ -5,6 +5,8 @@ import os
 import sys
 from subprocess import call
 
+import click
+
 from . import advanceplanner
 from . import advice
 from . import config
@@ -36,44 +38,35 @@ except NameError:  # py3
     raw_input = input
 
 
-def main():
+@click.command()
+@click.option('-t', '--test', is_flag=True)
+@click.option('-j', '--jump', is_flag=True)
+def main(test, jump):
     # Moved pending tasks from today over to tomorrow's agenda
     # could try: [Display score for today]
 
-    jumping = False
     now = None
-    testmode = False
 
-    if len(sys.argv) == 1:
-        wikidirs = config.PRODUCTION_WIKIDIRS
+    if test:
+        wikidirs = config.TEST_WIKIDIRS
+        # so jump can be tested on test wiki
+        now = datetime.datetime(2013, 1, 8, 19, 0, 0)
     else:
-        validargs = False
-        args = sys.argv[1:]
-        if '-t' in args or '--test' in args:
-            validargs = True
-            wikidirs = config.TEST_WIKIDIRS
-            testmode = True
-            # so jump can be tested on test wiki
-            now = datetime.datetime(2013, 1, 8, 19, 0, 0)
-        else:
-            wikidirs = config.PRODUCTION_WIKIDIRS
-        if '-j' in args or '--jump' in args:
-            validargs = True
-            print()
-            print(">>> Get ready to JUMP! <<<")
-            print()
-            jumping = True
-        if not validargs:
-            raise Exception("Invalid command line arguments")
+        wikidirs = config.PRODUCTION_WIKIDIRS
+
+    if jump:
+        print()
+        print(">>> Get ready to JUMP! <<<")
+        print()
 
     # simulate the changes first and then when it's all OK, make the necessary
     # preparations (e.g. git commit) and actually perform the changes
 
     for wikidir in wikidirs:
         simulate = True
-        config.set_preferences(jumping)
+        config.set_preferences(jump)
         print()
-        if testmode:
+        if test:
             print(">>> Operating in TEST mode on planner at location: %s <<<" % wikidir)
         else:
             print(">>> Operating on planner at location: %s <<<" % wikidir)
@@ -115,7 +108,7 @@ def main():
                     return f
                 lessons_files = map(openfile, filepaths)
                 print(advice.get_advice(lessons_files))
-                if jumping:  # if jumping, keep repeating until present-day error thrown
+                if jump:  # if jumping, keep repeating until present-day error thrown
                     simulate = True
                 else:
                     break
