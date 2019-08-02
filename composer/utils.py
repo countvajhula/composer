@@ -9,15 +9,6 @@ class PlannerUserSettings(object):
     WeekTheme = None
 
 
-class PlannerConfig(object):
-    (Strict, Lax) = (1, 2)
-    (Standard, Wolf, TheMan) = (1, 2, 3)
-    TomorrowChecking = Strict
-    LogfileCompletionChecking = Strict
-    PreferredBulletChar = '*'
-    ScheduleMode = Standard
-
-
 def get_next_day(date):
     """ Given a date, return the next day by consulting the python date module """
     next_day = date + datetime.timedelta(days=1)

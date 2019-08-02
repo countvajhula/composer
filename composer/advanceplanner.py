@@ -4,6 +4,7 @@ import datetime
 import calendar
 import re
 
+from . import config
 from . import templates
 from . import utils
 from .errors import (
@@ -220,7 +221,7 @@ def advance_planner(planner, now=None):
             tasklistfile = planner.tasklistfile
             daythemesfile = planner.daythemesfile
             (checkpointsfile, periodicfile, logfile) = get_period_files(current_period)
-            if not check_logfile_completion(logfile) and utils.PlannerConfig.LogfileCompletionChecking == utils.PlannerConfig.Strict:
+            if not check_logfile_completion(logfile) and config.PlannerConfig.LogfileCompletionChecking == config.LOGFILE_CHECKING['STRICT']:
                 periodstr = get_period_name(current_period)
                 msg = "Looks like you haven't completed your %s's log. Would you like to do that now?" % periodstr
                 raise LogfileNotCompletedError(msg, periodstr)

@@ -1,6 +1,7 @@
 import re
 import datetime
 
+from . import config
 from . import scheduling
 from . import utils
 from .errors import (
@@ -70,7 +71,7 @@ def get_tasks_for_tomorrow(tasklist):
         else:
             tasklist_nextday.write(ss)
         ss = tasklist.readline()
-    if tasks == '' and utils.PlannerConfig.TomorrowChecking == utils.PlannerConfig.Strict:
+    if tasks == '' and config.PlannerConfig.TomorrowChecking == config.LOGFILE_CHECKING['STRICT']:
         raise TomorrowIsEmptyError("The tomorrow section is blank. Do you want to add some tasks for tomorrow?")
     while ss != '':
         tasklist_nextday.write(ss)
@@ -116,7 +117,7 @@ def build_period_template(next_day, title, entry, agenda, periodname, checkpoint
 def build_year_template(next_day, tasklistfile, yearfile, checkpointsfile, periodicfile):
     (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
     title = "= %d =\n" % year
-    entry = "\t%s [[%s %d]]\n" % (utils.PlannerConfig.PreferredBulletChar, utils.quarter_for_month(month), year)
+    entry = "\t%s [[%s %d]]\n" % (config.PlannerConfig.PreferredBulletChar, utils.quarter_for_month(month), year)
     periodname = "YEARLYs:\n"
     agenda = ""
     monthtemplate = build_period_template(next_day, title, entry, agenda, periodname, checkpointsfile, periodicfile)
@@ -126,7 +127,7 @@ def build_year_template(next_day, tasklistfile, yearfile, checkpointsfile, perio
 def build_quarter_template(next_day, tasklistfile, quarterfile, checkpointsfile, periodicfile):
     (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
     title = "= %s %d =\n" % (utils.quarter_for_month(month), year)
-    entry = "\t%s [[Month of %s, %d]]\n" % (utils.PlannerConfig.PreferredBulletChar, month, year)
+    entry = "\t%s [[Month of %s, %d]]\n" % (config.PlannerConfig.PreferredBulletChar, month, year)
     periodname = "QUARTERLYs:\n"
     agenda = ""
     monthtemplate = build_period_template(next_day, title, entry, agenda, periodname, checkpointsfile, periodicfile)
@@ -136,7 +137,7 @@ def build_quarter_template(next_day, tasklistfile, quarterfile, checkpointsfile,
 def build_month_template(next_day, tasklistfile, monthfile, checkpointsfile, periodicfile):
     (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
     title = "= %s %d =\n" % (month.upper(), year)
-    entry = "\t%s [[Week of %s %d, %d]]\n" % (utils.PlannerConfig.PreferredBulletChar, month, date, year)
+    entry = "\t%s [[Week of %s %d, %d]]\n" % (config.PlannerConfig.PreferredBulletChar, month, date, year)
     periodname = "MONTHLYs:\n"
     agenda = ""
     monthtemplate = build_period_template(next_day, title, entry, agenda, periodname, checkpointsfile, periodicfile)
@@ -149,7 +150,7 @@ def build_week_template(next_day, tasklistfile, weekfile, checkpointsfile, perio
     if utils.PlannerUserSettings.WeekTheme:
         title += "\n"
         title += "Theme: *WEEK OF %s*\n" % utils.PlannerUserSettings.WeekTheme.upper()
-    entry = "\t%s [[%s %d, %d]]\n" % (utils.PlannerConfig.PreferredBulletChar, month, date, year)
+    entry = "\t%s [[%s %d, %d]]\n" % (config.PlannerConfig.PreferredBulletChar, month, date, year)
     periodname = "WEEKLYs:\n"
     agenda = ""
     weektemplate = build_period_template(next_day, title, entry, agenda, periodname, checkpointsfile, periodicfile)
@@ -219,7 +220,7 @@ def write_existing_year_template(next_day, yearfile):
     last_quarter_entry = 'Q'
     previdx = yearcontents.find(last_quarter_entry)
     idx = yearcontents.rfind('\n', 0, previdx)
-    newyearcontents = yearcontents[:idx + 1] + '\t%s [[%s %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, utils.quarter_for_month(month), year) + yearcontents[idx + 1:]
+    newyearcontents = yearcontents[:idx + 1] + '\t%s [[%s %d]]\n' % (config.PlannerConfig.PreferredBulletChar, utils.quarter_for_month(month), year) + yearcontents[idx + 1:]
     yearfile.seek(0)
     yearfile.truncate(0)
     yearfile.write(newyearcontents)
@@ -232,7 +233,7 @@ def write_existing_quarter_template(next_day, quarterfile):
     last_month_entry = 'Month of'
     previdx = quartercontents.find(last_month_entry)
     idx = quartercontents.rfind('\n', 0, previdx)
-    newquartercontents = quartercontents[:idx + 1] + '\t%s [[Month of %s, %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, month, year) + quartercontents[idx + 1:]
+    newquartercontents = quartercontents[:idx + 1] + '\t%s [[Month of %s, %d]]\n' % (config.PlannerConfig.PreferredBulletChar, month, year) + quartercontents[idx + 1:]
     quarterfile.seek(0)
     quarterfile.truncate(0)
     quarterfile.write(newquartercontents)
@@ -245,7 +246,7 @@ def write_existing_month_template(next_day, monthfile):
     last_week_entry = 'Week of'
     previdx = monthcontents.find(last_week_entry)
     idx = monthcontents.rfind('\n', 0, previdx)
-    newmonthcontents = monthcontents[:idx + 1] + '\t%s [[Week of %s %d, %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, month, date, year) + monthcontents[idx + 1:]
+    newmonthcontents = monthcontents[:idx + 1] + '\t%s [[Week of %s %d, %d]]\n' % (config.PlannerConfig.PreferredBulletChar, month, date, year) + monthcontents[idx + 1:]
     monthfile.seek(0)
     monthfile.truncate(0)
     monthfile.write(newmonthcontents)
@@ -260,7 +261,7 @@ def write_existing_week_template(next_day, weekfile):
     previous_day_entry = '%s %d, %d' % (monthprev, dateprev, yearprev)
     previdx = weekcontents.find(previous_day_entry)
     idx = weekcontents.rfind('\n', 0, previdx)
-    newweekcontents = weekcontents[:idx+1] + '\t%s [[%s %d, %d]]\n' % (utils.PlannerConfig.PreferredBulletChar, month, date, year) + weekcontents[idx + 1:]
+    newweekcontents = weekcontents[:idx+1] + '\t%s [[%s %d, %d]]\n' % (config.PlannerConfig.PreferredBulletChar, month, date, year) + weekcontents[idx + 1:]
     weekfile.seek(0)
     weekfile.truncate(0)  # way to close and open an existing handle in different modes?
     weekfile.write(newweekcontents)

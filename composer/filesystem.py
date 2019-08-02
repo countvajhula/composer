@@ -1,6 +1,7 @@
 import datetime
 import os
 
+from . import config
 from . import utils
 from . import scheduling
 from . import advanceplanner
@@ -92,16 +93,16 @@ def construct_planner_from_filesystem(plannerpath):
     f.close()
 
     # daily, weekly, monthly checkpoints, periodic items
-    if utils.PlannerConfig.ScheduleMode == utils.PlannerConfig.Standard:
+    if config.PlannerConfig.Schedule == config.SCHEDULE['STANDARD']:
         fn = '%s/%s' % (plannerpath, CHECKPOINTSWEEKDAYFILE)
-    elif utils.PlannerConfig.ScheduleMode == utils.PlannerConfig.TheMan:
+    elif config.PlannerConfig.Schedule == config.SCHEDULE['THE_MAN']:
         fn = '%s/%s' % (plannerpath, CHECKPOINTSTHEMANFILE)
     else:
         fn = '%s/%s' % (plannerpath, CHECKPOINTSWOLFFILE)
     f = open(fn, 'r')
     planner.checkpoints_weekday_file = StringIO(f.read())
     f.close()
-    if utils.PlannerConfig.ScheduleMode == utils.PlannerConfig.Wolf:
+    if config.PlannerConfig.Schedule == config.SCHEDULE['WOLF']:
         fn = '%s/%s' % (plannerpath, CHECKPOINTSWOLFFILE)
     else:
         fn = '%s/%s' % (plannerpath, CHECKPOINTSWEEKENDFILE)

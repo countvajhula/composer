@@ -38,21 +38,37 @@ except NameError:  # py3
     raw_input = input
 
 
-@click.command()
-@click.option('-t', '--test', is_flag=True)
-@click.option('-j', '--jump', is_flag=True)
-def main(test, jump):
+CONFIG_FILE = '/Users/siddhartha/work/composer/composer/config.ini'
+
+
+@click.command(help=('Move on to the next thing in your planning, organizing, '
+                     'and tracking workflow.\n'
+                     'WIKIPATH is the path of the wiki to operate on.\n'
+                     'If not provided, uses the path(s) specified in '
+                     'config.ini'))
+@click.argument('wikipath', required=False)
+@click.option('-t', '--test',
+              is_flag=True,
+              help=('A temporary flag for testing. To be removed in a future '
+                    'version.'))
+@click.option('-j', '--jump',
+              is_flag=True,
+              help='Jump to present day.')
+def main(wikipath, test, jump):
     # Moved pending tasks from today over to tomorrow's agenda
     # could try: [Display score for today]
 
     now = None
 
+    preferences = config.read_user_preferences(CONFIG_FILE)
+    # if wikipath is specified, it should override the configured paths in the ini file
+    if wikipath:
+        wikidirs = [wikipath]
+    else:
+        wikidirs = preferences['wikis']
     if test:
-        wikidirs = config.TEST_WIKIDIRS
         # so jump can be tested on test wiki
         now = datetime.datetime(2013, 1, 8, 19, 0, 0)
-    else:
-        wikidirs = config.PRODUCTION_WIKIDIRS
 
     if jump:
         print()
@@ -64,12 +80,9 @@ def main(test, jump):
 
     for wikidir in wikidirs:
         simulate = True
-        config.set_preferences(jump)
+        config.set_preferences(preferences, jump)
         print()
-        if test:
-            print(">>> Operating in TEST mode on planner at location: %s <<<" % wikidir)
-        else:
-            print(">>> Operating on planner at location: %s <<<" % wikidir)
+        print(">>> Operating on planner at location: %s <<<" % wikidir)
         print()
         while True:
             try:
@@ -98,7 +111,7 @@ def main(test, jump):
                 print()
                 print("~~~ THOUGHT FOR THE DAY ~~~")
                 print()
-                filepaths = map(lambda f: wikidir + '/' + f, config.LESSONS_FILES)
+                filepaths = map(lambda f: wikidir + '/' + f, preferences['lessons_files'])
 
                 def openfile(fn):
                     try:
@@ -151,7 +164,7 @@ def main(test, jump):
                 if yn.lower().startswith('y'):
                     raw_input('No problem. Press any key when you are done adding tasks...')
                 elif yn.lower().startswith('n'):
-                    utils.PlannerConfig.TomorrowChecking = utils.PlannerConfig.Lax
+                    config.PlannerConfig.TomorrowChecking = config.LOGFILE_CHECKING['LAX']
                 else:
                     continue
             except LogfileNotCompletedError as err:
@@ -159,7 +172,7 @@ def main(test, jump):
                 if yn.lower().startswith('y'):
                     raw_input('No problem. Press any key when you are done completing your log...')
                 elif yn.lower().startswith('n'):
-                    utils.PlannerConfig.LogfileCompletionChecking = utils.PlannerConfig.Lax
+                    config.PlannerConfig.LogfileCompletionChecking = config.LOGFILE_CHECKING['LAX']
                 else:
                     continue
             except DateFormatError as err:
