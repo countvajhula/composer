@@ -1,3 +1,5 @@
+TEST_WIKI_PATH = tests/testwikis/userwiki
+
 help:
 	@echo "clean - remove all build, test, coverage and Python artifacts, and reset test wikis"
 	@echo "clean-build - remove build artifacts"
@@ -6,6 +8,7 @@ help:
 	@echo "lint - check style with flake8"
 	@echo "test - run tests quickly with the default Python"
 	@echo "test-all - run tests on every Python version with tox"
+	@echo "test-wiki - run composer against an actual wiki set up for testing. Set jump=1 to set the jump flag."
 	@echo "coverage - check code coverage quickly with the default Python"
 	@echo "sdist - package"
 
@@ -37,6 +40,14 @@ test:
 
 test-all:
 	tox
+
+test-wiki:
+	@echo "Operating on TEST wiki at location:" ${TEST_WIKI_PATH}
+ifeq ($(jump),1)
+	whats-next ${TEST_WIKI_PATH} --test --jump
+else
+	whats-next ${TEST_WIKI_PATH} --test
+endif
 
 coverage:
 	coverage run --source composer setup.py test
