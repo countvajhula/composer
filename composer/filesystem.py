@@ -169,9 +169,7 @@ def advance_filesystem_planner(plannerpath, now=None, simulate=False):
         # write buffer to new file
         # update currentyear symlink
         yearfn_post = '%s/%d.wiki' % (plannerpath, year)
-        f = open(yearfn_post, 'w')
-        f.write(planner.yearfile.read())
-        f.close()
+        _write_file(planner.yearfile.read(), yearfn_post)
         filelinkfn = '%s/%s' % (plannerpath, PLANNERYEARFILELINK)
         if os.path.islink(filelinkfn):
             os.remove(filelinkfn)
@@ -181,72 +179,54 @@ def advance_filesystem_planner(plannerpath, now=None, simulate=False):
         # write buffer to new file
         # update currentquarter symlink
         quarterfn_post = '%s/%s %d.wiki' % (plannerpath, utils.quarter_for_month(month), year)
-        f = open(quarterfn_post, 'w')
-        f.write(planner.quarterfile.read())
-        f.close()
+        _write_file(planner.quarterfile.read(), quarterfn_post)
         filelinkfn = '%s/%s' % (plannerpath, PLANNERQUARTERFILELINK)
         if os.path.islink(filelinkfn):
             os.remove(filelinkfn)
         os.symlink(quarterfn_post[quarterfn_post.rfind('/') + 1:], filelinkfn) # remove path from filename so it isn't "double counted"
     if status == utils.PlannerPeriod.Quarter:
         # write year buffer to existing file
-        f = open(yearfn_pre, 'w')
-        f.write(planner.yearfile.read())
-        f.close()
+        _write_file(planner.yearfile.read(), yearfn_pre)
     if status >= utils.PlannerPeriod.Month:
         # extract new month filename from date
         # write buffer to new file
         # update currentmonth symlink
         monthfn_post = '%s/Month of %s, %d.wiki' % (plannerpath, month, year)
-        f = open(monthfn_post, 'w')
-        f.write(planner.monthfile.read())
-        f.close()
+        _write_file(planner.monthfile.read(), monthfn_post)
         filelinkfn = '%s/%s' % (plannerpath, PLANNERMONTHFILELINK)
         if os.path.islink(filelinkfn):
             os.remove(filelinkfn)
         os.symlink(monthfn_post[monthfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
     if status == utils.PlannerPeriod.Month:
         # write quarter buffer to existing file
-        f = open(quarterfn_pre, 'w')
-        f.write(planner.quarterfile.read())
-        f.close()
+        _write_file(planner.quarterfile.read(), quarterfn_pre)
     if status >= utils.PlannerPeriod.Week:
         # extract new week filename from date
         # write buffer to new file
         # update currentweek symlink
         weekfn_post = '%s/Week of %s %d, %d.wiki' % (plannerpath, month, date, year)
-        f = open(weekfn_post, 'w')
-        f.write(planner.weekfile.read())
-        f.close()
+        _write_file(planner.weekfile.read(), weekfn_post)
         filelinkfn = '%s/%s' % (plannerpath, PLANNERWEEKFILELINK)
         if os.path.islink(filelinkfn):
             os.remove(filelinkfn)
         os.symlink(weekfn_post[weekfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
     if status == utils.PlannerPeriod.Week:
         # write month buffer to existing file
-        f = open(monthfn_pre, 'w')
-        f.write(planner.monthfile.read())
-        f.close()
+        _write_file(planner.monthfile.read(), monthfn_pre)
     if status >= utils.PlannerPeriod.Day:
         # extract new day filename from date
         # write buffer to new file
         # update currentday symlink
         dayfn_post = '%s/%s %d, %d.wiki' % (plannerpath, month, date, year)
-        f = open(dayfn_post, 'w')
-        f.write(planner.dayfile.read())
-        f.close()
+        _write_file(planner.dayfile.read(), dayfn_post)
         filelinkfn = '%s/%s' % (plannerpath, PLANNERDAYFILELINK)
         if os.path.islink(filelinkfn):
             os.remove(filelinkfn)
         os.symlink(dayfn_post[dayfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
         # in any event if day was advanced, update tasklist
-        f = open(tasklistfn, 'w')
-        f.write(planner.tasklistfile.read())
-        f.close()
+        _write_file(planner.tasklistfile.read(), tasklistfn)
     if status == utils.PlannerPeriod.Day:
         # write week buffer to existing file
-        f = open(weekfn_pre, 'w')
-        f.write(planner.weekfile.read())
-        f.close()
+        _write_file(planner.weekfile.read(), weekfn_pre)
 
     return status
