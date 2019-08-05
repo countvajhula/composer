@@ -1,5 +1,10 @@
-import configparser
 import csv
+
+try:  # py3
+    import configparser
+except ImportError:  # py2
+    import ConfigParser as configparser
+
 
 LOGFILE_CHECKING = {
     'STRICT': 1,
