@@ -17,6 +17,7 @@ except ImportError:  # py3
     from io import StringIO
 
 
+SCHEDULE_FILE_PREFIX = 'Checkpoints'
 PLANNERTASKLISTFILE = 'TaskList.wiki'
 PLANNERDAYTHEMESFILELINK = 'DayThemes.wiki'
 PLANNERDAYFILELINK = 'currentday'
@@ -24,10 +25,6 @@ PLANNERWEEKFILELINK = 'currentweek'
 PLANNERMONTHFILELINK = 'currentmonth'
 PLANNERQUARTERFILELINK = 'currentquarter'
 PLANNERYEARFILELINK = 'currentyear'
-CHECKPOINTSWEEKDAYFILE = 'Checkpoints_Weekday.wiki'
-CHECKPOINTSWEEKENDFILE = 'Checkpoints_Weekend.wiki'
-CHECKPOINTSWOLFFILE = 'Checkpoints_Wolf.wiki'
-CHECKPOINTSTHEMANFILE = 'Checkpoints_TheMan.wiki'
 CHECKPOINTSWEEKFILE = 'Checkpoints_Week.wiki'
 CHECKPOINTSMONTHFILE = 'Checkpoints_Month.wiki'
 CHECKPOINTSQUARTERFILE = 'Checkpoints_Quarter.wiki'
@@ -93,19 +90,17 @@ def construct_planner_from_filesystem(plannerpath):
     f.close()
 
     # daily, weekly, monthly checkpoints, periodic items
-    if config.PlannerConfig.Schedule == config.SCHEDULE['STANDARD']:
-        fn = '%s/%s' % (plannerpath, CHECKPOINTSWEEKDAYFILE)
-    elif config.PlannerConfig.Schedule == config.SCHEDULE['THE_MAN']:
-        fn = '%s/%s' % (plannerpath, CHECKPOINTSTHEMANFILE)
-    else:
-        fn = '%s/%s' % (plannerpath, CHECKPOINTSWOLFFILE)
+    fn = ('{}/{}_Weekday_{}.wiki'
+          .format(plannerpath,
+                  SCHEDULE_FILE_PREFIX,
+                  config.PlannerConfig.Schedule.capitalize()))
     f = open(fn, 'r')
     planner.checkpoints_weekday_file = StringIO(f.read())
     f.close()
-    if config.PlannerConfig.Schedule == config.SCHEDULE['WOLF']:
-        fn = '%s/%s' % (plannerpath, CHECKPOINTSWOLFFILE)
-    else:
-        fn = '%s/%s' % (plannerpath, CHECKPOINTSWEEKENDFILE)
+    fn = ('{}/{}_Weekend_{}.wiki'
+          .format(plannerpath,
+                  SCHEDULE_FILE_PREFIX,
+                  config.PlannerConfig.Schedule.capitalize()))
     f = open(fn, 'r')
     planner.checkpoints_weekend_file = StringIO(f.read())
     f.close()

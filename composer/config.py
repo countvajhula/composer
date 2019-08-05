@@ -6,12 +6,7 @@ LOGFILE_CHECKING = {
     'LAX': 2,
 }
 
-SCHEDULE = {
-    'STANDARD': 1,
-    'WOLF': 2,
-    'THE_MAN': 3,
-}
-
+DEFAULT_SCHEDULE = 'standard'
 DEFAULT_BULLET_CHARACTER = '*'
 
 
@@ -19,7 +14,7 @@ class PlannerConfig(object):
     TomorrowChecking = LOGFILE_CHECKING['STRICT']
     LogfileCompletionChecking = LOGFILE_CHECKING['STRICT']
     PreferredBulletChar = DEFAULT_BULLET_CHARACTER
-    Schedule = SCHEDULE['STANDARD']
+    Schedule = DEFAULT_SCHEDULE
 
 
 def read_user_preferences(config_path):
@@ -35,7 +30,7 @@ def read_user_preferences(config_path):
 def set_preferences(preferences=None, jump=False):
     PlannerConfig.Schedule = (preferences['schedule']
                               if preferences
-                              else SCHEDULE['STANDARD'])
+                              else DEFAULT_SCHEDULE)
     PlannerConfig.PreferredBulletChar = (preferences['bullet_character']
                                          if preferences
                                          else DEFAULT_BULLET_CHARACTER)
