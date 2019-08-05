@@ -93,6 +93,11 @@ def construct_planner_from_filesystem(plannerpath):
     return planner
 
 
+def _write_file(contents, filename):
+    with open(filename, 'w') as f:
+        f.write(contents)
+
+
 def write_planner_to_filesystem(planner, plannerpath):
     """ Write the planner object to the filesystem at the given path."""
     pathspec = '{}/{}'
@@ -103,24 +108,12 @@ def write_planner_to_filesystem(planner, plannerpath):
     quarter_filename = os.path.realpath(pathspec.format(plannerpath, PLANNERQUARTERFILELINK))
     year_filename = os.path.realpath(pathspec.format(plannerpath, PLANNERYEARFILELINK))
 
-    f = open(tasklist_filename, 'w')
-    f.write(planner.tasklistfile.read())
-    f.close()
-    f = open(year_filename, 'w')
-    f.write(planner.yearfile.read())
-    f.close()
-    f = open(quarter_filename, 'w')
-    f.write(planner.quarterfile.read())
-    f.close()
-    f = open(month_filename, 'w')
-    f.write(planner.monthfile.read())
-    f.close()
-    f = open(week_filename, 'w')
-    f.write(planner.weekfile.read())
-    f.close()
-    f = open(day_filename, 'w')
-    f.write(planner.dayfile.read())
-    f.close()
+    _write_file(planner.tasklistfile.read(), tasklist_filename)
+    _write_file(planner.yearfile.read(), year_filename)
+    _write_file(planner.quarterfile.read(), quarter_filename)
+    _write_file(planner.monthfile.read(), month_filename)
+    _write_file(planner.weekfile.read(), week_filename)
+    _write_file(planner.dayfile.read(), day_filename)
 
     utils.reset_heads_on_planner_files(planner)
 
