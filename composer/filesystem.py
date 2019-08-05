@@ -50,96 +50,45 @@ def get_planner_date(plannerlocation):
     return plannerdate
 
 
+def _read_file(filename):
+    with open(filename, 'r') as f:
+        result = StringIO(f.read())
+    return result
+
+
 def construct_planner_from_filesystem(plannerpath):
     """ Construct a planner object from a filesystem representation."""
     # CURRENT planner date used here
     planner = Planner()
     planner.date = get_planner_date(plannerpath)
-    tasklistfn = '%s/%s' % (plannerpath, PLANNERTASKLISTFILE)
-    f = open(tasklistfn, 'r')
-    planner.tasklistfile = StringIO(f.read())
-    f.close()
-    daythemesfn = '%s/%s' % (plannerpath, PLANNERDAYTHEMESFILELINK)
-    f = open(daythemesfn, 'r')
-    planner.daythemesfile = StringIO(f.read())
-    f.close()
-    dayfn_pre = '%s/%s' % (plannerpath, PLANNERDAYFILELINK)
-    dayfn_pre = '%s/%s' % (plannerpath, os.readlink(dayfn_pre))
-    f = open(dayfn_pre, 'r')
-    planner.dayfile = StringIO(f.read())
-    f.close()
-    weekfn_pre = '%s/%s' % (plannerpath, PLANNERWEEKFILELINK)
-    weekfn_pre = '%s/%s' % (plannerpath, os.readlink(weekfn_pre))
-    f = open(weekfn_pre, 'r')
-    planner.weekfile = StringIO(f.read())
-    f.close()
-    monthfn_pre = '%s/%s' % (plannerpath, PLANNERMONTHFILELINK)
-    monthfn_pre = '%s/%s' % (plannerpath, os.readlink(monthfn_pre))
-    f = open(monthfn_pre, 'r')
-    planner.monthfile = StringIO(f.read())
-    f.close()
-    quarterfn_pre = '%s/%s' % (plannerpath, PLANNERQUARTERFILELINK)
-    quarterfn_pre = '%s/%s' % (plannerpath, os.readlink(quarterfn_pre))
-    f = open(quarterfn_pre, 'r')
-    planner.quarterfile = StringIO(f.read())
-    f.close()
-    yearfn_pre = '%s/%s' % (plannerpath, PLANNERYEARFILELINK)
-    yearfn_pre = '%s/%s' % (plannerpath, os.readlink(yearfn_pre))
-    f = open(yearfn_pre, 'r')
-    planner.yearfile = StringIO(f.read())
-    f.close()
+    planner.tasklistfile = _read_file('{}/{}'.format(plannerpath, PLANNERTASKLISTFILE))
+    planner.daythemesfile = _read_file('{}/{}'.format(plannerpath, PLANNERDAYTHEMESFILELINK))
+    planner.dayfile = _read_file('{}/{}'.format(plannerpath, PLANNERDAYFILELINK))
+    planner.weekfile = _read_file('{}/{}'.format(plannerpath, PLANNERWEEKFILELINK))
+    planner.monthfile = _read_file('{}/{}'.format(plannerpath, PLANNERMONTHFILELINK))
+    planner.quarterfile = _read_file('{}/{}'.format(plannerpath, PLANNERQUARTERFILELINK))
+    planner.yearfile = _read_file('{}/{}'.format(plannerpath, PLANNERYEARFILELINK))
 
     # daily, weekly, monthly checkpoints, periodic items
-    fn = ('{}/{}_Weekday_{}.wiki'
-          .format(plannerpath,
-                  SCHEDULE_FILE_PREFIX,
-                  config.PlannerConfig.Schedule.capitalize()))
-    f = open(fn, 'r')
-    planner.checkpoints_weekday_file = StringIO(f.read())
-    f.close()
-    fn = ('{}/{}_Weekend_{}.wiki'
-          .format(plannerpath,
-                  SCHEDULE_FILE_PREFIX,
-                  config.PlannerConfig.Schedule.capitalize()))
-    f = open(fn, 'r')
-    planner.checkpoints_weekend_file = StringIO(f.read())
-    f.close()
-    fn = '%s/%s' % (plannerpath, PERIODICDAILYFILE)
-    f = open(fn, 'r')
-    planner.periodic_day_file = StringIO(f.read())
-    f.close()
-    fn = '%s/%s' % (plannerpath, CHECKPOINTSWEEKFILE)
-    f = open(fn, 'r')
-    planner.checkpoints_week_file = StringIO(f.read())
-    f.close()
-    fn = '%s/%s' % (plannerpath, PERIODICWEEKLYFILE)
-    f = open(fn, 'r')
-    planner.periodic_week_file = StringIO(f.read())
-    f.close()
-    fn = '%s/%s' % (plannerpath, CHECKPOINTSMONTHFILE)
-    f = open(fn, 'r')
-    planner.checkpoints_month_file = StringIO(f.read())
-    f.close()
-    fn = '%s/%s' % (plannerpath, PERIODICMONTHLYFILE)
-    f = open(fn, 'r')
-    planner.periodic_month_file = StringIO(f.read())
-    f.close()
-    fn = '%s/%s' % (plannerpath, CHECKPOINTSQUARTERFILE)
-    f = open(fn, 'r')
-    planner.checkpoints_quarter_file = StringIO(f.read())
-    f.close()
-    fn = '%s/%s' % (plannerpath, PERIODICQUARTERLYFILE)
-    f = open(fn, 'r')
-    planner.periodic_quarter_file = StringIO(f.read())
-    f.close()
-    fn = '%s/%s' % (plannerpath, CHECKPOINTSYEARFILE)
-    f = open(fn, 'r')
-    planner.checkpoints_year_file = StringIO(f.read())
-    f.close()
-    fn = '%s/%s' % (plannerpath, PERIODICYEARLYFILE)
-    f = open(fn, 'r')
-    planner.periodic_year_file = StringIO(f.read())
-    f.close()
+    planner.checkpoints_weekday_file = _read_file(
+        '{}/{}_Weekday_{}.wiki'
+        .format(plannerpath,
+                SCHEDULE_FILE_PREFIX,
+                config.PlannerConfig.Schedule.capitalize()))
+    planner.checkpoints_weekend_file = _read_file(
+        '{}/{}_Weekend_{}.wiki'
+        .format(plannerpath,
+                SCHEDULE_FILE_PREFIX,
+                config.PlannerConfig.Schedule.capitalize()))
+    planner.periodic_day_file = _read_file('{}/{}'.format(plannerpath, PERIODICDAILYFILE))
+    planner.checkpoints_week_file = _read_file('{}/{}'.format(plannerpath, CHECKPOINTSWEEKFILE))
+    planner.periodic_week_file = _read_file('{}/{}'.format(plannerpath, PERIODICWEEKLYFILE))
+    planner.checkpoints_month_file = _read_file('{}/{}'.format(plannerpath, CHECKPOINTSMONTHFILE))
+    planner.periodic_month_file = _read_file('{}/{}'.format(plannerpath, PERIODICMONTHLYFILE))
+    planner.checkpoints_quarter_file = _read_file('{}/{}'.format(plannerpath, CHECKPOINTSQUARTERFILE))
+    planner.periodic_quarter_file = _read_file('{}/{}'.format(plannerpath, PERIODICQUARTERLYFILE))
+    planner.checkpoints_year_file = _read_file('{}/{}'.format(plannerpath, CHECKPOINTSYEARFILE))
+    planner.periodic_year_file = _read_file('{}/{}'.format(plannerpath, PERIODICYEARLYFILE))
 
     return planner
 
