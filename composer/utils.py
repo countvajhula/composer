@@ -26,22 +26,6 @@ def quarter_for_month(month):
         return "Q4"
 
 
-def reset_heads_on_planner_files(planner):
-    planner.tasklistfile.seek(0)
-    planner.daythemesfile.seek(0)
-    planner.dayfile.seek(0)
-    planner.weekfile.seek(0)
-    planner.monthfile.seek(0)
-    planner.quarterfile.seek(0)
-    planner.yearfile.seek(0)
-    planner.checkpoints_year_file.seek(0)
-    planner.periodic_year_file.seek(0)
-    planner.checkpoints_quarter_file.seek(0)
-    planner.periodic_quarter_file.seek(0)
-    planner.checkpoints_month_file.seek(0)
-    planner.periodic_month_file.seek(0)
-    planner.checkpoints_week_file.seek(0)
-    planner.periodic_week_file.seek(0)
-    planner.checkpoints_weekday_file.seek(0)
-    planner.checkpoints_weekend_file.seek(0)
-    planner.periodic_day_file.seek(0)
+def write_file(contents, filename):
+    with open(filename, 'w') as f:
+        f.write(contents)

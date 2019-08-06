@@ -169,7 +169,7 @@ def advance_planner(planner, now=None):
     TODO: use function compositor thingies to de-duplify these
     """
     # plannerdate = get_planner_date_from_string('November 30, 2012')
-    utils.reset_heads_on_planner_files(planner)
+    planner.reset_heads_on_files()
     next_day = utils.get_next_day(planner.date)  # the new day to advance to
     nextdow = next_day.strftime('%A')
     # write_existing_week_template(next_day)
@@ -242,7 +242,7 @@ def advance_planner(planner, now=None):
     if status > utils.PlannerPeriod.Zero:
         planner.date = next_day
 
-    utils.reset_heads_on_planner_files(planner)
+    planner.reset_heads_on_files()
     return status
 
 

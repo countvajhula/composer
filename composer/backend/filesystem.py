@@ -4,6 +4,7 @@ from datetime import datetime
 
 from .base import PlannerBase
 from .. import config
+from ..utils import write_file
 
 try:  # py2
     from StringIO import StringIO
@@ -108,3 +109,42 @@ class FilesystemPlanner(PlannerBase):
         self.periodic_quarter_file = self._read_file('{}/{}'.format(location, PERIODICQUARTERLYFILE))
         self.checkpoints_year_file = self._read_file('{}/{}'.format(location, CHECKPOINTSYEARFILE))
         self.periodic_year_file = self._read_file('{}/{}'.format(location, PERIODICYEARLYFILE))
+
+    def reset_heads_on_files(self):
+        self.tasklistfile.seek(0)
+        self.daythemesfile.seek(0)
+        self.dayfile.seek(0)
+        self.weekfile.seek(0)
+        self.monthfile.seek(0)
+        self.quarterfile.seek(0)
+        self.yearfile.seek(0)
+        self.checkpoints_year_file.seek(0)
+        self.periodic_year_file.seek(0)
+        self.checkpoints_quarter_file.seek(0)
+        self.periodic_quarter_file.seek(0)
+        self.checkpoints_month_file.seek(0)
+        self.periodic_month_file.seek(0)
+        self.checkpoints_week_file.seek(0)
+        self.periodic_week_file.seek(0)
+        self.checkpoints_weekday_file.seek(0)
+        self.checkpoints_weekend_file.seek(0)
+        self.periodic_day_file.seek(0)
+
+    def save(self):
+        """ Write the planner object to the filesystem at the given path."""
+        pathspec = '{}/{}'
+        tasklist_filename = pathspec.format(self.location, PLANNERTASKLISTFILE)
+        day_filename = os.path.realpath(pathspec.format(self.location, PLANNERDAYFILELINK))
+        week_filename = os.path.realpath(pathspec.format(self.location, PLANNERWEEKFILELINK))
+        month_filename = os.path.realpath(pathspec.format(self.location, PLANNERMONTHFILELINK))
+        quarter_filename = os.path.realpath(pathspec.format(self.location, PLANNERQUARTERFILELINK))
+        year_filename = os.path.realpath(pathspec.format(self.location, PLANNERYEARFILELINK))
+
+        write_file(self.tasklistfile.read(), tasklist_filename)
+        write_file(self.yearfile.read(), year_filename)
+        write_file(self.quarterfile.read(), quarter_filename)
+        write_file(self.monthfile.read(), month_filename)
+        write_file(self.weekfile.read(), week_filename)
+        write_file(self.dayfile.read(), day_filename)
+
+        self.reset_heads_on_files()
