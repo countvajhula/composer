@@ -3,7 +3,8 @@
 import unittest
 import datetime
 
-from composer.filesystem import *
+from composer.backend.filesystem import FilesystemPlanner
+from composer.filesystem import advance_filesystem_planner
 from composer.utils import PlannerPeriod
 
 
@@ -16,7 +17,8 @@ class AdvancePlanner(unittest.TestCase):
         """
         WIKIPATH = 'tests/testwikis/daywiki'
         now = datetime.datetime(2012, 12, 6, 19, 0, 0)
-        status = advance_filesystem_planner(WIKIPATH, now)
+        planner = FilesystemPlanner(WIKIPATH)
+        status = advance_filesystem_planner(planner, now)
         self.assertEqual(status, PlannerPeriod.Day)
 
     def test_advance_planner_week(self):
@@ -26,7 +28,8 @@ class AdvancePlanner(unittest.TestCase):
         """
         WIKIPATH = 'tests/testwikis/weekwiki'
         now = datetime.datetime(2012, 12, 8, 19, 0, 0)
-        status = advance_filesystem_planner(WIKIPATH, now)
+        planner = FilesystemPlanner(WIKIPATH)
+        status = advance_filesystem_planner(planner, now)
         self.assertEqual(status, PlannerPeriod.Week)
 
     def test_advance_planner_month(self):
@@ -36,7 +39,8 @@ class AdvancePlanner(unittest.TestCase):
         """
         WIKIPATH = 'tests/testwikis/monthwiki'
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
-        status = advance_filesystem_planner(WIKIPATH, now)
+        planner = FilesystemPlanner(WIKIPATH)
+        status = advance_filesystem_planner(planner, now)
         self.assertEqual(status, PlannerPeriod.Month)
 
     def test_advance_planner_quarter(self):
@@ -46,7 +50,8 @@ class AdvancePlanner(unittest.TestCase):
         """
         WIKIPATH = 'tests/testwikis/quarterwiki'
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
-        status = advance_filesystem_planner(WIKIPATH, now)
+        planner = FilesystemPlanner(WIKIPATH)
+        status = advance_filesystem_planner(planner, now)
         self.assertEqual(status, PlannerPeriod.Quarter)
 
     def test_advance_planner_year(self):
@@ -56,5 +61,6 @@ class AdvancePlanner(unittest.TestCase):
         """
         WIKIPATH = 'tests/testwikis/yearwiki'
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
-        status = advance_filesystem_planner(WIKIPATH, now)
+        planner = FilesystemPlanner(WIKIPATH)
+        status = advance_filesystem_planner(planner, now)
         self.assertEqual(status, PlannerPeriod.Year)

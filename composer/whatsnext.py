@@ -2,7 +2,6 @@
 
 import datetime
 import os
-import sys
 from subprocess import call
 
 import click
@@ -13,6 +12,7 @@ from . import config
 from . import filesystem
 from . import updateindex
 from . import utils
+from .backend.filesystem import FilesystemPlanner
 
 from .errors import (
     BlockedTaskNotScheduledError,
@@ -86,7 +86,8 @@ def main(wikipath, test, jump):
         print()
         while True:
             try:
-                filesystem.advance_filesystem_planner(wikidir, now=now, simulate=simulate)
+                planner = FilesystemPlanner(wikidir)
+                filesystem.advance_filesystem_planner(planner, now=now, simulate=simulate)
                 print()
                 print("Moving tasks added for tomorrow over to tomorrow's agenda...")
                 print("Carrying over any unfinished tasks from today to tomorrow's agenda...")
@@ -101,7 +102,7 @@ def main(wikipath, test, jump):
                 # git commit "after"
                 print()
                 print("Committing all changes...")
-                plannerdate = filesystem.get_planner_date(wikidir)
+                plannerdate = FilesystemPlanner(wikidir).date
                 (date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
                 datestr = '%s %d, %d' % (month, date, year)
                 with open(os.devnull, 'w') as null:
@@ -134,7 +135,7 @@ def main(wikipath, test, jump):
                     # git commit a "before", now that we know changes are about to be written to planner
                     print()
                     print("Saving EOD planner state before making changes...")
-                    plannerdate = filesystem.get_planner_date(wikidir)
+                    plannerdate = FilesystemPlanner(wikidir).date
                     (date, month, year) = (plannerdate.day, plannerdate.strftime('%B'), plannerdate.year)
                     datestr = '%s %d, %d' % (month, date, year)
                     with open(os.devnull, 'w') as null:
@@ -142,13 +143,13 @@ def main(wikipath, test, jump):
                         call(['git', 'commit', '-m', 'EOD %s' % datestr], cwd=wikidir, stdout=null)
                     print("...DONE.")
                 if err.status >= utils.PlannerPeriod.Day:
-                    planner = filesystem.construct_planner_from_filesystem(wikidir)
+                    planner = FilesystemPlanner(wikidir)
                     dayagenda = advanceplanner.extract_agenda_from_logfile(planner.dayfile)
                     if dayagenda:
                         advanceplanner.update_logfile_agenda(planner.weekfile, dayagenda)
                     filesystem.write_planner_to_filesystem(planner, wikidir)
                 if err.status >= utils.PlannerPeriod.Week:
-                    planner = filesystem.construct_planner_from_filesystem(wikidir)
+                    planner = FilesystemPlanner(wikidir)
                     weekagenda = advanceplanner.extract_agenda_from_logfile(planner.weekfile)
                     if weekagenda:
                         advanceplanner.update_logfile_agenda(planner.monthfile, weekagenda)
