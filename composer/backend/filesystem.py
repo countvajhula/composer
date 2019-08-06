@@ -1,6 +1,7 @@
+from .base import PlannerBase
 
-class Planner(object):
-    date = None
+
+class FilesystemPlanner(PlannerBase):
     tasklistfile = None
     daythemesfile = None
     dayfile = None

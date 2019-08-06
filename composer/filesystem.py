@@ -5,7 +5,7 @@ from . import config
 from . import utils
 from . import scheduling
 from . import advanceplanner
-from .planner import Planner
+from .backend.filesystem import FilesystemPlanner
 from .errors import (
     PlannerStateError,
     SimulationPassedError)
@@ -59,7 +59,7 @@ def _read_file(filename):
 def construct_planner_from_filesystem(plannerpath):
     """ Construct a planner object from a filesystem representation."""
     # CURRENT planner date used here
-    planner = Planner()
+    planner = FilesystemPlanner()
     planner.date = get_planner_date(plannerpath)
     planner.tasklistfile = _read_file('{}/{}'.format(plannerpath, PLANNERTASKLISTFILE))
     planner.daythemesfile = _read_file('{}/{}'.format(plannerpath, PLANNERDAYTHEMESFILELINK))

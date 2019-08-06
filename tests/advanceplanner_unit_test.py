@@ -7,7 +7,7 @@ import composer.advanceplanner as advanceplanner
 import composer.config as config
 import composer.templates as templates
 import composer.scheduling as scheduling
-from composer.planner import Planner
+from composer.backend.filesystem import FilesystemPlanner
 from composer.utils import PlannerPeriod
 
 try:  # py2
@@ -496,7 +496,7 @@ class PlannerAdvanceTester(unittest.TestCase):
     daythemes = "SUNDAY: Groceries Day\nMONDAY: \nTUESDAY:Cleaning Day\nWEDNESDAY:\nTHURSDAY:\nFRIDAY:\nSATURDAY: LAUNDRY DAY\n"
 
     def setUp(self):
-        self.planner = Planner()
+        self.planner = FilesystemPlanner()
         self.planner.date = datetime.date.today()
         self.planner.tasklistfile = StringIO(self.tasklist)
         self.planner.daythemesfile = StringIO(self.daythemes)
@@ -2161,7 +2161,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
     daythemes = "SUNDAY: Groceries Day\nMONDAY: \nTUESDAY:Cleaning Day\nWEDNESDAY:\nTHURSDAY:\nFRIDAY:\nSATURDAY: LAUNDRY DAY\n"
 
     def setUp(self):
-        self.planner = Planner()
+        self.planner = FilesystemPlanner()
         self.planner.date = datetime.date(2012,12,19)
         self.planner.tasklistfile = StringIO(self.tasklist)
         self.planner.daythemesfile = StringIO(self.daythemes)
