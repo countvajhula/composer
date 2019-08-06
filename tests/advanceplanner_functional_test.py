@@ -3,7 +3,7 @@
 import unittest
 import datetime
 
-from composer.backend.filesystem import FilesystemPlanner
+from composer.backend import FilesystemPlanner
 from composer.utils import PlannerPeriod
 
 

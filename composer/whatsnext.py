@@ -9,10 +9,9 @@ import click
 from . import advanceplanner
 from . import advice
 from . import config
-from . import filesystem
 from . import updateindex
 from . import utils
-from .backend.filesystem import FilesystemPlanner
+from .backend import FilesystemPlanner
 
 from .errors import (
     BlockedTaskNotScheduledError,

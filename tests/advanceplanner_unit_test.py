@@ -7,7 +7,7 @@ import composer.advanceplanner as advanceplanner
 import composer.config as config
 import composer.templates as templates
 import composer.scheduling as scheduling
-from composer.backend.filesystem import FilesystemPlanner
+from composer.backend import FilesystemPlanner
 from composer.utils import PlannerPeriod
 
 try:  # py2
