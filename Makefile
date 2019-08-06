@@ -62,4 +62,4 @@ sdist: clean
 	python setup.py sdist
 	ls -l dist
 
-.PHONY: help clean clean-pyc clean-build clean-test lint test test-all coverage sdist
+.PHONY: help build clean clean-pyc clean-build clean-test lint test test-all coverage sdist
