@@ -72,7 +72,7 @@ class FilesystemPlanner(PlannerBase):
 
     def _get_date(self):
         """ get planner date, currently looks for the file 'currentday', if dne throw exception """
-        plannerdatelink = '%s/%s' % (self.location, PLANNERDAYFILELINK)
+        plannerdatelink = '{}/{}'.format(self.location, PLANNERDAYFILELINK)
         plannerdatefn = os.readlink(plannerdatelink)
         pathidx = plannerdatefn.rfind('/')
         datestr = plannerdatefn[pathidx + 1:-5]  # trim path from beginning and '.wiki' from end
@@ -125,35 +125,35 @@ class FilesystemPlanner(PlannerBase):
         status = scheduling.schedule_tasks(self, now)
         status = advanceplanner.advance_planner(self, now)
 
-        tasklistfn = '%s/%s' % (self.location, PLANNERTASKLISTFILE)
-        dayfn_pre = '%s/%s' % (self.location, PLANNERDAYFILELINK)
-        dayfn_pre = '%s/%s' % (self.location, os.readlink(dayfn_pre))
-        weekfn_pre = '%s/%s' % (self.location, PLANNERWEEKFILELINK)
-        weekfn_pre = '%s/%s' % (self.location, os.readlink(weekfn_pre))
-        monthfn_pre = '%s/%s' % (self.location, PLANNERMONTHFILELINK)
-        monthfn_pre = '%s/%s' % (self.location, os.readlink(monthfn_pre))
-        quarterfn_pre = '%s/%s' % (self.location, PLANNERQUARTERFILELINK)
-        quarterfn_pre = '%s/%s' % (self.location, os.readlink(quarterfn_pre))
-        yearfn_pre = '%s/%s' % (self.location, PLANNERYEARFILELINK)
-        yearfn_pre = '%s/%s' % (self.location, os.readlink(yearfn_pre))
+        tasklistfn = '{}/{}'.format(self.location, PLANNERTASKLISTFILE)
+        dayfn_pre = '{}/{}'.format(self.location, PLANNERDAYFILELINK)
+        dayfn_pre = '{}/{}'.format(self.location, os.readlink(dayfn_pre))
+        weekfn_pre = '{}/{}'.format(self.location, PLANNERWEEKFILELINK)
+        weekfn_pre = '{}/{}'.format(self.location, os.readlink(weekfn_pre))
+        monthfn_pre = '{}/{}'.format(self.location, PLANNERMONTHFILELINK)
+        monthfn_pre = '{}/{}'.format(self.location, os.readlink(monthfn_pre))
+        quarterfn_pre = '{}/{}'.format(self.location, PLANNERQUARTERFILELINK)
+        quarterfn_pre = '{}/{}'.format(self.location, os.readlink(quarterfn_pre))
+        yearfn_pre = '{}/{}'.format(self.location, PLANNERYEARFILELINK)
+        yearfn_pre = '{}/{}'.format(self.location, os.readlink(yearfn_pre))
 
         next_day = self.date
         (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
         # check for possible errors in planner state before making any changes
         if status >= utils.PlannerPeriod.Year:
-            yearfn_post = '%s/%d.wiki' % (self.location, year)
+            yearfn_post = '{path}/{year}.wiki'.format(path=self.location, year=year)
             if os.path.isfile(yearfn_post): raise PlannerStateError("New year logfile already exists!")
         if status >= utils.PlannerPeriod.Quarter:
-            quarterfn_post = '%s/%s %d.wiki' % (self.location, utils.quarter_for_month(month), year)
+            quarterfn_post = '{path}/{quarter} {year}.wiki'.format(path=self.location, quarter=utils.quarter_for_month(month), year=year)
             if os.path.isfile(quarterfn_post): raise PlannerStateError("New quarter logfile already exists!")
         if status >= utils.PlannerPeriod.Month:
-            monthfn_post = '%s/Month of %s, %d.wiki' % (self.location, month, year)
+            monthfn_post = '{path}/Month of {month}, {year}.wiki'.format(path=self.location, month=month, year=year)
             if os.path.isfile(monthfn_post): raise PlannerStateError("New month logfile already exists!")
         if status >= utils.PlannerPeriod.Week:
-            weekfn_post = '%s/Week of %s %d, %d.wiki' % (self.location, month, date, year)
+            weekfn_post = '{path}/Week of {month} {date}, {year}.wiki'.format(path=self.location, month=month, date=date, year=year)
             if os.path.isfile(weekfn_post): raise PlannerStateError("New week logfile already exists!")
         if status >= utils.PlannerPeriod.Day:
-            dayfn_post = '%s/%s %d, %d.wiki' % (self.location, month, date, year)
+            dayfn_post = '{path}/{month} {date}, {year}.wiki'.format(path=self.location, month=month, date=date, year=year)
             if os.path.isfile(dayfn_post): raise PlannerStateError("New day logfile already exists!")
 
         # if this is a simulation, we're good to go - let's break out of the matrix
@@ -165,7 +165,7 @@ class FilesystemPlanner(PlannerBase):
             # write buffer to new file
             # update currentyear symlink
             utils.write_file(self.yearfile.read(), yearfn_post)
-            filelinkfn = '%s/%s' % (self.location, PLANNERYEARFILELINK)
+            filelinkfn = '{}/{}'.format(self.location, PLANNERYEARFILELINK)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
             os.symlink(yearfn_post[yearfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
@@ -174,7 +174,7 @@ class FilesystemPlanner(PlannerBase):
             # write buffer to new file
             # update currentquarter symlink
             utils.write_file(self.quarterfile.read(), quarterfn_post)
-            filelinkfn = '%s/%s' % (self.location, PLANNERQUARTERFILELINK)
+            filelinkfn = '{}/{}'.format(self.location, PLANNERQUARTERFILELINK)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
             os.symlink(quarterfn_post[quarterfn_post.rfind('/') + 1:], filelinkfn) # remove path from filename so it isn't "double counted"
@@ -186,7 +186,7 @@ class FilesystemPlanner(PlannerBase):
             # write buffer to new file
             # update currentmonth symlink
             utils.write_file(self.monthfile.read(), monthfn_post)
-            filelinkfn = '%s/%s' % (self.location, PLANNERMONTHFILELINK)
+            filelinkfn = '{}/{}'.format(self.location, PLANNERMONTHFILELINK)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
             os.symlink(monthfn_post[monthfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
@@ -198,7 +198,7 @@ class FilesystemPlanner(PlannerBase):
             # write buffer to new file
             # update currentweek symlink
             utils.write_file(self.weekfile.read(), weekfn_post)
-            filelinkfn = '%s/%s' % (self.location, PLANNERWEEKFILELINK)
+            filelinkfn = '{}/{}'.format(self.location, PLANNERWEEKFILELINK)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
             os.symlink(weekfn_post[weekfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
@@ -210,7 +210,7 @@ class FilesystemPlanner(PlannerBase):
             # write buffer to new file
             # update currentday symlink
             utils.write_file(self.dayfile.read(), dayfn_post)
-            filelinkfn = '%s/%s' % (self.location, PLANNERDAYFILELINK)
+            filelinkfn = '{}/{}'.format(self.location, PLANNERDAYFILELINK)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
             os.symlink(dayfn_post[dayfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
