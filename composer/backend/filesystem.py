@@ -111,6 +111,7 @@ class FilesystemPlanner(PlannerBase):
         self.periodic_year_file = self._read_file('{}/{}'.format(location, PERIODICYEARLYFILE))
 
     def reset_heads_on_files(self):
+        # TODO: define relevant atomic operations so that this isn't necessary
         self.tasklistfile.seek(0)
         self.daythemesfile.seek(0)
         self.dayfile.seek(0)

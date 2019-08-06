@@ -147,13 +147,13 @@ def main(wikipath, test, jump):
                     dayagenda = advanceplanner.extract_agenda_from_logfile(planner.dayfile)
                     if dayagenda:
                         advanceplanner.update_logfile_agenda(planner.weekfile, dayagenda)
-                    filesystem.write_planner_to_filesystem(planner, wikidir)
+                    planner.save()
                 if err.status >= utils.PlannerPeriod.Week:
                     planner = FilesystemPlanner(wikidir)
                     weekagenda = advanceplanner.extract_agenda_from_logfile(planner.weekfile)
                     if weekagenda:
                         advanceplanner.update_logfile_agenda(planner.monthfile, weekagenda)
-                    filesystem.write_planner_to_filesystem(planner, wikidir)
+                    planner.save()
                 simulate = False
             except DayStillInProgressError as err:
                 print("Current day is still in progress! Try again after 6pm.")
