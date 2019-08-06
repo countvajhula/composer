@@ -6,10 +6,14 @@ ABC = abc.ABCMeta('ABC', (object,), {})  # compatible with Python 2 *and* 3
 class PlannerBase(ABC):
     date = None
 
+    @abc.abstractmethod
+    def construct(self, location=None):
+        raise NotImplementedError
+
     # @abc.abstractmethod
-    # def construct(location):
+    # def advance(self):
     #     raise NotImplementedError
 
     # @abc.abstractmethod
-    # def save():
+    # def save(self):
     #     raise NotImplementedError

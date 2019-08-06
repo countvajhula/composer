@@ -1,7 +1,5 @@
-import datetime
 import os
 
-from . import config
 from . import utils
 from . import scheduling
 from . import advanceplanner
@@ -9,12 +7,6 @@ from .backend.filesystem import FilesystemPlanner
 from .errors import (
     PlannerStateError,
     SimulationPassedError)
-
-
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
 
 
 SCHEDULE_FILE_PREFIX = 'Checkpoints'
@@ -34,63 +26,6 @@ PERIODICQUARTERLYFILE = 'Periodic_Quarterly.wiki'
 PERIODICMONTHLYFILE = 'Periodic_Monthly.wiki'
 PERIODICWEEKLYFILE = 'Periodic_Weekly.wiki'
 PERIODICDAILYFILE = 'Periodic_Daily.wiki'
-
-
-def get_planner_date_from_string(datestr):
-    return datetime.datetime.strptime(datestr, '%B %d, %Y').date()
-
-
-def get_planner_date(plannerlocation):
-    """ get planner date, currently looks for the file 'currentday', if dne throw exception """
-    plannerdatelink = '%s/%s' % (plannerlocation, PLANNERDAYFILELINK)
-    plannerdatefn = os.readlink(plannerdatelink)
-    pathidx = plannerdatefn.rfind('/')
-    datestr = plannerdatefn[pathidx + 1:-5]  # trim path from beginning and '.wiki' from end
-    plannerdate = get_planner_date_from_string(datestr)
-    return plannerdate
-
-
-def _read_file(filename):
-    with open(filename, 'r') as f:
-        result = StringIO(f.read())
-    return result
-
-
-def construct_planner_from_filesystem(plannerpath):
-    """ Construct a planner object from a filesystem representation."""
-    # CURRENT planner date used here
-    planner = FilesystemPlanner()
-    planner.date = get_planner_date(plannerpath)
-    planner.tasklistfile = _read_file('{}/{}'.format(plannerpath, PLANNERTASKLISTFILE))
-    planner.daythemesfile = _read_file('{}/{}'.format(plannerpath, PLANNERDAYTHEMESFILELINK))
-    planner.dayfile = _read_file('{}/{}'.format(plannerpath, PLANNERDAYFILELINK))
-    planner.weekfile = _read_file('{}/{}'.format(plannerpath, PLANNERWEEKFILELINK))
-    planner.monthfile = _read_file('{}/{}'.format(plannerpath, PLANNERMONTHFILELINK))
-    planner.quarterfile = _read_file('{}/{}'.format(plannerpath, PLANNERQUARTERFILELINK))
-    planner.yearfile = _read_file('{}/{}'.format(plannerpath, PLANNERYEARFILELINK))
-
-    # daily, weekly, monthly checkpoints, periodic items
-    planner.checkpoints_weekday_file = _read_file(
-        '{}/{}_Weekday_{}.wiki'
-        .format(plannerpath,
-                SCHEDULE_FILE_PREFIX,
-                config.PlannerConfig.Schedule.capitalize()))
-    planner.checkpoints_weekend_file = _read_file(
-        '{}/{}_Weekend_{}.wiki'
-        .format(plannerpath,
-                SCHEDULE_FILE_PREFIX,
-                config.PlannerConfig.Schedule.capitalize()))
-    planner.periodic_day_file = _read_file('{}/{}'.format(plannerpath, PERIODICDAILYFILE))
-    planner.checkpoints_week_file = _read_file('{}/{}'.format(plannerpath, CHECKPOINTSWEEKFILE))
-    planner.periodic_week_file = _read_file('{}/{}'.format(plannerpath, PERIODICWEEKLYFILE))
-    planner.checkpoints_month_file = _read_file('{}/{}'.format(plannerpath, CHECKPOINTSMONTHFILE))
-    planner.periodic_month_file = _read_file('{}/{}'.format(plannerpath, PERIODICMONTHLYFILE))
-    planner.checkpoints_quarter_file = _read_file('{}/{}'.format(plannerpath, CHECKPOINTSQUARTERFILE))
-    planner.periodic_quarter_file = _read_file('{}/{}'.format(plannerpath, PERIODICQUARTERLYFILE))
-    planner.checkpoints_year_file = _read_file('{}/{}'.format(plannerpath, CHECKPOINTSYEARFILE))
-    planner.periodic_year_file = _read_file('{}/{}'.format(plannerpath, PERIODICYEARLYFILE))
-
-    return planner
 
 
 def _write_file(contents, filename):
@@ -124,7 +59,7 @@ def advance_filesystem_planner(plannerpath, now=None, simulate=False):
     # after the advance() returns, the handles will be updated to the (possibly new) buffers
     # save to the known files here
 
-    planner = construct_planner_from_filesystem(plannerpath)
+    planner = FilesystemPlanner(plannerpath)
 
     status = scheduling.schedule_tasks(planner, now)
     status = advanceplanner.advance_planner(planner, now)
