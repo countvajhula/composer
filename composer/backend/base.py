@@ -10,10 +10,10 @@ class PlannerBase(ABC):
     def construct(self, location=None):
         raise NotImplementedError
 
-    # @abc.abstractmethod
-    # def advance(self):
-    #     raise NotImplementedError
+    @abc.abstractmethod
+    def advance(self, now=None, simulate=None):
+        raise NotImplementedError
 
-    # @abc.abstractmethod
-    # def save(self):
-    #     raise NotImplementedError
+    @abc.abstractmethod
+    def save(self):
+        raise NotImplementedError

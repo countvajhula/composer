@@ -87,7 +87,7 @@ def main(wikipath, test, jump):
         while True:
             try:
                 planner = FilesystemPlanner(wikidir)
-                filesystem.advance_filesystem_planner(planner, now=now, simulate=simulate)
+                planner.advance(now=now, simulate=simulate)
                 print()
                 print("Moving tasks added for tomorrow over to tomorrow's agenda...")
                 print("Carrying over any unfinished tasks from today to tomorrow's agenda...")
