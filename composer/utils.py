@@ -2,7 +2,8 @@ import datetime
 import re
 
 
-SECTION_HEADER = re.compile(r'^[A-Z][A-Z][A-Za-z ]+:')
+SECTION_HEADER_PATTERN = re.compile(r'^[A-Z][A-Z][A-Za-z ]+:')
+TASK_PATTERN = re.compile('^\t*\[')
 
 
 class PlannerPeriod(object):

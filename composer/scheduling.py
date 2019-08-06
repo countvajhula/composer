@@ -9,7 +9,7 @@ from .errors import (
     LogfileLayoutError,
     RelativeDateError,
     TasklistLayoutError)
-from .utils import SECTION_HEADER
+from .utils import SECTION_HEADER_PATTERN
 
 try:  # py2
     from StringIO import StringIO
@@ -254,7 +254,7 @@ def _process_scheduled_task(taskfile, scheduledtasks, line, reference_date, now)
 def _parse_tomorrow_section(line, tasklist, tasklist_tidied):
     tasklist_tidied.write(line)
     line = tasklist.readline()
-    while line != '' and not SECTION_HEADER.search(line):
+    while line != '' and not SECTION_HEADER_PATTERN.search(line):
         tasklist_tidied.write(line)
         line = tasklist.readline()
     return line
@@ -263,7 +263,7 @@ def _parse_tomorrow_section(line, tasklist, tasklist_tidied):
 def _parse_scheduled_section(tasklist, tasklist_tidied, scheduledtasks, line, reference_date, now):
     tasklist_tidied.write(line)
     line = tasklist.readline()
-    while line != '' and not SECTION_HEADER.search(line):
+    while line != '' and not SECTION_HEADER_PATTERN.search(line):
         if line.startswith('[o'):
             line, scheduledtasks = _process_scheduled_task(tasklist, scheduledtasks, line, reference_date, now)
         elif line.startswith('\n'):
@@ -303,7 +303,7 @@ def _extract_scheduled_items_from_logfile(logfile, scheduledtasks, reference_dat
     if line == '':
         raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
     line = logfile.readline()
-    while line != '' and not SECTION_HEADER.search(line):
+    while line != '' and not SECTION_HEADER_PATTERN.search(line):
         if line.startswith('[o'):
             line, scheduledtasks = _process_scheduled_task(logfile, scheduledtasks, line, reference_date, now)
         else:
@@ -378,7 +378,7 @@ def get_scheduled_tasks(tasklist, for_day):
         raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
     scheduledtasks = ''
     line = tasklist.readline()
-    while line != '' and not SECTION_HEADER.search(line):
+    while line != '' and not SECTION_HEADER_PATTERN.search(line):
         if line.startswith('[o'):
             if SCHEDULED_DATE_PATTERN.search(line):
                 datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]

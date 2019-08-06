@@ -8,7 +8,7 @@ from .errors import (
     LogfileLayoutError,
     TasklistLayoutError,
     TomorrowIsEmptyError)
-from .utils import SECTION_HEADER
+from .utils import SECTION_HEADER_PATTERN, TASK_PATTERN
 
 try:  # py2
     from StringIO import StringIO
@@ -24,23 +24,23 @@ def do_post_mortem(logfile):
     if ss == '':
         raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
     ss = logfile.readline()
-    while ss != '' and not SECTION_HEADER.search(ss):
+    while ss != '' and not SECTION_HEADER_PATTERN.search(ss):
         if ss.startswith('[x') or ss.startswith('[-'):
             tasks['done'] += ss
             ss = logfile.readline()
-            while ss != '' and not ss.startswith('[') and not SECTION_HEADER.search(ss):
+            while ss != '' and not ss.startswith('[') and not SECTION_HEADER_PATTERN.search(ss):
                 tasks['done'] += ss
                 ss = logfile.readline()
         elif ss.startswith('[ ') or ss.startswith('[\\'):
             tasks['undone'] += ss
             ss = logfile.readline()
-            while ss != '' and not ss.startswith('[') and not SECTION_HEADER.search(ss):
+            while ss != '' and not ss.startswith('[') and not SECTION_HEADER_PATTERN.search(ss):
                 tasks['undone'] += ss
                 ss = logfile.readline()
         elif ss.startswith('[o'):
             tasks['blocked'] += ss
             ss = logfile.readline()
-            while ss != '' and not ss.startswith('[') and not SECTION_HEADER.search(ss):
+            while ss != '' and not ss.startswith('[') and not SECTION_HEADER_PATTERN.search(ss):
                 tasks['blocked'] += ss
                 ss = logfile.readline()
         else:
@@ -65,9 +65,8 @@ def get_tasks_for_tomorrow(tasklist):
         raise TasklistLayoutError("Error: No 'TOMORROW' section found in your tasklist! Please add one and try again.")
     tasklist_nextday.write(ss)
     ss = tasklist.readline()
-    while ss != '' and not SECTION_HEADER.search(ss):
-        # if re.search('^\t{0,8}\[', s):
-        if re.search('^\t*\[', ss):
+    while ss != '' and not SECTION_HEADER_PATTERN.search(ss):
+        if TASK_PATTERN.search(ss):
             tasks += ss
         else:
             tasklist_nextday.write(ss)
