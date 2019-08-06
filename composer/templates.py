@@ -166,6 +166,7 @@ def get_theme_for_the_day(daythemes_file, day):
     if len(theme) > 2:
         return theme
 
+
 def build_day_template(next_day, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile):
     (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
     title = ("= %s %s %d, %d =\n" % (day, month[:3], date, year)).upper()

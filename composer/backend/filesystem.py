@@ -70,6 +70,10 @@ class FilesystemPlanner(PlannerBase):
             result = StringIO(f.read())
         return result
 
+    def _write_file(self, contents, filename):
+        with open(filename, 'w') as f:
+            f.write(contents)
+
     def _get_date(self):
         """ get planner date, currently looks for the file 'currentday', if dne throw exception """
         plannerdatelink = '{}/{}'.format(self.location, PLANNERDAYFILELINK)
@@ -164,7 +168,7 @@ class FilesystemPlanner(PlannerBase):
             # extract new year filename from date
             # write buffer to new file
             # update currentyear symlink
-            utils.write_file(self.yearfile.read(), yearfn_post)
+            self._write_file(self.yearfile.read(), yearfn_post)
             filelinkfn = '{}/{}'.format(self.location, PLANNERYEARFILELINK)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
@@ -173,52 +177,52 @@ class FilesystemPlanner(PlannerBase):
             # extract new quarter filename from date
             # write buffer to new file
             # update currentquarter symlink
-            utils.write_file(self.quarterfile.read(), quarterfn_post)
+            self._write_file(self.quarterfile.read(), quarterfn_post)
             filelinkfn = '{}/{}'.format(self.location, PLANNERQUARTERFILELINK)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
             os.symlink(quarterfn_post[quarterfn_post.rfind('/') + 1:], filelinkfn) # remove path from filename so it isn't "double counted"
         if status == utils.PlannerPeriod.Quarter:
             # write year buffer to existing file
-            utils.write_file(self.yearfile.read(), yearfn_pre)
+            self._write_file(self.yearfile.read(), yearfn_pre)
         if status >= utils.PlannerPeriod.Month:
             # extract new month filename from date
             # write buffer to new file
             # update currentmonth symlink
-            utils.write_file(self.monthfile.read(), monthfn_post)
+            self._write_file(self.monthfile.read(), monthfn_post)
             filelinkfn = '{}/{}'.format(self.location, PLANNERMONTHFILELINK)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
             os.symlink(monthfn_post[monthfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
         if status == utils.PlannerPeriod.Month:
             # write quarter buffer to existing file
-            utils.write_file(self.quarterfile.read(), quarterfn_pre)
+            self._write_file(self.quarterfile.read(), quarterfn_pre)
         if status >= utils.PlannerPeriod.Week:
             # extract new week filename from date
             # write buffer to new file
             # update currentweek symlink
-            utils.write_file(self.weekfile.read(), weekfn_post)
+            self._write_file(self.weekfile.read(), weekfn_post)
             filelinkfn = '{}/{}'.format(self.location, PLANNERWEEKFILELINK)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
             os.symlink(weekfn_post[weekfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
         if status == utils.PlannerPeriod.Week:
             # write month buffer to existing file
-            utils.write_file(self.monthfile.read(), monthfn_pre)
+            self._write_file(self.monthfile.read(), monthfn_pre)
         if status >= utils.PlannerPeriod.Day:
             # extract new day filename from date
             # write buffer to new file
             # update currentday symlink
-            utils.write_file(self.dayfile.read(), dayfn_post)
+            self._write_file(self.dayfile.read(), dayfn_post)
             filelinkfn = '{}/{}'.format(self.location, PLANNERDAYFILELINK)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
             os.symlink(dayfn_post[dayfn_post.rfind('/') + 1:], filelinkfn)  # remove path from filename so it isn't "double counted"
             # in any event if day was advanced, update tasklist
-            utils.write_file(self.tasklistfile.read(), tasklistfn)
+            self._write_file(self.tasklistfile.read(), tasklistfn)
         if status == utils.PlannerPeriod.Day:
             # write week buffer to existing file
-            utils.write_file(self.weekfile.read(), weekfn_pre)
+            self._write_file(self.weekfile.read(), weekfn_pre)
 
         return status
 
@@ -253,11 +257,11 @@ class FilesystemPlanner(PlannerBase):
         quarter_filename = os.path.realpath(pathspec.format(self.location, PLANNERQUARTERFILELINK))
         year_filename = os.path.realpath(pathspec.format(self.location, PLANNERYEARFILELINK))
 
-        utils.write_file(self.tasklistfile.read(), tasklist_filename)
-        utils.write_file(self.yearfile.read(), year_filename)
-        utils.write_file(self.quarterfile.read(), quarter_filename)
-        utils.write_file(self.monthfile.read(), month_filename)
-        utils.write_file(self.weekfile.read(), week_filename)
-        utils.write_file(self.dayfile.read(), day_filename)
+        self._write_file(self.tasklistfile.read(), tasklist_filename)
+        self._write_file(self.yearfile.read(), year_filename)
+        self._write_file(self.quarterfile.read(), quarter_filename)
+        self._write_file(self.monthfile.read(), month_filename)
+        self._write_file(self.weekfile.read(), week_filename)
+        self._write_file(self.dayfile.read(), day_filename)
 
         self.reset_heads_on_files()
