@@ -12,6 +12,9 @@ help:
 	@echo "coverage - check code coverage quickly with the default Python"
 	@echo "sdist - package"
 
+build:
+	pip install -e .[dev]
+
 clean: clean-build clean-pyc clean-test
 
 clean-build:
