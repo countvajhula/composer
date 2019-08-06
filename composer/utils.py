@@ -1,4 +1,8 @@
 import datetime
+import re
+
+
+SECTION_HEADER = re.compile(r'^[A-Z][A-Z][A-Za-z ]+:')
 
 
 class PlannerPeriod(object):

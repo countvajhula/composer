@@ -12,6 +12,7 @@ from .errors import (
     LogfileLayoutError,
     LogfileNotCompletedError,
     PlannerIsInTheFutureError)
+from .utils import SECTION_HEADER
 
 
 try:  # py2
@@ -37,7 +38,7 @@ def check_logfile_completion(logfile):
     if ss == '':
         raise LogfileLayoutError("Error: No 'NOTES' section found in your log file: " + ss)
     ss = logfile.readline()
-    while ss != '' and not re.search(r'^[A-Z][A-Z][A-Z ]+:', ss):
+    while ss != '' and not SECTION_HEADER.search(ss):
         notes += ss
         ss = logfile.readline()
     if notes.strip('\n ') != '':
@@ -54,7 +55,7 @@ def extract_agenda_from_logfile(logfile):
         ss = logfile.readline()
     if ss == '': raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
     ss = logfile.readline()
-    while ss != '' and not re.search(r'^[A-Z][A-Z][A-Z]+', ss):
+    while ss != '' and not SECTION_HEADER.search(ss):
         agenda += ss
         ss = logfile.readline()
     logfile.seek(0)
@@ -72,7 +73,7 @@ def update_logfile_agenda(logfile, agenda):
         raise LogfileLayoutError("No AGENDA section found in today's log file! Add one and try again.")
     logfile_updated.write(ss)
     ss = logfile.readline()
-    while ss != '' and not re.search(r'^[A-Z][A-Z][A-Z]+', ss):
+    while ss != '' and not SECTION_HEADER.search(ss):
         logfile_updated.write(ss)
         ss = logfile.readline()
     # don't leave newlines between previous tasks and latest additions
