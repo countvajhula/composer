@@ -38,27 +38,83 @@ PERIODICDAILYFILE = 'Periodic_Daily.wiki'
 
 
 class FilesystemPlanner(PlannerBase):
-    tasklistfile = None
-    daythemesfile = None
-    dayfile = None
-    weekfile = None
-    monthfile = None
-    quarterfile = None
-    yearfile = None
-    checkpoints_weekday_file = None
-    checkpoints_weekend_file = None
-    checkpoints_week_file = None
-    checkpoints_month_file = None
-    checkpoints_quarter_file = None
-    checkpoints_year_file = None
-    periodic_day_file = None
-    periodic_week_file = None
-    periodic_month_file = None
-    periodic_quarter_file = None
-    periodic_year_file = None
+    _tasklistfile = None
+    _daythemesfile = None
+    _dayfile = None
+    _weekfile = None
+    _monthfile = None
+    _quarterfile = None
+    _yearfile = None
+    _checkpoints_weekday_file = None
+    _checkpoints_weekend_file = None
+    _checkpoints_week_file = None
+    _checkpoints_month_file = None
+    _checkpoints_quarter_file = None
+    _checkpoints_year_file = None
+    _periodic_day_file = None
+    _periodic_week_file = None
+    _periodic_month_file = None
+    _periodic_quarter_file = None
+    _periodic_year_file = None
 
     def __init__(self, location=None):
         self.construct(location)
+
+    @property
+    def tasklistfile(self):
+        return StringIO(self._tasklistfile.getvalue())
+
+    @tasklistfile.setter
+    def tasklistfile(self, value):
+        self._tasklistfile = value
+
+    @property
+    def daythemesfile(self):
+        return StringIO(self._daythemesfile.getvalue())
+
+    @daythemesfile.setter
+    def daythemesfile(self, value):
+        self._daythemesfile = value
+
+    @property
+    def dayfile(self):
+        return StringIO(self._dayfile.getvalue())
+
+    @dayfile.setter
+    def dayfile(self, value):
+        self._dayfile = value
+
+    @property
+    def weekfile(self):
+        return StringIO(self._weekfile.getvalue())
+
+    @weekfile.setter
+    def weekfile(self, value):
+        self._weekfile = value
+
+    @property
+    def monthfile(self):
+        return StringIO(self._monthfile.getvalue())
+
+    @monthfile.setter
+    def monthfile(self, value):
+        self._monthfile = value
+
+    @property
+    def quarterfile(self):
+        return StringIO(self._quarterfile.getvalue())
+
+    @quarterfile.setter
+    def quarterfile(self, value):
+        self._quarterfile = value
+
+    @property
+    def yearfile(self):
+        return StringIO(self._yearfile.getvalue())
+
+    @yearfile.setter
+    def yearfile(self, value):
+        self._yearfile = value
 
     def _read_file(self, filename):
         """ Read a file on disk and produce an in-memory logical representation
@@ -71,8 +127,8 @@ class FilesystemPlanner(PlannerBase):
         return result
 
     def _write_file(self, contents, filename):
-        with open(filename, 'w') as f:
-            f.write(contents)
+        # TODO: remove
+        utils.write_file(contents, filename)
 
     def _get_date(self):
         """ get planner date, currently looks for the file 'currentday', if dne throw exception """

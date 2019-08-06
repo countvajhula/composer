@@ -24,3 +24,8 @@ def quarter_for_month(month):
         return "Q3"
     elif month.lower() in ('october', 'november', 'december'):
         return "Q4"
+
+
+def write_file(contents, filename):
+    with open(filename, 'w') as f:
+        f.write(contents)
