@@ -144,13 +144,13 @@ def main(wikipath, test, jump):
                     planner = FilesystemPlanner(wikidir)
                     dayagenda = planner.get_agenda(planner.dayfile)
                     if dayagenda:
-                        planner.update_agenda(planner.weekfile, dayagenda)
+                        planner.weekfile = planner.update_agenda(planner.weekfile, dayagenda)
                     planner.save()
                 if err.status >= utils.PlannerPeriod.Week:
                     planner = FilesystemPlanner(wikidir)
                     weekagenda = planner.get_agenda(planner.weekfile)
                     if weekagenda:
-                        planner.update_agenda(planner.monthfile, weekagenda)
+                        planner.monthfile = planner.update_agenda(planner.monthfile, weekagenda)
                     planner.save()
                 simulate = False
             except DayStillInProgressError as err:

@@ -234,6 +234,9 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 
 
 def _process_scheduled_task(taskfile, scheduledtasks, line, reference_date, now):
+    """ Convert a parsed scheduled task into a standard format and append it,
+    along with any subtasks, to a gathered list of scheduled tasks.
+    """
     if SCHEDULED_DATE_PATTERN.search(line):
         datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]
         try:
@@ -358,9 +361,7 @@ def schedule_tasks(planner, now=None):
 
     tasklist = _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks)
 
-    planner.tasklistfile.seek(0)
-    planner.tasklistfile.truncate(0)
-    planner.tasklistfile.write(tasklist.read())
+    planner.tasklistfile = tasklist
     planner.reset_heads_on_files()
 
 

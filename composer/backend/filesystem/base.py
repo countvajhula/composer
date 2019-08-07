@@ -287,9 +287,11 @@ class FilesystemPlanner(PlannerBase):
         advanceplanner.extract_agenda_from_logfile(log)
 
     def update_agenda(self, log, agenda):
-        """ Append the provided agenda to the agenda contained in the logfile.
+        """ Append the provided agenda to the agenda contained in the logfile,
+        and return the updated logfile (without mutating the original).
         """
-        advanceplanner.update_logfile_agenda(log, agenda)
+        # TODO: should probably go through a setter to mutate here instead
+        return advanceplanner.update_logfile_agenda(log, agenda)
 
     def reset_heads_on_files(self):
         # TODO: define relevant atomic operations so that this isn't necessary
