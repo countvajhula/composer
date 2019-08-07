@@ -19,6 +19,7 @@ except ImportError:  # py3
 
 SCHEDULED_DATE_PATTERN = re.compile('\[\$?([^\[\$]*)\$?\]$')
 
+
 def get_appropriate_year(month, day, today):
     # if current year would result in negative, then use next year, otherwise current year
     date_thisyear = datetime.date(today.year, month, day)
@@ -34,7 +35,6 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
     that unambiguously represents the date """
     if not now: now = datetime.datetime.now()
     date = None
-    today = now.date()
     month_name_to_number = dict((v.lower(), k) for k, v in enumerate(calendar.month_name))
     month_number_to_name = dict((k, v) for k, v in enumerate(calendar.month_name))
 
