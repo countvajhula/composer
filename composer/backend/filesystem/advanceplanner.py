@@ -2,17 +2,16 @@
 
 import datetime
 import calendar
-import re
 
-from . import config
-from . import templates
-from . import utils
-from .errors import (
+from ... import config
+from ... import templates
+from ... import utils
+from ...errors import (
     DayStillInProgressError,
     LogfileLayoutError,
     LogfileNotCompletedError,
     PlannerIsInTheFutureError)
-from .utils import SECTION_HEADER_PATTERN
+from ...utils import SECTION_HEADER_PATTERN
 
 
 try:  # py2

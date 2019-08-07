@@ -6,7 +6,6 @@ from subprocess import call
 
 import click
 
-from . import advanceplanner
 from . import advice
 from . import config
 from . import updateindex
@@ -143,15 +142,15 @@ def main(wikipath, test, jump):
                     print("...DONE.")
                 if err.status >= utils.PlannerPeriod.Day:
                     planner = FilesystemPlanner(wikidir)
-                    dayagenda = advanceplanner.extract_agenda_from_logfile(planner.dayfile)
+                    dayagenda = planner.get_agenda(planner.dayfile)
                     if dayagenda:
-                        advanceplanner.update_logfile_agenda(planner.weekfile, dayagenda)
+                        planner.update_agenda(planner.weekfile, dayagenda)
                     planner.save()
                 if err.status >= utils.PlannerPeriod.Week:
                     planner = FilesystemPlanner(wikidir)
-                    weekagenda = advanceplanner.extract_agenda_from_logfile(planner.weekfile)
+                    weekagenda = planner.get_agenda(planner.weekfile)
                     if weekagenda:
-                        advanceplanner.update_logfile_agenda(planner.monthfile, weekagenda)
+                        planner.update_agenda(planner.monthfile, weekagenda)
                     planner.save()
                 simulate = False
             except DayStillInProgressError as err:

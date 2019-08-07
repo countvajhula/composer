@@ -2,8 +2,8 @@ import os
 
 from datetime import datetime
 
+from . import advanceplanner
 from ..base import PlannerBase
-from ... import advanceplanner
 from ... import config
 from ... import scheduling
 from ... import utils
@@ -225,6 +225,14 @@ class FilesystemPlanner(PlannerBase):
             self._write_file(self.weekfile.read(), weekfn_pre)
 
         return status
+
+    def get_agenda(self, log):
+        advanceplanner.extract_agenda_from_logfile(log)
+
+    def update_agenda(self, log, agenda):
+        """ Append the provided agenda to the agenda contained in the logfile.
+        """
+        advanceplanner.update_logfile_agenda(log, agenda)
 
     def reset_heads_on_files(self):
         # TODO: define relevant atomic operations so that this isn't necessary

@@ -3,7 +3,7 @@
 import unittest
 import datetime
 
-import composer.advanceplanner as advanceplanner
+import composer.backend.filesystem.advanceplanner as advanceplanner
 import composer.config as config
 import composer.templates as templates
 import composer.scheduling as scheduling

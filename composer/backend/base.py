@@ -15,5 +15,13 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_agenda(self, log):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def update_agenda(self, log, agenda):
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def save(self):
         raise NotImplementedError
