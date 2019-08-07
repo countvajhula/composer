@@ -3,6 +3,8 @@
 import unittest
 import datetime
 
+from unittest.mock import MagicMock
+
 import composer.backend.filesystem.advanceplanner as advanceplanner
 import composer.config as config
 import composer.templates as templates
@@ -971,6 +973,13 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_month)
         monthfile = StringIO(self.monthtemplate)
 
+        planner = MagicMock(
+            tasklistfile=tasklistfile,
+            daythemesfile=daythemesfile,
+            checkpoints_month_file=checkpointsfile,
+            periodic_month_file=periodicfile,
+            monthfile=monthfile)
+
         (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
         monthtemplate = "= %s %d =\n" % (month.upper(), year)
         monthtemplate += "\n"
@@ -986,9 +995,9 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
         monthtemplate += "NOTES:\n\n\n"
         monthtemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(PlannerPeriod.Month, next_day, tasklistfile, monthfile, checkpointsfile, periodicfile, daythemesfile)
+        templates.write_new_template(planner, PlannerPeriod.Month, next_day)
 
-        self.assertEqual(monthfile.read(), monthtemplate)
+        self.assertEqual(planner.monthfile.read(), monthtemplate)
 
     def test_week_template(self):
         """ Test that week template is generated correctly by integrating checkpoints, periodic, etc."""
@@ -1000,6 +1009,13 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_week)
         periodicfile = StringIO(self.periodic_week)
         weekfile = StringIO(self.weektemplate)
+
+        planner = MagicMock(
+            tasklistfile=tasklistfile,
+            daythemesfile=daythemesfile,
+            checkpoints_week_file=checkpointsfile,
+            periodic_week_file=periodicfile,
+            weekfile=weekfile)
 
         (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
         weektemplate = ("= WEEK OF %s %d, %d =\n" % (month, date, year)).upper()
@@ -1016,9 +1032,9 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
         weektemplate += "NOTES:\n\n\n"
         weektemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(PlannerPeriod.Week, next_day, tasklistfile, weekfile, checkpointsfile, periodicfile, daythemesfile)
+        templates.write_new_template(planner, PlannerPeriod.Week, next_day)
 
-        self.assertEqual(weekfile.read(), weektemplate)
+        self.assertEqual(planner.weekfile.read(), weektemplate)
 
     def test_daily_templates(self):
         """ Test that templates for each day are generated correctly by integrating checkpoints, periodic, etc.
@@ -1035,12 +1051,20 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
             (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
             tasklistfile = StringIO(self.tasklist)
             daythemesfile = StringIO(self.daythemes)
-            if day.lower() in ('saturday', 'sunday'):
-                checkpointsfile = StringIO(self.checkpoints_weekend)
-            else:
-                checkpointsfile = StringIO(self.checkpoints_weekday)
             periodicfile = StringIO(self.periodic_day)
             dayfile = StringIO(self.daytemplate)
+
+            planner = MagicMock(
+                tasklistfile=tasklistfile,
+                daythemesfile=daythemesfile,
+                periodic_day_file=periodicfile,
+                dayfile=dayfile)
+
+            if day.lower() in ('saturday', 'sunday'):
+                planner.checkpoints_weekend_file = StringIO(self.checkpoints_weekend)
+            else:
+                planner.checkpoints_weekday_file = StringIO(self.checkpoints_weekday)
+
             dailythemes = self.daythemes.lower()
             theme = dailythemes[dailythemes.index(day.lower()):]
             theme = theme[theme.index(':'):].strip(': ')
@@ -1073,10 +1097,10 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
             daytemplate += "NOTES:\n\n\n"
             daytemplate += "TIME SPENT ON PLANNER: "
 
-            templates.write_new_template(PlannerPeriod.Day, next_day, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+            templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
-            self.assertEqual(dayfile.read(), daytemplate)
-            self.assertEqual(tasklistfile.read(), self.tasklist_nextday)
+            self.assertEqual(planner.dayfile.read(), daytemplate)
+            self.assertEqual(planner.tasklistfile.read(), self.tasklist_nextday)
 
 class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
     """ Check that updates on existing templates modifies the file as expected - does the right thing, does only that thing """
@@ -1162,8 +1186,8 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
         next_day = today + datetime.timedelta(days=1)
         (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
         monthfile = StringIO(self.monthtemplate)
-        templates.write_existing_month_template(next_day, monthfile)
-        self.assertEqual(monthfile.read(), self.monthtemplate_updated)
+        result = templates.write_existing_month_template(next_day, monthfile)
+        self.assertEqual(result, self.monthtemplate_updated)
 
     def test_update_existing_week_template(self):
         """ Check that writing over an existing week template adds the new day, and that there are no other changes """
@@ -1172,8 +1196,8 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
         next_day = today + datetime.timedelta(days=1)
         (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
         weekfile = StringIO(self.weektemplate)
-        templates.write_existing_week_template(next_day, weekfile)
-        self.assertEqual(weekfile.read(), self.weektemplate_updated)
+        result = templates.write_existing_week_template(next_day, weekfile)
+        self.assertEqual(result, self.weektemplate_updated)
 
 class PlannerTaskSchedulingTester(unittest.TestCase):
     # TODO: test when week of is set at an actual sunday, and at 1st of month
@@ -2676,6 +2700,13 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
+        planner = MagicMock(
+            tasklistfile=tasklistfile,
+            daythemesfile=daythemesfile,
+            checkpoints_weekday_file=checkpointsfile,
+            periodic_day_file=periodicfile,
+            dayfile=dayfile)
+
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()):]
         theme = theme[theme.index(':'):].strip(': ')
@@ -2699,9 +2730,9 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(PlannerPeriod.Day, next_day, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+        templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
-        self.assertEqual(dayfile.read(), daytemplate)
+        self.assertEqual(planner.dayfile.read(), daytemplate)
 
     def test_agenda_has_undone_tasks(self):
         """ Check that any undone tasks from today are carried over to tomorrow's agenda """
@@ -2714,6 +2745,13 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
+        planner = MagicMock(
+            tasklistfile=tasklistfile,
+            daythemesfile=daythemesfile,
+            checkpoints_weekday_file=checkpointsfile,
+            periodic_day_file=periodicfile,
+            dayfile=dayfile)
+
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()):]
         theme = theme[theme.index(':'):].strip(': ')
@@ -2739,9 +2777,9 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(PlannerPeriod.Day, next_day, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+        templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
-        self.assertEqual(dayfile.read(), daytemplate)
+        self.assertEqual(planner.dayfile.read(), daytemplate)
 
     def test_agenda_has_tomorrows_tasks(self):
         """ Check that tomorrow's agenda has tasks added for tomorrow """
@@ -2754,6 +2792,13 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
+        planner = MagicMock(
+            tasklistfile=tasklistfile,
+            daythemesfile=daythemesfile,
+            checkpoints_weekday_file=checkpointsfile,
+            periodic_day_file=periodicfile,
+            dayfile=dayfile)
+
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()):]
         theme = theme[theme.index(':'):].strip(': ')
@@ -2782,9 +2827,9 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(PlannerPeriod.Day, next_day, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+        templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
-        self.assertEqual(dayfile.read(), daytemplate)
+        self.assertEqual(planner.dayfile.read(), daytemplate)
 
     def test_agenda_has_both_tomorrows_tasks_and_undone_tasks(self):
         """ Check that tomorrow's agenda has both undone tasks from today's agenda as well as tasks added for tomorrow """
@@ -2796,6 +2841,13 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
+
+        planner = MagicMock(
+            tasklistfile=tasklistfile,
+            daythemesfile=daythemesfile,
+            checkpoints_weekday_file=checkpointsfile,
+            periodic_day_file=periodicfile,
+            dayfile=dayfile)
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()):]
@@ -2827,9 +2879,9 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(PlannerPeriod.Day, next_day, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+        templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
-        self.assertEqual(dayfile.read(), daytemplate)
+        self.assertEqual(planner.dayfile.read(), daytemplate)
 
     def test_agenda_is_empty_when_scheduled_tasks_are_not_for_tomorrow(self):
         """ Check that tomorrow's agenda is empty when no scheduled tasks are scheduled for tomorrow 
@@ -2843,6 +2895,13 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
+        planner = MagicMock(
+            tasklistfile=tasklistfile,
+            daythemesfile=daythemesfile,
+            checkpoints_weekday_file=checkpointsfile,
+            periodic_day_file=periodicfile,
+            dayfile=dayfile)
+
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()):]
         theme = theme[theme.index(':'):].strip(': ')
@@ -2866,9 +2925,9 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(PlannerPeriod.Day, next_day, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+        templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
-        self.assertEqual(dayfile.read(), daytemplate)
+        self.assertEqual(planner.dayfile.read(), daytemplate)
 
     def test_agenda_contains_tasks_scheduled_for_tomorrow(self):
         """ Check that tomorrow's agenda contains scheduled tasks that are scheduled for tomorrow """
@@ -2880,6 +2939,13 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
+
+        planner = MagicMock(
+            tasklistfile=tasklistfile,
+            daythemesfile=daythemesfile,
+            checkpoints_weekday_file=checkpointsfile,
+            periodic_day_file=periodicfile,
+            dayfile=dayfile)
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()):]
@@ -2908,9 +2974,9 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "TIME SPENT ON PLANNER: "
 
         config.PlannerConfig.TomorrowChecking = config.LOGFILE_CHECKING['LAX']
-        templates.write_new_template(PlannerPeriod.Day, next_day, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+        templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
-        self.assertEqual(dayfile.read(), daytemplate)
+        self.assertEqual(planner.dayfile.read(), daytemplate)
 
     def test_agenda_contains_tomorrows_undone_and_scheduled_tasks(self):
         """ Check that tomorrow's agenda contains undone tasks carried over from today, tasks added for tomorrow, as well as tasks previously scheduled for tomorrow """
@@ -2922,6 +2988,13 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
+
+        planner = MagicMock(
+            tasklistfile=tasklistfile,
+            daythemesfile=daythemesfile,
+            checkpoints_weekday_file=checkpointsfile,
+            periodic_day_file=periodicfile,
+            dayfile=dayfile)
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()):]
@@ -2955,9 +3028,9 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(PlannerPeriod.Day, next_day, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile)
+        templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
-        self.assertEqual(dayfile.read(), daytemplate)
+        self.assertEqual(planner.dayfile.read(), daytemplate)
 
 
 if __name__ == '__main__':

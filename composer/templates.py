@@ -1,4 +1,3 @@
-import re
 import datetime
 
 from . import config
@@ -114,37 +113,37 @@ def build_period_template(next_day, title, entry, agenda, periodname, checkpoint
     return template
 
 
-def build_year_template(next_day, tasklistfile, yearfile, checkpointsfile, periodicfile):
+def build_year_template(planner, next_day, yearfile):
     (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
     title = "= %d =\n" % year
     entry = "\t%s [[%s %d]]\n" % (config.PlannerConfig.PreferredBulletChar, utils.quarter_for_month(month), year)
     periodname = "YEARLYs:\n"
     agenda = ""
-    monthtemplate = build_period_template(next_day, title, entry, agenda, periodname, checkpointsfile, periodicfile)
+    monthtemplate = build_period_template(next_day, title, entry, agenda, periodname, planner.checkpoints_year_file, planner.periodic_year_file)
     return monthtemplate
 
 
-def build_quarter_template(next_day, tasklistfile, quarterfile, checkpointsfile, periodicfile):
+def build_quarter_template(planner, next_day, quarterfile):
     (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
     title = "= %s %d =\n" % (utils.quarter_for_month(month), year)
     entry = "\t%s [[Month of %s, %d]]\n" % (config.PlannerConfig.PreferredBulletChar, month, year)
     periodname = "QUARTERLYs:\n"
     agenda = ""
-    monthtemplate = build_period_template(next_day, title, entry, agenda, periodname, checkpointsfile, periodicfile)
+    monthtemplate = build_period_template(next_day, title, entry, agenda, periodname, planner.checkpoints_quarter_file, planner.periodic_quarter_file)
     return monthtemplate
 
 
-def build_month_template(next_day, tasklistfile, monthfile, checkpointsfile, periodicfile):
+def build_month_template(planner, next_day, monthfile):
     (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
     title = "= %s %d =\n" % (month.upper(), year)
     entry = "\t%s [[Week of %s %d, %d]]\n" % (config.PlannerConfig.PreferredBulletChar, month, date, year)
     periodname = "MONTHLYs:\n"
     agenda = ""
-    monthtemplate = build_period_template(next_day, title, entry, agenda, periodname, checkpointsfile, periodicfile)
+    monthtemplate = build_period_template(next_day, title, entry, agenda, periodname, planner.checkpoints_month_file, planner.periodic_month_file)
     return monthtemplate
 
 
-def build_week_template(next_day, tasklistfile, weekfile, checkpointsfile, periodicfile):
+def build_week_template(planner, next_day, weekfile):
     (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
     title = ("= WEEK OF %s %d, %d =\n" % (month, date, year)).upper()
     if utils.PlannerUserSettings.WeekTheme:
@@ -153,7 +152,7 @@ def build_week_template(next_day, tasklistfile, weekfile, checkpointsfile, perio
     entry = "\t%s [[%s %d, %d]]\n" % (config.PlannerConfig.PreferredBulletChar, month, date, year)
     periodname = "WEEKLYs:\n"
     agenda = ""
-    weektemplate = build_period_template(next_day, title, entry, agenda, periodname, checkpointsfile, periodicfile)
+    weektemplate = build_period_template(next_day, title, entry, agenda, periodname, planner.checkpoints_week_file, planner.periodic_week_file)
     return weektemplate
 
 
@@ -167,19 +166,19 @@ def get_theme_for_the_day(daythemes_file, day):
         return theme
 
 
-def build_day_template(next_day, tasklistfile, dayfile, checkpointsfile, periodicfile, daythemesfile):
+def build_day_template(planner, next_day, dayfile):
     (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
     title = ("= %s %s %d, %d =\n" % (day, month[:3], date, year)).upper()
 
-    theme = get_theme_for_the_day(daythemesfile, day)
+    theme = get_theme_for_the_day(planner.daythemesfile, day)
     if theme:
         title += "\n"
         title += "Theme: %s\n" % theme
     entry = None
     periodicname = "DAILYs:\n"
     undone = do_post_mortem(dayfile)['undone']
-    scheduled = scheduling.get_scheduled_tasks(tasklistfile, next_day)
-    tomorrow = get_tasks_for_tomorrow(tasklistfile)
+    scheduled = scheduling.get_scheduled_tasks(planner.tasklistfile, next_day)
+    tomorrow = get_tasks_for_tomorrow(planner.tasklistfile)
     agenda = ''
     if scheduled:
         agenda += scheduled
@@ -193,26 +192,31 @@ def build_day_template(next_day, tasklistfile, dayfile, checkpointsfile, periodi
             agenda += '\n' + tomorrow
         else:
             agenda += tomorrow
-    daytemplate = build_period_template(next_day, title, entry, agenda, periodicname, checkpointsfile, periodicfile)
+    nextdow = next_day.strftime('%A')
+    if nextdow.lower() in ('saturday', 'sunday'):
+        checkpointsfile = planner.checkpoints_weekend_file
+    else:
+        checkpointsfile = planner.checkpoints_weekday_file
+    daytemplate = build_period_template(next_day, title, entry, agenda, periodicname, checkpointsfile, planner.periodic_day_file)
     return daytemplate
 
 
-def write_new_template(period, next_day, tasklistfile, logfile, checkpointsfile, periodicfile, daythemesfile):
-    (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
+def write_new_template(planner, period, next_day):
     if period == utils.PlannerPeriod.Day:
-        template = build_day_template(next_day, tasklistfile, logfile, checkpointsfile, periodicfile, daythemesfile)
+        template = build_day_template(planner, next_day, planner.dayfile)
+        planner.dayfile = StringIO(template)
     if period == utils.PlannerPeriod.Week:
-        template = build_week_template(next_day, tasklistfile, logfile, checkpointsfile, periodicfile)
+        template = build_week_template(planner, next_day, planner.weekfile)
+        planner.weekfile = StringIO(template)
     if period == utils.PlannerPeriod.Month:
-        template = build_month_template(next_day, tasklistfile, logfile, checkpointsfile, periodicfile)
+        template = build_month_template(planner, next_day, planner.monthfile)
+        planner.monthfile = StringIO(template)
     if period == utils.PlannerPeriod.Quarter:
-        template = build_quarter_template(next_day, tasklistfile, logfile, checkpointsfile, periodicfile)
+        template = build_quarter_template(planner, next_day, planner.quarterfile)
+        planner.quarterfile = StringIO(template)
     if period == utils.PlannerPeriod.Year:
-        template = build_year_template(next_day, tasklistfile, logfile, checkpointsfile, periodicfile)
-    logfile.seek(0)
-    logfile.truncate(0)
-    logfile.write(template)
-    logfile.seek(0)
+        template = build_year_template(planner, next_day, planner.yearfile)
+        planner.yearfile = StringIO(template)
 
 
 def write_existing_year_template(next_day, yearfile):
@@ -222,10 +226,7 @@ def write_existing_year_template(next_day, yearfile):
     previdx = yearcontents.find(last_quarter_entry)
     idx = yearcontents.rfind('\n', 0, previdx)
     newyearcontents = yearcontents[:idx + 1] + '\t%s [[%s %d]]\n' % (config.PlannerConfig.PreferredBulletChar, utils.quarter_for_month(month), year) + yearcontents[idx + 1:]
-    yearfile.seek(0)
-    yearfile.truncate(0)
-    yearfile.write(newyearcontents)
-    yearfile.seek(0)
+    return newyearcontents
 
 
 def write_existing_quarter_template(next_day, quarterfile):
@@ -235,10 +236,7 @@ def write_existing_quarter_template(next_day, quarterfile):
     previdx = quartercontents.find(last_month_entry)
     idx = quartercontents.rfind('\n', 0, previdx)
     newquartercontents = quartercontents[:idx + 1] + '\t%s [[Month of %s, %d]]\n' % (config.PlannerConfig.PreferredBulletChar, month, year) + quartercontents[idx + 1:]
-    quarterfile.seek(0)
-    quarterfile.truncate(0)
-    quarterfile.write(newquartercontents)
-    quarterfile.seek(0)
+    return newquartercontents
 
 
 def write_existing_month_template(next_day, monthfile):
@@ -248,10 +246,7 @@ def write_existing_month_template(next_day, monthfile):
     previdx = monthcontents.find(last_week_entry)
     idx = monthcontents.rfind('\n', 0, previdx)
     newmonthcontents = monthcontents[:idx + 1] + '\t%s [[Week of %s %d, %d]]\n' % (config.PlannerConfig.PreferredBulletChar, month, date, year) + monthcontents[idx + 1:]
-    monthfile.seek(0)
-    monthfile.truncate(0)
-    monthfile.write(newmonthcontents)
-    monthfile.seek(0)
+    return newmonthcontents
 
 
 def write_existing_week_template(next_day, weekfile):
@@ -263,21 +258,22 @@ def write_existing_week_template(next_day, weekfile):
     previdx = weekcontents.find(previous_day_entry)
     idx = weekcontents.rfind('\n', 0, previdx)
     newweekcontents = weekcontents[:idx+1] + '\t%s [[%s %d, %d]]\n' % (config.PlannerConfig.PreferredBulletChar, month, date, year) + weekcontents[idx + 1:]
-    weekfile.seek(0)
-    weekfile.truncate(0)  # way to close and open an existing handle in different modes?
-    weekfile.write(newweekcontents)
-    weekfile.seek(0)
+    return newweekcontents
 
 
-def write_existing_template(current_period, next_day, logfile):
+def write_existing_template(planner, current_period, next_day):
     # if period is DAY, nop
     if current_period == utils.PlannerPeriod.Day:
         return
     if current_period == utils.PlannerPeriod.Week:
-        return write_existing_week_template(next_day, logfile)
+        template = write_existing_week_template(next_day, planner.weekfile)
+        planner.weekfile = StringIO(template)
     if current_period == utils.PlannerPeriod.Month:
-        return write_existing_month_template(next_day, logfile)
+        template = write_existing_month_template(next_day, planner.monthfile)
+        planner.monthfile = StringIO(template)
     if current_period == utils.PlannerPeriod.Quarter:
-        return write_existing_quarter_template(next_day, logfile)
+        template = write_existing_quarter_template(next_day, planner.quarterfile)
+        planner.quarterfile = StringIO(template)
     if current_period == utils.PlannerPeriod.Year:
-        return write_existing_year_template(next_day, logfile)
+        template = write_existing_year_template(next_day, planner.yearfile)
+        planner.yearfile = StringIO(template)
