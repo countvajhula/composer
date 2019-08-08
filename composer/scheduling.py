@@ -241,7 +241,7 @@ def _process_scheduled_task(taskfile, scheduledtasks, line, reference_date, now)
         datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]
         try:
             matcheddate = get_date_for_schedule_string(datestr, reference_date, now)
-        except Exception:
+        except SchedulingDateError:
             raise
     else:
         raise BlockedTaskNotScheduledError("No scheduled date for blocked task -- add a date for it: " + line)
@@ -381,7 +381,7 @@ def get_scheduled_tasks(tasklist, for_day):
                 datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]
                 try:
                     matcheddate = get_date_for_schedule_string(datestr)
-                except Exception:
+                except SchedulingDateError:
                     raise
                 if for_day >= matcheddate['date']:
                     scheduledtasks += line
