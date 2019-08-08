@@ -8,7 +8,7 @@ from ... import config
 from ... import scheduling
 from ... import utils
 from ...errors import (
-    PlannerStateError,
+    LogfileAlreadyExistsError,
     SimulationPassedError)
 
 
@@ -200,19 +200,19 @@ class FilesystemPlanner(PlannerBase):
         # check for possible errors in planner state before making any changes
         if status >= utils.PlannerPeriod.Year:
             yearfn_post = '{path}/{year}.wiki'.format(path=self.location, year=year)
-            if os.path.isfile(yearfn_post): raise PlannerStateError("New year logfile already exists!")
+            if os.path.isfile(yearfn_post): raise LogfileAlreadyExistsError("New year logfile already exists!")
         if status >= utils.PlannerPeriod.Quarter:
             quarterfn_post = '{path}/{quarter} {year}.wiki'.format(path=self.location, quarter=utils.quarter_for_month(month), year=year)
-            if os.path.isfile(quarterfn_post): raise PlannerStateError("New quarter logfile already exists!")
+            if os.path.isfile(quarterfn_post): raise LogfileAlreadyExistsError("New quarter logfile already exists!")
         if status >= utils.PlannerPeriod.Month:
             monthfn_post = '{path}/Month of {month}, {year}.wiki'.format(path=self.location, month=month, year=year)
-            if os.path.isfile(monthfn_post): raise PlannerStateError("New month logfile already exists!")
+            if os.path.isfile(monthfn_post): raise LogfileAlreadyExistsError("New month logfile already exists!")
         if status >= utils.PlannerPeriod.Week:
             weekfn_post = '{path}/Week of {month} {date}, {year}.wiki'.format(path=self.location, month=month, date=date, year=year)
-            if os.path.isfile(weekfn_post): raise PlannerStateError("New week logfile already exists!")
+            if os.path.isfile(weekfn_post): raise LogfileAlreadyExistsError("New week logfile already exists!")
         if status >= utils.PlannerPeriod.Day:
             dayfn_post = '{path}/{month} {date}, {year}.wiki'.format(path=self.location, month=month, date=date, year=year)
-            if os.path.isfile(dayfn_post): raise PlannerStateError("New day logfile already exists!")
+            if os.path.isfile(dayfn_post): raise LogfileAlreadyExistsError("New day logfile already exists!")
 
         # if this is a simulation, we're good to go - let's break out of the matrix
         if status >= utils.PlannerPeriod.Day and simulate:

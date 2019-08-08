@@ -13,16 +13,12 @@ from . import utils
 from .backend import FilesystemPlanner
 
 from .errors import (
-    BlockedTaskNotScheduledError,
-    DateFormatError,
+    SchedulingError,
     DayStillInProgressError,
-    LogfileLayoutError,
+    LayoutError,
     LogfileNotCompletedError,
-    PlannerIsInTheFutureError,
     PlannerStateError,
     SimulationPassedError,
-    RelativeDateError,
-    TasklistLayoutError,
     TomorrowIsEmptyError)
 
 try:  # py2
@@ -153,11 +149,6 @@ def main(wikipath, test, jump):
                         planner.monthfile = planner.update_agenda(planner.monthfile, weekagenda)
                     planner.save()
                 simulate = False
-            except DayStillInProgressError as err:
-                print("Current day is still in progress! Try again after 6pm.")
-                break
-            except PlannerIsInTheFutureError as err:
-                raise
             except TomorrowIsEmptyError as err:
                 yn = raw_input("The tomorrow section is blank. Do you want to add some tasks for tomorrow? [y/n]__")
                 if yn.lower().startswith('y'):
@@ -174,17 +165,14 @@ def main(wikipath, test, jump):
                     config.PlannerConfig.LogfileCompletionChecking = config.LOGFILE_CHECKING['LAX']
                 else:
                     continue
-            except DateFormatError as err:
-                raise
-            except BlockedTaskNotScheduledError as err:
-                raise
-            except TasklistLayoutError as err:
-                raise
-            except LogfileLayoutError as err:
-                raise
+            except DayStillInProgressError as err:
+                print("Current day is still in progress! Try again after 6pm.")
+                break
             except PlannerStateError as err:
                 raise
-            except RelativeDateError as err:
+            except SchedulingError as err:
+                raise
+            except LayoutError as err:
                 raise
 
 
