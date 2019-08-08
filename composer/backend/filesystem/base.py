@@ -284,7 +284,7 @@ class FilesystemPlanner(PlannerBase):
         return status
 
     def get_agenda(self, log):
-        advanceplanner.extract_agenda_from_logfile(log)
+        return advanceplanner.extract_agenda_from_logfile(log)
 
     def update_agenda(self, log, agenda):
         """ Append the provided agenda to the agenda contained in the logfile,
