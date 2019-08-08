@@ -4,7 +4,9 @@ requirements = [
     'click',
 ]
 
-test_requirements = []
+test_requirements = [
+    'mock',  # py2 only
+]
 
 dev_requirements = [
     'flake8',

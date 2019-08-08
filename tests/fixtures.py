@@ -1,4 +1,7 @@
-from unittest.mock import MagicMock
+try:  # py3
+    from unittest.mock import MagicMock
+except ImportError:  # py2
+    from mock import MagicMock
 
 try:  # py2
     from StringIO import StringIO
