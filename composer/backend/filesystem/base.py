@@ -293,27 +293,6 @@ class FilesystemPlanner(PlannerBase):
         # TODO: should probably go through a setter to mutate here instead
         return advanceplanner.update_logfile_agenda(log, agenda)
 
-    def reset_heads_on_files(self):
-        # TODO: define relevant atomic operations so that this isn't necessary
-        self.tasklistfile.seek(0)
-        self.daythemesfile.seek(0)
-        self.dayfile.seek(0)
-        self.weekfile.seek(0)
-        self.monthfile.seek(0)
-        self.quarterfile.seek(0)
-        self.yearfile.seek(0)
-        self.checkpoints_year_file.seek(0)
-        self.periodic_year_file.seek(0)
-        self.checkpoints_quarter_file.seek(0)
-        self.periodic_quarter_file.seek(0)
-        self.checkpoints_month_file.seek(0)
-        self.periodic_month_file.seek(0)
-        self.checkpoints_week_file.seek(0)
-        self.periodic_week_file.seek(0)
-        self.checkpoints_weekday_file.seek(0)
-        self.checkpoints_weekend_file.seek(0)
-        self.periodic_day_file.seek(0)
-
     def save(self):
         """ Write the planner object to the filesystem at the given path."""
         pathspec = '{}/{}'
@@ -330,5 +309,3 @@ class FilesystemPlanner(PlannerBase):
         self._write_file(self.monthfile, month_filename)
         self._write_file(self.weekfile, week_filename)
         self._write_file(self.dayfile, day_filename)
-
-        self.reset_heads_on_files()

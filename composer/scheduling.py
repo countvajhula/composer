@@ -353,7 +353,6 @@ def schedule_tasks(planner, now=None):
     """
     if not now:
         now = datetime.datetime.now()
-    planner.reset_heads_on_files()
 
     tasklist, scheduledtasks = _extract_scheduled_items_from_tasklist(planner.tasklistfile, planner.date, now)  # tasklist - scheduled tasks
 
@@ -362,7 +361,6 @@ def schedule_tasks(planner, now=None):
     tasklist = _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks)
 
     planner.tasklistfile = tasklist
-    planner.reset_heads_on_files()
 
 
 def get_scheduled_tasks(tasklist, for_day):

@@ -165,7 +165,6 @@ def advance_planner(planner, now=None):
     """ Advance planner state to next day, updating week and month info as necessary. 'now' arg used only for testing
     TODO: use function compositor thingies to de-duplify these
     """
-    planner.reset_heads_on_files()
     next_day = utils.get_next_day(planner.date)  # the new day to advance to
     # write_existing_week_template(next_day)
     # write_new_month_template(next_day)
@@ -221,7 +220,6 @@ def advance_planner(planner, now=None):
     if status > utils.PlannerPeriod.Zero:
         planner.date = next_day
 
-    planner.reset_heads_on_files()
     return status
 
 
