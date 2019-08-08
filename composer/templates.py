@@ -53,7 +53,7 @@ def do_post_mortem(logfile):
 
 def get_tasks_for_tomorrow(tasklist):
     """ Read the tasklist, parse all tasks under the TOMORROW section and return those,
-    and remove them from the tasklist """
+    and also return a modified tasklist with those tasks removed """
     tasks = ''
     tasklist_nextday = StringIO()
     ss = tasklist.readline()
@@ -75,13 +75,9 @@ def get_tasks_for_tomorrow(tasklist):
     while ss != '':
         tasklist_nextday.write(ss)
         ss = tasklist.readline()
-    tasklist_nextday.seek(0)
-    tasklist.seek(0)
-    tasklist.truncate(0)
-    tasklist.write(tasklist_nextday.read())
-    tasklist.seek(0)
     tasks = tasks.strip('\n')
-    return tasks
+    tasklist_nextday.seek(0)
+    return tasks, tasklist_nextday
 
 
 def build_period_template(next_day, title, entry, agenda, periodname, checkpointsfile, periodicfile):
@@ -177,8 +173,10 @@ def build_day_template(planner, next_day, dayfile):
     entry = None
     periodicname = "DAILYs:\n"
     undone = do_post_mortem(dayfile)['undone']
-    scheduled = scheduling.get_scheduled_tasks(planner.tasklistfile, next_day)
-    tomorrow = get_tasks_for_tomorrow(planner.tasklistfile)
+    tasklistfile = planner.tasklistfile  # initial state of tasklist file
+    scheduled, tasklistfile = scheduling.get_scheduled_tasks(tasklistfile, next_day)
+    tomorrow, tasklistfile = get_tasks_for_tomorrow(tasklistfile)
+    planner.tasklistfile = tasklistfile  # update the tasklist file to the post-processed version
     agenda = ''
     if scheduled:
         agenda += scheduled

@@ -407,9 +407,5 @@ def get_scheduled_tasks(tasklist, for_day):
         line = tasklist.readline()
 
     tasklist_updated.seek(0)
-    tasklist.seek(0)
-    tasklist.truncate(0)
-    tasklist.write(tasklist_updated.read())
-    tasklist.seek(0)
     scheduledtasks = scheduledtasks.strip('\n')
-    return scheduledtasks
+    return scheduledtasks, tasklist_updated
