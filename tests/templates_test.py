@@ -1,10 +1,10 @@
 import datetime
 import unittest
 
-from unittest.mock import MagicMock
-
 import composer.templates as templates
 from composer.utils import PlannerPeriod
+
+from .fixtures import PlannerMock
 
 try:  # py2
     from StringIO import StringIO
@@ -192,7 +192,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_month)
         monthfile = StringIO(self.monthtemplate)
 
-        planner = MagicMock(
+        planner = PlannerMock(
             tasklistfile=tasklistfile,
             daythemesfile=daythemesfile,
             checkpoints_month_file=checkpointsfile,
@@ -229,7 +229,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_week)
         weekfile = StringIO(self.weektemplate)
 
-        planner = MagicMock(
+        planner = PlannerMock(
             tasklistfile=tasklistfile,
             daythemesfile=daythemesfile,
             checkpoints_week_file=checkpointsfile,
@@ -273,7 +273,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
             periodicfile = StringIO(self.periodic_day)
             dayfile = StringIO(self.daytemplate)
 
-            planner = MagicMock(
+            planner = PlannerMock(
                 tasklistfile=tasklistfile,
                 daythemesfile=daythemesfile,
                 periodic_day_file=periodicfile,

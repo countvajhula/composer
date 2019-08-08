@@ -1,11 +1,11 @@
 import datetime
 import unittest
 
-from unittest.mock import MagicMock
-
 import composer.config as config
 import composer.templates as templates
 from composer.utils import PlannerPeriod
+
+from .fixtures import PlannerMock
 
 try:  # py2
     from StringIO import StringIO
@@ -186,6 +186,47 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
                     "[o] here's one that should be pulled up [$WEEK OF DECEMBER 9, 2012$]\n"
                     "[o] here's one that shouldn't be pulled up [$WEEK OF DECEMBER 16, 2012$]\n")
 
+    tasklist_scheduledfortomorrow_post = ("TOMORROW:\n"
+                    "\n"
+                    "THIS WEEK:\n"
+                    "[\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
+                    "[ ] help meags set up planner\n"
+                        "\t[x] create life mindmap with meags\n"
+                        "\t[x] incorporate life mindmap into planner with meags\n"
+                        "\t[x] swap meags' Esc and CapsLock on personal laptop\n"
+                        "\t[x] vim education and workflow\n"
+                        "\t[x] help meags build a routine of entering data for the day\n"
+                        "\t[ ] meags to schedule all activities (currently unscheduled)\n"
+                        "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
+                        "\t[-] set up git access on your domain\n"
+                        "\t[ ] set up dropbox+truecrypt planner access for meags\n"
+                    "\n"
+                    "THIS MONTH:\n"
+                    "[ ] get India Tour reimbursement\n"
+                        "\t[x] resend all receipts and info to Amrit\n"
+                        "\t[x] send reminder email to Amrit\n"
+                        "\t[x] coordinate with amrit to go to stanford campus\n"
+                        "\t[x] remind amrit if no response\n"
+                        "\t[x] check Stanford calendar for appropriate time\n"
+                        "\t[x] email amrit re: thursday?\n"
+                        "\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
+                        "\t[x] wait for response\n"
+                        "\t[-] send reminder on Wed night\n"
+                        "\t[x] respond to amrit's email re: amount correction\n"
+                        "\t[x] wait to hear back [remind $MONDAY$]\n"
+                        "\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
+                        "\t[x] pick up reimbursement, give difference check to raag\n"
+                        "\t[x] cash check\n"
+                        "\t[x] confirm deposit\n"
+                        "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
+                    "[ ] do residual monthlys\n"
+                    "[ ] get a good scratchy post for ferdy (fab?)\n"
+                    "\n"
+                    "UNSCHEDULED:\n"
+                    "\n"
+                    "SCHEDULED:\n"
+                    "[o] here's one that shouldn't be pulled up [$WEEK OF DECEMBER 16, 2012$]\n")
+
     tasklist_tomorrowscheduled = ("TOMORROW:\n"
                     "[ ] contact dude\n"
                     "[\] make X\n"
@@ -334,7 +375,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = MagicMock(
+        planner = PlannerMock(
             tasklistfile=tasklistfile,
             daythemesfile=daythemesfile,
             checkpoints_weekday_file=checkpointsfile,
@@ -379,7 +420,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = MagicMock(
+        planner = PlannerMock(
             tasklistfile=tasklistfile,
             daythemesfile=daythemesfile,
             checkpoints_weekday_file=checkpointsfile,
@@ -416,7 +457,9 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         self.assertEqual(planner.dayfile.read(), daytemplate)
 
     def test_agenda_has_tomorrows_tasks(self):
-        """ Check that tomorrow's agenda has tasks added for tomorrow """
+        """ Check that tomorrow's agenda has tasks added for tomorrow, and that
+        the tomorrow section in the tasklist is cleared once these tasks are
+        added to the next day's agenda """
         next_day = datetime.date(2012,12,10)
         (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
         tasklistfile = StringIO(self.tasklist_tomorrow)
@@ -426,7 +469,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = MagicMock(
+        planner = PlannerMock(
             tasklistfile=tasklistfile,
             daythemesfile=daythemesfile,
             checkpoints_weekday_file=checkpointsfile,
@@ -464,6 +507,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
         self.assertEqual(planner.dayfile.read(), daytemplate)
+        self.assertEqual(planner.tasklistfile.read(), self.tasklist)
 
     def test_agenda_has_both_tomorrows_tasks_and_undone_tasks(self):
         """ Check that tomorrow's agenda has both undone tasks from today's agenda as well as tasks added for tomorrow """
@@ -476,7 +520,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = MagicMock(
+        planner = PlannerMock(
             tasklistfile=tasklistfile,
             daythemesfile=daythemesfile,
             checkpoints_weekday_file=checkpointsfile,
@@ -529,7 +573,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = MagicMock(
+        planner = PlannerMock(
             tasklistfile=tasklistfile,
             daythemesfile=daythemesfile,
             checkpoints_weekday_file=checkpointsfile,
@@ -564,7 +608,9 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         self.assertEqual(planner.dayfile.read(), daytemplate)
 
     def test_agenda_contains_tasks_scheduled_for_tomorrow(self):
-        """ Check that tomorrow's agenda contains scheduled tasks that are scheduled for tomorrow """
+        """ Check that tomorrow's agenda contains scheduled tasks that are scheduled for tomorrow
+        and that these tasks are removed from the scheduled section of the tasklist once processed.
+        """
         next_day = datetime.date(2012,12,10)
         (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
         tasklistfile = StringIO(self.tasklist_scheduledfortomorrow)
@@ -574,7 +620,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = MagicMock(
+        planner = PlannerMock(
             tasklistfile=tasklistfile,
             daythemesfile=daythemesfile,
             checkpoints_weekday_file=checkpointsfile,
@@ -611,6 +657,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
         self.assertEqual(planner.dayfile.read(), daytemplate)
+        self.assertEqual(planner.tasklistfile.read(), self.tasklist_scheduledfortomorrow_post)
 
     def test_agenda_contains_tomorrows_undone_and_scheduled_tasks(self):
         """ Check that tomorrow's agenda contains undone tasks carried over from today, tasks added for tomorrow, as well as tasks previously scheduled for tomorrow """
@@ -623,7 +670,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = MagicMock(
+        planner = PlannerMock(
             tasklistfile=tasklistfile,
             daythemesfile=daythemesfile,
             checkpoints_weekday_file=checkpointsfile,
