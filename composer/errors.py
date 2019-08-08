@@ -36,31 +36,7 @@ class LogfileNotCompletedError(ComposerError):
         return repr(self.value)
 
 
-class DateFormatError(ComposerError):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
-class BlockedTaskNotScheduledError(ComposerError):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
 class PlannerStateError(ComposerError):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-
-
-class RelativeDateError(ComposerError):
     def __init__(self, value):
         self.value = value
 
@@ -76,8 +52,11 @@ class SimulationPassedError(ComposerError):
     def __str__(self):
         return repr(self.value)
 
+# LAYOUT ERRORS
+
 
 class LayoutError(ComposerError):
+    """  Base error class for file layout errors. """
     def __init__(self, value):
         self.value = value
 
@@ -94,6 +73,50 @@ class TasklistLayoutError(LayoutError):
 
 
 class LogfileLayoutError(LayoutError):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+# SCHEDULING ERRORS
+
+
+class SchedulingError(ComposerError):
+    """  Base error class for scheduling errors. """
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class BlockedTaskNotScheduledError(SchedulingError):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class SchedulingDateError(SchedulingError):
+    """  Base error class for date-related errors in scheduling. """
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class DateFormatError(SchedulingDateError):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class RelativeDateError(SchedulingDateError):
     def __init__(self, value):
         self.value = value
 
