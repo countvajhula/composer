@@ -31,6 +31,12 @@ def quarter_for_month(month):
         return "Q4"
 
 
-def write_file(contents, filename):
-    with open(filename, 'w') as f:
+def read_file(filepath):
+    with open(filepath, 'r') as f:
+        contents = f.read()
+    return contents
+
+
+def write_file(contents, filepath):
+    with open(filepath, 'w') as f:
         f.write(contents)

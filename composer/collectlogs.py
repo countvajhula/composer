@@ -9,6 +9,7 @@ import re
 
 from .backend.filesystem import advanceplanner
 from . import config
+from .utils import read_file
 
 PLANNERDAYFILELINK = 'currentday'
 PLANNERWEEKFILELINK = 'currentweek'
@@ -19,13 +20,6 @@ PLANNERQUARTERFILELINK = 'currentquarter'
 def get_filename(wikidir, filelink):
     flink = "%s/%s" % (wikidir, filelink)
     return os.readlink(flink)
-
-
-def read_file_contents(fnpath):
-    fd = open(fnpath, 'r')
-    file_contents = fd.read()
-    fd.close()
-    return file_contents
 
 
 def extract_log_time_from_text(logtext):
@@ -51,7 +45,7 @@ def get_logs_times_this_week(wikidir):
     fnpath = "%s/%s.wiki" % (wikidir, curday.strftime('%B %d, %Y').replace(' 0', ' '))
     while True:
         try:
-            logtext = read_file_contents(fnpath)
+            logtext = read_file(fnpath)
         except Exception:
             break
         (log, time) = extract_log_time_from_text(logtext)
@@ -77,7 +71,7 @@ def get_logs_times_this_month(wikidir):
     fnpath = "%s/Week of %s.wiki" % (wikidir, curday.strftime('%B %d, %Y').replace(' 0', ' '))
     while True:
         try:
-            logtext = read_file_contents(fnpath)
+            logtext = read_file(fnpath)
         except Exception:
             break
         (log, time) = extract_log_time_from_text(logtext)
@@ -116,7 +110,7 @@ def get_logs_times_this_quarter(wikidir):
     fnpath = "%s/Month of %s.wiki" % (wikidir, curday.strftime('%B, %Y'))
     while True:
         try:
-            logtext = read_file_contents(fnpath)
+            logtext = read_file(fnpath)
         except Exception:
             break
         (log, time) = extract_log_time_from_text(logtext)

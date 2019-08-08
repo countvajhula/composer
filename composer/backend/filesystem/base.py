@@ -122,9 +122,8 @@ class FilesystemPlanner(PlannerBase):
         processing so that the actual file on disk isn't affected until any
         such processing is complete.
         """
-        with open(filename, 'r') as f:
-            result = StringIO(f.read())
-        return result
+        contents = utils.read_file(filename)
+        return StringIO(contents)
 
     def _write_file(self, file, filename):
         utils.write_file(file.read(), filename)
