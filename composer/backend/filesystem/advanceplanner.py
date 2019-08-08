@@ -42,7 +42,6 @@ def check_logfile_completion(logfile):
         ss = logfile.readline()
     if notes.strip('\n ') != '':
         completed = True
-    logfile.seek(0)
     return completed
 
 
@@ -57,7 +56,6 @@ def extract_agenda_from_logfile(logfile):
     while ss != '' and not SECTION_HEADER_PATTERN.search(ss):
         agenda += ss
         ss = logfile.readline()
-    logfile.seek(0)
     agenda = agenda.strip('\n')
     return agenda
 

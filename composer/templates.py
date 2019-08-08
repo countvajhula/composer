@@ -44,7 +44,6 @@ def do_post_mortem(logfile):
                 ss = logfile.readline()
         else:
             ss = logfile.readline()
-    logfile.seek(0)
     tasks['done'] = tasks['done'].strip('\n')
     tasks['undone'] = tasks['undone'].strip('\n')
     tasks['blocked'] = tasks['blocked'].strip('\n')

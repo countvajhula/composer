@@ -293,7 +293,7 @@ def _extract_scheduled_items_from_tasklist(tasklist, reference_date, now):
             tasklist_tidied.write(line)
             line = tasklist.readline()
     tasklist_tidied.seek(0)
-    return tasklist_tidied, scheduledtasks
+    return scheduledtasks, tasklist_tidied
 
 
 def _extract_scheduled_items_from_logfile(logfile, scheduledtasks, reference_date, now):
@@ -322,7 +322,6 @@ def _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks):
     been extracted into the scheduled tasks provided to this function.
     """
     tasklist_tidied = StringIO()
-    tasklist.seek(0)
     line = tasklist.readline()
     while line != '' and line[:len('scheduled')].lower() != 'scheduled':
         tasklist_tidied.write(line)
@@ -338,9 +337,8 @@ def _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks):
         tasklist_tidied.write(line)
         line = tasklist.readline()
 
-    tasklist = tasklist_tidied
-    tasklist.seek(0)
-    return tasklist
+    tasklist_tidied.seek(0)
+    return tasklist_tidied
 
 
 def schedule_tasks(planner, now=None):
@@ -354,7 +352,7 @@ def schedule_tasks(planner, now=None):
     if not now:
         now = datetime.datetime.now()
 
-    tasklist, scheduledtasks = _extract_scheduled_items_from_tasklist(planner.tasklistfile, planner.date, now)  # tasklist - scheduled tasks
+    scheduledtasks, tasklist = _extract_scheduled_items_from_tasklist(planner.tasklistfile, planner.date, now)  # tasklist - scheduled tasks
 
     scheduledtasks = _extract_scheduled_items_from_logfile(planner.dayfile, scheduledtasks, planner.date, now)
 

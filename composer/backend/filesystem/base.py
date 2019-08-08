@@ -127,9 +127,7 @@ class FilesystemPlanner(PlannerBase):
         return result
 
     def _write_file(self, file, filename):
-        # TODO: remove
         utils.write_file(file.read(), filename)
-        file.seek(0)
 
     def _get_date(self):
         """ get planner date, currently looks for the file 'currentday', if dne throw exception """
