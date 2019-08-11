@@ -32,4 +32,5 @@ setup(
     entry_points={
         'console_scripts': ['whats-next=composer.whatsnext:main'],
     },
+    scripts=['bin/collect-logs', 'bin/update-index'],
 )
