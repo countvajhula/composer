@@ -1,7 +1,7 @@
 import datetime
 import unittest
 
-import composer.templates as templates
+import composer.backend.filesystem.templates as templates
 from composer.utils import PlannerPeriod
 
 from .fixtures import PlannerMock
@@ -405,8 +405,9 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
         next_day = today + datetime.timedelta(days=1)
         (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
         monthfile = StringIO(self.monthtemplate)
-        result = templates.write_existing_month_template(next_day, monthfile)
-        self.assertEqual(result, self.monthtemplate_updated)
+        planner = PlannerMock(monthfile=monthfile)
+        templates.write_existing_template(planner, PlannerPeriod.Month, next_day)
+        self.assertEqual(planner.monthfile.read(), self.monthtemplate_updated)
 
     def test_update_existing_week_template(self):
         """ Check that writing over an existing week template adds the new day, and that there are no other changes """
@@ -415,5 +416,6 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
         next_day = today + datetime.timedelta(days=1)
         (date, day, month, year) = (next_day.day, next_day.strftime('%A'), next_day.strftime('%B'), next_day.year)
         weekfile = StringIO(self.weektemplate)
-        result = templates.write_existing_week_template(next_day, weekfile)
-        self.assertEqual(result, self.weektemplate_updated)
+        planner = PlannerMock(weekfile=weekfile)
+        templates.write_existing_template(planner, PlannerPeriod.Week, next_day)
+        self.assertEqual(planner.weekfile.read(), self.weektemplate_updated)

@@ -8,8 +8,8 @@ import os
 import re
 
 from .backend.filesystem import advanceplanner
+from .backend.filesystem.utils import read_file
 from . import config
-from .utils import read_file
 
 PLANNERDAYFILELINK = 'currentday'
 PLANNERWEEKFILELINK = 'currentweek'

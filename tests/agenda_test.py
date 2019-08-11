@@ -2,7 +2,7 @@ import datetime
 import unittest
 
 import composer.config as config
-import composer.templates as templates
+import composer.backend.filesystem.templates as templates
 from composer.utils import PlannerPeriod
 
 from .fixtures import PlannerMock

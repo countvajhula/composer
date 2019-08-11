@@ -4,14 +4,14 @@ import datetime
 import calendar
 
 from ... import config
-from ... import templates
 from ... import utils
 from ...errors import (
     DayStillInProgressError,
     LogfileLayoutError,
     LogfileNotCompletedError,
     PlannerIsInTheFutureError)
-from ...utils import SECTION_HEADER_PATTERN
+from . import templates
+from .utils import SECTION_HEADER_PATTERN
 
 
 try:  # py2
@@ -147,6 +147,8 @@ def new_year_criteria_met(currentdate, now):
 
 
 def new_period_criteria_met(current_period, currentdate, now):
+    # TODO: these abstract temporal interfaces shouldn't be
+    # in the filesystem module
     if current_period == utils.PlannerPeriod.Day:
         return new_day_criteria_met(currentdate, now)
     if current_period == utils.PlannerPeriod.Week:

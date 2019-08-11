@@ -2,8 +2,8 @@ import calendar
 import datetime
 import re
 
-from . import utils
-from .errors import (
+from ... import utils  # TODO: eliminate this dependency
+from ...errors import (
     BlockedTaskNotScheduledError,
     DateFormatError,
     LogfileLayoutError,

@@ -1,7 +1,7 @@
 import datetime
 import unittest
 
-import composer.scheduling as scheduling
+import composer.backend.filesystem.scheduling as scheduling
 from composer.backend import FilesystemPlanner
 
 try:  # py2

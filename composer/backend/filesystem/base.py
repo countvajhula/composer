@@ -5,11 +5,16 @@ from datetime import datetime
 from . import advanceplanner
 from ..base import PlannerBase
 from ... import config
-from ... import scheduling
 from ... import utils
+from . import scheduling
 from ...errors import (
     LogfileAlreadyExistsError,
     SimulationPassedError)
+from .utils import (
+    quarter_for_month,
+    read_file,
+    write_file,
+)
 
 
 try:  # py2
@@ -122,11 +127,11 @@ class FilesystemPlanner(PlannerBase):
         processing so that the actual file on disk isn't affected until any
         such processing is complete.
         """
-        contents = utils.read_file(filename)
+        contents = read_file(filename)
         return StringIO(contents)
 
     def _write_file(self, file, filename):
-        utils.write_file(file.read(), filename)
+        write_file(file.read(), filename)
 
     def _get_date(self):
         """ get planner date, currently looks for the file 'currentday', if dne throw exception """
@@ -202,7 +207,7 @@ class FilesystemPlanner(PlannerBase):
             yearfn_post = '{path}/{year}.wiki'.format(path=self.location, year=year)
             if os.path.isfile(yearfn_post): raise LogfileAlreadyExistsError("New year logfile already exists!")
         if status >= utils.PlannerPeriod.Quarter:
-            quarterfn_post = '{path}/{quarter} {year}.wiki'.format(path=self.location, quarter=utils.quarter_for_month(month), year=year)
+            quarterfn_post = '{path}/{quarter} {year}.wiki'.format(path=self.location, quarter=quarter_for_month(month), year=year)
             if os.path.isfile(quarterfn_post): raise LogfileAlreadyExistsError("New quarter logfile already exists!")
         if status >= utils.PlannerPeriod.Month:
             monthfn_post = '{path}/Month of {month}, {year}.wiki'.format(path=self.location, month=month, year=year)
