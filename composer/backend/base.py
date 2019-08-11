@@ -15,6 +15,7 @@ class PlannerBase(ABC):
     logfile_completion_checking = LOGFILE_CHECKING['STRICT']
     preferred_bullet_char = DEFAULT_BULLET_CHARACTER
     schedule = DEFAULT_SCHEDULE
+    week_theme = None
 
     def set_preferences(self, preferences=None, jump=False):
         if preferences:

@@ -29,6 +29,7 @@ class PlannerMock(MagicMock):
     logfile_completion_checking = LOGFILE_CHECKING['STRICT']
     preferred_bullet_char = DEFAULT_BULLET_CHARACTER
     schedule = DEFAULT_SCHEDULE
+    week_theme = None
 
     _tasklistfile = None
     _daythemesfile = None

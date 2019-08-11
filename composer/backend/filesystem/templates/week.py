@@ -1,6 +1,5 @@
 import datetime
 
-from .... import utils  # TODO: determine locally?
 from .base import Template
 
 try:  # py2
@@ -21,9 +20,9 @@ class WeekTemplate(Template):
     def build(self):
         (date, month, year) = (self.next_day.day, self.next_day.strftime('%B'), self.next_day.year)
         self.title = ("= WEEK OF %s %d, %d =\n" % (month, date, year)).upper()
-        if utils.PlannerUserSettings.WeekTheme:
+        if self.planner.week_theme:
             self.title += "\n"
-            self.title += "Theme: *WEEK OF %s*\n" % utils.PlannerUserSettings.WeekTheme.upper()
+            self.title += "Theme: *WEEK OF %s*\n" % self.planner.week_theme.upper()
         self.entry = "\t%s [[%s %d, %d]]\n" % (self.planner.preferred_bullet_char, month, date, year)
         self.periodicname = "WEEKLYs:\n"
         self.agenda = ""
