@@ -5,12 +5,12 @@ requirements = [
 ]
 
 test_requirements = [
+    'tox',
     'mock',  # py2 only
 ]
 
 dev_requirements = [
     'flake8',
-    'tox',
     'bump2version',
 ]
 
