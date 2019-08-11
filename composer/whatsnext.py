@@ -32,7 +32,7 @@ except NameError:  # py3
     raw_input = input
 
 
-CONFIG_FILE = '/Users/siddhartha/work/composer/composer/config.ini'
+CONFIG_FILE = os.path.expanduser('~/.composer/config.ini')
 
 
 @click.command(help=('Move on to the next thing in your planning, organizing, '
