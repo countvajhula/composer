@@ -31,8 +31,9 @@ try:  # py2
 except NameError:  # py3
     raw_input = input
 
-
-CONFIG_FILE = os.path.expanduser('~/.composer/config.ini')
+CONFIG_ROOT = os.getenv("COMPOSER_ROOT",
+                        os.path.expanduser("~/.composer"))
+CONFIG_FILE = os.path.join(CONFIG_ROOT, 'config.ini')
 
 
 @click.command(help=('Move on to the next thing in your planning, organizing, '

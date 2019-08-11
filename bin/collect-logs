@@ -13,7 +13,9 @@ from composer.backend.filesystem import advanceplanner
 from composer.backend.filesystem.utils import read_file
 from composer import config
 
-CONFIG_FILE = os.path.expanduser('~/.composer/config.ini')
+CONFIG_ROOT = os.getenv("COMPOSER_ROOT",
+                        os.path.expanduser("~/.composer"))
+CONFIG_FILE = os.path.join(CONFIG_ROOT, 'config.ini')
 
 PLANNERDAYFILELINK = 'currentday'
 PLANNERWEEKFILELINK = 'currentweek'
