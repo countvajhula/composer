@@ -220,8 +220,9 @@ def main(wikipath, test, jump):
                         " completing your log..."
                     )
                 elif yn.lower().startswith("n"):
-                    planner.logfile_completion_checking = \
-                        config.LOGFILE_CHECKING["LAX"]
+                    planner.logfile_completion_checking = config.LOGFILE_CHECKING[
+                        "LAX"
+                    ]
                 else:
                     continue
             except DayStillInProgressError as err:
