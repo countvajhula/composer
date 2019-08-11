@@ -1,4 +1,3 @@
-from .... import config  # TODO: determine locally?
 from .base import Template
 
 try:  # py2
@@ -19,7 +18,7 @@ class MonthTemplate(Template):
     def build(self):
         (date, month, year) = (self.next_day.day, self.next_day.strftime('%B'), self.next_day.year)
         self.title = "= %s %d =\n" % (month.upper(), year)
-        self.entry = "\t%s [[Week of %s %d, %d]]\n" % (config.PlannerConfig.PreferredBulletChar, month, date, year)
+        self.entry = "\t%s [[Week of %s %d, %d]]\n" % (self.planner.preferred_bullet_char, month, date, year)
         self.periodicname = "MONTHLYs:\n"
         self.agenda = ""
         template = super(MonthTemplate, self).build()
@@ -31,7 +30,7 @@ class MonthTemplate(Template):
         last_week_entry = 'Week of'
         previdx = monthcontents.find(last_week_entry)
         idx = monthcontents.rfind('\n', 0, previdx)
-        newmonthcontents = monthcontents[:idx + 1] + '\t%s [[Week of %s %d, %d]]\n' % (config.PlannerConfig.PreferredBulletChar, month, date, year) + monthcontents[idx + 1:]
+        newmonthcontents = monthcontents[:idx + 1] + '\t%s [[Week of %s %d, %d]]\n' % (self.planner.preferred_bullet_char, month, date, year) + monthcontents[idx + 1:]
         return newmonthcontents
 
     def write_existing(self):

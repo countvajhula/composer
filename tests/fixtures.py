@@ -8,6 +8,12 @@ try:  # py2
 except ImportError:  # py3
     from io import StringIO
 
+from composer.config import (
+    DEFAULT_BULLET_CHARACTER,
+    DEFAULT_SCHEDULE,
+    LOGFILE_CHECKING,
+)
+
 
 class PlannerMock(MagicMock):
     """ This is needed because of the semantics of accessing and mutating
@@ -18,6 +24,12 @@ class PlannerMock(MagicMock):
     on an actual Planner instance, and tests may pass or fail incorrectly
     on this basis.
     """
+    date = None
+    tomorrow_checking = LOGFILE_CHECKING['STRICT']
+    logfile_completion_checking = LOGFILE_CHECKING['STRICT']
+    preferred_bullet_char = DEFAULT_BULLET_CHARACTER
+    schedule = DEFAULT_SCHEDULE
+
     _tasklistfile = None
     _daythemesfile = None
     _dayfile = None

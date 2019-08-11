@@ -380,7 +380,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
             daythemesfile=daythemesfile,
             checkpoints_weekday_file=checkpointsfile,
             periodic_day_file=periodicfile,
-            dayfile=dayfile)
+            dayfile=dayfile,
+            tomorrow_checking=config.LOGFILE_CHECKING['LAX'])
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()):]
@@ -425,7 +426,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
             daythemesfile=daythemesfile,
             checkpoints_weekday_file=checkpointsfile,
             periodic_day_file=periodicfile,
-            dayfile=dayfile)
+            dayfile=dayfile,
+            tomorrow_checking = config.LOGFILE_CHECKING['LAX'])
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()):]
@@ -578,7 +580,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
             daythemesfile=daythemesfile,
             checkpoints_weekday_file=checkpointsfile,
             periodic_day_file=periodicfile,
-            dayfile=dayfile)
+            dayfile=dayfile,
+            tomorrow_checking = config.LOGFILE_CHECKING['LAX'])
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()):]
@@ -653,7 +656,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        config.PlannerConfig.TomorrowChecking = config.LOGFILE_CHECKING['LAX']
+        planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         templates.write_new_template(planner, PlannerPeriod.Day, next_day)
 
         self.assertEqual(planner.dayfile.read(), daytemplate)

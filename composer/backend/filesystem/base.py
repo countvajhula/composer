@@ -4,7 +4,6 @@ from datetime import datetime
 
 from . import advanceplanner
 from ..base import PlannerBase
-from ... import config
 from ... import utils
 from . import scheduling
 from ...errors import (
@@ -163,12 +162,12 @@ class FilesystemPlanner(PlannerBase):
             '{}/{}_Weekday_{}.wiki'
             .format(location,
                     SCHEDULE_FILE_PREFIX,
-                    config.PlannerConfig.Schedule.capitalize()))
+                    self.schedule.capitalize()))
         self.checkpoints_weekend_file = self._read_file(
             '{}/{}_Weekend_{}.wiki'
             .format(location,
                     SCHEDULE_FILE_PREFIX,
-                    config.PlannerConfig.Schedule.capitalize()))
+                    self.schedule.capitalize()))
         self.periodic_day_file = self._read_file('{}/{}'.format(location, PERIODICDAILYFILE))
         self.checkpoints_week_file = self._read_file('{}/{}'.format(location, CHECKPOINTSWEEKFILE))
         self.periodic_week_file = self._read_file('{}/{}'.format(location, PERIODICWEEKLYFILE))

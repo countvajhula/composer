@@ -53,7 +53,6 @@ class DayTemplate(Template):
         tasks['blocked'] = tasks['blocked'].strip('\n')
         return tasks
 
-
     def _get_tasks_for_tomorrow(self, tasklist):
         """ Read the tasklist, parse all tasks under the TOMORROW section and return those,
         and also return a modified tasklist with those tasks removed """
@@ -73,7 +72,7 @@ class DayTemplate(Template):
             else:
                 tasklist_nextday.write(ss)
             ss = tasklist.readline()
-        if tasks == '' and config.PlannerConfig.TomorrowChecking == config.LOGFILE_CHECKING['STRICT']:
+        if tasks == '' and self.planner.tomorrow_checking == config.LOGFILE_CHECKING['STRICT']:
             raise TomorrowIsEmptyError("The tomorrow section is blank. Do you want to add some tasks for tomorrow?")
         while ss != '':
             tasklist_nextday.write(ss)

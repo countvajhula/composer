@@ -1,6 +1,5 @@
 import datetime
 
-from .... import config  # TODO: determine locally?
 from .... import utils  # TODO: determine locally?
 from .base import Template
 
@@ -25,7 +24,7 @@ class WeekTemplate(Template):
         if utils.PlannerUserSettings.WeekTheme:
             self.title += "\n"
             self.title += "Theme: *WEEK OF %s*\n" % utils.PlannerUserSettings.WeekTheme.upper()
-        self.entry = "\t%s [[%s %d, %d]]\n" % (config.PlannerConfig.PreferredBulletChar, month, date, year)
+        self.entry = "\t%s [[%s %d, %d]]\n" % (self.planner.preferred_bullet_char, month, date, year)
         self.periodicname = "WEEKLYs:\n"
         self.agenda = ""
         weektemplate = super(WeekTemplate, self).build()
@@ -39,7 +38,7 @@ class WeekTemplate(Template):
         previous_day_entry = '%s %d, %d' % (monthprev, dateprev, yearprev)
         previdx = weekcontents.find(previous_day_entry)
         idx = weekcontents.rfind('\n', 0, previdx)
-        newweekcontents = weekcontents[:idx+1] + '\t%s [[%s %d, %d]]\n' % (config.PlannerConfig.PreferredBulletChar, month, date, year) + weekcontents[idx + 1:]
+        newweekcontents = weekcontents[:idx+1] + '\t%s [[%s %d, %d]]\n' % (self.planner.preferred_bullet_char, month, date, year) + weekcontents[idx + 1:]
         return newweekcontents
 
     def write_existing(self):

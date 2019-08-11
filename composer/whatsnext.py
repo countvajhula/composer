@@ -155,7 +155,7 @@ def main(wikipath, test, jump):
                 if yn.lower().startswith('y'):
                     raw_input('No problem. Press any key when you are done adding tasks...')
                 elif yn.lower().startswith('n'):
-                    config.PlannerConfig.TomorrowChecking = config.LOGFILE_CHECKING['LAX']
+                    planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
                 else:
                     continue
             except LogfileNotCompletedError as err:
@@ -163,7 +163,7 @@ def main(wikipath, test, jump):
                 if yn.lower().startswith('y'):
                     raw_input('No problem. Press any key when you are done completing your log...')
                 elif yn.lower().startswith('n'):
-                    config.PlannerConfig.LogfileCompletionChecking = config.LOGFILE_CHECKING['LAX']
+                    planner.logfile_completion_checking = config.LOGFILE_CHECKING['LAX']
                 else:
                     continue
             except DayStillInProgressError as err:

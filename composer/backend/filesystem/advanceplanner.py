@@ -200,7 +200,7 @@ def advance_planner(planner, now=None):
         if period_criteria_met == PeriodAdvanceCriteria.Satisfied:
             current_period += 1
             logfile = get_logfile(current_period)
-            if config.PlannerConfig.LogfileCompletionChecking == config.LOGFILE_CHECKING['STRICT'] and not check_logfile_completion(logfile):
+            if planner.logfile_completion_checking == config.LOGFILE_CHECKING['STRICT'] and not check_logfile_completion(logfile):
                 periodstr = get_period_name(current_period)
                 msg = "Looks like you haven't completed your %s's log. Would you like to do that now?" % periodstr
                 raise LogfileNotCompletedError(msg, periodstr)

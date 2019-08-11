@@ -6,6 +6,7 @@ class PlannerPeriod(object):
 
 
 class PlannerUserSettings(object):
+    # TODO: put this on the Planner instance
     WeekTheme = None
 
 

@@ -1,4 +1,3 @@
-from .... import config  # TODO: determine locally?
 from ..utils import quarter_for_month
 from .base import Template
 
@@ -20,7 +19,7 @@ class QuarterTemplate(Template):
     def build(self):
         (month, year) = (self.next_day.strftime('%B'), self.next_day.year)
         self.title = "= %s %d =\n" % (quarter_for_month(month), year)
-        self.entry = "\t%s [[Month of %s, %d]]\n" % (config.PlannerConfig.PreferredBulletChar, month, year)
+        self.entry = "\t%s [[Month of %s, %d]]\n" % (self.planner.preferred_bullet_char, month, year)
         self.periodicname = "QUARTERLYs:\n"
         self.agenda = ""
         template = super(QuarterTemplate, self).build()
@@ -32,7 +31,7 @@ class QuarterTemplate(Template):
         last_month_entry = 'Month of'
         previdx = quartercontents.find(last_month_entry)
         idx = quartercontents.rfind('\n', 0, previdx)
-        newquartercontents = quartercontents[:idx + 1] + '\t%s [[Month of %s, %d]]\n' % (config.PlannerConfig.PreferredBulletChar, month, year) + quartercontents[idx + 1:]
+        newquartercontents = quartercontents[:idx + 1] + '\t%s [[Month of %s, %d]]\n' % (self.planner.preferred_bullet_char, month, year) + quartercontents[idx + 1:]
         return newquartercontents
 
     def write_existing(self):
