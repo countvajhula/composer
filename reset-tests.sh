@@ -1,2 +1,2 @@
 #!/bin/bash
-cd tests/testwikis && ./reset.sh
+[ -d "tests/testwikis" ] && cd tests/testwikis && ./reset.sh
