@@ -13,15 +13,16 @@ except ImportError:  # py3
 
 
 def extract_lessons(lessons_files):
-    # a list containing all lines in a file with leading # removed and trailing \n added
+    # a list containing all lines in a file with leading # removed
+    # and trailing \n added
     def extract_lessons_raw(f):
         line = f.readline()
         if not line:
             return []
-        line_fmt = re.sub('^\d+[a-z]?[A-Z]?\. ?', '', line)
+        line_fmt = re.sub("^\d+[a-z]?[A-Z]?\. ?", "", line)
         if len(line_fmt) <= 1 or line_fmt == line:
             return extract_lessons_raw(f)
-        line_fmt = line_fmt.rstrip('\n') + '\n'
+        line_fmt = line_fmt.rstrip("\n") + "\n"
         return [line_fmt] + extract_lessons_raw(f)
 
     # combine all lessons from different files into one list
@@ -39,27 +40,32 @@ def get_advice(lessons_files):
     return ""
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) == 1:
         wikidirs = config.PRODUCTION_WIKIDIRS
     else:
-        if sys.argv[1] == '-t' or sys.argv[1] == '--test':
+        if sys.argv[1] == "-t" or sys.argv[1] == "--test":
             wikidirs = config.TEST_WIKIDIRS
             print()
-            print(">>> Operating in TEST mode on planners at locations: %s <<<" % wikidirs)
+            print(
+                ">>> Operating in TEST mode on planners at locations: %s <<<"
+                % wikidirs
+            )
             print()
         else:
             raise Exception("Invalid command line arguments")
 
     filepaths = []
     for wikidir in wikidirs:
-        filepaths.extend(map(lambda f: wikidir + '/' + f, config.LESSONS_FILES))
+        filepaths.extend(
+            map(lambda f: wikidir + "/" + f, config.LESSONS_FILES)
+        )
 
     def openfile(fn):
         try:
-            f = open(fn, 'r')
+            f = open(fn, "r")
         except Exception:
-            f = StringIO('')
+            f = StringIO("")
         return f
 
     lessons_files = map(openfile, filepaths)

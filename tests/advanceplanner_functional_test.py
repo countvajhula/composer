@@ -8,7 +8,6 @@ from composer.utils import PlannerPeriod
 
 
 class AdvancePlanner(unittest.TestCase):
-
     def test_advance_planner_day(self):
         """ Actually operate on a wiki that's configured such that only a day advance
         is in order. After running the test check that this is what has happened

@@ -24,6 +24,7 @@ class PlannerMock(MagicMock):
     on an actual Planner instance, and tests may pass or fail incorrectly
     on this basis.
     """
+
     date = None
     tomorrow_checking = LOGFILE_CHECKING['STRICT']
     logfile_completion_checking = LOGFILE_CHECKING['STRICT']

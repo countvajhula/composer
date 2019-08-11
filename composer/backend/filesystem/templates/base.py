@@ -1,6 +1,6 @@
 import abc
 
-ABC = abc.ABCMeta('ABC', (object,), {})  # compatible with Python 2 *and* 3
+ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 
 
 class Template(ABC):
@@ -34,7 +34,7 @@ class Template(ABC):
             template += "\n"
         template += "CHECKPOINTS:\n"
         for line in self.checkpointsfile:
-            if line[:3] == '[ ]':
+            if line[:3] == "[ ]":
                 template += line
         template += "\n"
         template += "AGENDA:\n"
@@ -44,7 +44,7 @@ class Template(ABC):
         template += "\n"
         template += self.periodicname
         for line in self.periodicfile:
-            if line[:3] == '[ ]':
+            if line[:3] == "[ ]":
                 template += line
         template += "\n"
         template += "NOTES:\n\n\n"

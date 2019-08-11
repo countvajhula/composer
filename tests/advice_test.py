@@ -12,12 +12,18 @@ except ImportError:  # py3
 class TestAdvice(unittest.TestCase):
     """ Supported numbering scheme: digit + optional letter. E.g. '12a.' """
 
-    lessons = ['Always do what is right; not because it is easy or prudent, but because it is right.\n', 'Be diligent.\n', 'Routine, routine, routine.\n']
+    lessons = [
+        'Always do what is right; not because it is easy or prudent, but because it is right.\n',
+        'Be diligent.\n',
+        'Routine, routine, routine.\n',
+    ]
     lesson_nonewline = 'Always add newlines.'
     lessonfile1 = StringIO("1. %s12. %s" % (lessons[0], lessons[1]))
     lessonfile2 = StringIO("1a. %s" % lessons[2])
     lessonfile_nonewline = StringIO("1. %s" % lesson_nonewline)
-    lessonfile_newlines = StringIO("1. %s\n\n2. %s\n3. %s" % (lessons[0], lessons[0], lessons[0]))
+    lessonfile_newlines = StringIO(
+        "1. %s\n\n2. %s\n3. %s" % (lessons[0], lessons[0], lessons[0])
+    )
     lessonfile_misctext = StringIO("TIPS\n1.%s" % lessons[0])
     emptyfile = StringIO("")
     advicefiles_good = [lessonfile1, lessonfile2]

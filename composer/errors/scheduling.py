@@ -3,6 +3,7 @@ from . import ComposerError
 
 class SchedulingError(ComposerError):
     """  Base error class for scheduling errors. """
+
     def __init__(self, value):
         self.value = value
 
@@ -20,6 +21,7 @@ class BlockedTaskNotScheduledError(SchedulingError):
 
 class SchedulingDateError(SchedulingError):
     """  Base error class for date-related errors in scheduling. """
+
     def __init__(self, value):
         self.value = value
 

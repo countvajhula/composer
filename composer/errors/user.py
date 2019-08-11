@@ -3,6 +3,7 @@ from . import ComposerError
 
 class UserError(ComposerError):
     """  Base error class for user-related errors. """
+
     def __init__(self, value):
         self.value = value
 

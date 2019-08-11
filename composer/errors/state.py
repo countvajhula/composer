@@ -3,6 +3,7 @@ from . import ComposerError
 
 class PlannerStateError(ComposerError):
     """  Base error class for planner state errors. """
+
     def __init__(self, value):
         self.value = value
 

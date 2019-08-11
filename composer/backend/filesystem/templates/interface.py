@@ -6,10 +6,6 @@ from .quarter import QuarterTemplate
 from .year import YearTemplate
 
 
-# Get the high level thing working first ("black box abstraction") and then improve it
-# if necessary even consult the original interfaces and pass those args in, redundant though they may be
-# do black formatting sooner rather than later, to minimize noise in spotting legitimate errors
-
 def _get_template(planner, period, next_day):
     if period == utils.PlannerPeriod.Day:
         template = DayTemplate(planner, next_day)

@@ -5,8 +5,17 @@ import composer.updateindex as updateindex
 
 
 class WikiPagesKnownValues(unittest.TestCase):
-    dummyfiles = ['hold on thar.wiki', "what's this?.wiki", "blah.wiki", "blah.wik", "blah", "blah.wiki.swp", "blah.wiki~", "bleh.wiki"]
-    wikifiles = ['hold on thar', "what's this?", "blah",  "bleh"]
+    dummyfiles = [
+        'hold on thar.wiki',
+        "what's this?.wiki",
+        "blah.wiki",
+        "blah.wik",
+        "blah",
+        "blah.wiki.swp",
+        "blah.wiki~",
+        "bleh.wiki",
+    ]
+    wikifiles = ['hold on thar', "what's this?", "blah", "bleh"]
 
     def test_known_values(self):
         """ Check that valid wiki files among known dummy file names are correctly recognized as wiki files """
