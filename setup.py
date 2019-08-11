@@ -5,6 +5,7 @@ requirements = [
 ]
 
 test_requirements = [
+    'pytest',
     'tox',
     'mock',  # py2 only
 ]
@@ -12,6 +13,10 @@ test_requirements = [
 dev_requirements = [
     'flake8',
     'bump2version',
+]
+
+setup_requirements = [
+    'pytest-runner',
 ]
 
 setup(
@@ -25,6 +30,7 @@ setup(
     packages=['composer'],
     test_suite='tests',
     install_requires=requirements,
+    setup_requires=setup_requirements,
     tests_require=test_requirements,
     extras_require={
         'dev': dev_requirements,
