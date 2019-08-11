@@ -1,2 +1,5 @@
 #!/bin/bash
-[ -d "tests/testwikis" ] && cd tests/testwikis && ./reset.sh
+if [ -d "tests/testwikis" ]
+then
+	cd tests/testwikis && ./reset.sh
+fi
