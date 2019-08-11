@@ -7,9 +7,13 @@ import datetime
 import os
 import re
 
-from .backend.filesystem import advanceplanner
-from .backend.filesystem.utils import read_file
-from . import config
+import click
+
+from composer.backend.filesystem import advanceplanner
+from composer.backend.filesystem.utils import read_file
+from composer import config
+
+CONFIG_FILE = os.path.expanduser('~/.composer/config.ini')
 
 PLANNERDAYFILELINK = 'currentday'
 PLANNERWEEKFILELINK = 'currentweek'
@@ -124,8 +128,15 @@ def get_logs_times_this_quarter(wikidir):
     return (logs, times)
 
 
-def main():
-    wikidirs = config.PRODUCTION_WIKIDIRS
+@click.command(help=('Collect recent log data to help with retrospectives.'))
+@click.argument('wikipath', required=False)
+def main(wikipath):
+    preferences = config.read_user_preferences(CONFIG_FILE)
+    # if wikipath is specified, it should override the configured paths in the ini file
+    if wikipath:
+        wikidirs = [wikipath]
+    else:
+        wikidirs = preferences['wikis']
     for wikidir in wikidirs:
         (weeklogs, weektimes) = get_logs_times_this_week(wikidir)
         (monthlogs, monthtimes) = get_logs_times_this_month(wikidir)
