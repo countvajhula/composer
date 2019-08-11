@@ -30,7 +30,8 @@ setup(
         'dev': dev_requirements,
     },
     entry_points={
-        'console_scripts': ['whats-next=composer.whatsnext:main'],
+        'console_scripts': ['whats-next=composer.whatsnext:main',
+                            'collect-logs=composer.collectlogs:main',
+                            'update-index=composer.updateindex:main'],
     },
-    scripts=['bin/collect-logs', 'bin/update-index'],
 )
