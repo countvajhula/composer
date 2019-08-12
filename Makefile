@@ -41,6 +41,12 @@ lint:
 test:
 	python setup.py test
 
+test-unit:
+	python setup.py test --addopts tests/unit
+
+test-functional:
+	python setup.py test --addopts tests/functional
+
 test-all:
 	tox
 
@@ -62,4 +68,4 @@ sdist: clean
 	python setup.py sdist
 	ls -l dist
 
-.PHONY: help build clean clean-pyc clean-build clean-test lint test test-all coverage sdist
+.PHONY: help build clean clean-build clean-pyc clean-test lint test test-unit, test-functional test-all test-wiki coverage sdist
