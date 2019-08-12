@@ -4,7 +4,7 @@ import unittest
 import composer.backend.filesystem.templates as templates
 from composer.utils import PlannerPeriod
 
-from fixtures import PlannerMock
+from .fixtures import PlannerMock
 
 try:  # py2
     from StringIO import StringIO
