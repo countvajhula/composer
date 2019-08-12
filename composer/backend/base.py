@@ -16,11 +16,13 @@ class PlannerBase(ABC):
     preferred_bullet_char = DEFAULT_BULLET_CHARACTER
     schedule = DEFAULT_SCHEDULE
     week_theme = None
+    jumping = False
 
-    def set_preferences(self, preferences=None, jump=False):
+    def set_preferences(self, preferences=None):
         if preferences:
-            self.schedule = preferences["schedule"]
-            self.preferred_bullet_char = preferences["bullet_character"]
+            self.schedule = preferences.get("schedule", DEFAULT_SCHEDULE)
+            self.preferred_bullet_char = preferences.get("bullet_character", DEFAULT_BULLET_CHARACTER)
+            self.jumping = preferences.get("jump", False)
 
         self.logfile_completion_checking = (
             LOGFILE_CHECKING["LAX"] if jump else LOGFILE_CHECKING["STRICT"]
