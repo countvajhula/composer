@@ -39,7 +39,7 @@ lint:
 	flake8 composer tests
 
 test:
-	nose2
+	python setup.py test
 
 test-all:
 	tox
