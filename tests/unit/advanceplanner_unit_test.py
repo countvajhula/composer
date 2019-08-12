@@ -58,7 +58,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         "TOMORROW:\n"
         "\n"
         "THIS WEEK:\n"
-        "[\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
+        "[\\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
         "[ ] help meags set up planner\n"
         "\t[x] create life mindmap with meags\n"
         "\t[x] incorporate life mindmap into planner with meags\n"
