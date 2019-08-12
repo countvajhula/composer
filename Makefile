@@ -36,7 +36,12 @@ clean-test:
 	./reset-tests.sh
 
 lint:
-	flake8 composer tests
+	flake8 composer
+
+lint-tests:
+	flake8 tests
+
+lint-all: lint lint-tests
 
 test:
 	python setup.py test
@@ -68,4 +73,4 @@ sdist: clean
 	python setup.py sdist
 	ls -l dist
 
-.PHONY: help build clean clean-build clean-pyc clean-test lint test test-unit, test-functional test-all test-wiki coverage sdist
+.PHONY: help build clean clean-build clean-pyc clean-test lint lint-tests lint-all test test-unit test-functional test-all test-wiki coverage sdist
