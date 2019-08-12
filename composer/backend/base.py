@@ -21,14 +21,20 @@ class PlannerBase(ABC):
     def set_preferences(self, preferences=None):
         if preferences:
             self.schedule = preferences.get("schedule", DEFAULT_SCHEDULE)
-            self.preferred_bullet_char = preferences.get("bullet_character", DEFAULT_BULLET_CHARACTER)
+            self.preferred_bullet_char = preferences.get(
+                "bullet_character", DEFAULT_BULLET_CHARACTER
+            )
             self.jumping = preferences.get("jump", False)
 
         self.logfile_completion_checking = (
-            LOGFILE_CHECKING["LAX"] if jump else LOGFILE_CHECKING["STRICT"]
+            LOGFILE_CHECKING["LAX"]
+            if self.jumping
+            else LOGFILE_CHECKING["STRICT"]
         )
         self.tomorrow_checking = (
-            LOGFILE_CHECKING["LAX"] if jump else LOGFILE_CHECKING["STRICT"]
+            LOGFILE_CHECKING["LAX"]
+            if self.jumping
+            else LOGFILE_CHECKING["STRICT"]
         )
 
     @abc.abstractmethod
