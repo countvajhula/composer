@@ -35,16 +35,15 @@ clean-test:
 	rm -fr coverage_html_report/
 	./reset-tests.sh
 
-lint:
+lint-source:
 	flake8 composer
 
 lint-tests:
 	flake8 tests
 
-lint-all: lint lint-tests
+lint-all: lint-source lint-tests
 
-test:
-	python setup.py test
+lint: lint-source
 
 test-unit:
 	python setup.py test --addopts tests/unit
@@ -52,7 +51,11 @@ test-unit:
 test-functional:
 	python setup.py test --addopts tests/functional
 
-test-all:
+test-all: test-unit test-functional
+
+test: test-unit
+
+test-matrix:
 	tox
 
 test-wiki:
@@ -73,4 +76,4 @@ sdist: clean
 	python setup.py sdist
 	ls -l dist
 
-.PHONY: help build clean clean-build clean-pyc clean-test lint lint-tests lint-all test test-unit test-functional test-all test-wiki coverage sdist
+.PHONY: help build clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint test-unit test-functional test-all test test-matrix test-wiki coverage sdist
