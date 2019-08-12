@@ -55,9 +55,13 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 
     # TODO: change these to annotated regex's
     # MONTH DD, YYYY (w optional space or comma or both)
-    dateformat1 = re.compile(r"^([^\d ]+) (\d\d?)[, ] ?(\d{4})$", re.IGNORECASE)
+    dateformat1 = re.compile(
+        r"^([^\d ]+) (\d\d?)[, ] ?(\d{4})$", re.IGNORECASE
+    )
     # DD MONTH, YYYY (w optional space or comma or both)
-    dateformat2 = re.compile(r"^(\d\d?) ([^\d,]+)[, ] ?(\d{4})$", re.IGNORECASE)
+    dateformat2 = re.compile(
+        r"^(\d\d?) ([^\d,]+)[, ] ?(\d{4})$", re.IGNORECASE
+    )
     # MONTH DD
     dateformat3 = re.compile(r"^([^\d ]+) (\d\d?)$", re.IGNORECASE)
     # DD MONTH
@@ -96,7 +100,9 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
         re.IGNORECASE,
     )
     # <DOW> (abbrv.)
-    dateformat17 = re.compile(r"^(MON|TUE|WED|THU|FRI|SAT|SUN)$", re.IGNORECASE)
+    dateformat17 = re.compile(
+        r"^(MON|TUE|WED|THU|FRI|SAT|SUN)$", re.IGNORECASE
+    )
 
     if dateformat1.search(datestr):
         (month, day, year) = dateformat1.search(datestr).groups()
