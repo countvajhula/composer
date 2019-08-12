@@ -28,8 +28,8 @@ def get_filename(wikidir, filelink):
 
 
 def extract_log_time_from_text(logtext):
-    notes_idx = re.search("NOTES:\n", logtext).end()
-    end_idx = re.search("\nTIME", logtext).start()
+    notes_idx = re.search(r"NOTES:\n", logtext).end()
+    end_idx = re.search(r"\nTIME", logtext).start()
     log = logtext[notes_idx:end_idx].strip(" \n")
     time_idx = end_idx + logtext[end_idx:].find(":") + 1
     time = logtext[time_idx:].strip(" \n")
@@ -46,7 +46,7 @@ def get_logs_times_this_week(wikidir):
     (logs, times) = ("", [])
     fn = get_filename(wikidir, PLANNERWEEKFILELINK)
     startday_str = re.search(
-        "[^\.]*", fn[8:]
+        r"[^\.]*", fn[8:]
     ).group()  # confirm what group does
     curday = datetime.datetime.strptime(startday_str, "%B %d, %Y").date()
     fnpath = "%s/%s.wiki" % (

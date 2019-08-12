@@ -1,7 +1,7 @@
 import re
 
 SECTION_HEADER_PATTERN = re.compile(r"^[A-Z][A-Z][A-Za-z ]+:")
-TASK_PATTERN = re.compile("^\t*\[")
+TASK_PATTERN = re.compile(r"^\t*\[")
 
 
 def quarter_for_month(month):

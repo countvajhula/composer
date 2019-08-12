@@ -19,7 +19,7 @@ def extract_lessons(lessons_files):
         line = f.readline()
         if not line:
             return []
-        line_fmt = re.sub("^\d+[a-z]?[A-Z]?\. ?", "", line)
+        line_fmt = re.sub(r"^\d+[a-z]?[A-Z]?\. ?", "", line)
         if len(line_fmt) <= 1 or line_fmt == line:
             return extract_lessons_raw(f)
         line_fmt = line_fmt.rstrip("\n") + "\n"

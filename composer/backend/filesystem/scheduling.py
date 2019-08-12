@@ -19,7 +19,7 @@ except ImportError:  # py3
     from io import StringIO
 
 
-SCHEDULED_DATE_PATTERN = re.compile("\[\$?([^\[\$]*)\$?\]$")
+SCHEDULED_DATE_PATTERN = re.compile(r"\[\$?([^\[\$]*)\$?\]$")
 
 
 def get_appropriate_year(month, day, today):
@@ -55,48 +55,48 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 
     # TODO: change these to annotated regex's
     # MONTH DD, YYYY (w optional space or comma or both)
-    dateformat1 = re.compile("^([^\d ]+) (\d\d?)[, ] ?(\d{4})$", re.IGNORECASE)
+    dateformat1 = re.compile(r"^([^\d ]+) (\d\d?)[, ] ?(\d{4})$", re.IGNORECASE)
     # DD MONTH, YYYY (w optional space or comma or both)
-    dateformat2 = re.compile("^(\d\d?) ([^\d,]+)[, ] ?(\d{4})$", re.IGNORECASE)
+    dateformat2 = re.compile(r"^(\d\d?) ([^\d,]+)[, ] ?(\d{4})$", re.IGNORECASE)
     # MONTH DD
-    dateformat3 = re.compile("^([^\d ]+) (\d\d?)$", re.IGNORECASE)
+    dateformat3 = re.compile(r"^([^\d ]+) (\d\d?)$", re.IGNORECASE)
     # DD MONTH
-    dateformat4 = re.compile("^(\d\d?) ([^\d]+)$", re.IGNORECASE)
+    dateformat4 = re.compile(r"^(\d\d?) ([^\d]+)$", re.IGNORECASE)
     # WEEK OF MONTH DD, YYYY (w optional space or comma or both)
     dateformat5 = re.compile(
-        "^WEEK OF ([^\d ]+) (\d\d?)[, ] ?(\d{4})$", re.IGNORECASE
+        r"^WEEK OF ([^\d ]+) (\d\d?)[, ] ?(\d{4})$", re.IGNORECASE
     )
     # WEEK OF DD MONTH, YYYY (w optional space or comma or both)
     dateformat6 = re.compile(
-        "^WEEK OF (\d\d?) ([^\d,]+)[, ] ?(\d{4})$", re.IGNORECASE
+        r"^WEEK OF (\d\d?) ([^\d,]+)[, ] ?(\d{4})$", re.IGNORECASE
     )
     # WEEK OF MONTH DD
-    dateformat7 = re.compile("^WEEK OF ([^\d ]+) (\d\d?)$", re.IGNORECASE)
+    dateformat7 = re.compile(r"^WEEK OF ([^\d ]+) (\d\d?)$", re.IGNORECASE)
     # WEEK OF DD MONTH
-    dateformat8 = re.compile("^WEEK OF (\d\d?) ([^\d,]+)$", re.IGNORECASE)
+    dateformat8 = re.compile(r"^WEEK OF (\d\d?) ([^\d,]+)$", re.IGNORECASE)
     # MONTH YYYY (w optional space or comma or both)
-    dateformat9 = re.compile("^([^\d, ]+)[, ] ?(\d{4})$", re.IGNORECASE)
+    dateformat9 = re.compile(r"^([^\d, ]+)[, ] ?(\d{4})$", re.IGNORECASE)
     # MONTH
-    dateformat10 = re.compile("^([^\d ]+)$", re.IGNORECASE)
+    dateformat10 = re.compile(r"^([^\d ]+)$", re.IGNORECASE)
     # MM/DD/YYYY
-    dateformat11 = re.compile("^(\d\d)/(\d\d)/(\d\d\d\d)$", re.IGNORECASE)
+    dateformat11 = re.compile(r"^(\d\d)/(\d\d)/(\d\d\d\d)$", re.IGNORECASE)
     # MM-DD-YYYY
-    dateformat12 = re.compile("^(\d\d)-(\d\d)-(\d\d\d\d)$", re.IGNORECASE)
+    dateformat12 = re.compile(r"^(\d\d)-(\d\d)-(\d\d\d\d)$", re.IGNORECASE)
     # TOMORROW
-    dateformat13 = re.compile("^TOMORROW$", re.IGNORECASE)
+    dateformat13 = re.compile(r"^TOMORROW$", re.IGNORECASE)
     # TODO: need a function to test date boundary status and return
     # monthboundary, weekboundary, or dayboundary (default)
     # NEXT WEEK
-    dateformat14 = re.compile("^NEXT WEEK$", re.IGNORECASE)
+    dateformat14 = re.compile(r"^NEXT WEEK$", re.IGNORECASE)
     # NEXT MONTH
-    dateformat15 = re.compile("^NEXT MONTH$", re.IGNORECASE)
+    dateformat15 = re.compile(r"^NEXT MONTH$", re.IGNORECASE)
     # <DOW>
     dateformat16 = re.compile(
-        "^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$",
+        r"^(MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)$",
         re.IGNORECASE,
     )
     # <DOW> (abbrv.)
-    dateformat17 = re.compile("^(MON|TUE|WED|THU|FRI|SAT|SUN)$", re.IGNORECASE)
+    dateformat17 = re.compile(r"^(MON|TUE|WED|THU|FRI|SAT|SUN)$", re.IGNORECASE)
 
     if dateformat1.search(datestr):
         (month, day, year) = dateformat1.search(datestr).groups()
