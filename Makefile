@@ -46,6 +46,9 @@ lint-all: lint-source lint-tests
 
 lint: lint-source
 
+black:
+	black composer tests
+
 test-unit:
 	python setup.py test --addopts tests/unit
 
@@ -77,4 +80,4 @@ sdist: clean
 	python setup.py sdist
 	ls -l dist
 
-.PHONY: help build clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint test-unit test-functional test-all test test-matrix test-wiki coverage sdist
+.PHONY: help build clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint black test-unit test-functional test-all test test-matrix test-wiki coverage sdist
