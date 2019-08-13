@@ -35,9 +35,9 @@ def update_index(plannerpath, indexfile=None, indextitle=None):
 
 @click.command(
     help=(
-        'Update the wiki index with any newly created pages.\n'
-        'Usage: "./updateindex.py <WIKI/PATH> <-f Index filename>'
-        ' <-t Index title>"\n'
+        'Regenerate the index for the wiki at the indicated path. '
+        'This will result in any newly created pages being included in '
+        'the index.\n'
     )
 )
 @click.argument("wikipath")
