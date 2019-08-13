@@ -887,7 +887,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        advanceplanner.advance_planner(self.planner, now)
         self.assertEqual(
             self.planner.weekfile.read(), self.weekadvance_weektemplate
         )
