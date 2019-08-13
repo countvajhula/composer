@@ -2,8 +2,8 @@
 import os
 import sys
 
-""" TODO: need to improve this script to do regex matching on wiki page names,
-and sort the pages by type and in chronological order + Misc/uncategorized """
+# TODO: need to improve this script to do regex matching on wiki page names,
+# and sort the pages by type and in chronological order + Misc/uncategorized
 
 INDEXFILE = "Pages.wiki"
 INDEXTITLE = "= INDEX ="

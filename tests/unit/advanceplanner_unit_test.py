@@ -14,17 +14,15 @@ except ImportError:  # py3
     from io import StringIO
 
 
-""" 
-1. add year later
-2. improve later to have dif templates for each day -- *day*
-3. if attempt to create already exists throw exception
-4. add if (themes) condition
-5. Check current date and day, get "successor" using python date module (unit tests for this)
-6. Add tests for different partially-done todos
-7. Add tests for assert raises, esp in scheduling
-8. Add tests for logfile completion checking: (1) quarter bug, (2) regexp matches for log (^OCI matched giving logfile incomplete): 
-    ASDFADF :,ASFASfdfad:,ASDFASDF:,ASDFSADF adfadf asd: asdfAf,ASDFASDFAF,AASFDFD ASDF:,ASDFFD:ASDFSF,NEW SECTION:,ASDFFD:ASDFSF:,NEW SECTION IS HERE: and some data 5:56
-"""
+# 1. add year later
+# 2. improve later to have dif templates for each day -- *day*
+# 3. if attempt to create already exists throw exception
+# 4. add if (themes) condition
+# 5. Check current date and day, get "successor" using python date module (unit tests for this)
+# 6. Add tests for different partially-done todos
+# 7. Add tests for assert raises, esp in scheduling
+# 8. Add tests for logfile completion checking: (1) quarter bug, (2) regexp matches for log (^OCI matched giving logfile incomplete):
+#     ASDFADF :,ASFASfdfad:,ASDFASDF:,ASDFSADF adfadf asd: asdfAf,ASDFASDFAF,AASFDFD ASDF:,ASDFFD:ASDFSF,NEW SECTION:,ASDFFD:ASDFSF:,NEW SECTION IS HERE: and some data 5:56
 
 
 class PlannerDateIntegrityTester(unittest.TestCase):
@@ -671,12 +669,6 @@ class PlannerAdvanceTester(unittest.TestCase):
             2012, 5, 5, 19, 0, 0
         )  # 5/5/2012 is Sat, and current week is exactly 5 days long (long enough), so should advance week
         self.planner.date = now.date()
-        (date, day, month, year) = (
-            self.planner.date.day,
-            self.planner.date.strftime('%A'),
-            self.planner.date.strftime('%B'),
-            self.planner.date.year,
-        )
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
@@ -690,12 +682,6 @@ class PlannerAdvanceTester(unittest.TestCase):
             2012, 5, 26, 19, 0, 0
         )  # 5/26/2012 is Sat, and new week would be exactly 5 days long (long enough), so should advance week
         self.planner.date = now.date()
-        (date, day, month, year) = (
-            self.planner.date.day,
-            self.planner.date.strftime('%A'),
-            self.planner.date.strftime('%B'),
-            self.planner.date.year,
-        )
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
@@ -769,7 +755,9 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+
+        advanceplanner.advance_planner(self.planner, now)
+
         self.assertEqual(
             self.planner.yearfile.read(), self.yearadvance_yeartemplate
         )

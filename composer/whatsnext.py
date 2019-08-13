@@ -208,7 +208,7 @@ def process_wiki(wikidir, preferences, now):
     help=("A temporary flag for testing. To be removed in a future version."),
 )
 @click.option("-j", "--jump", is_flag=True, help="Jump to present day.")
-def main(wikipath, test, jump):
+def main(wikipath=None, test=False, jump=False):
     # Moved pending tasks from today over to tomorrow's agenda
     # could try: [Display score for today]
 

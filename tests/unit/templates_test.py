@@ -295,7 +295,7 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
                 newdt = now + datetime.timedelta(days=1)
                 yield newdt
 
-        for i in range(7):
+        for _ in range(7):
             now = next(increment_date())
             today = now.date()
             next_day = today + datetime.timedelta(days=1)
@@ -461,12 +461,6 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
         now = datetime.datetime(2012, 12, 4, 18, 50, 30)
         today = now.date()
         next_day = today + datetime.timedelta(days=1)
-        (date, day, month, year) = (
-            next_day.day,
-            next_day.strftime('%A'),
-            next_day.strftime('%B'),
-            next_day.year,
-        )
         monthfile = StringIO(self.monthtemplate)
         planner = PlannerMock(monthfile=monthfile)
         templates.write_existing_template(
@@ -479,12 +473,6 @@ class PlannerExistingTemplateUpdateIntegrityTester(unittest.TestCase):
         now = datetime.datetime(2012, 12, 4, 18, 50, 30)
         today = now.date()
         next_day = today + datetime.timedelta(days=1)
-        (date, day, month, year) = (
-            next_day.day,
-            next_day.strftime('%A'),
-            next_day.strftime('%B'),
-            next_day.year,
-        )
         weekfile = StringIO(self.weektemplate)
         planner = PlannerMock(weekfile=weekfile)
         templates.write_existing_template(

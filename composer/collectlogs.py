@@ -151,7 +151,7 @@ def get_logs_times_this_quarter(wikidir):
 
 @click.command(help=("Collect recent log data to help with retrospectives."))
 @click.argument("wikipath", required=False)
-def main(wikipath):
+def main(wikipath=None):
     preferences = config.read_user_preferences(CONFIG_FILE)
     # if wikipath is specified, it should override
     # the configured paths in the ini file
