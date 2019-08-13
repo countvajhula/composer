@@ -799,7 +799,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        advanceplanner.advance_planner(self.planner, now)
         self.assertEqual(
             self.planner.quarterfile.read(),
             self.quarteradvance_quartertemplate,
@@ -845,7 +845,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        advanceplanner.advance_planner(self.planner, now)
         self.assertEqual(
             self.planner.monthfile.read(), self.monthadvance_monthtemplate
         )
