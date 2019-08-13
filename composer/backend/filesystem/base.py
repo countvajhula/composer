@@ -214,7 +214,7 @@ class FilesystemPlanner(PlannerBase):
         # (possibly new) buffers
         # save to the known files here
 
-        status = scheduling.schedule_tasks(self, now)
+        scheduling.schedule_tasks(self, now)
         status = advanceplanner.advance_planner(self, now)
 
         tasklistfn = "{}/{}".format(self.location, PLANNERTASKLISTFILE)

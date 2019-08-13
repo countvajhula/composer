@@ -14,105 +14,103 @@ except ImportError:  # py3
     from io import StringIO
 
 
-class DayTemplate(Template):
-    def _do_post_mortem(self, logfile):
-        # TODO: maybe set the logfile as an attribute on template instances
-        tasks = {"done": "", "undone": "", "blocked": ""}
+def _do_post_mortem(logfile):
+    tasks = {"done": "", "undone": "", "blocked": ""}
+    ss = logfile.readline()
+    while ss != "" and ss[: len("agenda")].lower() != "agenda":
         ss = logfile.readline()
-        while ss != "" and ss[: len("agenda")].lower() != "agenda":
+    if ss == "":
+        raise LogfileLayoutError(
+            "No AGENDA section found in today's log file!"
+            " Add one and try again."
+        )
+    ss = logfile.readline()
+    while ss != "" and not SECTION_HEADER_PATTERN.search(ss):
+        if ss.startswith("[x") or ss.startswith("[-"):
+            tasks["done"] += ss
             ss = logfile.readline()
-        if ss == "":
-            raise LogfileLayoutError(
-                "No AGENDA section found in today's log file!"
-                " Add one and try again."
-            )
-        ss = logfile.readline()
-        while ss != "" and not SECTION_HEADER_PATTERN.search(ss):
-            if ss.startswith("[x") or ss.startswith("[-"):
+            while (
+                ss != ""
+                and not ss.startswith("[")
+                and not SECTION_HEADER_PATTERN.search(ss)
+            ):
                 tasks["done"] += ss
                 ss = logfile.readline()
-                while (
-                    ss != ""
-                    and not ss.startswith("[")
-                    and not SECTION_HEADER_PATTERN.search(ss)
-                ):
-                    tasks["done"] += ss
-                    ss = logfile.readline()
-            elif ss.startswith("[ ") or ss.startswith("[\\"):
+        elif ss.startswith("[ ") or ss.startswith("[\\"):
+            tasks["undone"] += ss
+            ss = logfile.readline()
+            while (
+                ss != ""
+                and not ss.startswith("[")
+                and not SECTION_HEADER_PATTERN.search(ss)
+            ):
                 tasks["undone"] += ss
                 ss = logfile.readline()
-                while (
-                    ss != ""
-                    and not ss.startswith("[")
-                    and not SECTION_HEADER_PATTERN.search(ss)
-                ):
-                    tasks["undone"] += ss
-                    ss = logfile.readline()
-            elif ss.startswith("[o"):
+        elif ss.startswith("[o"):
+            tasks["blocked"] += ss
+            ss = logfile.readline()
+            while (
+                ss != ""
+                and not ss.startswith("[")
+                and not SECTION_HEADER_PATTERN.search(ss)
+            ):
                 tasks["blocked"] += ss
                 ss = logfile.readline()
-                while (
-                    ss != ""
-                    and not ss.startswith("[")
-                    and not SECTION_HEADER_PATTERN.search(ss)
-                ):
-                    tasks["blocked"] += ss
-                    ss = logfile.readline()
-            else:
-                ss = logfile.readline()
-        tasks["done"] = tasks["done"].strip("\n")
-        tasks["undone"] = tasks["undone"].strip("\n")
-        tasks["blocked"] = tasks["blocked"].strip("\n")
-        return tasks
+        else:
+            ss = logfile.readline()
+    tasks["done"] = tasks["done"].strip("\n")
+    tasks["undone"] = tasks["undone"].strip("\n")
+    tasks["blocked"] = tasks["blocked"].strip("\n")
+    return tasks
 
-    def _get_tasks_for_tomorrow(self, tasklist):
-        """ Read the tasklist, parse all tasks under the TOMORROW section
-        and return those, and also return a modified tasklist with those
-        tasks removed """
-        tasks = ""
-        tasklist_nextday = StringIO()
-        ss = tasklist.readline()
-        while ss != "" and ss[: len("tomorrow")].lower() != "tomorrow":
-            tasklist_nextday.write(ss)
-            ss = tasklist.readline()
-        if ss == "":
-            raise TasklistLayoutError(
-                "Error: No 'TOMORROW' section found in your tasklist!"
-                " Please add one and try again."
-            )
+
+def _get_tasks_for_tomorrow(tasklist, tomorrow_checking):
+    """ Read the tasklist, parse all tasks under the TOMORROW section
+    and return those, and also return a modified tasklist with those
+    tasks removed """
+    tasks = ""
+    tasklist_nextday = StringIO()
+    ss = tasklist.readline()
+    while ss != "" and ss[: len("tomorrow")].lower() != "tomorrow":
         tasklist_nextday.write(ss)
         ss = tasklist.readline()
-        while ss != "" and not SECTION_HEADER_PATTERN.search(ss):
-            if TASK_PATTERN.search(ss):
-                tasks += ss
-            else:
-                tasklist_nextday.write(ss)
-            ss = tasklist.readline()
-        if (
-            tasks == ""
-            and self.planner.tomorrow_checking
-            == config.LOGFILE_CHECKING["STRICT"]
-        ):
-            raise TomorrowIsEmptyError(
-                "The tomorrow section is blank. Do you want to add"
-                " some tasks for tomorrow?"
-            )
-        while ss != "":
+    if ss == "":
+        raise TasklistLayoutError(
+            "Error: No 'TOMORROW' section found in your tasklist!"
+            " Please add one and try again."
+        )
+    tasklist_nextday.write(ss)
+    ss = tasklist.readline()
+    while ss != "" and not SECTION_HEADER_PATTERN.search(ss):
+        if TASK_PATTERN.search(ss):
+            tasks += ss
+        else:
             tasklist_nextday.write(ss)
-            ss = tasklist.readline()
-        tasks = tasks.strip("\n")
-        tasklist_nextday.seek(0)
-        return tasks, tasklist_nextday
+        ss = tasklist.readline()
+    if tasks == "" and tomorrow_checking == config.LOGFILE_CHECKING["STRICT"]:
+        raise TomorrowIsEmptyError(
+            "The tomorrow section is blank. Do you want to add"
+            " some tasks for tomorrow?"
+        )
+    while ss != "":
+        tasklist_nextday.write(ss)
+        ss = tasklist.readline()
+    tasks = tasks.strip("\n")
+    tasklist_nextday.seek(0)
+    return tasks, tasklist_nextday
 
-    def _get_theme_for_the_day(self, day):
-        dailythemes = self.planner.daythemesfile.read().lower()
-        theme = dailythemes[dailythemes.index(day.lower()) :]
-        theme = theme[theme.index(":") :].strip(": ")
-        theme = theme[: theme.index("\n")].strip().upper()
-        theme = "*" + theme + "*"
-        if len(theme) > 2:
-            return theme
 
+def _get_theme_for_the_day(day, daythemesfile):
+    dailythemes = daythemesfile.read().lower()
+    theme = dailythemes[dailythemes.index(day.lower()) :]
+    theme = theme[theme.index(":") :].strip(": ")
+    theme = theme[: theme.index("\n")].strip().upper()
+    theme = "*" + theme + "*"
+    if len(theme) > 2:
+        return theme
+
+
+class DayTemplate(Template):
     def load_context(self, planner, next_day):
         super(DayTemplate, self).load_context(planner, next_day)
         self.logfile = planner.dayfile
@@ -135,17 +133,19 @@ class DayTemplate(Template):
             "= %s %s %d, %d =\n" % (day, month[:3], date, year)
         ).upper()
 
-        theme = self._get_theme_for_the_day(day)
+        theme = _get_theme_for_the_day(day, self.planner.daythemesfile)
         if theme:
             self.title += "\n"
             self.title += "Theme: %s\n" % theme
         self.periodicname = "DAILYs:\n"
-        undone = self._do_post_mortem(self.planner.dayfile)["undone"]
+        undone = _do_post_mortem(self.planner.dayfile)["undone"]
         tasklistfile = self.tasklistfile  # initial state of tasklist file
         scheduled, tasklistfile = scheduling.get_scheduled_tasks(
             tasklistfile, self.next_day
         )
-        tomorrow, tasklistfile = self._get_tasks_for_tomorrow(tasklistfile)
+        tomorrow, tasklistfile = self._get_tasks_for_tomorrow(
+            tasklistfile, self.planner.tomorrow_checking
+        )
         # TODO: do this mutation elsewhere
         self.planner.tasklistfile = (
             tasklistfile
