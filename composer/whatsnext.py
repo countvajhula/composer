@@ -43,66 +43,6 @@ def process_wiki(wikidir, preferences, now):
             planner = FilesystemPlanner(wikidir)
             planner.set_preferences(preferences)
             planner.advance(now=now, simulate=simulate)
-            print()
-            print(
-                "Moving tasks added for tomorrow over to"
-                " tomorrow's agenda..."
-            )
-            print(
-                "Carrying over any unfinished tasks from today"
-                " to tomorrow's agenda..."
-            )
-            print(
-                "Checking for any other tasks previously scheduled "
-                "for tomorrow..."
-            )
-            print("Creating/updating log files...")
-            print("...DONE.")
-            # update index after making changes
-            print()
-            print("Updating planner wiki index...")
-            updateindex.update_index(wikidir)
-            print("...DONE.")
-            # git commit "after"
-            print()
-            print("Committing all changes...")
-            plannerdate = FilesystemPlanner(wikidir).date
-            (date, month, year) = (
-                plannerdate.day,
-                plannerdate.strftime("%B"),
-                plannerdate.year,
-            )
-            datestr = "%s %d, %d" % (month, date, year)
-            with open(os.devnull, "w") as null:
-                call(["git", "add", "-A"], cwd=wikidir, stdout=null)
-                call(
-                    ["git", "commit", "-m", "SOD %s" % datestr],
-                    cwd=wikidir,
-                    stdout=null,
-                )
-            print("...DONE.")
-            print()
-            print("~~~ THOUGHT FOR THE DAY ~~~")
-            print()
-            filepaths = map(
-                lambda f: wikidir + "/" + f, preferences["lessons_files"]
-            )
-
-            def openfile(fn):
-                try:
-                    f = open(fn, "r")
-                except Exception:
-                    f = StringIO("")
-                return f
-
-            lessons_files = map(openfile, filepaths)
-            print(advice.get_advice(lessons_files))
-            if (
-                planner.jumping
-            ):  # if jumping, keep repeating until present-day error thrown
-                simulate = True
-            else:
-                break
         except SimulationPassedError as err:
             # print "DEV: simulation passed. let's do this thing
             # ... for real."
@@ -191,6 +131,67 @@ def process_wiki(wikidir, preferences, now):
             raise
         except LayoutError as err:
             raise
+        else:
+            print()
+            print(
+                "Moving tasks added for tomorrow over to"
+                " tomorrow's agenda..."
+            )
+            print(
+                "Carrying over any unfinished tasks from today"
+                " to tomorrow's agenda..."
+            )
+            print(
+                "Checking for any other tasks previously scheduled "
+                "for tomorrow..."
+            )
+            print("Creating/updating log files...")
+            print("...DONE.")
+            # update index after making changes
+            print()
+            print("Updating planner wiki index...")
+            updateindex.update_index(wikidir)
+            print("...DONE.")
+            # git commit "after"
+            print()
+            print("Committing all changes...")
+            plannerdate = FilesystemPlanner(wikidir).date
+            (date, month, year) = (
+                plannerdate.day,
+                plannerdate.strftime("%B"),
+                plannerdate.year,
+            )
+            datestr = "%s %d, %d" % (month, date, year)
+            with open(os.devnull, "w") as null:
+                call(["git", "add", "-A"], cwd=wikidir, stdout=null)
+                call(
+                    ["git", "commit", "-m", "SOD %s" % datestr],
+                    cwd=wikidir,
+                    stdout=null,
+                )
+            print("...DONE.")
+            print()
+            print("~~~ THOUGHT FOR THE DAY ~~~")
+            print()
+            filepaths = map(
+                lambda f: wikidir + "/" + f, preferences["lessons_files"]
+            )
+
+            def openfile(fn):
+                try:
+                    f = open(fn, "r")
+                except Exception:
+                    f = StringIO("")
+                return f
+
+            lessons_files = map(openfile, filepaths)
+            print(advice.get_advice(lessons_files))
+            if (
+                planner.jumping
+            ):  # if jumping, keep repeating until present-day error thrown
+                simulate = True
+            else:
+                break
 
 
 @click.command(
