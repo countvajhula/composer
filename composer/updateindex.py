@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
-import sys
+
+import click
 
 # TODO: need to improve this script to do regex matching on wiki page names,
 # and sort the pages by type and in chronological order + Misc/uncategorized
@@ -32,33 +33,28 @@ def update_index(plannerpath, indexfile=None, indextitle=None):
     wikiindex.close()
 
 
-def main():
-    if len(sys.argv) == 1:
-        print(
-            '\nUsage: "./updateindex.py <WIKI/PATH> <-f Index filename>'
-            ' <-t Index title>"\n'
-        )
-        exit(0)
-    else:
-        args = [sys.argv[1]]
-        wikidir = args[0]
-        wikidir = wikidir.rstrip("/")
-        if len(sys.argv) > 2:
-            args.append(sys.argv[2:4])
-        if len(sys.argv) > 3:
-            args.append(sys.argv[4:6])
-        (indexfile, indextitle) = (None, None)
-        for arg in args[1:]:
-            if arg[0] == "-f":
-                indexfile = arg[1]
-            if arg[0] == "-t":
-                indextitle = arg[1]
+@click.command(
+    help=(
+        'Update the wiki index with any newly created pages.\n'
+        'Usage: "./updateindex.py <WIKI/PATH> <-f Index filename>'
+        ' <-t Index title>"\n'
+    )
+)
+@click.argument("wikipath")
+@click.option(
+    "-f",
+    "--file",
+    help=("Filename to use for the index (default '{}').".format(INDEXFILE)),
+)
+@click.option(
+    "-t",
+    "--title",
+    help=("Title for the index page (default '{}')".format(INDEXTITLE)),
+)
+def main(wikipath, file=None, title=None):
+    wikipath = wikipath.rstrip("/")
     print()
-    print(">>> Operating on wiki at location: %s <<<" % wikidir)
+    print(">>> Operating on wiki at location: %s <<<" % wikipath)
     print()
 
-    update_index(wikidir, indexfile, indextitle)
-
-
-if __name__ == "__main__":
-    main()
+    update_index(wikipath, file, title)
