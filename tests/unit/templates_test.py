@@ -259,9 +259,8 @@ class PlannerNewTemplateIntegrityTester(unittest.TestCase):
             weekfile=weekfile,
         )
 
-        (date, day, month, year) = (
+        (date, month, year) = (
             next_day.day,
-            next_day.strftime('%A'),
             next_day.strftime('%B'),
             next_day.year,
         )

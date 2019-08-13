@@ -650,12 +650,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         """ Check that planner advance takes the correct decision to advance week on a typical week change boundary """
         now = datetime.datetime(2012, 12, 8, 19, 0, 0)
         self.planner.date = now.date()
-        (date, day, month, year) = (
-            self.planner.date.day,
-            self.planner.date.strftime('%A'),
-            self.planner.date.strftime('%B'),
-            self.planner.date.year,
-        )
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
@@ -935,7 +929,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        advanceplanner.advance_planner(self.planner, now)
         self.assertEqual(self.planner.dayfile.read(), daytemplate)
         self.assertEqual(
             self.planner.weekfile.read(), self.dayadvance_weektemplate
