@@ -143,7 +143,7 @@ class DayTemplate(Template):
         scheduled, tasklistfile = scheduling.get_scheduled_tasks(
             tasklistfile, self.next_day
         )
-        tomorrow, tasklistfile = self._get_tasks_for_tomorrow(
+        tomorrow, tasklistfile = _get_tasks_for_tomorrow(
             tasklistfile, self.planner.tomorrow_checking
         )
         # TODO: do this mutation elsewhere
