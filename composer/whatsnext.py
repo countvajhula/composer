@@ -111,7 +111,7 @@ def process_wiki(wikidir, preferences, now):
                     "(Optional) Enter a theme for the upcoming week,"
                     " e.g. Week of 'Timeliness', or 'Completion':__"
                 )
-                planner.week_theme = theme if theme else None
+                preferences['week_theme'] = theme if theme else None
             if err.status >= utils.PlannerPeriod.Day:
                 # git commit a "before", now that we know changes
                 # are about to be written to planner
@@ -160,7 +160,7 @@ def process_wiki(wikidir, preferences, now):
                     " adding tasks..."
                 )
             elif yn.lower().startswith("n"):
-                planner.tomorrow_checking = config.LOGFILE_CHECKING["LAX"]
+                preferences['tomorrow_checking'] = config.LOGFILE_CHECKING["LAX"]
             else:
                 continue
         except LogfileNotCompletedError as err:
@@ -175,7 +175,7 @@ def process_wiki(wikidir, preferences, now):
                     " completing your log..."
                 )
             elif yn.lower().startswith("n"):
-                planner.logfile_completion_checking = config.LOGFILE_CHECKING[
+                preferences['logfile_completion_checking'] = config.LOGFILE_CHECKING[
                     "LAX"
                 ]
             else:
