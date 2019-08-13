@@ -26,8 +26,12 @@ class PlannerBase(ABC):
             )
             self.jumping = preferences.get("jump", False)
 
-            self.logfile_completion_checking = preferences.get("logfile_completion_checking", LOGFILE_CHECKING['STRICT'])
-            self.tomorrow_checking = preferences.get("tomorrow_checking", LOGFILE_CHECKING['STRICT'])
+            self.logfile_completion_checking = preferences.get(
+                "logfile_completion_checking", LOGFILE_CHECKING['STRICT']
+            )
+            self.tomorrow_checking = preferences.get(
+                "tomorrow_checking", LOGFILE_CHECKING['STRICT']
+            )
             if self.jumping:
                 # jumping overrides preferences for logfile checking
                 self.logfile_completion_checking = LOGFILE_CHECKING["LAX"]

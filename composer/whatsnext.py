@@ -160,7 +160,9 @@ def process_wiki(wikidir, preferences, now):
                     " adding tasks..."
                 )
             elif yn.lower().startswith("n"):
-                preferences['tomorrow_checking'] = config.LOGFILE_CHECKING["LAX"]
+                preferences['tomorrow_checking'] = config.LOGFILE_CHECKING[
+                    "LAX"
+                ]
             else:
                 continue
         except LogfileNotCompletedError as err:
@@ -175,9 +177,9 @@ def process_wiki(wikidir, preferences, now):
                     " completing your log..."
                 )
             elif yn.lower().startswith("n"):
-                preferences['logfile_completion_checking'] = config.LOGFILE_CHECKING[
-                    "LAX"
-                ]
+                preferences[
+                    'logfile_completion_checking'
+                ] = config.LOGFILE_CHECKING["LAX"]
             else:
                 continue
         except DayStillInProgressError as err:
