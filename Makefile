@@ -20,6 +20,7 @@ clean: clean-build clean-pyc clean-test
 clean-build:
 	rm -fr build/
 	rm -fr dist/
+	rm -fr pip-wheel-metadata/
 	rm -fr .eggs/
 	rm -fr *.egg-info
 
