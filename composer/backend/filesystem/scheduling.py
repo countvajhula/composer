@@ -359,14 +359,9 @@ def get_date_for_schedule_string(datestr, reference_date=None):
     return None
 
 
-def _process_scheduled_task(
-    taskfile, scheduledtasks, line, reference_date
-):
-    """ Convert a parsed scheduled task into a standard format and append it,
-    along with any subtasks, to a gathered list of scheduled tasks.
-    """
-    if SCHEDULED_DATE_PATTERN.search(line):
-        datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]
+def _to_standard_date_format(date_string, reference_date):
+    if SCHEDULED_DATE_PATTERN.search(date_string):
+        datestr = SCHEDULED_DATE_PATTERN.search(date_string).groups()[0]
         try:
             matcheddate = get_date_for_schedule_string(
                 datestr, reference_date
@@ -375,18 +370,31 @@ def _process_scheduled_task(
             raise
     else:
         raise BlockedTaskNotScheduledError(
-            "No scheduled date for blocked task -- add a date for it: " + line
+            "No scheduled date for blocked task -- add a date for it: " + date_string
         )
-    line = SCHEDULED_DATE_PATTERN.sub(
-        "[$" + matcheddate["datestr"] + "$]", line
+    date_string = SCHEDULED_DATE_PATTERN.sub(
+        "[$" + matcheddate["datestr"] + "$]", date_string
     )  # replace with standard format
+    return date_string
 
-    # TODO: separate out the below into another function
+
+def _copy_subtasks(taskfile, scheduledtasks, line):
     scheduledtasks += line
     line = taskfile.readline()
     while is_subtask(line):
         scheduledtasks += line
         line = taskfile.readline()
+    return line, scheduledtasks
+
+
+def _collect_scheduled_task(
+    taskfile, scheduledtasks, line, reference_date
+):
+    """ Convert a parsed scheduled task into a standard format and append it,
+    along with any subtasks, to a gathered list of scheduled tasks.
+    """
+    line = _to_standard_date_format(line, reference_date)
+    line, scheduledtasks = _copy_subtasks(taskfile, scheduledtasks, line)
     return line, scheduledtasks
 
 
@@ -417,7 +425,7 @@ def _parse_scheduled_section(
     while line != "" and not SECTION_HEADER_PATTERN.search(line):
         # TODO: read this as a section
         if is_scheduled_task(line):
-            line, scheduledtasks = _process_scheduled_task(
+            line, scheduledtasks = _collect_scheduled_task(
                 tasklist, scheduledtasks, line, reference_date
             )
         elif is_blank_line(line):
@@ -452,7 +460,7 @@ def _extract_scheduled_items_from_tasklist(tasklist, reference_date):
                 reference_date,
             )
         elif is_scheduled_task(line):
-            line, scheduledtasks = _process_scheduled_task(
+            line, scheduledtasks = _collect_scheduled_task(
                 tasklist, scheduledtasks, line, reference_date
             )
         else:
@@ -478,7 +486,7 @@ def _extract_scheduled_items_from_logfile(
     for line in contents.splitlines():
         line += "\n"  # TODO: remove in favor of non-newline endings
         if is_scheduled_task(line):
-            line, scheduledtasks = _process_scheduled_task(
+            line, scheduledtasks = _collect_scheduled_task(
                 logfile, scheduledtasks, line, reference_date
             )
         else:
