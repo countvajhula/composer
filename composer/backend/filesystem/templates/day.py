@@ -5,7 +5,16 @@ from ....errors import (
     TomorrowIsEmptyError,
 )
 from .. import scheduling
-from ..utils import SECTION_HEADER_PATTERN, TASK_PATTERN
+from ..utils import (
+    SECTION_HEADER_PATTERN,
+    TASK_PATTERN,
+    is_completed_task,
+    is_invalid_task,
+    is_scheduled_task,
+    is_task,
+    is_undone_task,
+    is_wip_task,
+)
 from .base import Template
 
 try:  # py2
@@ -26,32 +35,32 @@ def _do_post_mortem(logfile):
         )
     ss = logfile.readline()
     while ss != "" and not SECTION_HEADER_PATTERN.search(ss):
-        if ss.startswith("[x") or ss.startswith("[-"):
+        if is_completed_task(ss) or is_invalid_task(ss):
             tasks["done"] += ss
             ss = logfile.readline()
             while (
                 ss != ""
-                and not ss.startswith("[")
+                and not is_task(ss)
                 and not SECTION_HEADER_PATTERN.search(ss)
             ):
                 tasks["done"] += ss
                 ss = logfile.readline()
-        elif ss.startswith("[ ") or ss.startswith("[\\"):
+        elif is_undone_task(ss) or is_wip_task(ss):
             tasks["undone"] += ss
             ss = logfile.readline()
             while (
                 ss != ""
-                and not ss.startswith("[")
+                and not is_task(ss)
                 and not SECTION_HEADER_PATTERN.search(ss)
             ):
                 tasks["undone"] += ss
                 ss = logfile.readline()
-        elif ss.startswith("[o"):
+        elif is_scheduled_task(ss):
             tasks["blocked"] += ss
             ss = logfile.readline()
             while (
                 ss != ""
-                and not ss.startswith("[")
+                and not is_task(ss)
                 and not SECTION_HEADER_PATTERN.search(ss)
             ):
                 tasks["blocked"] += ss
