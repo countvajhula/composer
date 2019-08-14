@@ -382,13 +382,19 @@ def _process_scheduled_task(
     return line, scheduledtasks
 
 
-def _parse_tomorrow_section(line, tasklist, tasklist_tidied):
-    tasklist_tidied.write(line)
-    line = tasklist.readline()
-    while line != "" and not SECTION_HEADER_PATTERN.search(line):
-        tasklist_tidied.write(line)
-        line = tasklist.readline()
-    return line
+def _read_to_section(input_file, section_name=None, current_line=None, output_file=None):
+    # if section_name is not specified, reads until the very next section
+    # (whatever it may be)
+    pattern = (re.compile(r'^' + section_name.upper())
+               if section_name
+               else SECTION_HEADER_PATTERN)
+    if not current_line:
+        current_line = input_file.readline()
+    while current_line != "" and not pattern.search(current_line):
+        if output_file:
+            output_file.write(current_line)
+        current_line = input_file.readline()
+    return current_line
 
 
 def _parse_scheduled_section(
@@ -412,15 +418,25 @@ def _parse_scheduled_section(
     return line
 
 
+def _is_start_of_section(section_name, current_line):
+    return re.search(r'^' + section_name.upper(), current_line)
+
+
+def _is_scheduled_task(line):
+    return line.startswith("[o")
+
+
 def _extract_scheduled_items_from_tasklist(tasklist, reference_date, now):
     tasklist_tidied = StringIO()
     scheduledtasks = ""
     line = tasklist.readline()
     while line != "":
         # ignore tasks in tomorrow since actively scheduled by you
-        if line[: len("tomorrow")].lower() == "tomorrow":
-            line = _parse_tomorrow_section(line, tasklist, tasklist_tidied)
-        elif line[: len("scheduled")].lower() == "scheduled":
+        if _is_start_of_section("tomorrow", line):
+            tasklist_tidied.write(line)
+            line = tasklist.readline()
+            line = _read_to_section(tasklist, current_line=line, output_file=tasklist_tidied)
+        elif _is_start_of_section("scheduled", line):
             line = _parse_scheduled_section(
                 tasklist,
                 tasklist_tidied,
@@ -429,7 +445,7 @@ def _extract_scheduled_items_from_tasklist(tasklist, reference_date, now):
                 reference_date,
                 now,
             )
-        elif line.startswith("[o"):
+        elif _is_scheduled_task(line):
             line, scheduledtasks = _process_scheduled_task(
                 tasklist, scheduledtasks, line, reference_date, now
             )
@@ -446,9 +462,8 @@ def _extract_scheduled_items_from_logfile(
     # go through a log file (e.g. today's log file)
     # if [o] then make sure [$$] and parseable
     # move to scheduled
-    line = logfile.readline()
-    while line != "" and line[: len("agenda")].lower() != "agenda":
-        line = logfile.readline()
+    line = _read_to_section(logfile, "AGENDA")
+
     if line == "":
         raise LogfileLayoutError(
             "No AGENDA section found in today's log file!"
@@ -473,10 +488,7 @@ def _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks):
     been extracted into the scheduled tasks provided to this function.
     """
     tasklist_tidied = StringIO()
-    line = tasklist.readline()
-    while line != "" and line[: len("scheduled")].lower() != "scheduled":
-        tasklist_tidied.write(line)
-        line = tasklist.readline()
+    line = _read_to_section(tasklist, "scheduled", output_file=tasklist_tidied)
     if line == "":
         raise TasklistLayoutError("Tasklist SCHEDULED section not found!")
     tasklist_tidied.write(line)
@@ -523,17 +535,14 @@ def get_scheduled_tasks(tasklist, for_day):
     # Note: schedule tasks should already have been performed on previous day
     # to migrate those tasks to the tasklist
     tasklist_updated = StringIO()
-    line = tasklist.readline()
-    while line != "" and line[: len("scheduled")].lower() != "scheduled":
-        tasklist_updated.write(line)
-        line = tasklist.readline()
+    line = _read_to_section(tasklist, "scheduled", output_file=tasklist_updated)
     tasklist_updated.write(line)
     if line == "":
         raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
     scheduledtasks = ""
     line = tasklist.readline()
     while line != "" and not SECTION_HEADER_PATTERN.search(line):
-        if line.startswith("[o"):
+        if _is_scheduled_task(line):
             if SCHEDULED_DATE_PATTERN.search(line):
                 datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]
                 try:
