@@ -1,2 +1,4 @@
 -/tests/testwikis
 -/.eggs
+-/composer.egg-info
+-/.pytest_cache
