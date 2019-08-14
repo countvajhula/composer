@@ -1,7 +1,32 @@
 import re
 
+from functools import wraps
+
 SECTION_PATTERN = re.compile(r"^[A-Z][A-Z][A-Za-z ]+:")
 TASK_PATTERN = re.compile(r"^\t*\[")
+
+try:  # py2
+    from StringIO import StringIO
+except ImportError:  # py3
+    from io import StringIO
+
+
+def contain_file_mutation(fn):
+    """ For functions that operate on files, this makes is so that these file
+    arguments are passed in "by value" rather than "by reference," so that
+    any mutation done on the file as part of processing (e.g. even just reading
+    the file amounts to this, since it modifies the state of the file viz. its
+    "read position") is contained within the function and not reflected in the
+    calling context. This allows file processing to be done in a "functional"
+    way, keeping side-effects contained and eliminating the need for state
+    management.
+    """
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        new_args = [copy_file(arg) if isinstance(arg, StringIO) else arg for arg in args]
+        new_kwargs = dict([(k, copy_file(v)) if isinstance(v, StringIO) else (k, v) for k, v in kwargs.items()])
+        return fn(*new_args, **new_kwargs)
+    return fn
 
 
 def quarter_for_month(month):
