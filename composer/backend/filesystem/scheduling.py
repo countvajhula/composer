@@ -9,6 +9,7 @@ from ...errors import (
     LogfileLayoutError,
     RelativeDateError,
     SchedulingDateError,
+    ScheduledTaskParsingError,
     TasklistLayoutError,
 )
 from .utils import SECTION_HEADER_PATTERN
@@ -376,7 +377,7 @@ def _process_scheduled_task(
     )  # replace with standard format
     scheduledtasks += line
     line = taskfile.readline()
-    while line.startswith("\t"):
+    while _is_subtask(line):
         scheduledtasks += line
         line = taskfile.readline()
     return line, scheduledtasks
@@ -403,7 +404,7 @@ def _parse_scheduled_section(
     tasklist_tidied.write(line)
     line = tasklist.readline()
     while line != "" and not SECTION_HEADER_PATTERN.search(line):
-        if line.startswith("[o"):
+        if _is_scheduled_task(line):
             line, scheduledtasks = _process_scheduled_task(
                 tasklist, scheduledtasks, line, reference_date, now
             )
@@ -411,7 +412,7 @@ def _parse_scheduled_section(
             tasklist_tidied.write(line)
             line = tasklist.readline()
         else:
-            raise BlockedTaskNotScheduledError(
+            raise ScheduledTaskParsingError(
                 "Task in SCHEDULED section does not appear to be formatted"
                 " correctly: " + line
             )
@@ -424,6 +425,10 @@ def _is_start_of_section(section_name, current_line):
 
 def _is_scheduled_task(line):
     return line.startswith("[o")
+
+
+def _is_subtask(line):
+    return line.startswith("\t")
 
 
 def _extract_scheduled_items_from_tasklist(tasklist, reference_date, now):
@@ -471,7 +476,7 @@ def _extract_scheduled_items_from_logfile(
         )
     line = logfile.readline()
     while line != "" and not SECTION_HEADER_PATTERN.search(line):
-        if line.startswith("[o"):
+        if _is_scheduled_task(line):
             line, scheduledtasks = _process_scheduled_task(
                 logfile, scheduledtasks, line, reference_date, now
             )
@@ -552,7 +557,7 @@ def get_scheduled_tasks(tasklist, for_day):
                 if for_day >= matcheddate["date"]:
                     scheduledtasks += line
                     line = tasklist.readline()
-                    while line.startswith("\t"):
+                    while _is_subtask(line):
                         scheduledtasks += line
                         line = tasklist.readline()
                 else:

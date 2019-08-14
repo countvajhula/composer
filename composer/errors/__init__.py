@@ -19,6 +19,7 @@ from .scheduling import (  # noqa
     SchedulingError,
     BlockedTaskNotScheduledError,
     SchedulingDateError,
+    ScheduledTaskParsingError,
     DateFormatError,
     RelativeDateError,
 )
