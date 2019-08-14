@@ -383,12 +383,16 @@ def _process_scheduled_task(
     return line, scheduledtasks
 
 
-def _read_to_section(input_file, section_name=None, current_line=None, output_file=None):
+def _read_to_section(
+    input_file, section_name=None, current_line=None, output_file=None
+):
     # if section_name is not specified, reads until the very next section
     # (whatever it may be)
-    pattern = (re.compile(r'^' + section_name.upper())
-               if section_name
-               else SECTION_HEADER_PATTERN)
+    pattern = (
+        re.compile(r'^' + section_name.upper())
+        if section_name
+        else SECTION_HEADER_PATTERN
+    )
     if not current_line:
         current_line = input_file.readline()
     while current_line != "" and not pattern.search(current_line):
@@ -440,7 +444,9 @@ def _extract_scheduled_items_from_tasklist(tasklist, reference_date, now):
         if _is_start_of_section("tomorrow", line):
             tasklist_tidied.write(line)
             line = tasklist.readline()
-            line = _read_to_section(tasklist, current_line=line, output_file=tasklist_tidied)
+            line = _read_to_section(
+                tasklist, current_line=line, output_file=tasklist_tidied
+            )
         elif _is_start_of_section("scheduled", line):
             line = _parse_scheduled_section(
                 tasklist,
@@ -540,7 +546,9 @@ def get_scheduled_tasks(tasklist, for_day):
     # Note: schedule tasks should already have been performed on previous day
     # to migrate those tasks to the tasklist
     tasklist_updated = StringIO()
-    line = _read_to_section(tasklist, "scheduled", output_file=tasklist_updated)
+    line = _read_to_section(
+        tasklist, "scheduled", output_file=tasklist_updated
+    )
     tasklist_updated.write(line)
     if line == "":
         raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
