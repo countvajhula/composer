@@ -1104,9 +1104,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
     def test_agenda_scheduled_tasks_are_scheduled(self):
         """ Check that scheduling tasks pulls all scheduled tasks from today's Agenda
         into the SCHEDULED section of the tasklist """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(), self.tasklist_agenda
         )
@@ -1114,9 +1113,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
     def test_task_list_scheduled_tasks_are_scheduled(self):
         """ Check that scheduling tasks pulls all scheduled tasks from the TaskList
         into the SCHEDULED section of the tasklist """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.tasklistfile = StringIO(self.tasklist_somescheduled)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(), self.tasklist_tasklist
         )
@@ -1124,10 +1122,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
     def test_both_agenda_and_task_list_scheduled_tasks_are_scheduled(self):
         """ Check that scheduling tasks pulls all scheduled tasks from the TaskList and
         today's agenda into the SCHEDULED section of the tasklist """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.tasklistfile = StringIO(self.tasklist_somescheduled)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(), self.tasklist_tasklist_agenda
         )
@@ -1145,9 +1142,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format1(self):
         """ Check that the format MONTH DD, YYYY works (w optional space or comma or both) """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format1)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats1to4and11to13,
@@ -1155,9 +1151,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format2(self):
         """ Check that the format DD MONTH, YYYY works (w optional space or comma or both) """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format2)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats1to4and11to13,
@@ -1165,10 +1160,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format3(self):
         """ Check that the format MONTH DD works """
-        now = datetime.datetime(2012, 12, 21)
         self.planner.date = datetime.date(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format3)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats1to4and11to13,
@@ -1176,10 +1170,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format4(self):
         """ Check that the format DD MONTH works """
-        now = datetime.datetime(2012, 12, 21)
         self.planner.date = datetime.date(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format4)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats1to4and11to13,
@@ -1187,9 +1180,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format5(self):
         """ Check that the format WEEK OF MONTH DD, YYYY works (w optional space or comma or both) """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format5)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats5to8and14,
@@ -1197,9 +1189,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format6(self):
         """ Check that the format WEEK OF DD MONTH, YYYY works (w optional space or comma or both) """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format6)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats5to8and14,
@@ -1207,10 +1198,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format7(self):
         """ Check that the format WEEK OF MONTH DD works """
-        now = datetime.datetime(2012, 12, 21)
         self.planner.date = datetime.date(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format7)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats5to8and14,
@@ -1218,10 +1208,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format8(self):
         """ Check that the format WEEK OF DD MONTH works """
-        now = datetime.datetime(2012, 12, 21)
         self.planner.date = datetime.date(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format8)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats5to8and14,
@@ -1229,9 +1218,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format9(self):
         """ Check that the format MONTH YYYY works (w optional space or comma or both) """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format9)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats9to10and15,
@@ -1239,10 +1227,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format10(self):
         """ Check that the format MONTH works """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.date = datetime.date(2012, 11, 4)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format10)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats9to10and15,
@@ -1250,9 +1237,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format11(self):
         """ Check that the format MM/DD/YYYY works """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format11)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats1to4and11to13,
@@ -1260,9 +1246,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format12(self):
         """ Check that the format MM-DD-YYYY works """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format12)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats1to4and11to13,
@@ -1270,12 +1255,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format13(self):
         """ Check that the format TOMORROW works """
-        now = datetime.datetime(
-            2012, 12, 20
-        )  # schedule date should be wrt planner date, not current time
         self.planner.date = datetime.date(2012, 12, 19)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format13)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats1to4and11to13,
@@ -1283,10 +1265,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format14(self):
         """ Check that the format NEXT WEEK works """
-        now = datetime.datetime(2012, 12, 17)
         self.planner.date = datetime.date(2012, 12, 10)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format14)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats5to8and14,
@@ -1294,10 +1275,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format15(self):
         """ Check that the format NEXT MONTH works """
-        now = datetime.datetime(2013, 1, 1)
         self.planner.date = datetime.date(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format15)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats9to10and15,
@@ -1305,10 +1285,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format16(self):
         """ Check that the format <DOW> works """
-        now = datetime.datetime(2012, 12, 4)  # tuesday
         self.planner.date = datetime.date(2012, 12, 3)  # monday
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format16)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats16and17,
@@ -1316,10 +1295,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format17(self):
         """ Check that the format <DOW> (abbrv.) works """
-        now = datetime.datetime(2012, 12, 4)  # tuesday
         self.planner.date = datetime.date(2012, 12, 3)  # monday
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format17)
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats16and17,
@@ -1327,12 +1305,11 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_is_case_insensitive(self):
         """ Check that schedule date is case insensitive, by testing a lowercase month """
-        now = datetime.datetime(2012, 12, 3)
         self.planner.date = datetime.date(2012, 11, 4)
         self.planner.dayfile = StringIO(
             self.daytemplate_scheduled_format10_lowercase
         )
-        scheduling.schedule_tasks(self.planner, now)
+        scheduling.schedule_tasks(self.planner)
         self.assertEqual(
             self.planner.tasklistfile.read(),
             self.tasklist_scheduled_formats9to10and15,

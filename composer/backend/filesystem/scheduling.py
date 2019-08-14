@@ -40,13 +40,11 @@ def get_appropriate_year(month, day, today):
         return today.year
 
 
-def get_date_for_schedule_string(datestr, reference_date=None, now=None):
+def get_date_for_schedule_string(datestr, reference_date=None):
     """ try various acceptable formats and return the first one that works
     Returns both a specific python date that can be used as well as a
     'standard format' date string that unambiguously represents the date
     """
-    if not now:
-        now = datetime.datetime.now()
     date = None
     month_name_to_number = dict(
         (v.lower(), k) for k, v in enumerate(calendar.month_name)
@@ -362,7 +360,7 @@ def get_date_for_schedule_string(datestr, reference_date=None, now=None):
 
 
 def _process_scheduled_task(
-    taskfile, scheduledtasks, line, reference_date, now
+    taskfile, scheduledtasks, line, reference_date
 ):
     """ Convert a parsed scheduled task into a standard format and append it,
     along with any subtasks, to a gathered list of scheduled tasks.
@@ -371,7 +369,7 @@ def _process_scheduled_task(
         datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]
         try:
             matcheddate = get_date_for_schedule_string(
-                datestr, reference_date, now
+                datestr, reference_date
             )
         except SchedulingDateError:
             raise
@@ -382,6 +380,8 @@ def _process_scheduled_task(
     line = SCHEDULED_DATE_PATTERN.sub(
         "[$" + matcheddate["datestr"] + "$]", line
     )  # replace with standard format
+
+    # TODO: separate out the below into another function
     scheduledtasks += line
     line = taskfile.readline()
     while is_subtask(line):
@@ -410,14 +410,15 @@ def _read_to_section(
 
 
 def _parse_scheduled_section(
-    tasklist, tasklist_tidied, scheduledtasks, line, reference_date, now
+    tasklist, tasklist_tidied, scheduledtasks, line, reference_date
 ):
     tasklist_tidied.write(line)
     line = tasklist.readline()
     while line != "" and not SECTION_HEADER_PATTERN.search(line):
+        # TODO: read this as a section
         if is_scheduled_task(line):
             line, scheduledtasks = _process_scheduled_task(
-                tasklist, scheduledtasks, line, reference_date, now
+                tasklist, scheduledtasks, line, reference_date
             )
         elif is_blank_line(line):
             tasklist_tidied.write(line)
@@ -430,7 +431,7 @@ def _parse_scheduled_section(
     return line
 
 
-def _extract_scheduled_items_from_tasklist(tasklist, reference_date, now):
+def _extract_scheduled_items_from_tasklist(tasklist, reference_date):
     tasklist_tidied = StringIO()
     scheduledtasks = ""
     line = tasklist.readline()
@@ -449,11 +450,10 @@ def _extract_scheduled_items_from_tasklist(tasklist, reference_date, now):
                 scheduledtasks,
                 line,
                 reference_date,
-                now,
             )
         elif is_scheduled_task(line):
             line, scheduledtasks = _process_scheduled_task(
-                tasklist, scheduledtasks, line, reference_date, now
+                tasklist, scheduledtasks, line, reference_date
             )
         else:
             tasklist_tidied.write(line)
@@ -463,7 +463,7 @@ def _extract_scheduled_items_from_tasklist(tasklist, reference_date, now):
 
 
 def _extract_scheduled_items_from_logfile(
-    logfile, scheduledtasks, reference_date, now
+    logfile, scheduledtasks, reference_date
 ):
     # go through a log file (e.g. today's log file)
     # if [o] then make sure [$$] and parseable
@@ -479,7 +479,7 @@ def _extract_scheduled_items_from_logfile(
         line += "\n"  # TODO: remove in favor of non-newline endings
         if is_scheduled_task(line):
             line, scheduledtasks = _process_scheduled_task(
-                logfile, scheduledtasks, line, reference_date, now
+                logfile, scheduledtasks, line, reference_date
             )
         else:
             line = logfile.readline()
@@ -510,7 +510,7 @@ def _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks):
     return tasklist_tidied
 
 
-def schedule_tasks(planner, now=None):
+def schedule_tasks(planner):
     """ 1. Go through the Tasklist till SCHEDULED section found
     2. If task is marked as scheduled/blocked (i.e. "[o]"), then make sure a
     follow-up date is indicated (via "[$<date>$]") and that it is parseable
@@ -518,15 +518,12 @@ def schedule_tasks(planner, now=None):
     4. loop through all scheduled till naother section found or eof
     5. go through any other section
     """
-    if not now:
-        now = datetime.datetime.now()
-
     scheduledtasks, tasklist = _extract_scheduled_items_from_tasklist(
-        planner.tasklistfile, planner.date, now
+        planner.tasklistfile, planner.date
     )  # tasklist - scheduled tasks
 
     scheduledtasks = _extract_scheduled_items_from_logfile(
-        planner.dayfile, scheduledtasks, planner.date, now
+        planner.dayfile, scheduledtasks, planner.date
     )
 
     tasklist = _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks)
