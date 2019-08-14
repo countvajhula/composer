@@ -12,7 +12,7 @@ from ...errors import (
     PlannerIsInTheFutureError,
 )
 from . import templates
-from .utils import SECTION_HEADER_PATTERN
+from .utils import SECTION_PATTERN
 
 
 try:  # py2
@@ -41,7 +41,7 @@ def check_logfile_completion(logfile):
             "Error: No 'NOTES' section found in your log file: " + ss
         )
     ss = logfile.readline()
-    while ss != "" and not SECTION_HEADER_PATTERN.search(ss):
+    while ss != "" and not SECTION_PATTERN.search(ss):
         notes += ss
         ss = logfile.readline()
     if notes.strip("\n ") != "":
@@ -61,7 +61,7 @@ def extract_agenda_from_logfile(logfile):
             " Add one and try again."
         )
     ss = logfile.readline()
-    while ss != "" and not SECTION_HEADER_PATTERN.search(ss):
+    while ss != "" and not SECTION_PATTERN.search(ss):
         agenda += ss
         ss = logfile.readline()
     agenda = agenda.strip("\n")
@@ -81,7 +81,7 @@ def update_logfile_agenda(logfile, agenda):
         )
     logfile_updated.write(ss)
     ss = logfile.readline()
-    while ss != "" and not SECTION_HEADER_PATTERN.search(ss):
+    while ss != "" and not SECTION_PATTERN.search(ss):
         logfile_updated.write(ss)
         ss = logfile.readline()
     # don't leave newlines between previous tasks and latest additions

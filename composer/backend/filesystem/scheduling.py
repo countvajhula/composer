@@ -13,7 +13,7 @@ from ...errors import (
     TasklistLayoutError,
 )
 from .utils import (
-    SECTION_HEADER_PATTERN,
+    SECTION_PATTERN,
     is_blank_line,
     is_scheduled_task,
     is_section,
@@ -403,10 +403,11 @@ def _read_to_section(
 ):
     # if section_name is not specified, reads until the very next section
     # (whatever it may be)
+    # TODO: remove this in favor of utils version
     pattern = (
         re.compile(r'^' + section_name.upper())
         if section_name
-        else SECTION_HEADER_PATTERN
+        else SECTION_PATTERN
     )
     if not current_line:
         current_line = input_file.readline()
@@ -422,7 +423,7 @@ def _parse_scheduled_section(
 ):
     tasklist_tidied.write(line)
     line = tasklist.readline()
-    while line != "" and not SECTION_HEADER_PATTERN.search(line):
+    while line != "" and not SECTION_PATTERN.search(line):
         # TODO: read this as a section
         if is_scheduled_task(line):
             line, scheduledtasks = _collect_scheduled_task(
@@ -554,7 +555,7 @@ def get_scheduled_tasks(tasklist, for_day):
         raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
     scheduledtasks = ""
     line = tasklist.readline()
-    while line != "" and not SECTION_HEADER_PATTERN.search(line):
+    while line != "" and not SECTION_PATTERN.search(line):
         if is_scheduled_task(line):
             if SCHEDULED_DATE_PATTERN.search(line):
                 datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]

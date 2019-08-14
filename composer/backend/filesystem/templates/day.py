@@ -6,7 +6,7 @@ from ....errors import (
 )
 from .. import scheduling
 from ..utils import (
-    SECTION_HEADER_PATTERN,
+    SECTION_PATTERN,
     TASK_PATTERN,
     is_completed_task,
     is_invalid_task,
@@ -34,14 +34,14 @@ def _do_post_mortem(logfile):
             " Add one and try again."
         )
     ss = logfile.readline()
-    while ss != "" and not SECTION_HEADER_PATTERN.search(ss):
+    while ss != "" and not SECTION_PATTERN.search(ss):
         if is_completed_task(ss) or is_invalid_task(ss):
             tasks["done"] += ss
             ss = logfile.readline()
             while (
                 ss != ""
                 and not is_task(ss)
-                and not SECTION_HEADER_PATTERN.search(ss)
+                and not SECTION_PATTERN.search(ss)
             ):
                 tasks["done"] += ss
                 ss = logfile.readline()
@@ -51,7 +51,7 @@ def _do_post_mortem(logfile):
             while (
                 ss != ""
                 and not is_task(ss)
-                and not SECTION_HEADER_PATTERN.search(ss)
+                and not SECTION_PATTERN.search(ss)
             ):
                 tasks["undone"] += ss
                 ss = logfile.readline()
@@ -61,7 +61,7 @@ def _do_post_mortem(logfile):
             while (
                 ss != ""
                 and not is_task(ss)
-                and not SECTION_HEADER_PATTERN.search(ss)
+                and not SECTION_PATTERN.search(ss)
             ):
                 tasks["blocked"] += ss
                 ss = logfile.readline()
@@ -90,7 +90,7 @@ def _get_tasks_for_tomorrow(tasklist, tomorrow_checking):
         )
     tasklist_nextday.write(ss)
     ss = tasklist.readline()
-    while ss != "" and not SECTION_HEADER_PATTERN.search(ss):
+    while ss != "" and not SECTION_PATTERN.search(ss):
         if TASK_PATTERN.search(ss):
             tasks += ss
         else:
