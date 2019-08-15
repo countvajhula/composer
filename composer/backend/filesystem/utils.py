@@ -3,6 +3,7 @@ import re
 from functools import wraps
 
 SECTION_PATTERN = re.compile(r"^[A-Z][A-Z][A-Za-z ]+:")
+SECTION_OR_EOF_PATTERN = re.compile(r"(^[A-Z][A-Z][A-Za-z ]+:|^$)")
 TASK_PATTERN = re.compile(r"^\t*\[")
 
 try:  # py2
@@ -38,26 +39,6 @@ def quarter_for_month(month):
         return "Q3"
     elif month.lower() in ("october", "november", "december"):
         return "Q4"
-
-
-def _read_to_section(input_file, section_name=None):
-    # if section_name is not specified, reads until the very next section
-    # (whatever it may be)
-    # return contents from the input file up to but not including
-    # the section header if found, and the entire file contents if not
-    pattern = (
-        re.compile(r'^' + section_name.upper())
-        if section_name
-        else SECTION_HEADER_PATTERN
-    )
-    contents = ""
-    index = input_file.tell()
-    current_line = input_file.readline()
-    while current_line != "" and not pattern.search(current_line):
-        contents += current_line
-        index = input_file.tell()
-        current_line = input_file.readline()
-    return index, contents
 
 
 def is_scheduled_task(line):
@@ -96,15 +77,96 @@ def is_wip_task(line):
     return line.startswith("[\\")
 
 
-def read_section(input_file, section_name):
-    index, _ = _read_to_section(input_file, section_name)
-    input_file.seek(index)
-    line = input_file.readline()
-    if not is_section(section_name, line):
-        raise ValueError("Section not found in file!")
-    line = input_file.readline()
-    _, contents = _read_to_section(input_file)
+def is_eof(line):
+    return line == ""
+
+
+def read_item(file, of_type=None, starting_position=0):
+    """ An 'item' is any line that begins at the 0th position of the line.
+    This could be a blank line, a task, a normal text string, a section
+    header, pretty much anything EXCEPT things that begin with a tab
+    character, as these are treated as subsidiary items to be included in
+    the parent.
+    """
+    if not of_type:
+        of_type = lambda x: True
+    contents = ""
+    index = file.seek(starting_position)
+    line = file.readline()
+    while not is_eof(line) and not of_type(line):
+        line = file.readline()
+    if is_eof(line):
+        return None
+    contents += line
+    index = file.tell()
+    line = file.readline()
+    while is_subtask(line):
+        contents += line
+        index = file.tell()
+        line = file.readline()
+    return (contents, index
+            if contents
+            else None)
+
+
+def read_until(file, pattern, inclusive=False, starting_position=0):
+    contents = ""
+    index = file.seek(starting_position)
+    item, index = read_item(file, starting_position=index)
+    while item and not pattern.search(item):
+        contents += item
+        item, index = read_item(file, starting_position=index)
+    if pattern.search(item):
+        if inclusive:
+            contents += item
+            index = file.tell()
+    else:
+        raise ValueError("Pattern {} not found in file!" .format(pattern))
+    return contents, index
+
+
+def read_section(file, section):
+    pattern = re.compile(r'^' + section.upper())
+    try:
+        _, index = read_until(file, pattern, inclusive=True)
+        contents, _ = read_until(file, SECTION_OR_EOF_PATTERN, starting_position=index)
+    except ValueError:
+        raise
     return contents
+
+
+@contain_file_mutation
+def add_to_section(file, section, tasks):
+    pattern = re.compile(r'^' + section.upper())
+    _, index = read_until(file, pattern, inclusive=True)
+    file.seek(index)
+    file.write(tasks)
+    return file
+
+
+def get_tasks(file, section=None, of_type=None):
+    tasks = ""
+    if section:
+        task_file = make_file(read_section(file, section))
+    item, index = read_item(task_file, of_type)
+    while item:
+        tasks += item
+        item, index = read_item(task_file, of_type, index)
+    return tasks
+
+
+def make_file(string):
+    """ 'Files' are the abstraction level at which the planner is implemented
+    in terms of the filesystem. We prefer to work with files rather than the
+    more elementary string representation.
+    """
+    return StringIO(string)
+
+
+def copy_file(file):
+    # we only operate on StringIO files and not actual files
+    # except at the entry and exit points
+    return StringIO(file.getvalue())
 
 
 def read_file(filepath):
