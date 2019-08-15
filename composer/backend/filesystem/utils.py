@@ -116,14 +116,15 @@ def read_item(file, of_type=None, starting_position=0):
 def read_until(file, pattern, inclusive=False, starting_position=0):
     contents = ""
     index = file.seek(starting_position)
-    item, index = read_item(file, starting_position=index)
+    item, next_index, _ = read_item(file, starting_position=index)
     while item and not pattern.search(item):
         contents += item
-        item, index = read_item(file, starting_position=index)
+        index = next_index
+        item, next_index, _ = read_item(file, starting_position=index)
     if pattern.search(item):
         if inclusive:
             contents += item
-            index = file.tell()
+            index = next_index
     else:
         raise ValueError("Pattern {} not found in file!" .format(pattern))
     return contents, index
