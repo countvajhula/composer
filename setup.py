@@ -7,6 +7,7 @@ requirements = [
 test_requirements = [
     'pytest',
     'pytest-pudb',
+    'pytest-sugar',
     'tox',
     'mock',  # py2 only
 ]
