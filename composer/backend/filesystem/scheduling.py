@@ -446,13 +446,13 @@ def _extract_scheduled_items_from_tasklist(tasklist, reference_date):
     line = tasklist.readline()
     while line != "":
         # ignore tasks in tomorrow since actively scheduled by you
-        if is_section("tomorrow", line):
+        if is_section(line, "tomorrow"):
             tasklist_tidied.write(line)
             line = tasklist.readline()
             line = _read_to_section(
                 tasklist, current_line=line, output_file=tasklist_tidied
             )
-        elif is_section("scheduled", line):
+        elif is_section(line, "scheduled"):
             line = _parse_scheduled_section(
                 tasklist,
                 tasklist_tidied,

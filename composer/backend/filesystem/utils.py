@@ -46,6 +46,7 @@ def quarter_for_month(month):
         return "Q4"
 
 
+# TODO: replace these type predicates with regexes?
 def is_scheduled_task(line):
     return line.startswith("[o")
 
@@ -58,8 +59,11 @@ def is_subtask(line):
     return line.startswith("\t")
 
 
-def is_section(section_name, current_line):
-    return re.search(r'^' + section_name.upper(), current_line)
+def is_section(line, section_name=None):
+    pattern = (re.compile(r'^' + section_name.upper())
+               if section_name
+               else SECTION_PATTERN)
+    return pattern.search(line)
 
 
 def is_blank_line(line):
