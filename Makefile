@@ -59,6 +59,14 @@ test-all: test-unit test-functional
 
 test: test-unit
 
+# stop on first failing test
+test-stop:
+	python setup.py test --addopts -x
+
+# debug on first failing test
+test-debug:
+	python setup.py test --addopts "-x --pudb"
+
 test-matrix:
 	tox
 
@@ -80,4 +88,4 @@ sdist: clean
 	python setup.py sdist
 	ls -l dist
 
-.PHONY: help build clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint black test-unit test-functional test-all test test-matrix test-wiki coverage sdist
+.PHONY: help build clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint black test-unit test-functional test-all test test-stop test-debug test-matrix test-wiki coverage sdist
