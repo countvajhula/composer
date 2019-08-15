@@ -81,6 +81,7 @@ def is_eof(line):
     return line == ""
 
 
+@contain_file_mutation
 def read_item(file, of_type=None, starting_position=0):
     """ An 'item' is any line that begins at the 0th position of the line.
     This could be a blank line, a task, a normal text string, a section
@@ -113,6 +114,7 @@ def read_item(file, of_type=None, starting_position=0):
             else None)
 
 
+@contain_file_mutation
 def read_until(file, pattern, inclusive=False, starting_position=0):
     contents = ""
     index = file.seek(starting_position)
@@ -130,6 +132,7 @@ def read_until(file, pattern, inclusive=False, starting_position=0):
     return contents, index
 
 
+@contain_file_mutation
 def read_section(file, section):
     pattern = re.compile(r'^' + section.upper())
     try:
@@ -153,10 +156,10 @@ def get_tasks(file, section=None, of_type=None):
     tasks = ""
     if section:
         task_file = make_file(read_section(file, section))
-    item, index = read_item(task_file, of_type)
+    item, index, _ = read_item(task_file, of_type)
     while item:
         tasks += item
-        item, index = read_item(task_file, of_type, index)
+        item, index, _ = read_item(task_file, of_type, index)
     return tasks
 
 
