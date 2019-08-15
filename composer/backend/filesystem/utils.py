@@ -108,7 +108,7 @@ def read_item(file, of_type=None, starting_position=0):
         complement.write(line)
         line = file.readline()
     if is_eof(line):
-        return None
+        return None, -1, complement  # -1 OK?
     item += line
     index = file.tell()
     line = file.readline()
@@ -118,9 +118,9 @@ def read_item(file, of_type=None, starting_position=0):
         line = file.readline()
     complement.write(line)
     complement.write(file.read())
-    return (item, index, complement
+    return ((item, index, complement)
             if item
-            else None)
+            else (None, -1, complement))
 
 
 @contain_file_mutation

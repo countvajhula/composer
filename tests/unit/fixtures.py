@@ -1,3 +1,5 @@
+import pytest
+
 try:  # py3
     from unittest.mock import MagicMock
 except ImportError:  # py2
@@ -106,3 +108,31 @@ class PlannerMock(MagicMock):
     @yearfile.setter
     def yearfile(self, value):
         self._yearfile = value
+
+
+def _logfile():
+    contents = ("[ ] a task\n"
+                "[\\] a WIP task\n"
+                "Just some additional clarifications\n"
+                "\n"
+                "[o] a scheduled task [$TOMORROW$]\n"
+                "[ ] a task with subtasks\n"
+                "\t[ ] first thing\n"
+                "\tclarification of first thing\n"
+                "\t[ ] second thing\n"
+                "[ ] another task\n")
+    return StringIO(contents)
+
+
+def _empty_logfile():
+    return StringIO("")
+
+
+@pytest.fixture
+def logfile():
+    return _logfile()
+
+
+@pytest.fixture
+def empty_logfile():
+    return _empty_logfile()
