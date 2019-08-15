@@ -90,22 +90,26 @@ def read_item(file, of_type=None, starting_position=0):
     """
     if not of_type:
         of_type = lambda x: True
-    contents = ""
+    item = ""
+    complement = StringIO()
     index = file.seek(starting_position)
     line = file.readline()
     while not is_eof(line) and not of_type(line):
+        complement.write(line)
         line = file.readline()
     if is_eof(line):
         return None
-    contents += line
+    item += line
     index = file.tell()
     line = file.readline()
     while is_subtask(line):
-        contents += line
+        item += line
         index = file.tell()
         line = file.readline()
-    return (contents, index
-            if contents
+    complement.write(line)
+    complement.write(file.read())
+    return (item, index, complement
+            if item
             else None)
 
 
