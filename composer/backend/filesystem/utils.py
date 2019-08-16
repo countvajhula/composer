@@ -150,7 +150,7 @@ def read_until(file, pattern, inclusive=False, starting_position=0):
         contents += item
         index = next_index
         item, next_index, _ = read_item(file, starting_position=index)
-    if pattern.search(item):
+    if item and pattern.search(item):
         if inclusive:
             contents += item
             index = next_index
