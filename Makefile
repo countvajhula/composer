@@ -1,3 +1,4 @@
+export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
 TEST_WIKI_PATH = tests/testwikis/userwiki
 
 help:
