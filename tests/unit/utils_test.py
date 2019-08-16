@@ -2,6 +2,7 @@ import pytest
 import re
 
 from composer.backend.filesystem.utils import (
+    add_to_section,
     read_item,
     read_section,
     read_until,
@@ -155,4 +156,28 @@ def test_read_section_empty(tasklist_file):
 def test_read_section_missing(tasklist_file):
     with pytest.raises(ValueError):
         contents = read_section(tasklist_file, 'THIS DECADE')
+
+
+# add_to_section
+
+def test_add_to_section(tasklist_file):
+    new_tasks = "[ ] one more thing to do!\n"
+    updated = add_to_section(tasklist_file, 'THIS WEEK', new_tasks)
+    expected = ("TOMORROW:\n"
+                "[ ] a task\n"
+                "[\\] a WIP task\n"
+                "Just some additional clarifications\n"
+                "\n"
+                "[o] a scheduled task [$TOMORROW$]\n"
+                "THIS WEEK:\n"
+                "[ ] one more thing to do!\n"
+                "[ ] a task with subtasks\n"
+                "\t[ ] first thing\n"
+                "\tclarification of first thing\n"
+                "\t[ ] second thing\n"
+                "THIS MONTH:\n"
+                "\n"
+                "UNSCHEDULED:\n"
+                "[ ] another task\n")
+    assert updated.read() == expected
 

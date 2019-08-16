@@ -46,6 +46,10 @@ def quarter_for_month(month):
         return "Q4"
 
 
+def _section_pattern(section):
+    return re.compile(r'^' + section.upper())
+
+
 # TODO: replace these type predicates with regexes?
 def is_scheduled_task(line):
     return line.startswith("[o")
@@ -60,7 +64,7 @@ def is_subtask(line):
 
 
 def is_section(line, section_name=None):
-    pattern = (re.compile(r'^' + section_name.upper())
+    pattern = (_section_pattern(section_name)
                if section_name
                else SECTION_PATTERN)
     return pattern.search(line)
@@ -161,7 +165,7 @@ def read_until(file, pattern, inclusive=False, starting_position=0):
 
 @contain_file_mutation
 def read_section(file, section):
-    pattern = re.compile(r'^' + section.upper())
+    pattern = _section_pattern(section)
     try:
         _, index = read_until(file, pattern, inclusive=True)
         contents, _ = read_until(file, SECTION_OR_EOF_PATTERN, starting_position=index)
@@ -172,11 +176,15 @@ def read_section(file, section):
 
 @contain_file_mutation
 def add_to_section(file, section, tasks):
-    pattern = re.compile(r'^' + section.upper())
-    _, index = read_until(file, pattern, inclusive=True)
+    pattern = _section_pattern(section)
+    contents, index = read_until(file, pattern, inclusive=True)
+    new_file = make_file(contents)
+    new_file.read()
+    new_file.write(tasks)
     file.seek(index)
-    file.write(tasks)
-    return file
+    rest_of_file = file.read()
+    new_file.write(rest_of_file)
+    return new_file
 
 
 def get_tasks(file, section=None, of_type=None):
