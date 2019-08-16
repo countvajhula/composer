@@ -1,5 +1,7 @@
 export PYTEST_DISABLE_PLUGIN_AUTOLOAD = 1
 TEST_WIKI_PATH = tests/testwikis/userwiki
+UNIT_TESTS_PATH = tests/unit
+FUNCTIONAL_TESTS_PATH = tests/functional
 
 help:
 	@echo "clean - remove all build, test, coverage and Python artifacts, and reset test wikis"
@@ -51,10 +53,10 @@ black:
 	black composer tests
 
 test-unit:
-	python setup.py test --addopts tests/unit
+	python setup.py test --addopts $(UNIT_TESTS_PATH)
 
 test-functional:
-	python setup.py test --addopts tests/functional
+	python setup.py test --addopts $(FUNCTIONAL_TESTS_PATH)
 
 test-all: test-unit test-functional
 
@@ -62,7 +64,7 @@ test:
 ifdef DEST
 	$(eval OPTS := --addopts $(DEST))
 else
-	$(eval OPTS := --addopts tests/unit)
+	$(eval OPTS := --addopts $(UNIT_TESTS_PATH))
 endif
 	python setup.py test $(OPTS)
 
@@ -81,7 +83,7 @@ test-tldr:
 ifdef DEST
 	$(eval OPTS := --addopts "-p tldr -p no:sugar $(DEST)")
 else
-	$(eval OPTS := --addopts "-p tldr -p no:sugar tests/unit")
+	$(eval OPTS := --addopts "-p tldr -p no:sugar $(UNIT_TESTS_PATH)")
 endif
 	python setup.py test $(OPTS)
 
