@@ -82,6 +82,9 @@ else
 	whats-next ${TEST_WIKI_PATH} --test
 endif
 
+# ideally this should launch pudb to step through the specified tests
+debug: test-debug
+
 coverage:
 	coverage run --source composer setup.py test
 	coverage report -m
@@ -92,4 +95,4 @@ sdist: clean
 	python setup.py sdist
 	ls -l dist
 
-.PHONY: help build clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint black test-unit test-functional test-all test test-stop test-debug test-matrix test-wiki coverage sdist
+.PHONY: help build clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint black test-unit test-functional test-all test test-stop test-debug test-matrix test-tldr test-wiki debug coverage sdist
