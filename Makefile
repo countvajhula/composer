@@ -1,4 +1,4 @@
-export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+export PYTEST_DISABLE_PLUGIN_AUTOLOAD = 1
 TEST_WIKI_PATH = tests/testwikis/userwiki
 
 help:
@@ -58,7 +58,13 @@ test-functional:
 
 test-all: test-unit test-functional
 
-test: test-unit
+test:
+ifdef DEST
+	$(eval OPTS := --addopts $(DEST))
+else
+	$(eval OPTS := --addopts tests/unit)
+endif
+	python setup.py test $(OPTS)
 
 # stop on first failing test
 test-stop:
@@ -72,7 +78,12 @@ test-matrix:
 	tox
 
 test-tldr:
-	python setup.py test --addopts "-p tldr -p no:sugar"
+ifdef DEST
+	$(eval OPTS := --addopts "-p tldr -p no:sugar $(DEST)")
+else
+	$(eval OPTS := --addopts "-p tldr -p no:sugar tests/unit")
+endif
+	python setup.py test $(OPTS)
 
 test-wiki:
 	@echo "Operating on TEST wiki at location:" ${TEST_WIKI_PATH}
@@ -84,6 +95,8 @@ endif
 
 # ideally this should launch pudb to step through the specified tests
 debug: test-debug
+
+tldr: test-tldr
 
 coverage:
 	coverage run --source composer setup.py test
