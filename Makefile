@@ -71,6 +71,9 @@ test-debug:
 test-matrix:
 	tox
 
+test-tldr:
+	python setup.py test --addopts "-p tldr -p no:sugar"
+
 test-wiki:
 	@echo "Operating on TEST wiki at location:" ${TEST_WIKI_PATH}
 ifeq ($(jump),1)
