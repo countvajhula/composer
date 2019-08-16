@@ -27,9 +27,9 @@ def contain_file_mutation(fn):
         new_args = [copy_file(arg) if isinstance(arg, StringIO) else arg for arg in args]
         new_kwargs = {k: (copy_file(v) if isinstance(v, StringIO) else v) for k, v in kwargs.items()}
         result = fn(*new_args, **new_kwargs)
-        try:
+        if isinstance(result, tuple):
             new_result = [copy_file(r) if isinstance(r, StringIO) else r for r in result]
-        except TypeError:
+        else:
             new_result = copy_file(result) if isinstance(result, StringIO) else result
         return new_result
     return wrapper
