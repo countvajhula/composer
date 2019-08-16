@@ -97,6 +97,14 @@ def read_item(file, of_type=None, starting_position=0):
     header, pretty much anything EXCEPT things that begin with a tab
     character, as these are treated as subsidiary items to be included in
     the parent.
+
+    :param :class:`io.StringIO` file: The file to read from
+    :param function of_type: A predicate function that returns true or
+        false based on a type determination on the argument
+    :param int starting_position: Buffer position to start reading the
+        input file from.
+
+    :returns str: An item read from the file
     """
     if not of_type:
         of_type = lambda x: True
@@ -125,6 +133,16 @@ def read_item(file, of_type=None, starting_position=0):
 
 @contain_file_mutation
 def read_until(file, pattern, inclusive=False, starting_position=0):
+    """ Read a given file until a string matching a certain pattern
+    is encountered.
+
+    :param :class:`io.StringIO` file: The file to read from
+    :param :class:`_sre.SRE_Pattern` pattern: The pattern to look for
+    :param bool inclusive: Whether to include the line at the stopping
+        point, i.e. the one containing the pattern.
+    :param int starting_position: Buffer position to start reading the
+        input file from.
+    """
     contents = ""
     index = file.seek(starting_position)
     item, next_index, _ = read_item(file, starting_position=index)
