@@ -3,6 +3,7 @@ import re
 
 from composer.backend.filesystem.utils import (
     read_item,
+    read_section,
     read_until,
     is_blank_line,
     is_wip_task,
@@ -10,7 +11,7 @@ from composer.backend.filesystem.utils import (
     is_section,
 )
 
-from .fixtures import logfile, empty_logfile  # noqa
+from .fixtures import logfile, empty_logfile, tasklist_file  # noqa
 
 
 def test_read_generic_item(logfile):
@@ -132,4 +133,26 @@ def test_pattern_not_found(logfile):
     pattern = re.compile(r"^NOT THERE")
     with pytest.raises(ValueError):
         _, _ = read_until(logfile, pattern)
+
+
+# read_section
+
+def test_read_section(tasklist_file):
+    contents = read_section(tasklist_file, 'THIS WEEK')
+    expected = ("[ ] a task with subtasks\n"
+                "\t[ ] first thing\n"
+                "\tclarification of first thing\n"
+                "\t[ ] second thing\n")
+    assert contents == expected
+
+
+def test_read_section_empty(tasklist_file):
+    contents = read_section(tasklist_file, 'THIS MONTH')
+    expected = ""
+    assert contents == expected
+
+
+def test_read_section_missing(tasklist_file):
+    with pytest.raises(ValueError):
+        contents = read_section(tasklist_file, 'THIS DECADE')
 

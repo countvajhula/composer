@@ -128,6 +128,25 @@ def _empty_logfile():
     return StringIO("")
 
 
+def _tasklistfile():
+    contents = ("TOMORROW:\n"
+                "[ ] a task\n"
+                "[\\] a WIP task\n"
+                "Just some additional clarifications\n"
+                "\n"
+                "[o] a scheduled task [$TOMORROW$]\n"
+                "THIS WEEK:\n"
+                "[ ] a task with subtasks\n"
+                "\t[ ] first thing\n"
+                "\tclarification of first thing\n"
+                "\t[ ] second thing\n"
+                "THIS MONTH:\n"
+                "\n"
+                "UNSCHEDULED:\n"
+                "[ ] another task\n")
+    return StringIO(contents)
+
+
 @pytest.fixture
 def logfile():
     return _logfile()
@@ -136,3 +155,8 @@ def logfile():
 @pytest.fixture
 def empty_logfile():
     return _empty_logfile()
+
+
+@pytest.fixture
+def tasklist_file():
+    return _tasklistfile()
