@@ -177,7 +177,10 @@ def read_section(file, section):
 @contain_file_mutation
 def add_to_section(file, section, tasks):
     pattern = _section_pattern(section)
-    contents, index = read_until(file, pattern, inclusive=True)
+    try:
+        contents, index = read_until(file, pattern, inclusive=True)
+    except ValueError:
+        raise
     new_file = make_file(contents)
     new_file.read()
     new_file.write(tasks)
@@ -187,15 +190,15 @@ def add_to_section(file, section, tasks):
     return new_file
 
 
-def get_tasks(file, section=None, of_type=None):
+def get_task_items(file, of_type=None):
     tasks = ""
-    if section:
-        task_file = make_file(read_section(file, section))
-    item, index, _ = read_item(task_file, of_type)
+    complement = StringIO()
+    task_file = file
+    item, _, complement = read_item(task_file, of_type)
     while item:
         tasks += item
-        item, index, _ = read_item(task_file, of_type, index)
-    return tasks
+        item, _, complement = read_item(complement, of_type)
+    return tasks, complement
 
 
 def make_file(string):

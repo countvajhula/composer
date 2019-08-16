@@ -6,7 +6,10 @@ from composer.backend.filesystem.utils import (
     read_item,
     read_section,
     read_until,
+    get_task_items,
     is_blank_line,
+    is_completed_task,
+    is_undone_task,
     is_wip_task,
     is_scheduled_task,
     is_section,
@@ -141,7 +144,7 @@ def test_pattern_not_found(logfile):
 def test_read_section(tasklist_file):
     contents = read_section(tasklist_file, 'THIS WEEK')
     expected = ("[ ] a task with subtasks\n"
-                "\t[ ] first thing\n"
+                "\t[\\] first thing\n"
                 "\tclarification of first thing\n"
                 "\t[ ] second thing\n")
     assert contents == expected
@@ -155,7 +158,7 @@ def test_read_section_empty(tasklist_file):
 
 def test_read_section_missing(tasklist_file):
     with pytest.raises(ValueError):
-        contents = read_section(tasklist_file, 'THIS DECADE')
+        read_section(tasklist_file, 'THIS DECADE')
 
 
 # add_to_section
@@ -172,7 +175,7 @@ def test_add_to_section(tasklist_file):
                 "THIS WEEK:\n"
                 "[ ] one more thing to do!\n"
                 "[ ] a task with subtasks\n"
-                "\t[ ] first thing\n"
+                "\t[\\] first thing\n"
                 "\tclarification of first thing\n"
                 "\t[ ] second thing\n"
                 "THIS MONTH:\n"
@@ -181,3 +184,50 @@ def test_add_to_section(tasklist_file):
                 "[ ] another task\n")
     assert updated.read() == expected
 
+
+def test_add_to_section_missing(tasklist_file):
+    new_tasks = "[ ] one more thing to do!\n"
+    with pytest.raises(ValueError):
+        add_to_section(tasklist_file, 'THIS DECADE', new_tasks)
+
+
+# get_task_items
+
+def test_get_all_items(tasklist_file):
+    items, complement = get_task_items(tasklist_file)
+    assert items == tasklist_file.read()
+    assert complement.read() == ""
+
+
+def test_get_no_items(tasklist_file):
+    items, complement = get_task_items(tasklist_file, of_type=is_completed_task)
+    assert items == ""
+    assert complement.read() == tasklist_file.read()
+
+
+def test_get_some_items(tasklist_file):
+    items, complement = get_task_items(tasklist_file, of_type=is_undone_task)
+    expected = ("[ ] a task\n"
+                "[ ] a task with subtasks\n"
+                "\t[\\] first thing\n"
+                "\tclarification of first thing\n"
+                "\t[ ] second thing\n"
+                "[ ] another task\n")
+    expected_complement = ("TOMORROW:\n"
+                           "[\\] a WIP task\n"
+                           "Just some additional clarifications\n"
+                           "\n"
+                           "[o] a scheduled task [$TOMORROW$]\n"
+                           "THIS WEEK:\n"
+                           "THIS MONTH:\n"
+                           "\n"
+                           "UNSCHEDULED:\n")
+
+    assert items == expected
+    assert complement.read() == expected_complement
+
+
+def test_get_items_empty_file(empty_logfile):
+    items, complement = get_task_items(empty_logfile)
+    assert items == ""
+    assert complement.read() == empty_logfile.read()

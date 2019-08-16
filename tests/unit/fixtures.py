@@ -137,7 +137,7 @@ def _tasklistfile():
                 "[o] a scheduled task [$TOMORROW$]\n"
                 "THIS WEEK:\n"
                 "[ ] a task with subtasks\n"
-                "\t[ ] first thing\n"
+                "\t[\\] first thing\n"
                 "\tclarification of first thing\n"
                 "\t[ ] second thing\n"
                 "THIS MONTH:\n"
