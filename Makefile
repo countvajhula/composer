@@ -74,7 +74,12 @@ test-stop:
 
 # debug on first failing test
 test-debug:
-	python setup.py test --addopts "-x --pudb"
+ifdef DEST
+	$(eval OPTS := --addopts "-x --pudb $(DEST)")
+else
+	$(eval OPTS := --addopts "-x --pudb $(UNIT_TESTS_PATH)")
+endif
+	python setup.py test $(OPTS)
 
 test-matrix:
 	tox
