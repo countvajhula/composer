@@ -1,5 +1,9 @@
+import pytest
+import re
+
 from composer.backend.filesystem.utils import (
     read_item,
+    read_until,
     is_blank_line,
     is_wip_task,
     is_scheduled_task,
@@ -87,3 +91,45 @@ def test_index_when_found(logfile):
 def test_index_when_not_found(logfile):
     _, index, _ = read_item(logfile, of_type=is_section)
     assert index == -1
+
+
+# read_until
+
+def test_read_until_pattern(logfile):
+    pattern = re.compile(r"^Just")
+    contents, _ = read_until(logfile, pattern)
+    expected = ("[ ] a task\n"
+                "[\\] a WIP task\n")
+    assert contents == expected
+
+
+def test_read_until_inclusive(logfile):
+    pattern = re.compile(r"^Just")
+    contents, _ = read_until(logfile, pattern, inclusive=True)
+    expected = ("[ ] a task\n"
+                "[\\] a WIP task\n"
+                "Just some additional clarifications\n")
+    assert contents == expected
+
+
+def test_read_until_from_starting_position(logfile):
+    pattern = re.compile(r"^\[ \]")
+    contents, _ = read_until(logfile, pattern, starting_position=11)
+    expected = ("[\\] a WIP task\n"
+                "Just some additional clarifications\n"
+                "\n"
+                "[o] a scheduled task [$TOMORROW$]\n")
+    assert contents == expected
+
+
+def test_read_until_index(logfile):
+    pattern = re.compile(r"^Just")
+    _, index = read_until(logfile, pattern)
+    assert index == 26
+
+
+def test_pattern_not_found(logfile):
+    pattern = re.compile(r"^NOT THERE")
+    with pytest.raises(ValueError):
+        _, _ = read_until(logfile, pattern)
+
