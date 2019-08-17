@@ -172,12 +172,17 @@ def read_until(file, pattern, inclusive=False, starting_position=0):
 @contain_file_mutation
 def read_section(file, section):
     pattern = _section_pattern(section)
+    complement = make_file()
     try:
-        _, index, _ = read_until(file, pattern, inclusive=True)
-        contents, _, _ = read_until(file, SECTION_OR_EOF_PATTERN, starting_position=index)
+        contents_before, index, _ = read_until(file, pattern, inclusive=True)
+        complement.write(contents_before)
+        contents, index, _ = read_until(file, SECTION_OR_EOF_PATTERN, starting_position=index)
+        file.seek(index)
+        contents_after = file.read()
+        complement.write(contents_after)
     except ValueError:
         raise
-    return contents
+    return contents, index, complement
 
 
 @contain_file_mutation
