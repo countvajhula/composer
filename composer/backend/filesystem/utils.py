@@ -113,7 +113,7 @@ def read_item(file, of_type=None, starting_position=0):
     if not of_type:
         of_type = lambda x: True
     item = ""
-    complement = StringIO()
+    complement = make_file()
     index = file.seek(starting_position)
     line = file.readline()
     while not is_eof(line) and not of_type(line):
@@ -148,7 +148,9 @@ def read_until(file, pattern, inclusive=False, starting_position=0):
         input file from.
     """
     contents = ""
-    index = file.seek(starting_position)
+    complement = make_file()
+    complement.write(file.read(starting_position))
+    index = file.tell()
     item, next_index, _ = read_item(file, starting_position=index)
     while item and not pattern.search(item):
         contents += item
@@ -158,17 +160,21 @@ def read_until(file, pattern, inclusive=False, starting_position=0):
         if inclusive:
             contents += item
             index = next_index
+        else:
+            complement.write(item)
+        file.seek(next_index)
+        complement.write(file.read())
     else:
         raise ValueError("Pattern {} not found in file!" .format(pattern))
-    return contents, index
+    return contents, index, complement
 
 
 @contain_file_mutation
 def read_section(file, section):
     pattern = _section_pattern(section)
     try:
-        _, index = read_until(file, pattern, inclusive=True)
-        contents, _ = read_until(file, SECTION_OR_EOF_PATTERN, starting_position=index)
+        _, index, _ = read_until(file, pattern, inclusive=True)
+        contents, _, _ = read_until(file, SECTION_OR_EOF_PATTERN, starting_position=index)
     except ValueError:
         raise
     return contents
@@ -178,7 +184,7 @@ def read_section(file, section):
 def add_to_section(file, section, tasks):
     pattern = _section_pattern(section)
     try:
-        contents, index = read_until(file, pattern, inclusive=True)
+        contents, index, _ = read_until(file, pattern, inclusive=True)
     except ValueError:
         raise
     new_file = make_file(contents)
@@ -192,7 +198,7 @@ def add_to_section(file, section, tasks):
 
 def get_task_items(file, of_type=None):
     tasks = ""
-    complement = StringIO()
+    complement = make_file()
     task_file = file
     item, _, complement = read_item(task_file, of_type)
     while item:
@@ -201,7 +207,7 @@ def get_task_items(file, of_type=None):
     return tasks, complement
 
 
-def make_file(string):
+def make_file(string=""):
     """ 'Files' are the abstraction level at which the planner is implemented
     in terms of the filesystem. We prefer to work with files rather than the
     more elementary string representation.
@@ -212,7 +218,7 @@ def make_file(string):
 def copy_file(file):
     # we only operate on StringIO files and not actual files
     # except at the entry and exit points
-    return StringIO(file.getvalue())
+    return make_file(file.getvalue())
 
 
 def read_file(filepath):
