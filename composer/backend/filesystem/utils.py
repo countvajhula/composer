@@ -94,6 +94,18 @@ def is_eof(line):
     return line == ""
 
 
+def item_list_to_string(items):
+    return "".join(items)
+
+
+def string_to_item_list(string):
+    lines = string.splitlines()
+    result = [line + '\n' for line in lines]
+    if not string.endswith("\n"):
+        result[-1] = result[-1].rstrip('\n')
+    return result
+
+
 @contain_file_mutation
 def read_item(file, of_type=None, starting_position=0):
     """ An 'item' is any line that begins at the 0th position of the line.
@@ -199,6 +211,7 @@ def add_to_section(file, section, tasks):
     return new_file
 
 
+@contain_file_mutation
 def get_task_items(file, of_type=None):
     tasks = []
     complement = make_file()
