@@ -3,7 +3,7 @@ import re
 from functools import wraps
 
 SECTION_PATTERN = re.compile(r"^[A-Z][A-Z][A-Za-z ]+:")
-SECTION_OR_EOF_PATTERN = re.compile(r"(^[A-Z][A-Z][A-Za-z ]+:|^$)")
+SECTION_OR_EOF_PATTERN = re.compile(r"(^[A-Z][A-Z][A-Za-z ]+:|\A\Z)")
 TASK_PATTERN = re.compile(r"^\t*\[")
 
 try:  # py2
