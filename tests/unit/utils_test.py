@@ -271,16 +271,19 @@ class TestGetTaskItems(object):
 
     def test_get_all_items(self, tasklist_file):
         items, complement = get_task_items(tasklist_file)
-        assert items == tasklist_file.read()
+        items_string = "".join(items)
+        assert items_string == tasklist_file.read()
         assert complement.read() == ""
 
     def test_get_no_items(self, tasklist_file):
         items, complement = get_task_items(tasklist_file, of_type=is_completed_task)
-        assert items == ""
+        items_string = "".join(items)
+        assert items_string == ""
         assert complement.read() == tasklist_file.read()
 
     def test_get_some_items(self, tasklist_file):
         items, complement = get_task_items(tasklist_file, of_type=is_undone_task)
+        items_string = "".join(items)
         expected = ("[ ] a task\n"
                     "[ ] a task with subtasks\n"
                     "\t[\\] first thing\n"
@@ -296,10 +299,11 @@ class TestGetTaskItems(object):
                             "THIS MONTH:\n"
                             "UNSCHEDULED:\n")
 
-        assert items == expected
+        assert items_string == expected
         assert complement.read() == expected_complement
 
     def test_get_items_empty_file(self, empty_logfile):
         items, complement = get_task_items(empty_logfile)
-        assert items == ""
+        items_string = "".join(items)
+        assert items_string == ""
         assert complement.read() == empty_logfile.read()

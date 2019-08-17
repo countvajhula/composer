@@ -200,12 +200,12 @@ def add_to_section(file, section, tasks):
 
 
 def get_task_items(file, of_type=None):
-    tasks = ""
+    tasks = []
     complement = make_file()
     task_file = file
     item, _, complement = read_item(task_file, of_type)
     while item:
-        tasks += item
+        tasks.append(item)
         item, _, complement = read_item(complement, of_type)
     return tasks, complement
 
