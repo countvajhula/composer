@@ -141,7 +141,6 @@ def _tasklistfile():
                 "\tclarification of first thing\n"
                 "\t[ ] second thing\n"
                 "THIS MONTH:\n"
-                "\n"
                 "UNSCHEDULED:\n"
                 "[ ] another task\n")
     return StringIO(contents)

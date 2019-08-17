@@ -203,10 +203,36 @@ class TestReadSection(object):
                     "\t[ ] second thing\n")
         assert contents == expected
 
+    def test_read_section_index(self, tasklist_file):
+        _, index, _ = read_section(tasklist_file, 'THIS WEEK')
+        assert index == 208
+
+    def test_read_section_complement(self, tasklist_file):
+        _, _, complement = read_section(tasklist_file, 'THIS WEEK')
+        expected = ("TOMORROW:\n"
+                    "[ ] a task\n"
+                    "[\\] a WIP task\n"
+                    "Just some additional clarifications\n"
+                    "\n"
+                    "[o] a scheduled task [$TOMORROW$]\n"
+                    "THIS WEEK:\n"
+                    "THIS MONTH:\n"
+                    "UNSCHEDULED:\n"
+                    "[ ] another task\n")
+        assert complement.read() == expected
+
     def test_read_section_empty(self, tasklist_file):
         contents, _, _ = read_section(tasklist_file, 'THIS MONTH')
         expected = ""
         assert contents == expected
+
+    def test_read_section_empty_index(self, tasklist_file):
+        _, index, _ = read_section(tasklist_file, 'THIS MONTH')
+        assert index == 220
+
+    def test_read_section_empty_complement(self, tasklist_file):
+        _, _, complement = read_section(tasklist_file, 'THIS MONTH')
+        assert complement.read() == tasklist_file.read()
 
     def test_read_section_missing(self, tasklist_file):
         with pytest.raises(ValueError):
@@ -231,7 +257,6 @@ class TestAddToSection(object):
                     "\tclarification of first thing\n"
                     "\t[ ] second thing\n"
                     "THIS MONTH:\n"
-                    "\n"
                     "UNSCHEDULED:\n"
                     "[ ] another task\n")
         assert updated.read() == expected
@@ -269,7 +294,6 @@ class TestGetTaskItems(object):
                             "[o] a scheduled task [$TOMORROW$]\n"
                             "THIS WEEK:\n"
                             "THIS MONTH:\n"
-                            "\n"
                             "UNSCHEDULED:\n")
 
         assert items == expected
