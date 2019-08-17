@@ -120,6 +120,21 @@ class TestReadUntil(object):
         _, index, _ = read_until(logfile, pattern)
         assert index == 26
 
+    def test_read_until_index_starting_position(self, logfile):
+        pattern = re.compile(r"^Just")
+        _, index, _ = read_until(logfile, pattern, starting_position=11)
+        assert index == 26
+
+    def test_read_until_index_inclusive(self, logfile):
+        pattern = re.compile(r"^Just")
+        _, index, _ = read_until(logfile, pattern, inclusive=True)
+        assert index == 62
+
+    def test_read_until_index_starting_position_inclusive(self, logfile):
+        pattern = re.compile(r"^Just")
+        _, index, _ = read_until(logfile, pattern, starting_position=11, inclusive=True)
+        assert index == 62
+
     def test_read_until_complement(self, logfile):
         pattern = re.compile(r"^Just")
         _, _, complement = read_until(logfile, pattern)
@@ -145,6 +160,33 @@ class TestReadUntil(object):
                     "[ ] another task\n")
         assert complement.read() == expected
 
+    def test_read_until_complement_starting_position(self, logfile):
+        pattern = re.compile(r"^Just")
+        _, _, complement = read_until(logfile, pattern, starting_position=11)
+        expected = ("[ ] a task\n"
+                    "Just some additional clarifications\n"
+                    "\n"
+                    "[o] a scheduled task [$TOMORROW$]\n"
+                    "[ ] a task with subtasks\n"
+                    "\t[ ] first thing\n"
+                    "\tclarification of first thing\n"
+                    "\t[ ] second thing\n"
+                    "[ ] another task\n")
+        assert complement.read() == expected
+
+    def test_read_until_complement_starting_position_inclusive(self, logfile):
+        pattern = re.compile(r"^Just")
+        _, _, complement = read_until(logfile, pattern, starting_position=11, inclusive=True)
+        expected = ("[ ] a task\n"
+                    "\n"
+                    "[o] a scheduled task [$TOMORROW$]\n"
+                    "[ ] a task with subtasks\n"
+                    "\t[ ] first thing\n"
+                    "\tclarification of first thing\n"
+                    "\t[ ] second thing\n"
+                    "[ ] another task\n")
+        assert complement.read() == expected
+
     def test_pattern_not_found(self, logfile):
         pattern = re.compile(r"^NOT THERE")
         with pytest.raises(ValueError):
@@ -154,7 +196,7 @@ class TestReadUntil(object):
 class TestReadSection(object):
 
     def test_read_section(self, tasklist_file):
-        contents = read_section(tasklist_file, 'THIS WEEK')
+        contents, _, _ = read_section(tasklist_file, 'THIS WEEK')
         expected = ("[ ] a task with subtasks\n"
                     "\t[\\] first thing\n"
                     "\tclarification of first thing\n"
@@ -162,7 +204,7 @@ class TestReadSection(object):
         assert contents == expected
 
     def test_read_section_empty(self, tasklist_file):
-        contents = read_section(tasklist_file, 'THIS MONTH')
+        contents, _, _ = read_section(tasklist_file, 'THIS MONTH')
         expected = ""
         assert contents == expected
 
