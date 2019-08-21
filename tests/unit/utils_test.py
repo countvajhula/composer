@@ -267,7 +267,35 @@ class TestReadSection(object):
 
 
 class TestAddToSection(object):
-    def test_add_to_section(self, tasklist_file):
+
+    def test_add_to_empty_section(self, tasklist_file):
+        new_tasks = "[ ] one more thing to do!\n"
+        updated = add_to_section(tasklist_file, 'THIS MONTH', new_tasks)
+        expected = (
+            "TOMORROW:\n"
+            "[ ] a task\n"
+            "[\\] a WIP task\n"
+            "Just some additional clarifications\n"
+            "\n"
+            "[o] a scheduled task [$TOMORROW$]\n"
+            "THIS WEEK:\n"
+            "[ ] a task with subtasks\n"
+            "\t[\\] first thing\n"
+            "\tclarification of first thing\n"
+            "\t[ ] second thing\n"
+            "THIS MONTH:\n"
+            "[ ] one more thing to do!\n"
+            "UNSCHEDULED:\n"
+            "[ ] another task\n"
+        )
+        assert updated.read() == expected
+
+    def test_section_missing(self, tasklist_file):
+        new_tasks = "[ ] one more thing to do!\n"
+        with pytest.raises(ValueError):
+            add_to_section(tasklist_file, 'THIS DECADE', new_tasks)
+
+    def test_existing_contents_are_preserved(self, tasklist_file):
         new_tasks = "[ ] one more thing to do!\n"
         updated = add_to_section(tasklist_file, 'THIS WEEK', new_tasks)
         expected = (
@@ -288,13 +316,6 @@ class TestAddToSection(object):
             "[ ] another task\n"
         )
         assert updated.read() == expected
-
-    def test_section_missing(self, tasklist_file):
-        new_tasks = "[ ] one more thing to do!\n"
-        with pytest.raises(ValueError):
-            add_to_section(tasklist_file, 'THIS DECADE', new_tasks)
-
-    # TODO: existing contents are preserved
 
 
 class TestGetTaskItems(object):
