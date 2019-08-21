@@ -143,12 +143,16 @@ def read_item(file, of_type=None, starting_position=0):
 
 
 @contain_file_mutation
-def read_until(file, pattern, inclusive=False, starting_position=0):
+def read_until(
+    file, pattern, or_eof=False, inclusive=False, starting_position=0
+):
     """ Read a given file until a string matching a certain pattern
     is encountered.
 
     :param :class:`io.StringIO` file: The file to read from
     :param :class:`_sre.SRE_Pattern` pattern: The pattern to look for
+    :param bool or_eof: If reading until the end of the file (without
+        the pattern having been encountered) is acceptable
     :param bool inclusive: Whether to include the line at the stopping
         point, i.e. the one containing the pattern.
     :param int starting_position: Buffer position to start reading the
@@ -172,23 +176,27 @@ def read_until(file, pattern, inclusive=False, starting_position=0):
         file.seek(next_index)
         complement.write(file.read())
     else:
-        raise ValueError("Pattern {} not found in file!" .format(pattern))
+        if not or_eof:
+            raise ValueError("Pattern {} not found in file!".format(pattern))
     return contents, index, complement
 
 
 @contain_file_mutation
 def read_section(file, section):
-    pattern = _section_pattern(section)
+    pattern = get_section_pattern(section)
     complement = make_file()
     try:
         contents_before, index, _ = read_until(file, pattern, inclusive=True)
         complement.write(contents_before)
-        contents, index, _ = read_until(file, SECTION_OR_EOF_PATTERN, starting_position=index)
-        file.seek(index)
-        contents_after = file.read()
-        complement.write(contents_after)
+        contents, index, _ = read_until(
+            file, SECTION_OR_EOF_PATTERN, or_eof=True, starting_position=index
+        )
     except ValueError:
         raise
+
+    file.seek(index)
+    contents_after = file.read()
+    complement.write(contents_after)
     return contents, index, complement
 
 
@@ -216,8 +224,7 @@ def add_to_section(file, section, tasks):
 def get_task_items(file, of_type=None):
     tasks = []
     complement = make_file()
-    task_file = file
-    item, _, complement = read_item(task_file, of_type)
+    item, _, complement = read_item(file, of_type)
     while item:
         tasks.append(item)
         item, _, complement = read_item(complement, of_type)
