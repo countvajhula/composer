@@ -248,6 +248,20 @@ class TestReadSection(object):
         )
         assert complement.read() == expected
 
+    def test_read_of_type(self, tasklist_file):
+        contents, _, _ = read_section(
+            tasklist_file, 'TOMORROW', of_type=is_wip_task
+        )
+        expected = "[\\] a WIP task\n"
+        assert contents == expected
+
+    def test_none_of_type_returns_none(self, tasklist_file):
+        contents, _, _ = read_section(
+            tasklist_file, 'THIS WEEK', of_type=is_scheduled_task
+        )
+        expected = ""
+        assert contents == expected
+
     def test_empty_section(self, tasklist_file):
         contents, _, _ = read_section(tasklist_file, 'THIS MONTH')
         expected = ""

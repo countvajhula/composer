@@ -194,7 +194,7 @@ def read_until(
 
 
 @contain_file_mutation
-def read_section(file, section):
+def read_section(file, section, of_type=None):
     pattern = get_section_pattern(section)
     complement = make_file()
     try:
@@ -206,6 +206,9 @@ def read_section(file, section):
     except ValueError:
         raise
 
+    items, section_complement = get_task_items(make_file(contents), of_type)
+    contents = item_list_to_string(items)
+    complement.write(section_complement.read())
     file.seek(index)
     contents_after = file.read()
     complement.write(contents_after)
