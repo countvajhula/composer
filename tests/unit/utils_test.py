@@ -19,25 +19,25 @@ from .fixtures import logfile, empty_logfile, tasklist_file  # noqa
 
 
 class TestReadItem(object):
-    def test_read_generic_item(self, logfile):
+    def test_generic_item(self, logfile):
         item, _, _ = read_item(logfile)
         assert item == "[ ] a task\n"
 
-    def test_read_blank_line(self, logfile):
+    def test_blank_line(self, logfile):
         item, _, _ = read_item(logfile, of_type=is_blank_line)
         assert item == "\n"
 
-    def test_read_text_item(self, logfile):
+    def test_text_item(self, logfile):
         logfile.readline()
         logfile.readline()
         item, _, _ = read_item(logfile, starting_position=logfile.tell())
         assert item == "Just some additional clarifications\n"
 
-    def test_read_task(self, logfile):
+    def test_task(self, logfile):
         item, _, _ = read_item(logfile, of_type=is_wip_task)
         assert item == "[\\] a WIP task\n"
 
-    def test_read_task_with_subtasks(self, logfile):
+    def test_task_with_subtasks(self, logfile):
         for i in range(5):
             logfile.readline()
         item, _, _ = read_item(logfile, starting_position=logfile.tell())
@@ -49,15 +49,15 @@ class TestReadItem(object):
         )
         assert item == expected
 
-    def test_read_from_position(self, logfile):
+    def test_from_position(self, logfile):
         item, _, _ = read_item(logfile, starting_position=11)
         assert item == "[\\] a WIP task\n"
 
-    def test_read_empty_file(self, empty_logfile):
+    def test_empty_file(self, empty_logfile):
         item, _, _ = read_item(empty_logfile)
         assert item is None
 
-    def test_read_type_not_found(self, logfile):
+    def test_type_not_found(self, logfile):
         item, _, _ = read_item(logfile, of_type=is_section)
         assert item is None
 
@@ -93,13 +93,13 @@ class TestReadItem(object):
 
 
 class TestReadUntil(object):
-    def test_read_until_pattern(self, logfile):
+    def test_pattern(self, logfile):
         pattern = re.compile(r"^Just")
         contents, _, _ = read_until(logfile, pattern)
         expected = "[ ] a task\n" "[\\] a WIP task\n"
         assert contents == expected
 
-    def test_read_until_inclusive(self, logfile):
+    def test_inclusive(self, logfile):
         pattern = re.compile(r"^Just")
         contents, _, _ = read_until(logfile, pattern, inclusive=True)
         expected = (
@@ -109,7 +109,7 @@ class TestReadUntil(object):
         )
         assert contents == expected
 
-    def test_read_until_from_starting_position(self, logfile):
+    def test_from_starting_position(self, logfile):
         pattern = re.compile(r"^\[ \]")
         contents, _, _ = read_until(logfile, pattern, starting_position=11)
         expected = (
@@ -120,29 +120,29 @@ class TestReadUntil(object):
         )
         assert contents == expected
 
-    def test_read_until_index(self, logfile):
+    def test_index(self, logfile):
         pattern = re.compile(r"^Just")
         _, index, _ = read_until(logfile, pattern)
         assert index == 26
 
-    def test_read_until_index_starting_position(self, logfile):
+    def test_index_starting_position(self, logfile):
         pattern = re.compile(r"^Just")
         _, index, _ = read_until(logfile, pattern, starting_position=11)
         assert index == 26
 
-    def test_read_until_index_inclusive(self, logfile):
+    def test_index_inclusive(self, logfile):
         pattern = re.compile(r"^Just")
         _, index, _ = read_until(logfile, pattern, inclusive=True)
         assert index == 62
 
-    def test_read_until_index_starting_position_inclusive(self, logfile):
+    def test_index_starting_position_inclusive(self, logfile):
         pattern = re.compile(r"^Just")
         _, index, _ = read_until(
             logfile, pattern, starting_position=11, inclusive=True
         )
         assert index == 62
 
-    def test_read_until_complement(self, logfile):
+    def test_complement(self, logfile):
         pattern = re.compile(r"^Just")
         _, _, complement = read_until(logfile, pattern)
         expected = (
@@ -157,7 +157,7 @@ class TestReadUntil(object):
         )
         assert complement.read() == expected
 
-    def test_read_until_complement_inclusive(self, logfile):
+    def test_complement_inclusive(self, logfile):
         pattern = re.compile(r"^Just")
         _, _, complement = read_until(logfile, pattern, inclusive=True)
         expected = (
@@ -171,7 +171,7 @@ class TestReadUntil(object):
         )
         assert complement.read() == expected
 
-    def test_read_until_complement_starting_position(self, logfile):
+    def test_complement_starting_position(self, logfile):
         pattern = re.compile(r"^Just")
         _, _, complement = read_until(logfile, pattern, starting_position=11)
         expected = (
@@ -187,7 +187,7 @@ class TestReadUntil(object):
         )
         assert complement.read() == expected
 
-    def test_read_until_complement_starting_position_inclusive(self, logfile):
+    def test_complement_starting_position_inclusive(self, logfile):
         pattern = re.compile(r"^Just")
         _, _, complement = read_until(
             logfile, pattern, starting_position=11, inclusive=True
@@ -228,11 +228,11 @@ class TestReadSection(object):
         )
         assert contents == expected
 
-    def test_read_section_index(self, tasklist_file):
+    def test_index(self, tasklist_file):
         _, index, _ = read_section(tasklist_file, 'THIS WEEK')
         assert index == 208
 
-    def test_read_section_complement(self, tasklist_file):
+    def test_complement(self, tasklist_file):
         _, _, complement = read_section(tasklist_file, 'THIS WEEK')
         expected = (
             "TOMORROW:\n"
@@ -248,20 +248,20 @@ class TestReadSection(object):
         )
         assert complement.read() == expected
 
-    def test_read_section_empty(self, tasklist_file):
+    def test_empty_section(self, tasklist_file):
         contents, _, _ = read_section(tasklist_file, 'THIS MONTH')
         expected = ""
         assert contents == expected
 
-    def test_read_section_empty_index(self, tasklist_file):
+    def test_empty_section_index(self, tasklist_file):
         _, index, _ = read_section(tasklist_file, 'THIS MONTH')
         assert index == 220
 
-    def test_read_section_empty_complement(self, tasklist_file):
+    def test_empty_section_complement(self, tasklist_file):
         _, _, complement = read_section(tasklist_file, 'THIS MONTH')
         assert complement.read() == tasklist_file.read()
 
-    def test_read_section_missing(self, tasklist_file):
+    def test_section_missing(self, tasklist_file):
         with pytest.raises(ValueError):
             read_section(tasklist_file, 'THIS DECADE')
 
@@ -289,7 +289,7 @@ class TestAddToSection(object):
         )
         assert updated.read() == expected
 
-    def test_add_to_section_missing(self, tasklist_file):
+    def test_section_missing(self, tasklist_file):
         new_tasks = "[ ] one more thing to do!\n"
         with pytest.raises(ValueError):
             add_to_section(tasklist_file, 'THIS DECADE', new_tasks)
@@ -298,13 +298,13 @@ class TestAddToSection(object):
 
 
 class TestGetTaskItems(object):
-    def test_get_all_items(self, tasklist_file):
+    def test_all_items(self, tasklist_file):
         items, complement = get_task_items(tasklist_file)
         items_string = "".join(items)
         assert items_string == tasklist_file.read()
         assert complement.read() == ""
 
-    def test_get_no_items(self, tasklist_file):
+    def test_no_items(self, tasklist_file):
         items, complement = get_task_items(
             tasklist_file, of_type=is_completed_task
         )
@@ -312,7 +312,7 @@ class TestGetTaskItems(object):
         assert items_string == ""
         assert complement.read() == tasklist_file.read()
 
-    def test_get_some_items(self, tasklist_file):
+    def test_some_items(self, tasklist_file):
         items, complement = get_task_items(
             tasklist_file, of_type=is_undone_task
         )
@@ -339,7 +339,7 @@ class TestGetTaskItems(object):
         assert items_string == expected
         assert complement.read() == expected_complement
 
-    def test_get_items_empty_file(self, empty_logfile):
+    def test_empty_file(self, empty_logfile):
         items, complement = get_task_items(empty_logfile)
         items_string = "".join(items)
         assert items_string == ""
