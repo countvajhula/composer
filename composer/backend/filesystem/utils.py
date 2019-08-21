@@ -46,7 +46,7 @@ def quarter_for_month(month):
         return "Q4"
 
 
-def _section_pattern(section):
+def get_section_pattern(section):
     return re.compile(r'^' + section.upper())
 
 
@@ -64,9 +64,9 @@ def is_subtask(line):
 
 
 def is_section(line, section_name=None):
-    pattern = (_section_pattern(section_name)
-               if section_name
-               else SECTION_PATTERN)
+    pattern = (
+        get_section_pattern(section_name) if section_name else SECTION_PATTERN
+    )
     return pattern.search(line)
 
 
@@ -197,7 +197,11 @@ def read_section(file, section):
 
 @contain_file_mutation
 def add_to_section(file, section, tasks):
-    pattern = _section_pattern(section)
+    """ Find a given section in a file and insert tasks into it.
+    The new tasks added at the top of the section, and any pre-existing
+    contents of the section are preserved below the new additions.
+    """
+    pattern = get_section_pattern(section)
     try:
         contents, index, _ = read_until(file, pattern, inclusive=True)
     except ValueError:

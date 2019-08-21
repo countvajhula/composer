@@ -14,11 +14,15 @@ from ...errors import (
 )
 from .utils import (
     SECTION_PATTERN,
-    is_blank_line,
+    add_to_section,
+    get_section_pattern,
+    get_task_items,
     is_scheduled_task,
-    is_section,
     is_subtask,
+    item_list_to_string,
+    make_file,
     read_section,
+    read_until,
 )
 
 try:  # py2
@@ -359,18 +363,20 @@ def get_date_for_schedule_string(datestr, reference_date=None):
     return None
 
 
-def _to_standard_date_format(date_string, reference_date):
+def _to_standard_date_format(item, reference_date):
+    """ Convert a parsed scheduled task into a standard format. """
+    date_string = item.splitlines()[0]
+    date_string = date_string + '\n' if item.endswith('\n') else date_string
     if SCHEDULED_DATE_PATTERN.search(date_string):
         datestr = SCHEDULED_DATE_PATTERN.search(date_string).groups()[0]
         try:
-            matcheddate = get_date_for_schedule_string(
-                datestr, reference_date
-            )
+            matcheddate = get_date_for_schedule_string(datestr, reference_date)
         except SchedulingDateError:
             raise
     else:
         raise BlockedTaskNotScheduledError(
-            "No scheduled date for blocked task -- add a date for it: " + date_string
+            "No scheduled date for blocked task -- add a date for it: "
+            + date_string
         )
     date_string = SCHEDULED_DATE_PATTERN.sub(
         "[$" + matcheddate["datestr"] + "$]", date_string
@@ -378,145 +384,29 @@ def _to_standard_date_format(date_string, reference_date):
     return date_string
 
 
-def _copy_subtasks(taskfile, scheduledtasks, line):
-    scheduledtasks += line
-    line = taskfile.readline()
-    while is_subtask(line):
-        scheduledtasks += line
-        line = taskfile.readline()
-    return line, scheduledtasks
-
-
-def _collect_scheduled_task(
-    taskfile, scheduledtasks, line, reference_date
-):
-    """ Convert a parsed scheduled task into a standard format and append it,
-    along with any subtasks, to a gathered list of scheduled tasks.
-    """
-    line = _to_standard_date_format(line, reference_date)
-    line, scheduledtasks = _copy_subtasks(taskfile, scheduledtasks, line)
-    return line, scheduledtasks
-
-
-def _read_to_section(
-    input_file, section_name=None, current_line=None, output_file=None
-):
-    # if section_name is not specified, reads until the very next section
-    # (whatever it may be)
-    # TODO: remove this in favor of utils version
-    pattern = (
-        re.compile(r'^' + section_name.upper())
-        if section_name
-        else SECTION_PATTERN
-    )
-    if not current_line:
-        current_line = input_file.readline()
-    while current_line != "" and not pattern.search(current_line):
-        if output_file:
-            output_file.write(current_line)
-        current_line = input_file.readline()
-    return current_line
-
-
-def _parse_scheduled_section(
-    tasklist, tasklist_tidied, scheduledtasks, line, reference_date
-):
-    tasklist_tidied.write(line)
-    line = tasklist.readline()
-    while line != "" and not SECTION_PATTERN.search(line):
-        # TODO: read this as a section
-        if is_scheduled_task(line):
-            line, scheduledtasks = _collect_scheduled_task(
-                tasklist, scheduledtasks, line, reference_date
-            )
-        elif is_blank_line(line):
-            tasklist_tidied.write(line)
-            line = tasklist.readline()
-        else:
+def _check_scheduled_section_for_errors(planner):
+    section, _, _ = read_section(planner.tasklistfile, 'SCHEDULED')
+    items, _ = get_task_items(make_file(section))
+    for item in items:
+        item_string = item.splitlines()[0]
+        item_string = (
+            item_string + '\n' if item.endswith('\n') else item_string
+        )
+        if not is_scheduled_task(item_string):
             raise ScheduledTaskParsingError(
                 "Task in SCHEDULED section does not appear to be formatted"
-                " correctly: " + line
+                " correctly: " + item_string
             )
-    return line
 
 
-def _extract_scheduled_items_from_tasklist(tasklist, reference_date):
-    tasklist_tidied = StringIO()
-    scheduledtasks = ""
-    line = tasklist.readline()
-    while line != "":
-        # ignore tasks in tomorrow since actively scheduled by you
-        if is_section(line, "tomorrow"):
-            tasklist_tidied.write(line)
-            line = tasklist.readline()
-            line = _read_to_section(
-                tasklist, current_line=line, output_file=tasklist_tidied
-            )
-        elif is_section(line, "scheduled"):
-            line = _parse_scheduled_section(
-                tasklist,
-                tasklist_tidied,
-                scheduledtasks,
-                line,
-                reference_date,
-            )
-        elif is_scheduled_task(line):
-            line, scheduledtasks = _collect_scheduled_task(
-                tasklist, scheduledtasks, line, reference_date
-            )
-        else:
-            tasklist_tidied.write(line)
-            line = tasklist.readline()
-    tasklist_tidied.seek(0)
-    return scheduledtasks, tasklist_tidied
-
-
-def _extract_scheduled_items_from_logfile(
-    logfile, scheduledtasks, reference_date
-):
-    # go through a log file (e.g. today's log file)
-    # if [o] then make sure [$$] and parseable
-    # move to scheduled
+def _check_logfile_for_errors(logfile):
     try:
-        contents = read_section(logfile, "AGENDA")
+        read_section(logfile, "AGENDA")
     except ValueError:
         raise LogfileLayoutError(
             "No AGENDA section found in today's log file!"
             " Add one and try again."
         )
-    for line in contents.splitlines():
-        line += "\n"  # TODO: remove in favor of non-newline endings
-        if is_scheduled_task(line):
-            line, scheduledtasks = _collect_scheduled_task(
-                logfile, scheduledtasks, line, reference_date
-            )
-        else:
-            line = logfile.readline()
-    return scheduledtasks
-
-
-def _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks):
-    """ Find SCHEDULED section and insert scheduled tasks.
-    This disregards any contents of the SCHEDULED section in the tasklist
-    and simply places the provided scheduled tasks in that section of
-    the tasklist. Any scheduled items in the tasklist should already have
-    been extracted into the scheduled tasks provided to this function.
-    """
-    tasklist_tidied = StringIO()
-    line = _read_to_section(tasklist, "scheduled", output_file=tasklist_tidied)
-    if line == "":
-        raise TasklistLayoutError("Tasklist SCHEDULED section not found!")
-    tasklist_tidied.write(line)
-
-    tasklist_tidied.write(scheduledtasks)
-
-    line = tasklist.readline()
-    while line != "":
-        tasklist_tidied.write(line)
-        line = tasklist.readline()
-
-    tasklist_tidied.seek(0)
-    return tasklist_tidied
 
 
 def schedule_tasks(planner):
@@ -527,17 +417,37 @@ def schedule_tasks(planner):
     4. loop through all scheduled till naother section found or eof
     5. go through any other section
     """
-    scheduledtasks, tasklist = _extract_scheduled_items_from_tasklist(
-        planner.tasklistfile, planner.date
-    )  # tasklist - scheduled tasks
-
-    scheduledtasks = _extract_scheduled_items_from_logfile(
-        planner.dayfile, scheduledtasks, planner.date
+    # TODO: add a "diagnostic" function for sections w/ a checker fn
+    # to be applied to items
+    # (can generalize the existing helper for scheduled section)
+    # TODO: keep low-level operations contained in utils -- make/extend
+    # additional interfaces as needed
+    # TODO: these diagnostics are not covered by tests
+    _check_scheduled_section_for_errors(planner)
+    _check_logfile_for_errors(planner.dayfile)
+    # ignore tasks in tomorrow since actively scheduled by you
+    tomorrow, _, tasklist_no_tomorrow = read_section(
+        planner.tasklistfile, 'TOMORROW'
     )
-
-    tasklist = _add_scheduled_tasks_to_tasklist(tasklist, scheduledtasks)
-
-    planner.tasklistfile = tasklist
+    tasklist_tasks, complement = get_task_items(
+        tasklist_no_tomorrow, of_type=is_scheduled_task
+    )
+    day_tasks, _ = get_task_items(planner.dayfile, of_type=is_scheduled_task)
+    tasks = tasklist_tasks + day_tasks
+    tasks = [
+        (
+            _to_standard_date_format(task, planner.date)
+            if is_scheduled_task(task)
+            else task
+        )
+        for task in tasks
+    ]
+    tasks = item_list_to_string(tasks)
+    new_file = add_to_section(complement, "SCHEDULED", tasks)
+    new_file = add_to_section(
+        new_file, "TOMORROW", tomorrow
+    )  # add tomorrow tasks back
+    planner.tasklistfile = new_file
 
 
 def get_scheduled_tasks(tasklist, for_day):
@@ -547,12 +457,14 @@ def get_scheduled_tasks(tasklist, for_day):
     # Note: schedule tasks should already have been performed on previous day
     # to migrate those tasks to the tasklist
     tasklist_updated = StringIO()
-    line = _read_to_section(
-        tasklist, "scheduled", output_file=tasklist_updated
-    )
-    tasklist_updated.write(line)
-    if line == "":
+    try:
+        contents, index, _ = read_until(
+            tasklist, get_section_pattern("SCHEDULED"), inclusive=True
+        )
+    except ValueError:
         raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
+    tasklist_updated.write(contents)
+    tasklist.seek(index)
     scheduledtasks = ""
     line = tasklist.readline()
     while line != "" and not SECTION_PATTERN.search(line):

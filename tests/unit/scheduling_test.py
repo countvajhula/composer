@@ -3,6 +3,7 @@ import unittest
 
 import composer.backend.filesystem.scheduling as scheduling
 from composer.backend import FilesystemPlanner
+from composer.errors import ScheduledTaskParsingError
 
 try:  # py2
     from StringIO import StringIO
@@ -1138,7 +1139,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
     def test_badly_formatted_scheduled_task_raises_exception(self):
         """ Check that a task already present in the SCHEDULED section and formatted incorrectly raises an Exception """
         self.planner.tasklistfile = StringIO(self.tasklist_scheduledbadformat)
-        self.assertRaises(Exception, scheduling.schedule_tasks, self.planner)
+        self.assertRaises(
+            ScheduledTaskParsingError, scheduling.schedule_tasks, self.planner
+        )
 
     def test_schedule_date_format1(self):
         """ Check that the format MONTH DD, YYYY works (w optional space or comma or both) """
