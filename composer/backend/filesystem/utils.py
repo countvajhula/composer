@@ -99,11 +99,8 @@ def item_list_to_string(items):
 
 
 def string_to_item_list(string):
-    lines = string.splitlines()
-    result = [line + '\n' for line in lines]
-    if not string.endswith("\n"):
-        result[-1] = result[-1].rstrip('\n')
-    return result
+    items, _ = get_task_items(make_file(string))
+    return items
 
 
 @contain_file_mutation
