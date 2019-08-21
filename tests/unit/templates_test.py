@@ -134,13 +134,15 @@ class TestNewTemplateIntegrity(object):
             next_day.year,
         )
 
-        daythemes = ("SUNDAY: Groceries Day\n"
-                     "MONDAY: \n"
-                     "TUESDAY:Cleaning Day\n"
-                     "WEDNESDAY:\n"
-                     "THURSDAY:\n"
-                     "FRIDAY:\n"
-                     "SATURDAY: LAUNDRY DAY\n")
+        daythemes = (
+            "SUNDAY: Groceries Day\n"
+            "MONDAY: \n"
+            "TUESDAY:Cleaning Day\n"
+            "WEDNESDAY:\n"
+            "THURSDAY:\n"
+            "FRIDAY:\n"
+            "SATURDAY: LAUNDRY DAY\n"
+        )
         dailythemes = daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
         theme = theme[theme.index(':') :].strip(': ')

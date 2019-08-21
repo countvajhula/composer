@@ -267,7 +267,6 @@ class TestReadSection(object):
 
 
 class TestAddToSection(object):
-
     def test_add_to_empty_section(self, tasklist_file):
         new_tasks = "[ ] one more thing to do!\n"
         updated = add_to_section(tasklist_file, 'THIS MONTH', new_tasks)

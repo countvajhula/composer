@@ -306,13 +306,15 @@ def planner():
     periodic_month = "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
     periodic_week = "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
     periodic_day = "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
-    daythemes = ("SUNDAY: Groceries Day\n"
-                 "MONDAY: \n"
-                 "TUESDAY:Cleaning Day\n"
-                 "WEDNESDAY:\n"
-                 "THURSDAY:\n"
-                 "FRIDAY:\n"
-                 "SATURDAY: LAUNDRY DAY\n")
+    daythemes = (
+        "SUNDAY: Groceries Day\n"
+        "MONDAY: \n"
+        "TUESDAY:Cleaning Day\n"
+        "WEDNESDAY:\n"
+        "THURSDAY:\n"
+        "FRIDAY:\n"
+        "SATURDAY: LAUNDRY DAY\n"
+    )
 
     planner = PlannerMock(
         tasklistfile=StringIO(tasklist),
