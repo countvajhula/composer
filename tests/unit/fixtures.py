@@ -111,16 +111,18 @@ class PlannerMock(MagicMock):
 
 
 def _logfile():
-    contents = ("[ ] a task\n"
-                "[\\] a WIP task\n"
-                "Just some additional clarifications\n"
-                "\n"
-                "[o] a scheduled task [$TOMORROW$]\n"
-                "[ ] a task with subtasks\n"
-                "\t[ ] first thing\n"
-                "\tclarification of first thing\n"
-                "\t[ ] second thing\n"
-                "[ ] another task\n")
+    contents = (
+        "[ ] a task\n"
+        "[\\] a WIP task\n"
+        "Just some additional clarifications\n"
+        "\n"
+        "[o] a scheduled task [$TOMORROW$]\n"
+        "[ ] a task with subtasks\n"
+        "\t[ ] first thing\n"
+        "\tclarification of first thing\n"
+        "\t[ ] second thing\n"
+        "[ ] another task\n"
+    )
     return StringIO(contents)
 
 
@@ -129,20 +131,22 @@ def _empty_logfile():
 
 
 def _tasklistfile():
-    contents = ("TOMORROW:\n"
-                "[ ] a task\n"
-                "[\\] a WIP task\n"
-                "Just some additional clarifications\n"
-                "\n"
-                "[o] a scheduled task [$TOMORROW$]\n"
-                "THIS WEEK:\n"
-                "[ ] a task with subtasks\n"
-                "\t[\\] first thing\n"
-                "\tclarification of first thing\n"
-                "\t[ ] second thing\n"
-                "THIS MONTH:\n"
-                "UNSCHEDULED:\n"
-                "[ ] another task\n")
+    contents = (
+        "TOMORROW:\n"
+        "[ ] a task\n"
+        "[\\] a WIP task\n"
+        "Just some additional clarifications\n"
+        "\n"
+        "[o] a scheduled task [$TOMORROW$]\n"
+        "THIS WEEK:\n"
+        "[ ] a task with subtasks\n"
+        "\t[\\] first thing\n"
+        "\tclarification of first thing\n"
+        "\t[ ] second thing\n"
+        "THIS MONTH:\n"
+        "UNSCHEDULED:\n"
+        "[ ] another task\n"
+    )
     return StringIO(contents)
 
 

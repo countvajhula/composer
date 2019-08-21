@@ -39,9 +39,7 @@ def _do_post_mortem(logfile):
             tasks["done"] += ss
             ss = logfile.readline()
             while (
-                ss != ""
-                and not is_task(ss)
-                and not SECTION_PATTERN.search(ss)
+                ss != "" and not is_task(ss) and not SECTION_PATTERN.search(ss)
             ):
                 tasks["done"] += ss
                 ss = logfile.readline()
@@ -49,9 +47,7 @@ def _do_post_mortem(logfile):
             tasks["undone"] += ss
             ss = logfile.readline()
             while (
-                ss != ""
-                and not is_task(ss)
-                and not SECTION_PATTERN.search(ss)
+                ss != "" and not is_task(ss) and not SECTION_PATTERN.search(ss)
             ):
                 tasks["undone"] += ss
                 ss = logfile.readline()
@@ -59,9 +55,7 @@ def _do_post_mortem(logfile):
             tasks["blocked"] += ss
             ss = logfile.readline()
             while (
-                ss != ""
-                and not is_task(ss)
-                and not SECTION_PATTERN.search(ss)
+                ss != "" and not is_task(ss) and not SECTION_PATTERN.search(ss)
             ):
                 tasks["blocked"] += ss
                 ss = logfile.readline()
