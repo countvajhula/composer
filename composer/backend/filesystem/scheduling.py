@@ -23,6 +23,7 @@ from .utils import (
     make_file,
     read_section,
     partition_at,
+    partition_items,
 )
 
 try:  # py2
@@ -429,15 +430,11 @@ def schedule_tasks(planner):
     tomorrow, tasklist_no_tomorrow = read_section(
         planner.tasklistfile, 'TOMORROW'
     )
-    tasklist_tasks = get_task_items(
-        tasklist_no_tomorrow, of_type=is_scheduled_task
-    )
-    complement = get_task_items(
-        tasklist_no_tomorrow, of_type=lambda item: not is_scheduled_task(item)
-    )
+    task_items = get_task_items(tasklist_no_tomorrow)
+    tasklist_tasks, tasklist_no_scheduled = partition_items(task_items, is_scheduled_task)
     # TODO: these interfaces should operate at a high level and translate
     # up/down only at the beginning and end
-    complement = make_file(item_list_to_string(complement))
+    tasklist_no_scheduled = make_file(item_list_to_string(tasklist_no_scheduled))
     day_tasks = get_task_items(planner.dayfile, of_type=is_scheduled_task)
     tasks = tasklist_tasks + day_tasks
     tasks = [
@@ -449,7 +446,7 @@ def schedule_tasks(planner):
         for task in tasks
     ]
     tasks = item_list_to_string(tasks)
-    new_file = add_to_section(complement, "SCHEDULED", tasks)
+    new_file = add_to_section(tasklist_no_scheduled, "SCHEDULED", tasks)
     new_file = add_to_section(
         new_file, "TOMORROW", tomorrow.read()
     )  # add tomorrow tasks back
