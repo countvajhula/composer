@@ -287,6 +287,17 @@ class TestGetTaskItems(object):
         )
         assert items_string == expected
 
+    def test_items_and_negation_equals_original(self, tasklist_file):
+        items = get_task_items(tasklist_file, of_type=is_undone_task)
+        items_string = "".join(items)
+        items_negation = get_task_items(
+            tasklist_file, of_type=lambda x: not is_undone_task(x)
+        )
+        items_negation_string = "".join(items_negation)
+        assert len(items_string + items_negation_string) == len(
+            tasklist_file.read()
+        )
+
     def test_empty_file(self, empty_logfile):
         items = get_task_items(empty_logfile)
         items_string = "".join(items)
