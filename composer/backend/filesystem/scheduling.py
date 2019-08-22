@@ -22,7 +22,7 @@ from .utils import (
     item_list_to_string,
     make_file,
     read_section,
-    read_until,
+    partition_at,
 )
 
 try:  # py2
@@ -385,8 +385,8 @@ def _to_standard_date_format(item, reference_date):
 
 
 def _check_scheduled_section_for_errors(planner):
-    section, _, _ = read_section(planner.tasklistfile, 'SCHEDULED')
-    items, _ = get_task_items(make_file(section))
+    section, _ = read_section(planner.tasklistfile, 'SCHEDULED')
+    items = get_task_items(section)
     for item in items:
         item_string = item.splitlines()[0]
         item_string = (
@@ -426,13 +426,19 @@ def schedule_tasks(planner):
     _check_scheduled_section_for_errors(planner)
     _check_logfile_for_errors(planner.dayfile)
     # ignore tasks in tomorrow since actively scheduled by you
-    tomorrow, _, tasklist_no_tomorrow = read_section(
+    tomorrow, tasklist_no_tomorrow = read_section(
         planner.tasklistfile, 'TOMORROW'
     )
-    tasklist_tasks, complement = get_task_items(
+    tasklist_tasks = get_task_items(
         tasklist_no_tomorrow, of_type=is_scheduled_task
     )
-    day_tasks, _ = get_task_items(planner.dayfile, of_type=is_scheduled_task)
+    complement = get_task_items(
+        tasklist_no_tomorrow, of_type=lambda item: not is_scheduled_task(item)
+    )
+    # TODO: these interfaces should operate at a high level and translate
+    # up/down only at the beginning and end
+    complement = make_file(item_list_to_string(complement))
+    day_tasks = get_task_items(planner.dayfile, of_type=is_scheduled_task)
     tasks = tasklist_tasks + day_tasks
     tasks = [
         (
@@ -445,7 +451,7 @@ def schedule_tasks(planner):
     tasks = item_list_to_string(tasks)
     new_file = add_to_section(complement, "SCHEDULED", tasks)
     new_file = add_to_section(
-        new_file, "TOMORROW", tomorrow
+        new_file, "TOMORROW", tomorrow.read()
     )  # add tomorrow tasks back
     planner.tasklistfile = new_file
 
@@ -458,13 +464,13 @@ def get_scheduled_tasks(tasklist, for_day):
     # to migrate those tasks to the tasklist
     tasklist_updated = StringIO()
     try:
-        contents, index, _ = read_until(
+        contents, remaining = partition_at(
             tasklist, get_section_pattern("SCHEDULED"), inclusive=True
         )
     except ValueError:
         raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
-    tasklist_updated.write(contents)
-    tasklist.seek(index)
+    tasklist_updated.write(contents.read())
+    tasklist = remaining
     scheduledtasks = ""
     line = tasklist.readline()
     while line != "" and not SECTION_PATTERN.search(line):
