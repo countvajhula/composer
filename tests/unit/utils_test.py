@@ -8,6 +8,7 @@ from composer.backend.filesystem.utils import (
     read_item,
     read_section,
     partition_at,
+    partition_items,
     get_task_items,
     is_blank_line,
     is_completed_task,
@@ -302,3 +303,34 @@ class TestGetTaskItems(object):
         items = get_task_items(empty_logfile)
         items_string = "".join(items)
         assert items_string == ""
+
+
+class TestPartitionItems(object):
+    def test_empty_list(self):
+        items = []
+        filtered, excluded = partition_items(items, lambda item: True)
+        assert filtered == items
+        assert excluded == items
+
+    def test_all_pass(self):
+        items = [1, 2, 3]
+        filtered, excluded = partition_items(items, lambda item: True)
+        assert filtered == items
+        assert excluded == []
+
+    def test_all_fail(self):
+        items = [1, 2, 3]
+        filtered, excluded = partition_items(items, lambda item: False)
+        assert filtered == []
+        assert excluded == items
+
+    def test_some_pass(self):
+        items = [1, 2, 3]
+        filtered, excluded = partition_items(items, lambda item: item < 3)
+        assert filtered == [1, 2]
+        assert excluded == [3]
+
+    def test_pass_and_fail_equal_original(self):
+        items = [1, 2, 3]
+        filtered, excluded = partition_items(items, lambda item: item > 2)
+        assert set(filtered + excluded) == set(items)

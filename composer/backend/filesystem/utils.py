@@ -115,6 +115,16 @@ def string_to_item_list(string):
     return items
 
 
+def partition_items(item_list, filter_fn):
+    """ Partition an item list into two lists based on some filter predicate.
+    The first list will contain the elements that satisfy the predicate, while
+    the second list will contain those that don't.
+    """
+    filtered = [item for item in item_list if filter_fn(item)]
+    excluded = [item for item in item_list if not filter_fn(item)]
+    return filtered, excluded
+
+
 @contain_file_mutation
 def read_item(file):
     """ An 'item' is any line that begins at the 0th position of the line.
