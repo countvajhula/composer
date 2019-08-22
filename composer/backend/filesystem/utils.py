@@ -116,7 +116,7 @@ def string_to_item_list(string):
 
 
 @contain_file_mutation
-def read_item(file, of_type=None, starting_position=0):
+def read_item(file):
     """ An 'item' is any line that begins at the 0th position of the line.
     This could be a blank line, a task, a normal text string, a section
     header, pretty much anything EXCEPT things that begin with a tab
@@ -124,95 +124,100 @@ def read_item(file, of_type=None, starting_position=0):
     the parent.
 
     :param :class:`io.StringIO` file: The file to read from
-    :param function of_type: A predicate function that returns true or
-        false based on a type determination on the argument
-    :param int starting_position: Buffer position to start reading the
-        input file from.
 
     :returns str: An item read from the file
     """
-    if not of_type:
-        of_type = lambda x: True
     item = ""
     complement = make_file()
-    index = file.seek(starting_position)
     line = file.readline()
-    while not is_eof(line) and not of_type(line):
-        complement.write(line)
-        line = file.readline()
     if is_eof(line):
-        return None, -1, complement  # -1 OK?
+        complement = make_file(file.getvalue())
+        return None, complement
     item += line
-    index = file.tell()
     line = file.readline()
     while is_subtask(line):
         item += line
-        index = file.tell()
         line = file.readline()
     complement.write(line)
     complement.write(file.read())
-    return item, index, complement
+    return item, complement
+
+
+def _read_items(file):
+    items = []
+    item, complement = read_item(file)
+    while item:
+        items.append(item)
+        item, complement = read_item(complement)
+    return items
 
 
 @contain_file_mutation
-def read_until(
-    file, pattern, or_eof=False, inclusive=False, starting_position=0
+def get_task_items(
+    file,
+    of_type=None,
 ):
-    """ Read a given file until a string matching a certain pattern
-    is encountered.
+    """ Parse a given file into task items, based on the supplied criteria.
+    A task item generally corresponds to a line in the input file, along with
+    any subtasks items that fall under it.
 
     :param :class:`io.StringIO` file: The file to read from
-    :param :class:`_sre.SRE_Pattern` pattern: The pattern to look for
+    :param :class:`_sre.SRE_Pattern` until_pattern: A pattern to look for.
+        When this pattern is encountered, parsing stops.
     :param bool or_eof: If reading until the end of the file (without
         the pattern having been encountered) is acceptable
     :param bool inclusive: Whether to include the line at the stopping
         point, i.e. the one containing the pattern.
     :param int starting_position: Buffer position to start reading the
         input file from.
+    :param function of_type: Get only task items that match this type. This
+        argument should be a predicate function that returns true or
+        false based on a type determination on the argument.
     """
-    contents = ""
-    complement = make_file()
-    complement.write(file.read(starting_position))
-    index = file.tell()
-    item, next_index, _ = read_item(file, starting_position=index)
-    while item and not pattern.search(item):
-        contents += item
-        index = next_index
-        item, next_index, _ = read_item(file, starting_position=index)
-    if item and pattern.search(item):
-        if inclusive:
-            contents += item
-            index = next_index
-        else:
-            complement.write(item)
-        file.seek(next_index)
-        complement.write(file.read())
-    else:
-        if not or_eof:
-            raise ValueError("Pattern {} not found in file!".format(pattern))
-    return contents, index, complement
+    if not of_type:
+        of_type = lambda x: True
+    items = [item for item in _read_items(file) if of_type(item)]
+    return items
 
 
 @contain_file_mutation
-def read_section(file, section, of_type=None):
+def partition_at(
+    file, pattern, or_eof=False, inclusive=False,
+):
+    contents, complement = make_file(), make_file()
+    line = file.readline()
+    while line:
+        if not pattern.search(line):
+            contents.write(line)
+            line = file.readline()
+            continue
+        if inclusive:
+            contents.write(line)
+        else:
+            complement.write(line)
+        break
+    if not line and not or_eof:
+        raise ValueError("Pattern {} not found in file!".format(pattern))
+    complement.write(file.read())
+
+    return contents, complement
+
+
+@contain_file_mutation
+def read_section(file, section):
     pattern = get_section_pattern(section)
     complement = make_file()
     try:
-        contents_before, index, _ = read_until(file, pattern, inclusive=True)
-        complement.write(contents_before)
-        contents, index, _ = read_until(
-            file, SECTION_OR_EOF_PATTERN, or_eof=True, starting_position=index
+        before, remaining = partition_at(file, pattern, inclusive=True)
+        complement.write(before.read())
+        contents, after = partition_at(
+            remaining, SECTION_OR_EOF_PATTERN, or_eof=True
         )
     except ValueError:
         raise
 
-    items, section_complement = get_task_items(make_file(contents), of_type)
-    contents = item_list_to_string(items)
-    complement.write(section_complement.read())
-    file.seek(index)
-    contents_after = file.read()
-    complement.write(contents_after)
-    return contents, index, complement
+    complement.write(after.read())
+    return contents, complement
 
 
 @contain_file_mutation
@@ -223,27 +228,14 @@ def add_to_section(file, section, tasks):
     """
     pattern = get_section_pattern(section)
     try:
-        contents, index, _ = read_until(file, pattern, inclusive=True)
+        before, remaining = partition_at(file, pattern, inclusive=True)
     except ValueError:
         raise
-    new_file = make_file(contents)
-    new_file.read()
+    new_file = make_file()
+    new_file.write(before.read())
     new_file.write(tasks)
-    file.seek(index)
-    rest_of_file = file.read()
-    new_file.write(rest_of_file)
+    new_file.write(remaining.read())
     return new_file
-
-
-@contain_file_mutation
-def get_task_items(file, of_type=None):
-    tasks = []
-    complement = make_file()
-    item, _, complement = read_item(file, of_type)
-    while item:
-        tasks.append(item)
-        item, _, complement = read_item(complement, of_type)
-    return tasks, complement
 
 
 def make_file(string=""):
