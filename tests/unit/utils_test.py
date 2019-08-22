@@ -88,10 +88,7 @@ class TestPartitionAt(object):
     def test_first_part(self, logfile):
         pattern = re.compile(r"^Just")
         first, _ = partition_at(logfile, pattern)
-        expected = (
-            "[ ] a task\n"
-            "[\\] a WIP task\n"
-        )
+        expected = "[ ] a task\n" "[\\] a WIP task\n"
         assert first.read() == expected
 
     def test_first_part_inclusive(self, logfile):
@@ -249,9 +246,7 @@ class TestGetTaskItems(object):
         assert items_string == ""
 
     def test_no_matching_items(self, tasklist_file):
-        items = get_task_items(
-            tasklist_file, of_type=is_completed_task
-        )
+        items = get_task_items(tasklist_file, of_type=is_completed_task)
         items_string = "".join(items)
         assert items_string == ""
 
@@ -263,9 +258,7 @@ class TestGetTaskItems(object):
         assert items_string == tasklist_file.read()
 
     def test_some_items(self, tasklist_file):
-        items = get_task_items(
-            tasklist_file, of_type=is_undone_task
-        )
+        items = get_task_items(tasklist_file, of_type=is_undone_task)
         items_string = "".join(items)
         expected = (
             "[ ] a task\n"

@@ -153,10 +153,7 @@ def _read_items(file):
 
 
 @contain_file_mutation
-def get_task_items(
-    file,
-    of_type=None,
-):
+def get_task_items(file, of_type=None):
     """ Parse a given file into task items, based on the supplied criteria.
     A task item generally corresponds to a line in the input file, along with
     any subtasks items that fall under it.
@@ -181,9 +178,7 @@ def get_task_items(
 
 
 @contain_file_mutation
-def partition_at(
-    file, pattern, or_eof=False, inclusive=False,
-):
+def partition_at(file, pattern, or_eof=False, inclusive=False):
     contents, complement = make_file(), make_file()
     line = file.readline()
     while line:
