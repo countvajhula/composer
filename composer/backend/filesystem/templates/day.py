@@ -71,36 +71,19 @@ def _get_tasks_for_tomorrow(tasklist, tomorrow_checking):
     """ Read the tasklist, parse all tasks under the TOMORROW section
     and return those, and also return a modified tasklist with those
     tasks removed """
-    tasks = ""
-    tasklist_nextday = StringIO()
-    ss = tasklist.readline()
-    while ss != "" and ss[: len("tomorrow")].lower() != "tomorrow":
-        tasklist_nextday.write(ss)
-        ss = tasklist.readline()
-    if ss == "":
+    try:
+        tasks, tasklist_nextday = read_section(tasklist, 'tomorrow')
+    except ValueError:
         raise TasklistLayoutError(
             "Error: No 'TOMORROW' section found in your tasklist!"
             " Please add one and try again."
         )
-    tasklist_nextday.write(ss)
-    ss = tasklist.readline()
-    while ss != "" and not SECTION_PATTERN.search(ss):
-        if TASK_PATTERN.search(ss):
-            tasks += ss
-        else:
-            tasklist_nextday.write(ss)
-        ss = tasklist.readline()
-    if tasks == "" and tomorrow_checking == config.LOGFILE_CHECKING["STRICT"]:
+    if tasks.getvalue() == "" and tomorrow_checking == config.LOGFILE_CHECKING["STRICT"]:
         raise TomorrowIsEmptyError(
             "The tomorrow section is blank. Do you want to add"
             " some tasks for tomorrow?"
         )
-    while ss != "":
-        tasklist_nextday.write(ss)
-        ss = tasklist.readline()
-    tasks = tasks.strip("\n")
-    tasklist_nextday.seek(0)
-    return tasks, tasklist_nextday
+    return tasks.read(), tasklist_nextday
 
 
 def _get_theme_for_the_day(day, daythemesfile):
