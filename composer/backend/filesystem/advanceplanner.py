@@ -12,7 +12,7 @@ from ...errors import (
     PlannerIsInTheFutureError,
 )
 from . import templates
-from .utils import SECTION_PATTERN
+from .utils import SECTION_PATTERN, read_section
 
 
 try:  # py2
@@ -32,18 +32,13 @@ def check_logfile_completion(logfile):
     """ Check the logfile's NOTES section as a determination of whether
     the log has been completed """
     completed = False
-    notes = ""
-    ss = logfile.readline()
-    while ss != "" and ss[: len("notes")].lower() != "notes":
-        ss = logfile.readline()
-    if ss == "":
+    try:
+        notes, _ = read_section(logfile, 'notes')
+    except ValueError:
         raise LogfileLayoutError(
-            "Error: No 'NOTES' section found in your log file: " + ss
+            "Error: No 'NOTES' section found in your log file!"
         )
-    ss = logfile.readline()
-    while ss != "" and not SECTION_PATTERN.search(ss):
-        notes += ss
-        ss = logfile.readline()
+    notes = notes.read()
     if notes.strip("\n ") != "":
         completed = True
     return completed
@@ -51,20 +46,15 @@ def check_logfile_completion(logfile):
 
 def extract_agenda_from_logfile(logfile):
     """ Go through logfile and extract all tasks under AGENDA """
-    agenda = ""
-    ss = logfile.readline()
-    while ss != "" and ss[: len("agenda")].lower() != "agenda":
-        ss = logfile.readline()
-    if ss == "":
+    try:
+        agenda, _ = read_section(logfile, 'agenda')
+    except ValueError:
         raise LogfileLayoutError(
             "No AGENDA section found in today's log file!"
             " Add one and try again."
         )
-    ss = logfile.readline()
-    while ss != "" and not SECTION_PATTERN.search(ss):
-        agenda += ss
-        ss = logfile.readline()
-    agenda = agenda.strip("\n")
+    agenda = agenda.read()
+    agenda = agenda.strip("\n")  # TODO: remove
     return agenda
 
 
