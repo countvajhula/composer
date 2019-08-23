@@ -1,6 +1,5 @@
 import datetime
 import pytest
-import unittest
 
 import composer.backend.filesystem.templates as templates
 from composer.utils import PlannerPeriod

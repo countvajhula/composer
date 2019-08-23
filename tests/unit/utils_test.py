@@ -3,19 +3,14 @@ import re
 
 from composer.backend.filesystem.utils import (
     add_to_section,
-    copy_file,
     make_file,
     read_item,
     read_section,
     partition_at,
     partition_items,
     get_task_items,
-    is_blank_line,
     is_completed_task,
     is_undone_task,
-    is_wip_task,
-    is_scheduled_task,
-    is_section,
 )
 
 from .fixtures import logfile, empty_logfile, tasklist_file  # noqa
@@ -48,7 +43,7 @@ class TestReadItem(object):
         assert item == "[\\] a WIP task\n"
 
     def test_task_with_subtasks(self, logfile):
-        for i in range(5):
+        for _ in range(5):
             logfile.readline()
         file = make_file(logfile.read())
         item, _ = read_item(file)
