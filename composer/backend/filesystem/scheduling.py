@@ -431,10 +431,14 @@ def schedule_tasks(planner):
         planner.tasklistfile, 'TOMORROW'
     )
     task_items = get_task_items(tasklist_no_tomorrow)
-    tasklist_tasks, tasklist_no_scheduled = partition_items(task_items, is_scheduled_task)
+    tasklist_tasks, tasklist_no_scheduled = partition_items(
+        task_items, is_scheduled_task
+    )
     # TODO: these interfaces should operate at a high level and translate
     # up/down only at the beginning and end
-    tasklist_no_scheduled = make_file(item_list_to_string(tasklist_no_scheduled))
+    tasklist_no_scheduled = make_file(
+        item_list_to_string(tasklist_no_scheduled)
+    )
     day_tasks = get_task_items(planner.dayfile, of_type=is_scheduled_task)
     tasks = tasklist_tasks + day_tasks
     tasks = [
@@ -465,6 +469,7 @@ def get_due_tasks(tasklist, for_day):
     Note: task scheduling should already have been performed on relevant
     logfiles (like the previous day's) to migrate those tasks to the tasklist.
     """
+
     def is_task_due(task):
         if not SCHEDULED_DATE_PATTERN.search(task):
             raise BlockedTaskNotScheduledError(

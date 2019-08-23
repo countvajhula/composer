@@ -38,12 +38,12 @@ def _do_post_mortem(logfile):
             " Add one and try again."
         )
     items = get_task_items(tasks)
-    done = filter_items(items,
-                        lambda item: (is_completed_task(item)
-                                      or is_invalid_task(item)))
-    undone = filter_items(items,
-                          lambda item: (is_undone_task(item)
-                                        or is_wip_task(item)))
+    done = filter_items(
+        items, lambda item: (is_completed_task(item) or is_invalid_task(item))
+    )
+    undone = filter_items(
+        items, lambda item: (is_undone_task(item) or is_wip_task(item))
+    )
     blocked = filter_items(items, is_scheduled_task)
     done, undone, blocked = map(item_list_to_string, (done, undone, blocked))
 
@@ -61,7 +61,10 @@ def _get_tasks_for_tomorrow(tasklist, tomorrow_checking):
             "Error: No 'TOMORROW' section found in your tasklist!"
             " Please add one and try again."
         )
-    if tasks.getvalue() == "" and tomorrow_checking == config.LOGFILE_CHECKING["STRICT"]:
+    if (
+        tasks.getvalue() == ""
+        and tomorrow_checking == config.LOGFILE_CHECKING["STRICT"]
+    ):
         raise TomorrowIsEmptyError(
             "The tomorrow section is blank. Do you want to add"
             " some tasks for tomorrow?"
