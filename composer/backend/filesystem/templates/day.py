@@ -8,12 +8,16 @@ from .. import scheduling
 from ..utils import (
     SECTION_PATTERN,
     TASK_PATTERN,
+    filter_items,
+    get_task_items,
     is_completed_task,
     is_invalid_task,
     is_scheduled_task,
     is_task,
     is_undone_task,
     is_wip_task,
+    item_list_to_string,
+    read_section,
 )
 from .base import Template
 
@@ -116,18 +120,14 @@ class DayTemplate(Template):
             tasklistfile
         )  # update the tasklist file to the post-processed version
         self.agenda = ""
+        # with every task item ending in a newline character, we will
+        # assume that section components can be neatly concatenated
         if scheduled:
             self.agenda += scheduled
         if undone:
-            if self.agenda:
-                self.agenda += "\n" + undone
-            else:
-                self.agenda += undone
+            self.agenda += undone
         if tomorrow:
-            if self.agenda:
-                self.agenda += "\n" + tomorrow
-            else:
-                self.agenda += tomorrow
+            self.agenda += tomorrow
         daytemplate = super(DayTemplate, self).build()
         return daytemplate
 
