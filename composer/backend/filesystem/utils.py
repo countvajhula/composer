@@ -118,13 +118,26 @@ def string_to_item_list(string):
     return items
 
 
+def filter_items(item_list, filter_fn):
+    """ Filter an item list to only those that satisfy a given filter function.
+    """
+    return [item for item in item_list if filter_fn(item)]
+
+
+def exclude_items(item_list, filter_fn):
+    """ Filter an item list to only those that do NOT satisfy a given
+    filter function.
+    """
+    return [item for item in item_list if not filter_fn(item)]
+
+
 def partition_items(item_list, filter_fn):
     """ Partition an item list into two lists based on some filter predicate.
     The first list will contain the elements that satisfy the predicate, while
     the second list will contain those that don't.
     """
-    filtered = [item for item in item_list if filter_fn(item)]
-    excluded = [item for item in item_list if not filter_fn(item)]
+    filtered = filter_items(item_list, filter_fn)
+    excluded = exclude_items(item_list, filter_fn)
     return filtered, excluded
 
 
