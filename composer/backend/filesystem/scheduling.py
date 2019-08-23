@@ -453,52 +453,36 @@ def schedule_tasks(planner):
     planner.tasklistfile = new_file
 
 
-def get_scheduled_tasks(tasklist, for_day):
-    # look at SCHEDULED section in tasklist and return if scheduled for
-    # supplied day
-    # remove from tasklist
-    # Note: schedule tasks should already have been performed on previous day
-    # to migrate those tasks to the tasklist
-    tasklist_updated = StringIO()
+def get_due_tasks(tasklist, for_day):
+    """ Look at the SCHEDULED section of the tasklist and retrive any tasks that
+    are due/overdue for the given day (e.g. tomorrow, if preparing tomorrow's
+    agenda).
+
+    This only operates on explicitly scheduled tasks, not tasks manually set
+    aside for tomorrow or which may happen to be appropriate for the given day
+    as determined in some other way (e.g. periodic tasks).
+
+    Note: task scheduling should already have been performed on relevant
+    logfiles (like the previous day's) to migrate those tasks to the tasklist.
+    """
+    def is_task_due(task):
+        if not SCHEDULED_DATE_PATTERN.search(task):
+            raise BlockedTaskNotScheduledError(
+                "Scheduled task has no date!" + task
+            )
+        datestr = SCHEDULED_DATE_PATTERN.search(task).groups()[0]
+        try:
+            matcheddate = get_date_for_schedule_string(datestr)
+        except SchedulingDateError:
+            raise
+        return for_day >= matcheddate["date"]
+
     try:
-        contents, remaining = partition_at(
-            tasklist, get_section_pattern("SCHEDULED"), inclusive=True
-        )
+        scheduled, tasklist_no_scheduled = read_section(tasklist, "scheduled")
     except ValueError:
         raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
-    tasklist_updated.write(contents.read())
-    tasklist = remaining
-    scheduledtasks = ""
-    line = tasklist.readline()
-    while line != "" and not SECTION_PATTERN.search(line):
-        if is_scheduled_task(line):
-            if SCHEDULED_DATE_PATTERN.search(line):
-                datestr = SCHEDULED_DATE_PATTERN.search(line).groups()[0]
-                try:
-                    matcheddate = get_date_for_schedule_string(datestr)
-                except SchedulingDateError:
-                    raise
-                if for_day >= matcheddate["date"]:
-                    scheduledtasks += line
-                    line = tasklist.readline()
-                    while is_subtask(line):
-                        scheduledtasks += line
-                        line = tasklist.readline()
-                else:
-                    tasklist_updated.write(line)
-                    line = tasklist.readline()
-            else:
-                raise BlockedTaskNotScheduledError(
-                    "Scheduled task has no date!" + line
-                )
-        else:
-            tasklist_updated.write(line)
-            line = tasklist.readline()
-    # copy rest of the file
-    while line != "":
-        tasklist_updated.write(line)
-        line = tasklist.readline()
-
-    tasklist_updated.seek(0)
-    scheduledtasks = scheduledtasks.strip("\n")
-    return scheduledtasks, tasklist_updated
+    items = get_task_items(scheduled)
+    due, not_due = partition_items(items, is_task_due)
+    due, not_due = map(item_list_to_string, (due, not_due))
+    new_tasklist = add_to_section(tasklist_no_scheduled, 'scheduled', not_due)
+    return due, new_tasklist

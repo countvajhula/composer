@@ -143,7 +143,7 @@ class DayTemplate(Template):
         self.periodicname = "DAILYs:\n"
         undone = _do_post_mortem(self.planner.dayfile)["undone"]
         tasklistfile = self.tasklistfile  # initial state of tasklist file
-        scheduled, tasklistfile = scheduling.get_scheduled_tasks(
+        scheduled, tasklistfile = scheduling.get_due_tasks(
             tasklistfile, self.next_day
         )
         tomorrow, tasklistfile = _get_tasks_for_tomorrow(
