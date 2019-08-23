@@ -2,11 +2,6 @@ import datetime
 
 from .base import Template
 
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
-
 
 class WeekTemplate(Template):
     def load_context(self, planner, next_day):
@@ -62,11 +57,3 @@ class WeekTemplate(Template):
             + weekcontents[idx + 1 :]
         )
         return newweekcontents
-
-    def write_existing(self):
-        template = self.update()
-        self.planner.weekfile = StringIO(template)
-
-    def write_new(self):
-        template = self.build()
-        self.planner.weekfile = StringIO(template)

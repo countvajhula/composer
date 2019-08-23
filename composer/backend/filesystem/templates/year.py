@@ -1,11 +1,6 @@
 from ..utils import quarter_for_month
 from .base import Template
 
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
-
 
 class YearTemplate(Template):
     def load_context(self, planner, next_day):
@@ -45,11 +40,3 @@ class YearTemplate(Template):
             + yearcontents[idx + 1 :]
         )
         return newyearcontents
-
-    def write_existing(self):
-        template = self.update()
-        self.planner.yearfile = StringIO(template)
-
-    def write_new(self):
-        template = self.build()
-        self.planner.yearfile = StringIO(template)

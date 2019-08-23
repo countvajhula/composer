@@ -18,11 +18,6 @@ from ..utils import (
 )
 from .base import Template
 
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
-
 
 def _do_post_mortem(logfile):
     """ Return a list of done, undone and blocked tasks from today's agenda.
@@ -136,8 +131,6 @@ class DayTemplate(Template):
 
     def write_existing(self):
         # if period is DAY, noop
+        # TODO: is it necessary to override this? Presumably we'd never
+        # call it, but if we do maybe it should be supported
         pass
-
-    def write_new(self):
-        template = self.build()
-        self.planner.dayfile = StringIO(template)

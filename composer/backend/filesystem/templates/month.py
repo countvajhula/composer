@@ -1,10 +1,5 @@
 from .base import Template
 
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
-
 
 class MonthTemplate(Template):
     def load_context(self, planner, next_day):
@@ -49,11 +44,3 @@ class MonthTemplate(Template):
             + monthcontents[idx + 1 :]
         )
         return newmonthcontents
-
-    def write_existing(self):
-        template = self.update()
-        self.planner.monthfile = StringIO(template)
-
-    def write_new(self):
-        template = self.build()
-        self.planner.monthfile = StringIO(template)

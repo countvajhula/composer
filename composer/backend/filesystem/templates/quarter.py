@@ -1,11 +1,6 @@
 from ..utils import quarter_for_month
 from .base import Template
 
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
-
 
 class QuarterTemplate(Template):
     def load_context(self, planner, next_day):
@@ -41,11 +36,3 @@ class QuarterTemplate(Template):
             + quartercontents[idx + 1 :]
         )
         return newquartercontents
-
-    def write_existing(self):
-        template = self.update()
-        self.planner.quarterfile = StringIO(template)
-
-    def write_new(self):
-        template = self.build()
-        self.planner.quarterfile = StringIO(template)

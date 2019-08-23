@@ -3,6 +3,11 @@ import re
 
 from ..utils import is_task
 
+try:  # py2
+    from StringIO import StringIO
+except ImportError:  # py3
+    from io import StringIO
+
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 
 
@@ -32,6 +37,17 @@ class Template(ABC):
     def __init__(self, planner, next_day):
         self.planner = planner  # need this for mutating it at the end
         self.load_context(planner, next_day)
+
+    def _file_handle(self):
+        """ Return the relevant file for the template class. """
+        _handle = {
+            'DayTemplate': 'dayfile',
+            'WeekTemplate': 'weekfile',
+            'MonthTemplate': 'monthfile',
+            'QuarterTemplate': 'quarterfile',
+            'YearTemplate': 'yearfile',
+        }
+        return _handle[self.__class__.__name__]
 
     @abc.abstractmethod
     def load_context(self, planner, next_day):
@@ -72,10 +88,12 @@ class Template(ABC):
     def update(self):
         raise NotImplementedError
 
-    @abc.abstractmethod
     def write_existing(self):
-        raise NotImplementedError
+        template = self.update()
+        file_attr = self._file_handle()
+        setattr(self.planner, file_attr, StringIO(template))
 
-    @abc.abstractmethod
     def write_new(self):
-        raise NotImplementedError
+        template = self.build()
+        file_attr = self._file_handle()
+        setattr(self.planner, file_attr, StringIO(template))
