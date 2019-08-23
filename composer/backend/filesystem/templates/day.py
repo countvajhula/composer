@@ -24,47 +24,26 @@ except ImportError:  # py3
 
 
 def _do_post_mortem(logfile):
-    tasks = {"done": "", "undone": "", "blocked": ""}
-    ss = logfile.readline()
-    while ss != "" and ss[: len("agenda")].lower() != "agenda":
-        ss = logfile.readline()
-    if ss == "":
+    """ Return a list of done, undone and blocked tasks from today's agenda.
+    """
+    try:
+        tasks, _ = read_section(logfile, 'agenda')
+    except ValueError:
         raise LogfileLayoutError(
             "No AGENDA section found in today's log file!"
             " Add one and try again."
         )
-    ss = logfile.readline()
-    while ss != "" and not SECTION_PATTERN.search(ss):
-        if is_completed_task(ss) or is_invalid_task(ss):
-            tasks["done"] += ss
-            ss = logfile.readline()
-            while (
-                ss != "" and not is_task(ss) and not SECTION_PATTERN.search(ss)
-            ):
-                tasks["done"] += ss
-                ss = logfile.readline()
-        elif is_undone_task(ss) or is_wip_task(ss):
-            tasks["undone"] += ss
-            ss = logfile.readline()
-            while (
-                ss != "" and not is_task(ss) and not SECTION_PATTERN.search(ss)
-            ):
-                tasks["undone"] += ss
-                ss = logfile.readline()
-        elif is_scheduled_task(ss):
-            tasks["blocked"] += ss
-            ss = logfile.readline()
-            while (
-                ss != "" and not is_task(ss) and not SECTION_PATTERN.search(ss)
-            ):
-                tasks["blocked"] += ss
-                ss = logfile.readline()
-        else:
-            ss = logfile.readline()
-    tasks["done"] = tasks["done"].strip("\n")
-    tasks["undone"] = tasks["undone"].strip("\n")
-    tasks["blocked"] = tasks["blocked"].strip("\n")
-    return tasks
+    items = get_task_items(tasks)
+    done = filter_items(items,
+                        lambda item: (is_completed_task(item)
+                                      or is_invalid_task(item)))
+    undone = filter_items(items,
+                          lambda item: (is_undone_task(item)
+                                        or is_wip_task(item)))
+    blocked = filter_items(items, is_scheduled_task)
+    done, undone, blocked = map(item_list_to_string, (done, undone, blocked))
+
+    return done, undone, blocked
 
 
 def _get_tasks_for_tomorrow(tasklist, tomorrow_checking):
@@ -124,7 +103,7 @@ class DayTemplate(Template):
             self.title += "\n"
             self.title += "Theme: %s\n" % theme
         self.periodicname = "DAILYs:\n"
-        undone = _do_post_mortem(self.planner.dayfile)["undone"]
+        _, undone, _ = _do_post_mortem(self.planner.dayfile)
         tasklistfile = self.tasklistfile  # initial state of tasklist file
         scheduled, tasklistfile = scheduling.get_due_tasks(
             tasklistfile, self.next_day
