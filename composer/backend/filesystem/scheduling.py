@@ -13,24 +13,14 @@ from ...errors import (
     TasklistLayoutError,
 )
 from .utils import (
-    SECTION_PATTERN,
     add_to_section,
-    get_section_pattern,
     get_task_items,
     is_scheduled_task,
-    is_subtask,
     item_list_to_string,
     make_file,
     read_section,
-    partition_at,
     partition_items,
 )
-
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
-
 
 SCHEDULED_DATE_PATTERN = re.compile(r"\[\$?([^\[\$]*)\$?\]$")
 
