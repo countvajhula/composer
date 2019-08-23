@@ -86,6 +86,9 @@ def is_blank_line(line):
     return line.startswith("\n")
 
 
+is_section_separator = is_blank_line
+
+
 def is_completed_task(line):
     return line.startswith("[x")
 
@@ -221,6 +224,20 @@ def read_section(file, section):
     except ValueError:
         raise
 
+    if contents.getvalue():
+        # if there is a blank line at the end of the section, treat it
+        # as a section separator and don't include it in the secion.
+        # Note: This should eventually be unnecessary if we introduce
+        # higher-level abstractions with different low-level
+        # (e.g. file-based) representations, such that the entities
+        # are reasoned about at different levels and their file
+        # representation is modulated as a side-effect in a
+        # deterministic ("monadic") way
+        lines = contents.readlines()
+        penultimate_line = lines[-1]
+        if is_section_separator(penultimate_line):
+            complement.write(penultimate_line)
+            contents = make_file("".join(lines[:-1]))
     complement.write(after.read())
     return contents, complement
 
