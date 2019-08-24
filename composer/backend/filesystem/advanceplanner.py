@@ -12,14 +12,7 @@ from ...errors import (
     PlannerIsInTheFutureError,
 )
 from . import templates
-from .utils import SECTION_PATTERN, read_section
-
-
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
-
+from .utils import add_to_section, read_section
 
 MIN_WEEK_LENGTH = 5
 
@@ -59,32 +52,13 @@ def extract_agenda_from_logfile(logfile):
 
 
 def update_logfile_agenda(logfile, agenda):
-    logfile_updated = StringIO()
-    ss = logfile.readline()
-    while ss != "" and ss[: len("agenda")].lower() != "agenda":
-        logfile_updated.write(ss)
-        ss = logfile.readline()
-    if ss == "":
+    try:
+        logfile_updated = add_to_section(logfile, 'agenda', agenda, above=False, ensure_separator=True)
+    except ValueError:
         raise LogfileLayoutError(
             "No AGENDA section found in today's log file!"
             " Add one and try again."
         )
-    logfile_updated.write(ss)
-    ss = logfile.readline()
-    while ss != "" and not SECTION_PATTERN.search(ss):
-        logfile_updated.write(ss)
-        ss = logfile.readline()
-    # don't leave newlines between previous tasks and latest additions
-    logfile_updated.seek(logfile_updated.tell() - 2)
-    if logfile_updated.read(2) == "\n\n":
-        logfile_updated.seek(logfile_updated.tell() - 1)
-    logfile_updated.write(agenda)
-    logfile_updated.write("\n\n")
-    while ss != "":
-        logfile_updated.write(ss)
-        ss = logfile.readline()
-
-    logfile_updated.seek(0)
     return logfile_updated
 
 
