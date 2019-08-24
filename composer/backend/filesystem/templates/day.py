@@ -75,6 +75,10 @@ def _get_theme_for_the_day(day, daythemesfile):
 
 
 class DayTemplate(Template):
+
+    def _file_handle(self):
+        return 'dayfile'
+
     def load_context(self, planner, next_day):
         super(DayTemplate, self).load_context(planner, next_day)
         self.logfile = planner.dayfile

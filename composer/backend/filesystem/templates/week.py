@@ -4,6 +4,10 @@ from .base import Template
 
 
 class WeekTemplate(Template):
+
+    def _file_handle(self):
+        return 'weekfile'
+
     def load_context(self, planner, next_day):
         super(WeekTemplate, self).load_context(planner, next_day)
         self.logfile = planner.weekfile

@@ -3,6 +3,10 @@ from .base import Template
 
 
 class YearTemplate(Template):
+
+    def _file_handle(self):
+        return 'yearfile'
+
     def load_context(self, planner, next_day):
         super(YearTemplate, self).load_context(planner, next_day)
         self.logfile = planner.yearfile

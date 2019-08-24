@@ -38,16 +38,10 @@ class Template(ABC):
         self.planner = planner  # need this for mutating it at the end
         self.load_context(planner, next_day)
 
+    @abc.abstractmethod
     def _file_handle(self):
         """ Return the relevant file for the template class. """
-        _handle = {
-            'DayTemplate': 'dayfile',
-            'WeekTemplate': 'weekfile',
-            'MonthTemplate': 'monthfile',
-            'QuarterTemplate': 'quarterfile',
-            'YearTemplate': 'yearfile',
-        }
-        return _handle[self.__class__.__name__]
+        raise NotImplementedError
 
     @abc.abstractmethod
     def load_context(self, planner, next_day):

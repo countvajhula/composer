@@ -2,6 +2,10 @@ from .base import Template
 
 
 class MonthTemplate(Template):
+
+    def _file_handle(self):
+        return 'monthfile'
+
     def load_context(self, planner, next_day):
         super(MonthTemplate, self).load_context(planner, next_day)
         self.logfile = planner.monthfile

@@ -3,6 +3,10 @@ from .base import Template
 
 
 class QuarterTemplate(Template):
+
+    def _file_handle(self):
+        return 'quarterfile'
+
     def load_context(self, planner, next_day):
         super(QuarterTemplate, self).load_context(planner, next_day)
         self.logfile = planner.quarterfile
