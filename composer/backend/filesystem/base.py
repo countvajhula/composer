@@ -4,7 +4,7 @@ from datetime import datetime
 
 from . import advanceplanner
 from ..base import PlannerBase
-from ... import utils
+from ...time import Day, Week, Month, Quarter, Year
 from . import scheduling
 from ...errors import LogfileAlreadyExistsError, SimulationPassedError
 from .utils import quarter_for_month, read_file, write_file
@@ -254,7 +254,7 @@ class FilesystemPlanner(PlannerBase):
             next_day.year,
         )
         # check for possible errors in planner state before making any changes
-        if status >= utils.PlannerPeriod.Year:
+        if status >= Year:
             yearfn_post = "{path}/{year}.wiki".format(
                 path=self.location, year=year
             )
@@ -262,7 +262,7 @@ class FilesystemPlanner(PlannerBase):
                 raise LogfileAlreadyExistsError(
                     "New year logfile already exists!"
                 )
-        if status >= utils.PlannerPeriod.Quarter:
+        if status >= Quarter:
             quarterfn_post = "{path}/{quarter} {year}.wiki".format(
                 path=self.location, quarter=quarter_for_month(month), year=year
             )
@@ -270,7 +270,7 @@ class FilesystemPlanner(PlannerBase):
                 raise LogfileAlreadyExistsError(
                     "New quarter logfile already exists!"
                 )
-        if status >= utils.PlannerPeriod.Month:
+        if status >= Month:
             monthfn_post = "{path}/Month of {month}, {year}.wiki".format(
                 path=self.location, month=month, year=year
             )
@@ -278,7 +278,7 @@ class FilesystemPlanner(PlannerBase):
                 raise LogfileAlreadyExistsError(
                     "New month logfile already exists!"
                 )
-        if status >= utils.PlannerPeriod.Week:
+        if status >= Week:
             weekfn_post = "{path}/Week of {month} {date}, {year}.wiki".format(
                 path=self.location, month=month, date=date, year=year
             )
@@ -286,7 +286,7 @@ class FilesystemPlanner(PlannerBase):
                 raise LogfileAlreadyExistsError(
                     "New week logfile already exists!"
                 )
-        if status >= utils.PlannerPeriod.Day:
+        if status >= Day:
             dayfn_post = "{path}/{month} {date}, {year}.wiki".format(
                 path=self.location, month=month, date=date, year=year
             )
@@ -297,39 +297,39 @@ class FilesystemPlanner(PlannerBase):
 
         # if this is a simulation, we're good to go - let's break out
         # of the matrix
-        if status >= utils.PlannerPeriod.Day and simulate:
+        if status >= Day and simulate:
             raise SimulationPassedError("All systems GO", status)
 
         # make the changes on disk
-        if status >= utils.PlannerPeriod.Year:
+        if status >= Year:
             self._write_new_logfile(
                 self.yearfile, PLANNERYEARFILELINK, yearfn_post
             )
-        if status >= utils.PlannerPeriod.Quarter:
+        if status >= Quarter:
             self._write_new_logfile(
                 self.quarterfile, PLANNERQUARTERFILELINK, quarterfn_post
             )
-        if status == utils.PlannerPeriod.Quarter:
+        if status == Quarter:
             self._update_existing_logfile(self.yearfile, yearfn_pre)
-        if status >= utils.PlannerPeriod.Month:
+        if status >= Month:
             self._write_new_logfile(
                 self.monthfile, PLANNERMONTHFILELINK, monthfn_post
             )
-        if status == utils.PlannerPeriod.Month:
+        if status == Month:
             self._update_existing_logfile(self.quarterfile, quarterfn_pre)
-        if status >= utils.PlannerPeriod.Week:
+        if status >= Week:
             self._write_new_logfile(
                 self.weekfile, PLANNERWEEKFILELINK, weekfn_post
             )
-        if status == utils.PlannerPeriod.Week:
+        if status == Week:
             self._update_existing_logfile(self.monthfile, monthfn_pre)
-        if status >= utils.PlannerPeriod.Day:
+        if status >= Day:
             self._write_new_logfile(
                 self.dayfile, PLANNERDAYFILELINK, dayfn_post
             )
             # in any event if day was advanced, update tasklist
             self._update_existing_logfile(self.tasklistfile, tasklistfn)
-        if status == utils.PlannerPeriod.Day:
+        if status == Day:
             self._update_existing_logfile(self.weekfile, weekfn_pre)
 
         return status

@@ -6,7 +6,7 @@ import datetime
 import composer.backend.filesystem.advanceplanner as advanceplanner
 import composer.config as config
 from composer.backend import FilesystemPlanner
-from composer.utils import PlannerPeriod
+from composer.time import Day, Week, Month, Quarter, Year
 
 try:  # py2
     from StringIO import StringIO
@@ -592,7 +592,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]  # seems this happens even without declaring it here - need to reset these in tearDown()
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Day)
+        self.assertEqual(status, Day)
 
     def test_decision_for_first_week_too_short_day_advance(self):
         """ Check that planner advance takes the correct decision to advance only day when first week is too short """
@@ -605,7 +605,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Day)
+        self.assertEqual(status, Day)
 
     def test_decision_for_first_week_borderline_too_short_day_advance(self):
         """ Check that planner advance takes the correct decision to advance only day when first week is just below minimum length """
@@ -618,7 +618,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Day)
+        self.assertEqual(status, Day)
 
     def test_decision_for_last_week_too_short_day_advance(self):
         """ Check that planner advance takes the correct decision to advance only day when last week would be too short """
@@ -631,7 +631,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Day)
+        self.assertEqual(status, Day)
 
     def test_decision_for_last_week_borderline_too_short_day_advance(self):
         """ Check that planner advance takes the correct decision to advance only day when last week would be just below minimum length """
@@ -644,7 +644,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Day)
+        self.assertEqual(status, Day)
 
     def test_decision_for_typical_week_advance(self):
         """ Check that planner advance takes the correct decision to advance week on a typical week change boundary """
@@ -655,7 +655,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Week)
+        self.assertEqual(status, Week)
 
     def test_decision_for_first_week_borderline_long_enough_week_advance(self):
         """ Check that planner advance takes the correct decision to advance week when last week would be just at minimum length """
@@ -668,7 +668,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Week)
+        self.assertEqual(status, Week)
 
     def test_decision_for_last_week_borderline_long_enough_week_advance(self):
         """ Check that planner advance takes the correct decision to advance week when last week would be just at minimum length """
@@ -681,7 +681,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Week)
+        self.assertEqual(status, Week)
 
     def test_decision_for_month_advance(self):
         """ Check that planner advance takes the correct decision to advance month on a month change boundary """
@@ -692,7 +692,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Month)
+        self.assertEqual(status, Month)
 
     def test_decision_for_quarter_advance(self):
         """ Check that planner advance takes the correct decision to advance quarter on a quarter change boundary """
@@ -703,7 +703,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Quarter)
+        self.assertEqual(status, Quarter)
 
     def test_decision_for_year_advance(self):
         """ Check that planner advance takes the correct decision to advance year on a year change boundary """
@@ -714,7 +714,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         status = advanceplanner.advance_planner(self.planner, now)
-        self.assertEqual(status, PlannerPeriod.Year)
+        self.assertEqual(status, Year)
 
     def test_planner_advance_year(self):
         """ Check that planner advance returns the correct new year, quarter, month, week, and day templates when advancing year """

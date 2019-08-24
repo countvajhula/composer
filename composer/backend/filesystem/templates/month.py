@@ -2,7 +2,6 @@ from .base import Template
 
 
 class MonthTemplate(Template):
-
     def _file_handle(self):
         return 'monthfile'
 

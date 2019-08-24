@@ -2,7 +2,7 @@ import datetime
 import pytest
 
 import composer.backend.filesystem.templates as templates
-from composer.utils import PlannerPeriod
+from composer.time import Day, Week, Month
 
 from .fixtures import planner
 
@@ -35,7 +35,7 @@ class TestNewTemplateIntegrity(object):
         monthtemplate += "NOTES:\n\n\n"
         monthtemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(planner, PlannerPeriod.Month, next_day)
+        templates.write_new_template(planner, Month, next_day)
 
         assert planner.monthfile.read() == monthtemplate
 
@@ -66,7 +66,7 @@ class TestNewTemplateIntegrity(object):
         weektemplate += "NOTES:\n\n\n"
         weektemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(planner, PlannerPeriod.Week, next_day)
+        templates.write_new_template(planner, Week, next_day)
 
         assert planner.weekfile.read() == weektemplate
 
@@ -174,7 +174,7 @@ class TestNewTemplateIntegrity(object):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(planner, PlannerPeriod.Day, next_day)
+        templates.write_new_template(planner, Day, next_day)
 
         assert planner.dayfile.read() == daytemplate
         assert planner.tasklistfile.read() == tasklist_nextday
@@ -207,9 +207,7 @@ class TestExistingTemplateUpdateIntegrity(object):
             "TIME SPENT ON PLANNER: "
         )
 
-        templates.write_existing_template(
-            planner, PlannerPeriod.Month, next_day
-        )
+        templates.write_existing_template(planner, Month, next_day)
         assert planner.monthfile.read() == monthtemplate_updated
 
     def test_update_existing_week_template(self, planner):
@@ -242,7 +240,5 @@ class TestExistingTemplateUpdateIntegrity(object):
             "TIME SPENT ON PLANNER: "
         )
 
-        templates.write_existing_template(
-            planner, PlannerPeriod.Week, next_day
-        )
+        templates.write_existing_template(planner, Week, next_day)
         assert planner.weekfile.read() == weektemplate_updated

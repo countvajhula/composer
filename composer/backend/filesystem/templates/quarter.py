@@ -3,7 +3,6 @@ from .base import Template
 
 
 class QuarterTemplate(Template):
-
     def _file_handle(self):
         return 'quarterfile'
 

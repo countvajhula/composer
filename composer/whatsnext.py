@@ -9,8 +9,8 @@ import click
 from . import advice
 from . import config
 from . import updateindex
-from . import utils
 from .backend import FilesystemPlanner
+from .time import Day, Week
 
 from .errors import (
     SchedulingError,
@@ -46,13 +46,13 @@ def process_wiki(wikidir, preferences, now):
         except SimulationPassedError as err:
             # print "DEV: simulation passed. let's do this thing
             # ... for real."
-            if err.status >= utils.PlannerPeriod.Week:
+            if err.status >= Week:
                 theme = raw_input(
                     "(Optional) Enter a theme for the upcoming week,"
                     " e.g. Week of 'Timeliness', or 'Completion':__"
                 )
                 preferences['week_theme'] = theme if theme else None
-            if err.status >= utils.PlannerPeriod.Day:
+            if err.status >= Day:
                 # git commit a "before", now that we know changes
                 # are about to be written to planner
                 print()
@@ -72,7 +72,7 @@ def process_wiki(wikidir, preferences, now):
                         stdout=null,
                     )
                 print("...DONE.")
-            if err.status >= utils.PlannerPeriod.Day:
+            if err.status >= Day:
                 planner = FilesystemPlanner(wikidir)
                 dayagenda = planner.get_agenda(planner.dayfile)
                 if dayagenda:
@@ -80,7 +80,7 @@ def process_wiki(wikidir, preferences, now):
                         planner.weekfile, dayagenda
                     )
                 planner.save()
-            if err.status >= utils.PlannerPeriod.Week:
+            if err.status >= Week:
                 planner = FilesystemPlanner(wikidir)
                 weekagenda = planner.get_agenda(planner.weekfile)
                 if weekagenda:

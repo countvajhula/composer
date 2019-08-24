@@ -4,7 +4,6 @@ from .base import Template
 
 
 class WeekTemplate(Template):
-
     def _file_handle(self):
         return 'weekfile'
 
