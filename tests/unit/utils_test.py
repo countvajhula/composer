@@ -207,7 +207,7 @@ class TestAddToSection(object):
         with pytest.raises(ValueError):
             add_to_section(tasklist_file, 'THIS DECADE', new_tasks)
 
-    def test_existing_contents_are_preserved(self, tasklist_file):
+    def test_existing_contents_are_preserved_below(self, tasklist_file):
         new_tasks = "[ ] one more thing to do!\n"
         updated = add_to_section(tasklist_file, 'THIS WEEK', new_tasks)
         expected = (
@@ -223,6 +223,51 @@ class TestAddToSection(object):
             "\t[\\] first thing\n"
             "\tclarification of first thing\n"
             "\t[ ] second thing\n"
+            "THIS MONTH:\n"
+            "UNSCHEDULED:\n"
+            "[ ] another task\n"
+        )
+        assert updated.read() == expected
+
+    def test_existing_contents_are_preserved_above(self, tasklist_file):
+        new_tasks = "[ ] one more thing to do!\n"
+        updated = add_to_section(tasklist_file, 'THIS WEEK', new_tasks, above=False)
+        expected = (
+            "TOMORROW:\n"
+            "[ ] a task\n"
+            "[\\] a WIP task\n"
+            "Just some additional clarifications\n"
+            "\n"
+            "[o] a scheduled task [$TOMORROW$]\n"
+            "THIS WEEK:\n"
+            "[ ] a task with subtasks\n"
+            "\t[\\] first thing\n"
+            "\tclarification of first thing\n"
+            "\t[ ] second thing\n"
+            "[ ] one more thing to do!\n"
+            "THIS MONTH:\n"
+            "UNSCHEDULED:\n"
+            "[ ] another task\n"
+        )
+        assert updated.read() == expected
+
+    def test_separator_added_if_needed(self, tasklist_file):
+        new_tasks = "[ ] one more thing to do!\n"
+        updated = add_to_section(tasklist_file, 'THIS WEEK', new_tasks, ensure_separator=True)
+        expected = (
+            "TOMORROW:\n"
+            "[ ] a task\n"
+            "[\\] a WIP task\n"
+            "Just some additional clarifications\n"
+            "\n"
+            "[o] a scheduled task [$TOMORROW$]\n"
+            "THIS WEEK:\n"
+            "[ ] one more thing to do!\n"
+            "[ ] a task with subtasks\n"
+            "\t[\\] first thing\n"
+            "\tclarification of first thing\n"
+            "\t[ ] second thing\n"
+            "\n"
             "THIS MONTH:\n"
             "UNSCHEDULED:\n"
             "[ ] another task\n"

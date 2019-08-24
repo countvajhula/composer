@@ -5,6 +5,7 @@ from functools import wraps
 SECTION_PATTERN = re.compile(r"^[A-Z][A-Z][A-Za-z ]+:")
 SECTION_OR_EOF_PATTERN = re.compile(r"(^[A-Z][A-Z][A-Za-z ]+:|\A\Z)")
 TASK_PATTERN = re.compile(r"^\t*\[")
+SECTION_SEPARATOR = '\n'
 
 try:  # py2
     from StringIO import StringIO
@@ -256,21 +257,44 @@ def read_section(file, section):
 
 
 @contain_file_mutation
-def add_to_section(file, section, tasks):
-    """ Find a given section in a file and insert tasks into it.
-    The new tasks added at the top of the section, and any pre-existing
-    contents of the section are preserved below the new additions.
+def add_to_section(file, section, tasks, above=True, ensure_separator=False):
+    """ Find a given section in a file and insert tasks into it.  The new tasks
+    can be added either at the top or bottom of the section, and any
+    pre-existing contents of the section are preserved alongside the new
+    additions.
     """
-    pattern = get_section_pattern(section)
+
     try:
-        before, remaining = partition_at(file, pattern, inclusive=True)
+        contents, complement = read_section(file, section)
     except ValueError:
         raise
-    new_file = make_file()
-    new_file.write(before.read())
-    new_file.write(tasks)
-    new_file.write(remaining.read())
-    return new_file
+    if not contents.getvalue():
+        # "base case"
+        pattern = get_section_pattern(section)
+        try:
+            before, remaining = partition_at(file, pattern, inclusive=True)
+        except ValueError:
+            raise
+        new_file = make_file()
+        new_file.write(before.read())
+        new_file.write(tasks)
+        if ensure_separator and not is_section_separator(make_file(tasks).readlines()[-1]):
+            # in extracting the section from the original file, we disregarded
+            # a section separator (if present). Add it back here. (ideally this
+            # level of management should be made unnecessary with higher-level
+            # abstractions)
+            new_file.write(SECTION_SEPARATOR)
+        new_file.write(remaining.read())
+        return new_file
+    else:
+        new_contents = make_file()
+        if above:
+            new_contents.write(tasks)
+            new_contents.write(contents.read())
+        else:
+            new_contents.write(contents.read())
+            new_contents.write(tasks)
+        return add_to_section(complement, section, new_contents.getvalue(), above, ensure_separator)
 
 
 def make_file(string=""):
