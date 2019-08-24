@@ -231,7 +231,9 @@ class TestAddToSection(object):
 
     def test_existing_contents_are_preserved_above(self, tasklist_file):
         new_tasks = "[ ] one more thing to do!\n"
-        updated = add_to_section(tasklist_file, 'THIS WEEK', new_tasks, above=False)
+        updated = add_to_section(
+            tasklist_file, 'THIS WEEK', new_tasks, above=False
+        )
         expected = (
             "TOMORROW:\n"
             "[ ] a task\n"
@@ -253,7 +255,9 @@ class TestAddToSection(object):
 
     def test_separator_added_if_needed(self, tasklist_file):
         new_tasks = "[ ] one more thing to do!\n"
-        updated = add_to_section(tasklist_file, 'THIS WEEK', new_tasks, ensure_separator=True)
+        updated = add_to_section(
+            tasklist_file, 'THIS WEEK', new_tasks, ensure_separator=True
+        )
         expected = (
             "TOMORROW:\n"
             "[ ] a task\n"

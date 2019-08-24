@@ -53,7 +53,9 @@ def extract_agenda_from_logfile(logfile):
 
 def update_logfile_agenda(logfile, agenda):
     try:
-        logfile_updated = add_to_section(logfile, 'agenda', agenda, above=False, ensure_separator=True)
+        logfile_updated = add_to_section(
+            logfile, 'agenda', agenda, above=False, ensure_separator=True
+        )
     except ValueError:
         raise LogfileLayoutError(
             "No AGENDA section found in today's log file!"

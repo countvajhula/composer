@@ -278,7 +278,9 @@ def add_to_section(file, section, tasks, above=True, ensure_separator=False):
         new_file = make_file()
         new_file.write(before.read())
         new_file.write(tasks)
-        if ensure_separator and not is_section_separator(make_file(tasks).readlines()[-1]):
+        if ensure_separator and not is_section_separator(
+            make_file(tasks).readlines()[-1]
+        ):
             # in extracting the section from the original file, we disregarded
             # a section separator (if present). Add it back here. (ideally this
             # level of management should be made unnecessary with higher-level
@@ -294,7 +296,13 @@ def add_to_section(file, section, tasks, above=True, ensure_separator=False):
         else:
             new_contents.write(contents.read())
             new_contents.write(tasks)
-        return add_to_section(complement, section, new_contents.getvalue(), above, ensure_separator)
+        return add_to_section(
+            complement,
+            section,
+            new_contents.getvalue(),
+            above,
+            ensure_separator,
+        )
 
 
 def make_file(string=""):
