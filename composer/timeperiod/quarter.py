@@ -1,28 +1,33 @@
-from ..utils import get_next_day
+from __future__ import absolute_import
+from .utils import get_next_day
 from .base import Period, PeriodAdvanceCriteria
 from .day import Day
+from .month import Month
 
 
-class _Month(Period):
+class _Quarter(Period):
 
-    duration = 4 * 7 * 24 * 60 * 60
+    duration = 3 * 4 * 7 * 24 * 60 * 60
 
     def advance_criteria_met(self, planner, now):
         next_day = get_next_day(planner.date)
+        month = next_day.strftime("%B")
         day_criteria_met = Day.advance_criteria_met(planner, now)
         if day_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
             return PeriodAdvanceCriteria.PlannerInFuture
-        elif (
-            next_day.day == 1
-            and day_criteria_met == PeriodAdvanceCriteria.Satisfied
+        elif Month.advance_criteria_met(planner, now) and month.lower() in (
+            "january",
+            "april",
+            "july",
+            "october",
         ):
             return PeriodAdvanceCriteria.Satisfied
 
     def get_logfile(self, planner):
-        return planner.monthfile
+        return planner.quarterfile
 
     def get_name(self):
-        return "month"
+        return "quarter"
 
 
-Month = _Month()
+Quarter = _Quarter()

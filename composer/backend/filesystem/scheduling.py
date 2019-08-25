@@ -2,7 +2,6 @@ import calendar
 import datetime
 import re
 
-from ... import utils  # TODO: eliminate this dependency
 from ...errors import (
     BlockedTaskNotScheduledError,
     DateFormatError,
@@ -12,6 +11,7 @@ from ...errors import (
     ScheduledTaskParsingError,
     TasklistLayoutError,
 )
+from ...timeperiod import get_next_day
 from .utils import (
     add_to_section,
     get_task_items,
@@ -238,7 +238,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
             raise RelativeDateError(
                 "Relative date found, but no context available"
             )
-        date = utils.get_next_day(reference_date)
+        date = get_next_day(reference_date)
         (month, day, year) = (
             get_month_name(date.month).upper(),
             str(date.day),

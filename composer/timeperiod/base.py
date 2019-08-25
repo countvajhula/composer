@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import abc
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3

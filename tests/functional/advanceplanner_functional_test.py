@@ -4,7 +4,7 @@ import unittest
 import datetime
 
 from composer.backend import FilesystemPlanner
-from composer.time import Day, Week, Month, Quarter, Year
+from composer.timeperiod import Day, Week, Month, Quarter, Year
 
 
 class AdvancePlanner(unittest.TestCase):

@@ -3,7 +3,7 @@ import unittest
 
 import composer.config as config
 import composer.backend.filesystem.templates as templates
-from composer.time import Day
+from composer.timeperiod import Day
 
 from .fixtures import PlannerMock
 

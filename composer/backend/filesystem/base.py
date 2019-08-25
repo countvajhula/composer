@@ -4,7 +4,7 @@ from datetime import datetime
 
 from . import advanceplanner
 from ..base import PlannerBase
-from ...time import Day, Week, Month, Quarter, Year
+from ...timeperiod import Day, Week, Month, Quarter, Year
 from . import scheduling
 from ...errors import LogfileAlreadyExistsError, SimulationPassedError
 from .utils import quarter_for_month, read_file, write_file

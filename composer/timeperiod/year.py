@@ -1,4 +1,5 @@
-from ..utils import get_next_day
+from __future__ import absolute_import
+from .utils import get_next_day
 from .base import Period, PeriodAdvanceCriteria
 from .day import Day
 from .quarter import Quarter

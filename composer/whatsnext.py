@@ -10,7 +10,7 @@ from . import advice
 from . import config
 from . import updateindex
 from .backend import FilesystemPlanner
-from .time import Day, Week
+from .timeperiod import Day, Week
 
 from .errors import (
     SchedulingError,

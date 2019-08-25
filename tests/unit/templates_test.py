@@ -2,7 +2,7 @@ import datetime
 import pytest
 
 import composer.backend.filesystem.templates as templates
-from composer.time import Day, Week, Month
+from composer.timeperiod import Day, Week, Month
 
 from .fixtures import planner
 

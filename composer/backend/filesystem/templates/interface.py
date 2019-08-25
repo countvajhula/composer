@@ -1,4 +1,4 @@
-from ....time import Day, Week, Month, Quarter, Year
+from ....timeperiod import Day, Week, Month, Quarter, Year
 from .day import DayTemplate
 from .week import WeekTemplate
 from .month import MonthTemplate

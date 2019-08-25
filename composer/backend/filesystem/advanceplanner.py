@@ -3,7 +3,6 @@
 import datetime
 
 from ... import config
-from ... import utils
 from ...errors import (
     DayStillInProgressError,
     LogfileLayoutError,
@@ -11,7 +10,7 @@ from ...errors import (
     PlannerIsInTheFutureError,
 )
 from . import templates
-from ...time import (
+from ...timeperiod import (
     Day,
     Week,
     Month,
@@ -19,6 +18,7 @@ from ...time import (
     Year,
     Zero,
     PeriodAdvanceCriteria,
+    get_next_day,
 )
 from .utils import add_to_section, read_section
 
@@ -80,7 +80,7 @@ def advance_planner(planner, now=None):
     """ Advance planner state to next day, updating week and month info
     as necessary. 'now' arg used only for testing
     """
-    next_day = utils.get_next_day(planner.date)  # the new day to advance to
+    next_day = get_next_day(planner.date)  # the new day to advance to
 
     if not now:
         now = datetime.datetime.now()

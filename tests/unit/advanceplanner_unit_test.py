@@ -6,7 +6,7 @@ import datetime
 import composer.backend.filesystem.advanceplanner as advanceplanner
 import composer.config as config
 from composer.backend import FilesystemPlanner
-from composer.time import Day, Week, Month, Quarter, Year
+from composer.timeperiod import Day, Week, Month, Quarter, Year
 
 try:  # py2
     from StringIO import StringIO
