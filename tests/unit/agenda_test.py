@@ -3,6 +3,7 @@ import unittest
 
 import composer.config as config
 import composer.backend.filesystem.templates as templates
+from composer.backend import FilesystemPlanner
 from composer.timeperiod import Day
 
 from .fixtures import PlannerMock
@@ -406,14 +407,13 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = PlannerMock(
-            tasklistfile=tasklistfile,
-            daythemesfile=daythemesfile,
-            checkpoints_weekday_file=checkpointsfile,
-            periodic_day_file=periodicfile,
-            dayfile=dayfile,
-            tomorrow_checking=config.LOGFILE_CHECKING['LAX'],
-        )
+        planner = FilesystemPlanner()
+        planner.tasklistfile = tasklistfile
+        planner.daythemesfile = daythemesfile
+        planner.checkpoints_weekday_file = checkpointsfile
+        planner.periodic_day_file = periodicfile
+        planner.dayfile = dayfile
+        planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -463,14 +463,14 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = PlannerMock(
-            tasklistfile=tasklistfile,
-            daythemesfile=daythemesfile,
-            checkpoints_weekday_file=checkpointsfile,
-            periodic_day_file=periodicfile,
-            dayfile=dayfile,
-            tomorrow_checking=config.LOGFILE_CHECKING['LAX'],
-        )
+
+        planner = FilesystemPlanner()
+        planner.tasklistfile = tasklistfile
+        planner.daythemesfile = daythemesfile
+        planner.checkpoints_weekday_file = checkpointsfile
+        planner.periodic_day_file = periodicfile
+        planner.dayfile = dayfile
+        planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -524,13 +524,12 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = PlannerMock(
-            tasklistfile=tasklistfile,
-            daythemesfile=daythemesfile,
-            checkpoints_weekday_file=checkpointsfile,
-            periodic_day_file=periodicfile,
-            dayfile=dayfile,
-        )
+        planner = FilesystemPlanner()
+        planner.tasklistfile = tasklistfile
+        planner.daythemesfile = daythemesfile
+        planner.checkpoints_weekday_file = checkpointsfile
+        planner.periodic_day_file = periodicfile
+        planner.dayfile = dayfile
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -586,13 +585,12 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = PlannerMock(
-            tasklistfile=tasklistfile,
-            daythemesfile=daythemesfile,
-            checkpoints_weekday_file=checkpointsfile,
-            periodic_day_file=periodicfile,
-            dayfile=dayfile,
-        )
+        planner = FilesystemPlanner()
+        planner.tasklistfile = tasklistfile
+        planner.daythemesfile = daythemesfile
+        planner.checkpoints_weekday_file = checkpointsfile
+        planner.periodic_day_file = periodicfile
+        planner.dayfile = dayfile
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -650,14 +648,14 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = PlannerMock(
-            tasklistfile=tasklistfile,
-            daythemesfile=daythemesfile,
-            checkpoints_weekday_file=checkpointsfile,
-            periodic_day_file=periodicfile,
-            dayfile=dayfile,
-            tomorrow_checking=config.LOGFILE_CHECKING['LAX'],
-        )
+
+        planner = FilesystemPlanner()
+        planner.tasklistfile = tasklistfile
+        planner.daythemesfile = daythemesfile
+        planner.checkpoints_weekday_file = checkpointsfile
+        planner.periodic_day_file = periodicfile
+        planner.dayfile = dayfile
+        planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -709,13 +707,12 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = PlannerMock(
-            tasklistfile=tasklistfile,
-            daythemesfile=daythemesfile,
-            checkpoints_weekday_file=checkpointsfile,
-            periodic_day_file=periodicfile,
-            dayfile=dayfile,
-        )
+        planner = FilesystemPlanner()
+        planner.tasklistfile = tasklistfile
+        planner.daythemesfile = daythemesfile
+        planner.checkpoints_weekday_file = checkpointsfile
+        planner.periodic_day_file = periodicfile
+        planner.dayfile = dayfile
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -773,13 +770,12 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-        planner = PlannerMock(
-            tasklistfile=tasklistfile,
-            daythemesfile=daythemesfile,
-            checkpoints_weekday_file=checkpointsfile,
-            periodic_day_file=periodicfile,
-            dayfile=dayfile,
-        )
+        planner = FilesystemPlanner()
+        planner.tasklistfile = tasklistfile
+        planner.daythemesfile = daythemesfile
+        planner.checkpoints_weekday_file = checkpointsfile
+        planner.periodic_day_file = periodicfile
+        planner.dayfile = dayfile
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]

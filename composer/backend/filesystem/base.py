@@ -11,11 +11,14 @@ from ...timeperiod import (
     Year,
 )
 from ...errors import (
+    BlockedTaskNotScheduledError,
     LogfileAlreadyExistsError,
     LogfileLayoutError,
-    SimulationPassedError
+    SchedulingDateError,
+    SimulationPassedError,
+    TasklistLayoutError,
 )
-from .scheduling import check_logfile_for_errors, check_scheduled_section_for_errors, to_standard_date_format
+from .scheduling import check_logfile_for_errors, check_scheduled_section_for_errors, to_standard_date_format, SCHEDULED_DATE_PATTERN, get_date_for_schedule_string
 from .utils import add_to_section, is_scheduled_task, get_task_items, item_list_to_string, make_file, quarter_for_month, partition_items, read_file, write_file, read_section
 
 
@@ -261,6 +264,41 @@ class FilesystemPlanner(PlannerBase):
             new_file, "TOMORROW", tomorrow.read()
         )  # add tomorrow tasks back
         self.tasklistfile = new_file
+
+    def get_due_tasks(self, for_day):
+        """ Look at the SCHEDULED section of the tasklist and retrive any tasks that
+        are due/overdue for the given day (e.g. tomorrow, if preparing tomorrow's
+        agenda).
+
+        This only operates on explicitly scheduled tasks, not tasks manually set
+        aside for tomorrow or which may happen to be appropriate for the given day
+        as determined in some other way (e.g. periodic tasks).
+
+        Note: task scheduling should already have been performed on relevant
+        logfiles (like the previous day's) to migrate those tasks to the tasklist.
+        """
+
+        def is_task_due(task):
+            if not SCHEDULED_DATE_PATTERN.search(task):
+                raise BlockedTaskNotScheduledError(
+                    "Scheduled task has no date!" + task
+                )
+            datestr = SCHEDULED_DATE_PATTERN.search(task).groups()[0]
+            try:
+                matcheddate = get_date_for_schedule_string(datestr)
+            except SchedulingDateError:
+                raise
+            return for_day >= matcheddate["date"]
+
+        try:
+            scheduled, tasklist_no_scheduled = read_section(self.tasklistfile, "scheduled")
+        except ValueError:
+            raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
+        items = get_task_items(scheduled)
+        due, not_due = partition_items(items, is_task_due)
+        due, not_due = map(item_list_to_string, (due, not_due))
+        new_tasklist = add_to_section(tasklist_no_scheduled, 'scheduled', not_due)
+        return due, new_tasklist
 
     def _write_new_logfile(self, logfile, link_name, new_filename):
         # extract new period filename from date

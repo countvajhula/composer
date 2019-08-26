@@ -2,6 +2,7 @@ import datetime
 import pytest
 
 import composer.backend.filesystem.templates as templates
+from composer.backend import FilesystemPlanner
 from composer.timeperiod import Day, Week, Month
 
 from .fixtures import planner
@@ -143,6 +144,16 @@ class TestNewTemplateIntegrity(object):
         theme = theme[: theme.index('\n')].strip().upper()
         theme = "*" + theme + "*"
 
+        # since we need an actual planner instance here. Leveraging the
+        # fixture as a path of least resistance for now
+        my_planner = FilesystemPlanner()
+        my_planner.tasklistfile = planner.tasklistfile
+        my_planner.daythemesfile = planner.daythemesfile
+        my_planner.checkpoints_weekday_file = planner.checkpoints_weekday_file
+        my_planner.checkpoints_weekend_file = planner.checkpoints_weekend_file
+        my_planner.periodic_day_file = planner.periodic_day_file
+        my_planner.dayfile = planner.dayfile
+
         daytemplate = ""
         daytemplate += "= %s %s %d, %d =\n" % (
             day.upper(),
@@ -156,9 +167,9 @@ class TestNewTemplateIntegrity(object):
             daytemplate += "\n"
         daytemplate += "CHECKPOINTS:\n"
         if day.lower() in ('saturday', 'sunday'):
-            daytemplate += planner.checkpoints_weekend_file.getvalue()
+            daytemplate += my_planner.checkpoints_weekend_file.getvalue()
         else:
-            daytemplate += planner.checkpoints_weekday_file.getvalue()
+            daytemplate += my_planner.checkpoints_weekday_file.getvalue()
         daytemplate += "\n"
         daytemplate += "AGENDA:\n"
         daytemplate += "[ ] s'posed to do\n"
@@ -169,15 +180,15 @@ class TestNewTemplateIntegrity(object):
         daytemplate += "[ ] finish project\n"
         daytemplate += "\n"
         daytemplate += "DAILYs:\n"
-        daytemplate += planner.periodic_day_file.getvalue()
+        daytemplate += my_planner.periodic_day_file.getvalue()
         daytemplate += "\n"
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        templates.write_new_template(planner, Day, next_day)
+        templates.write_new_template(my_planner, Day, next_day)
 
-        assert planner.dayfile.read() == daytemplate
-        assert planner.tasklistfile.read() == tasklist_nextday
+        assert my_planner.dayfile.read() == daytemplate
+        assert my_planner.tasklistfile.read() == tasklist_nextday
 
 
 class TestExistingTemplateUpdateIntegrity(object):

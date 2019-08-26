@@ -4,7 +4,6 @@ from ....errors import (
     TasklistLayoutError,
     TomorrowIsEmptyError,
 )
-from .. import scheduling
 from ..utils import (
     filter_items,
     get_task_items,
@@ -107,8 +106,8 @@ class DayTemplate(Template):
         self.periodicname = "DAILYs:\n"
         _, undone, _ = _do_post_mortem(self.planner.dayfile)
         tasklistfile = self.tasklistfile  # initial state of tasklist file
-        scheduled, tasklistfile = scheduling.get_due_tasks(
-            tasklistfile, self.next_day
+        scheduled, tasklistfile = self.planner.get_due_tasks(
+            self.next_day
         )
         tomorrow, tasklistfile = _get_tasks_for_tomorrow(
             tasklistfile, self.planner.tomorrow_checking
