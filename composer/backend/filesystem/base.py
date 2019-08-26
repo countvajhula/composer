@@ -216,7 +216,7 @@ class FilesystemPlanner(PlannerBase):
             "{}/{}".format(location, PERIODICYEARLYFILE)
         )
 
-    def schedule_tasks(planner):
+    def schedule_tasks(self):
         """ 1. Go through the Tasklist till SCHEDULED section found
         2. If task is marked as scheduled/blocked (i.e. "[o]"), then make sure a
         follow-up date is indicated (via "[$<date>$]") and that it is parseable
@@ -230,11 +230,11 @@ class FilesystemPlanner(PlannerBase):
         # TODO: keep low-level operations contained in utils -- make/extend
         # additional interfaces as needed
         # TODO: these diagnostics are not covered by tests
-        check_scheduled_section_for_errors(planner)
-        check_logfile_for_errors(planner.dayfile)
+        check_scheduled_section_for_errors(self)
+        check_logfile_for_errors(self.dayfile)
         # ignore tasks in tomorrow since actively scheduled by you
         tomorrow, tasklist_no_tomorrow = read_section(
-            planner.tasklistfile, 'TOMORROW'
+            self.tasklistfile, 'TOMORROW'
         )
         task_items = get_task_items(tasklist_no_tomorrow)
         tasklist_tasks, tasklist_no_scheduled = partition_items(
@@ -245,11 +245,11 @@ class FilesystemPlanner(PlannerBase):
         tasklist_no_scheduled = make_file(
             item_list_to_string(tasklist_no_scheduled)
         )
-        day_tasks = get_task_items(planner.dayfile, of_type=is_scheduled_task)
+        day_tasks = get_task_items(self.dayfile, of_type=is_scheduled_task)
         tasks = tasklist_tasks + day_tasks
         tasks = [
             (
-                to_standard_date_format(task, planner.date)
+                to_standard_date_format(task, self.date)
                 if is_scheduled_task(task)
                 else task
             )
@@ -260,7 +260,7 @@ class FilesystemPlanner(PlannerBase):
         new_file = add_to_section(
             new_file, "TOMORROW", tomorrow.read()
         )  # add tomorrow tasks back
-        planner.tasklistfile = new_file
+        self.tasklistfile = new_file
 
     def _write_new_logfile(self, logfile, link_name, new_filename):
         # extract new period filename from date
