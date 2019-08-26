@@ -943,10 +943,10 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        dayagenda = advanceplanner.extract_agenda_from_logfile(
+        dayagenda = self.planner.get_agenda(
             self.planner.dayfile
         )
-        logfile = advanceplanner.update_logfile_agenda(
+        logfile = self.planner.update_agenda(
             self.planner.weekfile, dayagenda
         )
         self.assertEqual(logfile.read(), self.weektemplate_agendaupdated)
@@ -960,10 +960,10 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        weekagenda = advanceplanner.extract_agenda_from_logfile(
+        weekagenda = self.planner.get_agenda(
             self.planner.weekfile
         )
-        logfile = advanceplanner.update_logfile_agenda(
+        logfile = self.planner.update_agenda(
             self.planner.monthfile, weekagenda
         )
         self.assertEqual(logfile.read(), self.monthtemplate_agendaupdated)
@@ -977,10 +977,10 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        monthagenda = advanceplanner.extract_agenda_from_logfile(
+        monthagenda = self.planner.get_agenda(
             self.planner.monthfile
         )
-        logfile = advanceplanner.update_logfile_agenda(
+        logfile = self.planner.update_agenda(
             self.planner.quarterfile, monthagenda
         )
         self.assertEqual(logfile.read(), self.quartertemplate_agendaupdated)
@@ -994,10 +994,10 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        quarteragenda = advanceplanner.extract_agenda_from_logfile(
+        quarteragenda = self.planner.get_agenda(
             self.planner.quarterfile
         )
-        logfile = advanceplanner.update_logfile_agenda(
+        logfile = self.planner.update_agenda(
             self.planner.yearfile, quarteragenda
         )
         self.assertEqual(logfile.read(), self.yeartemplate_agendaupdated)

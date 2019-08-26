@@ -6,8 +6,12 @@ from . import advanceplanner
 from ..base import PlannerBase
 from ...timeperiod import Day, Week, Month, Quarter, Year
 from . import scheduling
-from ...errors import LogfileAlreadyExistsError, SimulationPassedError
-from .utils import quarter_for_month, read_file, write_file
+from ...errors import (
+    LogfileAlreadyExistsError,
+    LogfileLayoutError,
+    SimulationPassedError
+)
+from .utils import add_to_section, quarter_for_month, read_file, write_file, read_section
 
 
 try:  # py2
@@ -335,14 +339,33 @@ class FilesystemPlanner(PlannerBase):
         return status
 
     def get_agenda(self, log):
-        return advanceplanner.extract_agenda_from_logfile(log)
+        """ Go through logfile and extract all tasks under AGENDA """
+        try:
+            agenda, _ = read_section(log, 'agenda')
+        except ValueError:
+            raise LogfileLayoutError(
+                "No AGENDA section found in today's log file!"
+                " Add one and try again."
+            )
+        agenda = agenda.read()
+        agenda = agenda.strip("\n")  # TODO: remove
+        return agenda
 
     def update_agenda(self, log, agenda):
         """ Append the provided agenda to the agenda contained in the logfile,
         and return the updated logfile (without mutating the original).
         """
         # TODO: should probably go through a setter to mutate here instead
-        return advanceplanner.update_logfile_agenda(log, agenda)
+        try:
+            logfile_updated = add_to_section(
+                log, 'agenda', agenda, above=False, ensure_separator=True
+            )
+        except ValueError:
+            raise LogfileLayoutError(
+                "No AGENDA section found in today's log file!"
+                " Add one and try again."
+            )
+        return logfile_updated
 
     def save(self):
         """ Write the planner object to the filesystem at the given path."""

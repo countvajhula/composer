@@ -20,7 +20,7 @@ from ...timeperiod import (
     PeriodAdvanceCriteria,
     get_next_day,
 )
-from .utils import add_to_section, read_section
+from .utils import read_section
 
 
 def check_logfile_completion(logfile):
@@ -37,33 +37,6 @@ def check_logfile_completion(logfile):
     if notes.strip("\n ") != "":
         completed = True
     return completed
-
-
-def extract_agenda_from_logfile(logfile):
-    """ Go through logfile and extract all tasks under AGENDA """
-    try:
-        agenda, _ = read_section(logfile, 'agenda')
-    except ValueError:
-        raise LogfileLayoutError(
-            "No AGENDA section found in today's log file!"
-            " Add one and try again."
-        )
-    agenda = agenda.read()
-    agenda = agenda.strip("\n")  # TODO: remove
-    return agenda
-
-
-def update_logfile_agenda(logfile, agenda):
-    try:
-        logfile_updated = add_to_section(
-            logfile, 'agenda', agenda, above=False, ensure_separator=True
-        )
-    except ValueError:
-        raise LogfileLayoutError(
-            "No AGENDA section found in today's log file!"
-            " Add one and try again."
-        )
-    return logfile_updated
 
 
 def _next_period(current_period):
