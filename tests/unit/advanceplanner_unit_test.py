@@ -3,7 +3,6 @@
 import unittest
 import datetime
 
-import composer.backend.filesystem.advanceplanner as advanceplanner
 import composer.config as config
 from composer.backend import FilesystemPlanner
 from composer.timeperiod import Day, Week, Month, Quarter, Year
@@ -586,12 +585,13 @@ class PlannerAdvanceTester(unittest.TestCase):
     def test_decision_for_typical_day_advance(self):
         """ Check that planner advance takes the correct decision to advance day on a typical day change boundary """
         now = datetime.datetime(2012, 12, 5, 19, 0, 0)
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]  # seems this happens even without declaring it here - need to reset these in tearDown()
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Day)
 
     def test_decision_for_first_week_too_short_day_advance(self):
@@ -599,12 +599,13 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(
             2012, 3, 3, 19, 0, 0
         )  # 3/3/2012 is a Saturday, but since current week is only 3 days (too short), should advance only day
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Day)
 
     def test_decision_for_first_week_borderline_too_short_day_advance(self):
@@ -612,12 +613,13 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(
             2012, 2, 4, 19, 0, 0
         )  # 2/4/2012 is a Saturday, but since current week is 4 days (just short of requirement), should advance only day
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Day)
 
     def test_decision_for_last_week_too_short_day_advance(self):
@@ -625,12 +627,13 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(
             2012, 12, 29, 19, 0, 0
         )  # 12/29/2012 is a Saturday, but since new week would be too short, should advance only day
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Day)
 
     def test_decision_for_last_week_borderline_too_short_day_advance(self):
@@ -638,23 +641,25 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(
             2012, 2, 25, 19, 0, 0
         )  # 2/25/2012 is a Saturday, but since new week is 4 days (just short of requirement), should advance only day
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Day)
 
     def test_decision_for_typical_week_advance(self):
         """ Check that planner advance takes the correct decision to advance week on a typical week change boundary """
         now = datetime.datetime(2012, 12, 8, 19, 0, 0)
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Week)
 
     def test_decision_for_first_week_borderline_long_enough_week_advance(self):
@@ -662,12 +667,13 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(
             2012, 5, 5, 19, 0, 0
         )  # 5/5/2012 is Sat, and current week is exactly 5 days long (long enough), so should advance week
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Week)
 
     def test_decision_for_last_week_borderline_long_enough_week_advance(self):
@@ -675,45 +681,49 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(
             2012, 5, 26, 19, 0, 0
         )  # 5/26/2012 is Sat, and new week would be exactly 5 days long (long enough), so should advance week
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Week)
 
     def test_decision_for_month_advance(self):
         """ Check that planner advance takes the correct decision to advance month on a month change boundary """
         now = datetime.datetime(2012, 11, 30, 19, 0, 0)
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Month)
 
     def test_decision_for_quarter_advance(self):
         """ Check that planner advance takes the correct decision to advance quarter on a quarter change boundary """
         now = datetime.datetime(2012, 3, 31, 19, 0, 0)
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Quarter)
 
     def test_decision_for_year_advance(self):
         """ Check that planner advance takes the correct decision to advance year on a year change boundary """
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = advanceplanner.advance_planner(self.planner, now)
+        status = self.planner.advance_period()
         self.assertEqual(status, Year)
 
     def test_planner_advance_year(self):
@@ -744,13 +754,14 @@ class PlannerAdvanceTester(unittest.TestCase):
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
         daytemplate += self.default_weekdaytemplate
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
 
-        advanceplanner.advance_planner(self.planner, now)
+        self.planner.advance_period()
 
         self.assertEqual(
             self.planner.yearfile.read(), self.yearadvance_yeartemplate
@@ -769,6 +780,7 @@ class PlannerAdvanceTester(unittest.TestCase):
     def test_planner_advance_quarter(self):
         """ Check that planner advance returns the correct new quarter, month, week, and day templates when advancing quarter """
         now = datetime.datetime(2012, 9, 30, 19, 0, 0)
+        self.planner.now = now
         self.planner.date = now.date()
         today = now.date()
         next_day = today + datetime.timedelta(days=1)
@@ -799,7 +811,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        advanceplanner.advance_planner(self.planner, now)
+        self.planner.advance_period()
         self.assertEqual(
             self.planner.quarterfile.read(),
             self.quarteradvance_quartertemplate,
@@ -840,12 +852,13 @@ class PlannerAdvanceTester(unittest.TestCase):
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
         daytemplate += self.default_weekendtemplate
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        advanceplanner.advance_planner(self.planner, now)
+        self.planner.advance_period()
         self.assertEqual(
             self.planner.monthfile.read(), self.monthadvance_monthtemplate
         )
@@ -882,12 +895,13 @@ class PlannerAdvanceTester(unittest.TestCase):
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
         daytemplate += self.default_weekendtemplate
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        advanceplanner.advance_planner(self.planner, now)
+        self.planner.advance_period()
         self.assertEqual(
             self.planner.weekfile.read(), self.weekadvance_weektemplate
         )
@@ -924,12 +938,13 @@ class PlannerAdvanceTester(unittest.TestCase):
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
         daytemplate += self.default_weekdaytemplate
+        self.planner.now = now
         self.planner.date = now.date()
         self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        advanceplanner.advance_planner(self.planner, now)
+        self.planner.advance_period()
         self.assertEqual(self.planner.dayfile.read(), daytemplate)
         self.assertEqual(
             self.planner.weekfile.read(), self.dayadvance_weektemplate

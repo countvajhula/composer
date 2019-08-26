@@ -9,8 +9,9 @@ import re
 
 import click
 
-from composer.backend.filesystem import advanceplanner
+from composer.backend import FilesystemPlanner
 from composer.backend.filesystem.utils import read_file
+from composer.timeperiod import Week
 from composer import config
 
 CONFIG_ROOT = os.getenv("COMPOSER_ROOT", os.path.expanduser("~/.composer"))
@@ -43,15 +44,16 @@ def get_logs_times_this_week(wikidir):
     exit on file not found error
     return notes separated by lines and headed by dates
     """
+    planner = FilesystemPlanner(wikidir)
     (logs, times) = ("", [])
     fn = get_filename(wikidir, PLANNERWEEKFILELINK)
     startday_str = re.search(
         r"[^\.]*", fn[8:]
     ).group()  # confirm what group does
-    curday = datetime.datetime.strptime(startday_str, "%B %d, %Y").date()
+    planner.date = datetime.datetime.strptime(startday_str, "%B %d, %Y").date()
     fnpath = "%s/%s.wiki" % (
         wikidir,
-        curday.strftime("%B %d, %Y").replace(" 0", " "),
+        planner.date.strftime("%B %d, %Y").replace(" 0", " "),
     )
     while True:
         try:
@@ -59,12 +61,12 @@ def get_logs_times_this_week(wikidir):
         except Exception:
             break
         (log, time) = extract_log_time_from_text(logtext)
-        logs += str(curday) + "\n" + log + "\n\n"
+        logs += str(planner.date) + "\n" + log + "\n\n"
         times.append(time)
-        curday += datetime.timedelta(days=1)
+        planner.date += datetime.timedelta(days=1)
         fnpath = "%s/%s.wiki" % (
             wikidir,
-            curday.strftime("%B %d, %Y").replace(" 0", " "),
+            planner.date.strftime("%B %d, %Y").replace(" 0", " "),
         )  # handle "January 01" as "January 1"
     return (logs, times)
 
@@ -76,14 +78,15 @@ def get_logs_times_this_month(wikidir):
     exit on file not found error
     return notes separated by lines and headed by dates
     """
+    planner = FilesystemPlanner(wikidir)
     (logs, times) = ("", [])
     fn = get_filename(wikidir, PLANNERMONTHFILELINK)
     month = fn.split()[2].strip(",")
     startday_str = month + " 1, " + fn.split()[3][0:4]
-    curday = datetime.datetime.strptime(startday_str, "%B %d, %Y").date()
+    planner.date = datetime.datetime.strptime(startday_str, "%B %d, %Y").date()
     fnpath = "%s/Week of %s.wiki" % (
         wikidir,
-        curday.strftime("%B %d, %Y").replace(" 0", " "),
+        planner.date.strftime("%B %d, %Y").replace(" 0", " "),
     )
     while True:
         try:
@@ -91,19 +94,19 @@ def get_logs_times_this_month(wikidir):
         except Exception:
             break
         (log, time) = extract_log_time_from_text(logtext)
-        logs += "Week of " + str(curday) + "\n" + log + "\n\n"
+        logs += "Week of " + str(planner.date) + "\n" + log + "\n\n"
         times.append(time)
-        curday += datetime.timedelta(days=1)
-        while not advanceplanner.new_week_criteria_met(
-            curday, datetime.datetime.now()
+        planner.date += datetime.timedelta(days=1)
+        while not Week.advance_criteria_met(
+            planner, datetime.datetime.now()
         ):
-            curday += datetime.timedelta(days=1)
-        curday += datetime.timedelta(
+            planner.date += datetime.timedelta(days=1)
+        planner.date += datetime.timedelta(
             days=1
         )  # next day is the one we're looking for
         fnpath = "%s/Week of %s.wiki" % (
             wikidir,
-            curday.strftime("%B %d, %Y").replace(" 0", " "),
+            planner.date.strftime("%B %d, %Y").replace(" 0", " "),
         )
     return (logs, times)
 
@@ -115,6 +118,7 @@ def get_logs_times_this_quarter(wikidir):
     exit on file not found error
     return notes separated by lines and headed by dates
     """
+    planner = FilesystemPlanner(wikidir)
     (logs, times) = ("", [])
     fn = get_filename(wikidir, PLANNERQUARTERFILELINK)
     quarter = fn.split()[0]
@@ -131,21 +135,21 @@ def get_logs_times_this_quarter(wikidir):
             "Quarter filename not recognized! Must be e.g. 'Q1 2014'"
         )
     startmonth_str = month + ", " + fn.split()[1][0:4]
-    curday = datetime.datetime.strptime(startmonth_str, "%B, %Y").date()
-    fnpath = "%s/Month of %s.wiki" % (wikidir, curday.strftime("%B, %Y"))
+    planner.date = datetime.datetime.strptime(startmonth_str, "%B, %Y").date()
+    fnpath = "%s/Month of %s.wiki" % (wikidir, planner.date.strftime("%B, %Y"))
     while True:
         try:
             logtext = read_file(fnpath)
         except Exception:
             break
         (log, time) = extract_log_time_from_text(logtext)
-        logs += "Month of " + curday.strftime("%B, %Y") + "\n" + log + "\n\n"
+        logs += "Month of " + planner.date.strftime("%B, %Y") + "\n" + log + "\n\n"
         times.append(time)
-        if curday.month < 12:
-            curday = datetime.date(curday.year, curday.month + 1, curday.day)
+        if planner.date.month < 12:
+            planner.date = datetime.date(planner.date.year, planner.date.month + 1, planner.date.day)
         else:
-            curday = datetime.date(curday.year + 1, 1, curday.day)
-        fnpath = "%s/Month of %s.wiki" % (wikidir, curday.strftime("%B, %Y"))
+            planner.date = datetime.date(planner.date.year + 1, 1, planner.date.day)
+        fnpath = "%s/Month of %s.wiki" % (wikidir, planner.date.strftime("%B, %Y"))
     return (logs, times)
 
 
