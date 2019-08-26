@@ -958,12 +958,8 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        dayagenda = self.planner.get_agenda(
-            self.planner.dayfile
-        )
-        logfile = self.planner.update_agenda(
-            self.planner.weekfile, dayagenda
-        )
+        dayagenda = self.planner.get_agenda(self.planner.dayfile)
+        logfile = self.planner.update_agenda(self.planner.weekfile, dayagenda)
         self.assertEqual(logfile.read(), self.weektemplate_agendaupdated)
 
     def test_planner_advance_month_agenda(self):
@@ -975,9 +971,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        weekagenda = self.planner.get_agenda(
-            self.planner.weekfile
-        )
+        weekagenda = self.planner.get_agenda(self.planner.weekfile)
         logfile = self.planner.update_agenda(
             self.planner.monthfile, weekagenda
         )
@@ -992,9 +986,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        monthagenda = self.planner.get_agenda(
-            self.planner.monthfile
-        )
+        monthagenda = self.planner.get_agenda(self.planner.monthfile)
         logfile = self.planner.update_agenda(
             self.planner.quarterfile, monthagenda
         )
@@ -1009,9 +1001,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        quarteragenda = self.planner.get_agenda(
-            self.planner.quarterfile
-        )
+        quarteragenda = self.planner.get_agenda(self.planner.quarterfile)
         logfile = self.planner.update_agenda(
             self.planner.yearfile, quarteragenda
         )

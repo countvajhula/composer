@@ -12,7 +12,16 @@ from ..errors import (
     LogfileNotCompletedError,
     PlannerIsInTheFutureError,
 )
-from ..timeperiod import get_next_day, PeriodAdvanceCriteria, Zero, Day, Week, Month, Quarter, Year
+from ..timeperiod import (
+    get_next_day,
+    PeriodAdvanceCriteria,
+    Zero,
+    Day,
+    Week,
+    Month,
+    Quarter,
+    Year,
+)
 
 from .filesystem import scheduling, templates
 

@@ -463,7 +463,6 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
-
         planner = FilesystemPlanner()
         planner.tasklistfile = tasklistfile
         planner.daythemesfile = daythemesfile
@@ -647,7 +646,6 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
         periodicfile = StringIO(self.periodic_day)
         checkpointsfile = StringIO(self.checkpoints_weekday)
-
 
         planner = FilesystemPlanner()
         planner.tasklistfile = tasklistfile

@@ -3,13 +3,7 @@ import os
 from datetime import datetime
 
 from ..base import PlannerBase
-from ...timeperiod import (
-    Day,
-    Week,
-    Month,
-    Quarter,
-    Year,
-)
+from ...timeperiod import Day, Week, Month, Quarter, Year
 from ...errors import (
     BlockedTaskNotScheduledError,
     LogfileAlreadyExistsError,
@@ -18,8 +12,25 @@ from ...errors import (
     SimulationPassedError,
     TasklistLayoutError,
 )
-from .scheduling import check_logfile_for_errors, check_scheduled_section_for_errors, to_standard_date_format, SCHEDULED_DATE_PATTERN, get_date_for_schedule_string
-from .utils import add_to_section, is_scheduled_task, get_task_items, item_list_to_string, make_file, quarter_for_month, partition_items, read_file, write_file, read_section
+from .scheduling import (
+    check_logfile_for_errors,
+    check_scheduled_section_for_errors,
+    to_standard_date_format,
+    SCHEDULED_DATE_PATTERN,
+    get_date_for_schedule_string,
+)
+from .utils import (
+    add_to_section,
+    is_scheduled_task,
+    get_task_items,
+    item_list_to_string,
+    make_file,
+    quarter_for_month,
+    partition_items,
+    read_file,
+    write_file,
+    read_section,
+)
 
 
 try:  # py2
@@ -291,13 +302,19 @@ class FilesystemPlanner(PlannerBase):
             return for_day >= matcheddate["date"]
 
         try:
-            scheduled, tasklist_no_scheduled = read_section(self.tasklistfile, "scheduled")
+            scheduled, tasklist_no_scheduled = read_section(
+                self.tasklistfile, "scheduled"
+            )
         except ValueError:
-            raise TasklistLayoutError("No SCHEDULED section found in TaskList!")
+            raise TasklistLayoutError(
+                "No SCHEDULED section found in TaskList!"
+            )
         items = get_task_items(scheduled)
         due, not_due = partition_items(items, is_task_due)
         due, not_due = map(item_list_to_string, (due, not_due))
-        new_tasklist = add_to_section(tasklist_no_scheduled, 'scheduled', not_due)
+        new_tasklist = add_to_section(
+            tasklist_no_scheduled, 'scheduled', not_due
+        )
         return due, new_tasklist
 
     def _write_new_logfile(self, logfile, link_name, new_filename):

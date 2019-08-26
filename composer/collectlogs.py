@@ -97,9 +97,7 @@ def get_logs_times_this_month(wikidir):
         logs += "Week of " + str(planner.date) + "\n" + log + "\n\n"
         times.append(time)
         planner.date += datetime.timedelta(days=1)
-        while not Week.advance_criteria_met(
-            planner, datetime.datetime.now()
-        ):
+        while not Week.advance_criteria_met(planner, datetime.datetime.now()):
             planner.date += datetime.timedelta(days=1)
         planner.date += datetime.timedelta(
             days=1
@@ -143,13 +141,22 @@ def get_logs_times_this_quarter(wikidir):
         except Exception:
             break
         (log, time) = extract_log_time_from_text(logtext)
-        logs += "Month of " + planner.date.strftime("%B, %Y") + "\n" + log + "\n\n"
+        logs += (
+            "Month of " + planner.date.strftime("%B, %Y") + "\n" + log + "\n\n"
+        )
         times.append(time)
         if planner.date.month < 12:
-            planner.date = datetime.date(planner.date.year, planner.date.month + 1, planner.date.day)
+            planner.date = datetime.date(
+                planner.date.year, planner.date.month + 1, planner.date.day
+            )
         else:
-            planner.date = datetime.date(planner.date.year + 1, 1, planner.date.day)
-        fnpath = "%s/Month of %s.wiki" % (wikidir, planner.date.strftime("%B, %Y"))
+            planner.date = datetime.date(
+                planner.date.year + 1, 1, planner.date.day
+            )
+        fnpath = "%s/Month of %s.wiki" % (
+            wikidir,
+            planner.date.strftime("%B, %Y"),
+        )
     return (logs, times)
 
 
