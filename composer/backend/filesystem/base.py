@@ -2,7 +2,6 @@ import os
 
 from datetime import datetime
 
-from ... import config
 from ..base import PlannerBase
 from ...timeperiod import (
     Day,
@@ -10,16 +9,8 @@ from ...timeperiod import (
     Month,
     Quarter,
     Year,
-    Zero,
-    PeriodAdvanceCriteria,
-    get_next_day,
 )
-from . import scheduling
-from . import templates
 from ...errors import (
-    DayStillInProgressError,
-    LogfileNotCompletedError,
-    PlannerIsInTheFutureError,
     LogfileAlreadyExistsError,
     LogfileLayoutError,
     SimulationPassedError
@@ -50,16 +41,6 @@ PERIODICQUARTERLYFILE = "Periodic_Quarterly.wiki"
 PERIODICMONTHLYFILE = "Periodic_Monthly.wiki"
 PERIODICWEEKLYFILE = "Periodic_Weekly.wiki"
 PERIODICDAILYFILE = "Periodic_Daily.wiki"
-
-
-def _next_period(current_period):
-    periods = (Zero, Day, Week, Month, Quarter, Year)
-    try:
-        index = periods.index(current_period)
-        next_period = periods[index + 1]
-    except (IndexError, ValueError):
-        raise
-    return next_period
 
 
 class FilesystemPlanner(PlannerBase):
@@ -250,41 +231,6 @@ class FilesystemPlanner(PlannerBase):
         # write buffer to existing file
         self._write_file(logfile, filename)
 
-    def advance_period(self, current_period=None):
-        """ Recursive function to advance planner by day, week, month, quarter, or year
-        as the case may be.
-        """
-        if not current_period:
-            current_period = Zero
-        next_day = get_next_day(self.date)  # the new day to advance to
-        next_period = _next_period(current_period)
-        period_criteria_met = next_period.advance_criteria_met(self, self.now)
-        if period_criteria_met == PeriodAdvanceCriteria.Satisfied:
-            current_period = next_period
-            logfile = current_period.get_logfile(self)
-            if self.logfile_completion_checking == config.LOGFILE_CHECKING[
-                "STRICT"
-            ] and not self.check_log_completion(logfile):
-                periodstr = current_period.get_name()
-                msg = (
-                    "Looks like you haven't completed your %s's log."
-                    " Would you like to do that now?" % periodstr
-                )
-                raise LogfileNotCompletedError(msg, periodstr)
-            templates.write_new_template(self, current_period, next_day)
-
-            if current_period < Year:
-                return self.advance_period(current_period)
-        elif period_criteria_met == PeriodAdvanceCriteria.DayStillInProgress:
-            raise DayStillInProgressError(
-                "Current day is still in progress! Update after 6pm"
-            )
-        elif period_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
-            raise PlannerIsInTheFutureError("Planner is in the future!")
-        else:
-            templates.write_existing_template(self, next_period, next_day)
-        return current_period
-
     def advance(self, now=None, simulate=False):
         """ Advance planner state to next day, updating week and month info
         as necessary. 'now' arg used only for testing
@@ -295,21 +241,8 @@ class FilesystemPlanner(PlannerBase):
         # (possibly new) buffers
         # save to the known files here
 
-        if not now:
-            now = datetime.now()
+        status = super(FilesystemPlanner, self).advance(now, simulate)
 
-        self.now = now
-
-        scheduling.schedule_tasks(self)
-
-        status = self.advance_period(Zero)
-        if status > Zero:
-            self.date = self.next_day
-
-        self.advance_filesystem(status, simulate)
-        return status
-
-    def advance_filesystem(self, status, simulate):
         tasklistfn = "{}/{}".format(self.location, PLANNERTASKLISTFILE)
         dayfn_pre = "{}/{}".format(self.location, PLANNERDAYFILELINK)
         dayfn_pre = "{}/{}".format(self.location, os.readlink(dayfn_pre))
