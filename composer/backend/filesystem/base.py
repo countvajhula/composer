@@ -15,7 +15,8 @@ from ...errors import (
     LogfileLayoutError,
     SimulationPassedError
 )
-from .utils import add_to_section, quarter_for_month, read_file, write_file, read_section
+from .scheduling import check_logfile_for_errors, check_scheduled_section_for_errors, to_standard_date_format
+from .utils import add_to_section, is_scheduled_task, get_task_items, item_list_to_string, make_file, quarter_for_month, partition_items, read_file, write_file, read_section
 
 
 try:  # py2
@@ -214,6 +215,52 @@ class FilesystemPlanner(PlannerBase):
         self.periodic_year_file = self._read_file(
             "{}/{}".format(location, PERIODICYEARLYFILE)
         )
+
+    def schedule_tasks(planner):
+        """ 1. Go through the Tasklist till SCHEDULED section found
+        2. If task is marked as scheduled/blocked (i.e. "[o]"), then make sure a
+        follow-up date is indicated (via "[$<date>$]") and that it is parseable
+        3. move to bottom of scheduled
+        4. loop through all scheduled till naother section found or eof
+        5. go through any other section
+        """
+        # TODO: add a "diagnostic" function for sections w/ a checker fn
+        # to be applied to items
+        # (can generalize the existing helper for scheduled section)
+        # TODO: keep low-level operations contained in utils -- make/extend
+        # additional interfaces as needed
+        # TODO: these diagnostics are not covered by tests
+        check_scheduled_section_for_errors(planner)
+        check_logfile_for_errors(planner.dayfile)
+        # ignore tasks in tomorrow since actively scheduled by you
+        tomorrow, tasklist_no_tomorrow = read_section(
+            planner.tasklistfile, 'TOMORROW'
+        )
+        task_items = get_task_items(tasklist_no_tomorrow)
+        tasklist_tasks, tasklist_no_scheduled = partition_items(
+            task_items, is_scheduled_task
+        )
+        # TODO: these interfaces should operate at a high level and translate
+        # up/down only at the beginning and end
+        tasklist_no_scheduled = make_file(
+            item_list_to_string(tasklist_no_scheduled)
+        )
+        day_tasks = get_task_items(planner.dayfile, of_type=is_scheduled_task)
+        tasks = tasklist_tasks + day_tasks
+        tasks = [
+            (
+                to_standard_date_format(task, planner.date)
+                if is_scheduled_task(task)
+                else task
+            )
+            for task in tasks
+        ]
+        tasks = item_list_to_string(tasks)
+        new_file = add_to_section(tasklist_no_scheduled, "SCHEDULED", tasks)
+        new_file = add_to_section(
+            new_file, "TOMORROW", tomorrow.read()
+        )  # add tomorrow tasks back
+        planner.tasklistfile = new_file
 
     def _write_new_logfile(self, logfile, link_name, new_filename):
         # extract new period filename from date

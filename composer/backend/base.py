@@ -74,6 +74,10 @@ class PlannerBase(ABC):
     def check_log_completion(self, log):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def schedule_tasks(self, log):
+        raise NotImplementedError
+
     def advance_period(self, current_period=None):
         """ Recursive function to advance planner by day, week, month, quarter, or year
         as the case may be.
@@ -119,7 +123,7 @@ class PlannerBase(ABC):
 
         self.now = now
 
-        scheduling.schedule_tasks(self)
+        self.schedule_tasks()
 
         status = self.advance_period(Zero)
         if status > Zero:
