@@ -338,6 +338,21 @@ class FilesystemPlanner(PlannerBase):
 
         return status
 
+    def check_log_completion(self, log):
+        """ Check the logfile's NOTES section as a determination of whether
+        the log has been completed """
+        completed = False
+        try:
+            notes, _ = read_section(log, 'notes')
+        except ValueError:
+            raise LogfileLayoutError(
+                "Error: No 'NOTES' section found in your log file!"
+            )
+        notes = notes.read()
+        if notes.strip("\n ") != "":
+            completed = True
+        return completed
+
     def get_agenda(self, log):
         """ Go through logfile and extract all tasks under AGENDA """
         try:

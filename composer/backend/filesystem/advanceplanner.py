@@ -5,7 +5,6 @@ import datetime
 from ... import config
 from ...errors import (
     DayStillInProgressError,
-    LogfileLayoutError,
     LogfileNotCompletedError,
     PlannerIsInTheFutureError,
 )
@@ -20,23 +19,6 @@ from ...timeperiod import (
     PeriodAdvanceCriteria,
     get_next_day,
 )
-from .utils import read_section
-
-
-def check_logfile_completion(logfile):
-    """ Check the logfile's NOTES section as a determination of whether
-    the log has been completed """
-    completed = False
-    try:
-        notes, _ = read_section(logfile, 'notes')
-    except ValueError:
-        raise LogfileLayoutError(
-            "Error: No 'NOTES' section found in your log file!"
-        )
-    notes = notes.read()
-    if notes.strip("\n ") != "":
-        completed = True
-    return completed
 
 
 def _next_period(current_period):
@@ -69,7 +51,7 @@ def advance_planner(planner, now=None):
             logfile = current_period.get_logfile(planner)
             if planner.logfile_completion_checking == config.LOGFILE_CHECKING[
                 "STRICT"
-            ] and not check_logfile_completion(logfile):
+            ] and not planner.check_log_completion(logfile):
                 periodstr = current_period.get_name()
                 msg = (
                     "Looks like you haven't completed your %s's log."
