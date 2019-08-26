@@ -63,10 +63,6 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def advance(self, now=None, simulate=None):
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def get_agenda(self, log):
         raise NotImplementedError
 
