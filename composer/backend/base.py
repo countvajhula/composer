@@ -80,7 +80,7 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def check_log_completion(self, log):
+    def check_log_completion(self, period):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -103,10 +103,9 @@ class PlannerBase(ABC):
         period_criteria_met = next_period.advance_criteria_met(self, self.now)
         if period_criteria_met == PeriodAdvanceCriteria.Satisfied:
             current_period = next_period
-            logfile = current_period.get_logfile(self)
             if self.logfile_completion_checking == LOGFILE_CHECKING[
                 "STRICT"
-            ] and not self.check_log_completion(logfile):
+            ] and not self.check_log_completion(current_period):
                 periodstr = current_period.get_name()
                 msg = (
                     "Looks like you haven't completed your %s's log."

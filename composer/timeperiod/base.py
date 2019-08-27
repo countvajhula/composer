@@ -38,10 +38,6 @@ class Period(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_logfile(self, planner):
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def get_name(self):
         raise NotImplementedError
 
@@ -51,10 +47,6 @@ class _Zero(Period):
     duration = 0
 
     def advance_criteria_met(self, planner, now):
-        """ A null period for 'algebraic' convenience. """
-        raise NotImplementedError
-
-    def get_logfile(self, planner):
         """ A null period for 'algebraic' convenience. """
         raise NotImplementedError
 

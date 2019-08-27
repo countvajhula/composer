@@ -23,9 +23,6 @@ class _Quarter(Period):
         ):
             return PeriodAdvanceCriteria.Satisfied
 
-    def get_logfile(self, planner):
-        return planner.quarterfile
-
     def get_name(self):
         return "quarter"
 

@@ -20,9 +20,6 @@ class _Month(Period):
         ):
             return PeriodAdvanceCriteria.Satisfied
 
-    def get_logfile(self, planner):
-        return planner.monthfile
-
     def get_name(self):
         return "month"
 

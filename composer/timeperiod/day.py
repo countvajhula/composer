@@ -20,9 +20,6 @@ class _Day(Period):
             # planner is in the future
             return PeriodAdvanceCriteria.PlannerInFuture
 
-    def get_logfile(self, planner):
-        return planner.dayfile
-
     def get_name(self):
         return "day"
 

@@ -29,9 +29,6 @@ class _Week(Period):
         ):
             return PeriodAdvanceCriteria.Satisfied
 
-    def get_logfile(self, planner):
-        return planner.weekfile
-
     def get_name(self):
         return "week"
 

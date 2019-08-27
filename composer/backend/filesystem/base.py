@@ -137,6 +137,19 @@ class FilesystemPlanner(PlannerBase):
     def yearfile(self, value):
         self._yearfile = value
 
+    def _logfile_for_period(self, period):
+        if period == Day:
+            attr = 'dayfile'
+        elif period == Week:
+            attr = 'weekfile'
+        elif period == Month:
+            attr = 'monthfile'
+        elif period == Quarter:
+            attr = 'quarterfile'
+        elif period == Year:
+            attr = 'yearfile'
+        return getattr(self, attr)
+
     def _read_file(self, filename):
         """ Read a file on disk and produce an in-memory logical representation
         of the file. This logical representation will be used for analysis and
@@ -451,9 +464,10 @@ class FilesystemPlanner(PlannerBase):
         if status == Day:
             self._update_existing_logfile(self.weekfile, weekfn_pre)
 
-    def check_log_completion(self, log):
+    def check_log_completion(self, period):
         """ Check the logfile's NOTES section as a determination of whether
         the log has been completed """
+        log = self._logfile_for_period(period)
         completed = False
         try:
             notes, _ = read_section(log, 'notes')

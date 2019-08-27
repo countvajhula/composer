@@ -21,9 +21,6 @@ class _Year(Period):
         ):
             return PeriodAdvanceCriteria.Satisfied
 
-    def get_logfile(self, planner):
-        return planner.yearfile
-
     def get_name(self):
         return "year"
 
