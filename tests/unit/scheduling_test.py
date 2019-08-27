@@ -2,7 +2,10 @@ import datetime
 import unittest
 
 from composer.backend import FilesystemPlanner
-from composer.errors import ScheduledTaskParsingError
+from composer.errors import (
+    BlockedTaskNotScheduledError,
+    ScheduledTaskParsingError,
+)
 
 try:  # py2
     from StringIO import StringIO
@@ -1133,7 +1136,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         """ Check that is a task is marked as scheduled but no date is provided, that
         an exception is thrown """
         self.planner.dayfile = StringIO(self.daytemplate_noscheduledate)
-        self.assertRaises(Exception, self.planner.schedule_tasks)
+        self.assertRaises(
+            BlockedTaskNotScheduledError, self.planner.schedule_tasks
+        )
 
     def test_badly_formatted_scheduled_task_raises_exception(self):
         """ Check that a task already present in the SCHEDULED section and formatted incorrectly raises an Exception """
