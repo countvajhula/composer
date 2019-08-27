@@ -137,7 +137,7 @@ class FilesystemPlanner(PlannerBase):
     def yearfile(self, value):
         self._yearfile = value
 
-    def _logfile_for_period(self, period):
+    def _logfile_attribute(self, period):
         if period == Day:
             attr = 'dayfile'
         elif period == Week:
@@ -148,7 +148,7 @@ class FilesystemPlanner(PlannerBase):
             attr = 'quarterfile'
         elif period == Year:
             attr = 'yearfile'
-        return getattr(self, attr)
+        return attr
 
     def _read_file(self, filename):
         """ Read a file on disk and produce an in-memory logical representation
@@ -467,7 +467,8 @@ class FilesystemPlanner(PlannerBase):
     def check_log_completion(self, period):
         """ Check the logfile's NOTES section as a determination of whether
         the log has been completed """
-        log = self._logfile_for_period(period)
+        log_attr = self._logfile_attribute(period)
+        log = getattr(self, log_attr)
         completed = False
         try:
             notes, _ = read_section(log, 'notes')
@@ -482,7 +483,8 @@ class FilesystemPlanner(PlannerBase):
 
     def get_agenda(self, period):
         """ Go through logfile and extract all tasks under AGENDA """
-        log = self._logfile_for_period(period)
+        log_attr = self._logfile_attribute(period)
+        log = getattr(self, log_attr)
         try:
             agenda, _ = read_section(log, 'agenda')
         except ValueError:
@@ -495,11 +497,11 @@ class FilesystemPlanner(PlannerBase):
         return agenda
 
     def update_agenda(self, period, agenda):
-        """ Append the provided agenda to the agenda contained in the logfile,
-        and return the updated logfile (without mutating the original).
+        """ Update the agenda for the given period with the provided agenda by
+        appending the new contents to the existing ones.
         """
-        # TODO: should probably go through a setter to mutate here instead
-        log = self._logfile_for_period(period)
+        log_attr = self._logfile_attribute(period)
+        log = getattr(self, log_attr)
         try:
             logfile_updated = add_to_section(
                 log, 'agenda', agenda, above=False, ensure_separator=True
@@ -509,7 +511,7 @@ class FilesystemPlanner(PlannerBase):
                 "No AGENDA section found in today's log file!"
                 " Add one and try again."
             )
-        return logfile_updated
+        setattr(self, log_attr, logfile_updated)
 
     def save(self):
         """ Write the planner object to the filesystem at the given path."""

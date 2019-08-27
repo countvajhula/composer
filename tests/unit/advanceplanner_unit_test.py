@@ -959,8 +959,8 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         dayagenda = self.planner.get_agenda(Day)
-        logfile = self.planner.update_agenda(Week, dayagenda)
-        self.assertEqual(logfile.read(), self.weektemplate_agendaupdated)
+        self.planner.update_agenda(Week, dayagenda)
+        self.assertEqual(self.planner.weekfile.read(), self.weektemplate_agendaupdated)
 
     def test_planner_advance_month_agenda(self):
         """ Check that, on week advance, current week's agenda is appended to the current month """
@@ -972,8 +972,8 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         weekagenda = self.planner.get_agenda(Week)
-        logfile = self.planner.update_agenda(Month, weekagenda)
-        self.assertEqual(logfile.read(), self.monthtemplate_agendaupdated)
+        self.planner.update_agenda(Month, weekagenda)
+        self.assertEqual(self.planner.monthfile.read(), self.monthtemplate_agendaupdated)
 
     def test_planner_advance_quarter_agenda(self):
         """ Check that, on month advance, current month's agenda is appended to the current quarter """
@@ -985,8 +985,8 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         monthagenda = self.planner.get_agenda(Month)
-        logfile = self.planner.update_agenda(Quarter, monthagenda)
-        self.assertEqual(logfile.read(), self.quartertemplate_agendaupdated)
+        self.planner.update_agenda(Quarter, monthagenda)
+        self.assertEqual(self.planner.quarterfile.read(), self.quartertemplate_agendaupdated)
 
     def test_planner_advance_year_agenda(self):
         """ Check that, on quarter advance, current quarter's agenda is appended to the current year """
@@ -998,8 +998,8 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         quarteragenda = self.planner.get_agenda(Quarter)
-        logfile = self.planner.update_agenda(Year, quarteragenda)
-        self.assertEqual(logfile.read(), self.yeartemplate_agendaupdated)
+        self.planner.update_agenda(Year, quarteragenda)
+        self.assertEqual(self.planner.yearfile.read(), self.yeartemplate_agendaupdated)
 
 
 if __name__ == '__main__':
