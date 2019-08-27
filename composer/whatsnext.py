@@ -74,7 +74,7 @@ def process_wiki(wikidir, preferences, now):
                 print("...DONE.")
             if err.status >= Day:
                 planner = FilesystemPlanner(wikidir)
-                dayagenda = planner.get_agenda(planner.dayfile)
+                dayagenda = planner.get_agenda(Day)
                 if dayagenda:
                     planner.weekfile = planner.update_agenda(
                         planner.weekfile, dayagenda
@@ -82,7 +82,7 @@ def process_wiki(wikidir, preferences, now):
                 planner.save()
             if err.status >= Week:
                 planner = FilesystemPlanner(wikidir)
-                weekagenda = planner.get_agenda(planner.weekfile)
+                weekagenda = planner.get_agenda(Week)
                 if weekagenda:
                     planner.monthfile = planner.update_agenda(
                         planner.monthfile, weekagenda

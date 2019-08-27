@@ -480,8 +480,9 @@ class FilesystemPlanner(PlannerBase):
             completed = True
         return completed
 
-    def get_agenda(self, log):
+    def get_agenda(self, period):
         """ Go through logfile and extract all tasks under AGENDA """
+        log = self._logfile_for_period(period)
         try:
             agenda, _ = read_section(log, 'agenda')
         except ValueError:

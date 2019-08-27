@@ -72,7 +72,7 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_agenda(self, log):
+    def get_agenda(self, period):
         raise NotImplementedError
 
     @abc.abstractmethod
