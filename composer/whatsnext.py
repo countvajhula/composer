@@ -82,9 +82,7 @@ def process_wiki(wikidir, preferences, now):
                 planner = FilesystemPlanner(wikidir)
                 weekagenda = planner.get_agenda(Week)
                 if weekagenda:
-                    planner.update_agenda(
-                        Month, weekagenda
-                    )
+                    planner.update_agenda(Month, weekagenda)
                 planner.save()
             simulate = False
         except TomorrowIsEmptyError as err:
