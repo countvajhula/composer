@@ -11,6 +11,7 @@ import click
 
 from composer.backend import FilesystemPlanner
 from composer.backend.filesystem.utils import read_file
+from composer.utils import display_message
 from composer.timeperiod import Week
 from composer import config
 
@@ -174,21 +175,21 @@ def main(wikipath=None):
         (weeklogs, weektimes) = get_logs_times_this_week(wikidir)
         (monthlogs, monthtimes) = get_logs_times_this_month(wikidir)
         (quarterlogs, quartertimes) = get_logs_times_this_quarter(wikidir)
-        print("Daily logs for the past week (%s)" % wikidir)
-        print(weeklogs)
-        print("Daily Times:")
-        print(weektimes)
-        print()
-        print("Weekly logs for the past month (%s)" % wikidir)
-        print(monthlogs)
-        print("Weekly Times:")
-        print(monthtimes)
-        print()
-        print("Monthly logs for the past quarter (%s)" % wikidir)
-        print(quarterlogs)
-        print("Monthly Times:")
-        print(quartertimes)
-        print()
+        display_message("Daily logs for the past week (%s)" % wikidir)
+        display_message(weeklogs)
+        display_message("Daily Times:")
+        display_message(weektimes)
+        display_message()
+        display_message("Weekly logs for the past month (%s)" % wikidir)
+        display_message(monthlogs)
+        display_message("Weekly Times:")
+        display_message(monthtimes)
+        display_message()
+        display_message("Monthly logs for the past quarter (%s)" % wikidir)
+        display_message(quarterlogs)
+        display_message("Monthly Times:")
+        display_message(quartertimes)
+        display_message()
 
 
 if __name__ == "__main__":

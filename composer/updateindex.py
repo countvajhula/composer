@@ -3,6 +3,8 @@ import os
 
 import click
 
+from composer.utils import display_message
+
 # TODO: need to improve this script to do regex matching on wiki page names,
 # and sort the pages by type and in chronological order + Misc/uncategorized
 
@@ -53,8 +55,8 @@ def update_index(plannerpath, indexfile=None, indextitle=None):
 )
 def main(wikipath, file=None, title=None):
     wikipath = wikipath.rstrip("/")
-    print()
-    print(">>> Operating on wiki at location: %s <<<" % wikipath)
-    print()
+    display_message()
+    display_message(">>> Operating on wiki at location: %s <<<" % wikipath)
+    display_message()
 
     update_index(wikipath, file, title)

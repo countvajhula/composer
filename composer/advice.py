@@ -5,6 +5,7 @@ import sys
 from random import choice
 
 from . import config
+from .utils import display_message
 
 try:  # py2
     from StringIO import StringIO
@@ -46,12 +47,12 @@ if __name__ == "__main__":
     else:
         if sys.argv[1] == "-t" or sys.argv[1] == "--test":
             wikidirs = config.TEST_WIKIDIRS
-            print()
-            print(
+            display_message()
+            display_message(
                 ">>> Operating in TEST mode on planners at locations: %s <<<"
                 % wikidirs
             )
-            print()
+            display_message()
         else:
             raise Exception("Invalid command line arguments")
 
@@ -70,4 +71,4 @@ if __name__ == "__main__":
 
     lessons_files = map(openfile, filepaths)
 
-    print(get_advice(lessons_files))
+    display_message(get_advice(lessons_files))

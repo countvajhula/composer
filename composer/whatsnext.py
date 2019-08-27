@@ -11,6 +11,7 @@ from . import config
 from . import updateindex
 from .backend import FilesystemPlanner
 from .timeperiod import Day, Week, Month
+from .utils import display_message
 
 from .errors import (
     SchedulingError,
@@ -55,8 +56,10 @@ def process_wiki(wikidir, preferences, now):
             if err.status >= Day:
                 # git commit a "before", now that we know changes
                 # are about to be written to planner
-                print()
-                print("Saving EOD planner state before making changes...")
+                display_message()
+                display_message(
+                    "Saving EOD planner state before making changes..."
+                )
                 plannerdate = FilesystemPlanner(wikidir).date
                 (date, month, year) = (
                     plannerdate.day,
@@ -71,7 +74,7 @@ def process_wiki(wikidir, preferences, now):
                         cwd=wikidir,
                         stdout=null,
                     )
-                print("...DONE.")
+                display_message("...DONE.")
             if err.status >= Day:
                 planner = FilesystemPlanner(wikidir)
                 dayagenda = planner.get_agenda(Day)
@@ -119,7 +122,9 @@ def process_wiki(wikidir, preferences, now):
             else:
                 continue
         except DayStillInProgressError as err:
-            print("Current day is still in progress! Try again after 6pm.")
+            display_message(
+                "Current day is still in progress! Try again after 6pm."
+            )
             break
         except PlannerStateError as err:
             raise
@@ -128,29 +133,29 @@ def process_wiki(wikidir, preferences, now):
         except LayoutError as err:
             raise
         else:
-            print()
-            print(
+            display_message()
+            display_message(
                 "Moving tasks added for tomorrow over to"
                 " tomorrow's agenda..."
             )
-            print(
+            display_message(
                 "Carrying over any unfinished tasks from today"
                 " to tomorrow's agenda..."
             )
-            print(
+            display_message(
                 "Checking for any other tasks previously scheduled "
                 "for tomorrow..."
             )
-            print("Creating/updating log files...")
-            print("...DONE.")
+            display_message("Creating/updating log files...")
+            display_message("...DONE.")
             # update index after making changes
-            print()
-            print("Updating planner wiki index...")
+            display_message()
+            display_message("Updating planner wiki index...")
             updateindex.update_index(wikidir)
-            print("...DONE.")
+            display_message("...DONE.")
             # git commit "after"
-            print()
-            print("Committing all changes...")
+            display_message()
+            display_message("Committing all changes...")
             plannerdate = FilesystemPlanner(wikidir).date
             (date, month, year) = (
                 plannerdate.day,
@@ -165,10 +170,10 @@ def process_wiki(wikidir, preferences, now):
                     cwd=wikidir,
                     stdout=null,
                 )
-            print("...DONE.")
-            print()
-            print("~~~ THOUGHT FOR THE DAY ~~~")
-            print()
+            display_message("...DONE.")
+            display_message()
+            display_message("~~~ THOUGHT FOR THE DAY ~~~")
+            display_message()
             filepaths = map(
                 lambda f: wikidir + "/" + f, preferences["lessons_files"]
             )
@@ -181,7 +186,7 @@ def process_wiki(wikidir, preferences, now):
                 return f
 
             lessons_files = map(openfile, filepaths)
-            print(advice.get_advice(lessons_files))
+            display_message(advice.get_advice(lessons_files))
             if (
                 planner.jumping
             ):  # if jumping, keep repeating until present-day error thrown
@@ -226,17 +231,19 @@ def main(wikipath=None, test=False, jump=False):
 
     if jump:
         preferences.jump = jump
-        print()
-        print(">>> Get ready to JUMP! <<<")
-        print()
+        display_message()
+        display_message(">>> Get ready to JUMP! <<<")
+        display_message()
 
     # simulate the changes first and then when it's all OK, make the necessary
     # preparations (e.g. git commit) and actually perform the changes
 
     for wikidir in wikidirs:
-        print()
-        print(">>> Operating on planner at location: %s <<<" % wikidir)
-        print()
+        display_message()
+        display_message(
+            ">>> Operating on planner at location: %s <<<" % wikidir
+        )
+        display_message()
         process_wiki(wikidir, preferences, now)
 
 
