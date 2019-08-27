@@ -6,8 +6,6 @@ import composer.backend.filesystem.templates as templates
 from composer.backend import FilesystemPlanner
 from composer.timeperiod import Day
 
-from .fixtures import PlannerMock
-
 try:  # py2
     from StringIO import StringIO
 except ImportError:  # py3
