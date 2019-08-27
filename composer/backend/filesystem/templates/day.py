@@ -115,8 +115,9 @@ class DayTemplate(Template):
             tasklistfile
         )  # update the tasklist file to the post-processed version
         self.agenda = ""
-        # with every task item ending in a newline character, we will
-        # assume that section components can be neatly concatenated
+        # if we have successfully ensured that every task item ends in a
+        # newline character, then we can safely assume here that section
+        # components can be neatly concatenated
         if scheduled:
             self.agenda += scheduled
         if undone:
