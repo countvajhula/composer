@@ -493,7 +493,6 @@ class FilesystemPlanner(PlannerBase):
                 " Add one and try again."
             )
         agenda = agenda.read()
-        agenda = agenda.strip("\n")  # TODO: remove
         return agenda
 
     def update_agenda(self, period, agenda):
