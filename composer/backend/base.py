@@ -84,7 +84,7 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def schedule_tasks(self, log):
+    def schedule_tasks(self):
         raise NotImplementedError
 
     @abc.abstractmethod

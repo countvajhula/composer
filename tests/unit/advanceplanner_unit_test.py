@@ -972,9 +972,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         weekagenda = self.planner.get_agenda(Week)
-        logfile = self.planner.update_agenda(
-            Month, weekagenda
-        )
+        logfile = self.planner.update_agenda(Month, weekagenda)
         self.assertEqual(logfile.read(), self.monthtemplate_agendaupdated)
 
     def test_planner_advance_quarter_agenda(self):
@@ -987,9 +985,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         monthagenda = self.planner.get_agenda(Month)
-        logfile = self.planner.update_agenda(
-            Quarter, monthagenda
-        )
+        logfile = self.planner.update_agenda(Quarter, monthagenda)
         self.assertEqual(logfile.read(), self.quartertemplate_agendaupdated)
 
     def test_planner_advance_year_agenda(self):
@@ -1002,9 +998,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         quarteragenda = self.planner.get_agenda(Quarter)
-        logfile = self.planner.update_agenda(
-            Year, quarteragenda
-        )
+        logfile = self.planner.update_agenda(Year, quarteragenda)
         self.assertEqual(logfile.read(), self.yeartemplate_agendaupdated)
 
 
