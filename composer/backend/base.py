@@ -91,13 +91,14 @@ class PlannerBase(ABC):
     def get_due_tasks(self, for_day):
         raise NotImplementedError
 
-    def advance_period(self, current_period=None):
+    def advance_period(self, current_period=None, next_day=None):
         """ Recursive function to advance planner by day, week, month, quarter, or year
         as the case may be.
         """
         if not current_period:
             current_period = Zero
-        next_day = get_next_day(self.date)  # the new day to advance to
+        if not next_day:
+            next_day = get_next_day(self.date)  # the new day to advance to
         next_period = _next_period(current_period)
         period_criteria_met = next_period.advance_criteria_met(self, self.now)
         if period_criteria_met == PeriodAdvanceCriteria.Satisfied:
@@ -134,13 +135,15 @@ class PlannerBase(ABC):
         if not now:
             now = datetime.now()
 
+        next_day = get_next_day(self.date)  # the new day to advance to
+
         self.now = now
 
         self.schedule_tasks()
 
-        status = self.advance_period(Zero)
+        status = self.advance_period(Zero, next_day)
         if status > Zero:
-            self.date = self.next_day
+            self.date = next_day
         return status
 
     @abc.abstractmethod
