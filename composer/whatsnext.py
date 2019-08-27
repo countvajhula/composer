@@ -10,7 +10,7 @@ from . import advice
 from . import config
 from . import updateindex
 from .backend import FilesystemPlanner
-from .timeperiod import Day, Week
+from .timeperiod import Day, Week, Month
 
 from .errors import (
     SchedulingError,
@@ -77,7 +77,7 @@ def process_wiki(wikidir, preferences, now):
                 dayagenda = planner.get_agenda(Day)
                 if dayagenda:
                     planner.weekfile = planner.update_agenda(
-                        planner.weekfile, dayagenda
+                        Week, dayagenda
                     )
                 planner.save()
             if err.status >= Week:
@@ -85,7 +85,7 @@ def process_wiki(wikidir, preferences, now):
                 weekagenda = planner.get_agenda(Week)
                 if weekagenda:
                     planner.monthfile = planner.update_agenda(
-                        planner.monthfile, weekagenda
+                        Month, weekagenda
                     )
                 planner.save()
             simulate = False

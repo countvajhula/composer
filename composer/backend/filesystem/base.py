@@ -494,11 +494,12 @@ class FilesystemPlanner(PlannerBase):
         agenda = agenda.strip("\n")  # TODO: remove
         return agenda
 
-    def update_agenda(self, log, agenda):
+    def update_agenda(self, period, agenda):
         """ Append the provided agenda to the agenda contained in the logfile,
         and return the updated logfile (without mutating the original).
         """
         # TODO: should probably go through a setter to mutate here instead
+        log = self._logfile_for_period(period)
         try:
             logfile_updated = add_to_section(
                 log, 'agenda', agenda, above=False, ensure_separator=True
