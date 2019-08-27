@@ -231,13 +231,18 @@ class FilesystemPlanner(PlannerBase):
         )
 
     def schedule_tasks(self):
-        """ 1. Go through the Tasklist till SCHEDULED section found
-        2. If task is marked as scheduled/blocked (i.e. "[o]"), then make sure
+        """ Parse tasklist and today's agenda for any (e.g. newly-added)
+        scheduled tasks, and move them to the scheduled section of the tasklist
+        after converting them to a standard format.  This ignores any tasks
+        manually added for tomorrow (these will be handled as tasks for
+        tomorrow, not as scheduled tasks).
+
+        If task is marked as scheduled/blocked (i.e. "[o]"), then make sure
         a follow-up date is indicated (via "[$<date>$]") and that it is
         parseable
-        3. move to bottom of scheduled
-        4. loop through all scheduled till naother section found or eof
-        5. go through any other section
+
+        Before beginning, this also checks scheduled section in tasklist and
+        current day's log file for errors [TODO: move out of this function]
         """
         # TODO: add a "diagnostic" function for sections w/ a checker fn
         # to be applied to items
@@ -298,10 +303,10 @@ class FilesystemPlanner(PlannerBase):
                 )
             datestr = SCHEDULED_DATE_PATTERN.search(task).groups()[0]
             try:
-                matcheddate = get_date_for_schedule_string(datestr)
+                matched_date = get_date_for_schedule_string(datestr)
             except SchedulingDateError:
                 raise
-            return for_day >= matcheddate["date"]
+            return for_day >= matched_date["date"]
 
         try:
             scheduled, tasklist_no_scheduled = read_section(

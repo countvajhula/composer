@@ -352,7 +352,7 @@ def to_standard_date_format(item, reference_date):
     if SCHEDULED_DATE_PATTERN.search(date_string):
         datestr = SCHEDULED_DATE_PATTERN.search(date_string).groups()[0]
         try:
-            matcheddate = get_date_for_schedule_string(datestr, reference_date)
+            matched_date = get_date_for_schedule_string(datestr, reference_date)
         except SchedulingDateError:
             raise
     else:
@@ -361,7 +361,7 @@ def to_standard_date_format(item, reference_date):
             + date_string
         )
     date_string = SCHEDULED_DATE_PATTERN.sub(
-        "[$" + matcheddate["datestr"] + "$]", date_string
+        "[$" + matched_date["datestr"] + "$]", date_string
     )  # replace with standard format
     return date_string
 
