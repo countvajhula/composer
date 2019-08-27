@@ -232,8 +232,9 @@ class FilesystemPlanner(PlannerBase):
 
     def schedule_tasks(self):
         """ 1. Go through the Tasklist till SCHEDULED section found
-        2. If task is marked as scheduled/blocked (i.e. "[o]"), then make sure a
-        follow-up date is indicated (via "[$<date>$]") and that it is parseable
+        2. If task is marked as scheduled/blocked (i.e. "[o]"), then make sure
+        a follow-up date is indicated (via "[$<date>$]") and that it is
+        parseable
         3. move to bottom of scheduled
         4. loop through all scheduled till naother section found or eof
         5. go through any other section
@@ -277,16 +278,17 @@ class FilesystemPlanner(PlannerBase):
         self.tasklistfile = new_file
 
     def get_due_tasks(self, for_day):
-        """ Look at the SCHEDULED section of the tasklist and retrive any tasks that
-        are due/overdue for the given day (e.g. tomorrow, if preparing tomorrow's
-        agenda).
+        """ Look at the SCHEDULED section of the tasklist and retrive any tasks
+        that are due/overdue for the given day (e.g. tomorrow, if preparing
+        tomorrow's agenda).
 
-        This only operates on explicitly scheduled tasks, not tasks manually set
-        aside for tomorrow or which may happen to be appropriate for the given day
-        as determined in some other way (e.g. periodic tasks).
+        This only operates on explicitly scheduled tasks, not tasks manually
+        set aside for tomorrow or which may happen to be appropriate for the
+        given day as determined in some other way (e.g. periodic tasks).
 
         Note: task scheduling should already have been performed on relevant
-        logfiles (like the previous day's) to migrate those tasks to the tasklist.
+        logfiles (like the previous day's) to migrate those tasks to the
+        tasklist.
         """
 
         def is_task_due(task):

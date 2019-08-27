@@ -23,7 +23,7 @@ from ..timeperiod import (
     Year,
 )
 
-from .filesystem import scheduling, templates
+from .filesystem import templates
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 

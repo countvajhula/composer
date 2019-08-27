@@ -11,14 +11,7 @@ from ...errors import (
     ScheduledTaskParsingError,
 )
 from ...timeperiod import get_next_day
-from .utils import (
-    add_to_section,
-    get_task_items,
-    is_scheduled_task,
-    item_list_to_string,
-    read_section,
-    partition_items,
-)
+from .utils import get_task_items, is_scheduled_task, read_section
 
 SCHEDULED_DATE_PATTERN = re.compile(r"\[\$?([^\[\$]*)\$?\]$")
 
