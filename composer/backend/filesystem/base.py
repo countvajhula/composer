@@ -41,7 +41,7 @@ except ImportError:  # py3
 
 SCHEDULE_FILE_PREFIX = "Checkpoints"
 PLANNERTASKLISTFILE = "TaskList.wiki"
-PLANNERDAYTHEMESFILELINK = "DayThemes.wiki"
+PLANNERDAYTHEMESFILE = "DayThemes.wiki"
 PLANNERDAYFILELINK = "currentday"
 PLANNERWEEKFILELINK = "currentweek"
 PLANNERMONTHFILELINK = "currentmonth"
@@ -186,7 +186,7 @@ class FilesystemPlanner(PlannerBase):
             "{}/{}".format(location, PLANNERTASKLISTFILE)
         )
         self.daythemesfile = self._read_file(
-            "{}/{}".format(location, PLANNERDAYTHEMESFILELINK)
+            "{}/{}".format(location, PLANNERDAYTHEMESFILE)
         )
         self.dayfile = self._read_file(
             "{}/{}".format(location, PLANNERDAYFILELINK)
