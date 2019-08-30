@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 from ..base import PlannerBase
-from ...timeperiod import Day, Week, Month, Quarter, Year
+from ...timeperiod import get_next_period, Day, Week, Month, Quarter, Year, Zero
 from ...errors import (
     BlockedTaskNotScheduledError,
     LogfileAlreadyExistsError,
@@ -420,34 +420,27 @@ class FilesystemPlanner(PlannerBase):
                 filename[filename.rfind("/") + 1 :], filelinkfn
             )  # remove path from filename so it isn't "double counted"
 
-    def update_disk_state(self, period=Year):
-        if period >= Year:
-            self._write_log_to_file(Year)
-        if period >= Quarter:
-            self._write_log_to_file(Quarter)
-        if period == Quarter:
-            self._write_log_to_file(Year)
-        if period >= Month:
-            self._write_log_to_file(Month)
-        if period == Month:
-            self._write_log_to_file(Quarter)
-        if period >= Week:
-            self._write_log_to_file(Week)
-        if period == Week:
-            self._write_log_to_file(Month)
-        if period >= Day:
-            self._write_log_to_file(Day)
-            # in any event if day was advanced, update tasklist
-            tasklist_filename = "{}/{}".format(
-                self.location, PLANNERTASKLISTFILE
-            )
+    def _write_files_for_contained_periods(self, period):
+        if period == Zero:
+            return
+        self._write_log_to_file(period)
+        self._write_files_for_contained_periods(get_next_period(period, decreasing=True))
 
-            self._write_file(self.tasklistfile, tasklist_filename)
-        if period == Day:
-            self._write_log_to_file(Week)
+    def update_disk_state(self, period):
+        # write the logfiles for the current period as well as
+        # all contained periods, since they all advance by one
+        self._write_files_for_contained_periods(period)
 
-        # can go in increasing order too?
-        # if so, make next_period a method on parent class
+        if period < Year:
+            # write the logfile for the encompassing period
+            next_period = get_next_period(period)
+            self._write_log_to_file(next_period)
+        # in any event if day was advanced, update tasklist
+        tasklist_filename = "{}/{}".format(
+            self.location, PLANNERTASKLISTFILE
+        )
+
+        self._write_file(self.tasklistfile, tasklist_filename)
 
     def advance(self, now=None, simulate=False):
         """ Advance planner state to next day, updating week and month info
@@ -517,6 +510,8 @@ class FilesystemPlanner(PlannerBase):
             else:
                 # make the changes on disk
                 self.update_disk_state(status)
+
+        return status
 
     def check_log_completion(self, period):
         """ Check the logfile's NOTES section as a determination of whether
