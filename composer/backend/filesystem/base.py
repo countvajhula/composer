@@ -393,7 +393,7 @@ class FilesystemPlanner(PlannerBase):
 
         return link
 
-    def _write_log_to_file(self, period, is_new=False):
+    def _write_log_to_file(self, period):
         """ Write the log for the given period to the filesystem.
         If this represents an advancement of the period in question,
         then also update the 'current' state of the planner on disk
@@ -402,10 +402,16 @@ class FilesystemPlanner(PlannerBase):
         log_attr = self._logfile_attribute(period)
         log = getattr(self, log_attr)
         filename = self._log_filename(period)
+        if os.path.isfile(filename):
+            is_new = False
+        else:
+            is_new = True
+
+        # write the file to disk
         self._write_file(log, filename)
 
-        # update "current" link on disk to the newly created file
         if is_new:
+            # update "current" link on disk to the newly created file
             link_name = self._link_name(period)
             filelinkfn = "{}/{}".format(self.location, link_name)
             if os.path.islink(filelinkfn):
@@ -416,21 +422,21 @@ class FilesystemPlanner(PlannerBase):
 
     def update_disk_state(self, period=Year):
         if period >= Year:
-            self._write_log_to_file(Year, is_new=True)
+            self._write_log_to_file(Year)
         if period >= Quarter:
-            self._write_log_to_file(Quarter, is_new=True)
+            self._write_log_to_file(Quarter)
         if period == Quarter:
             self._write_log_to_file(Year)
         if period >= Month:
-            self._write_log_to_file(Month, is_new=True)
+            self._write_log_to_file(Month)
         if period == Month:
             self._write_log_to_file(Quarter)
         if period >= Week:
-            self._write_log_to_file(Week, is_new=True)
+            self._write_log_to_file(Week)
         if period == Week:
             self._write_log_to_file(Month)
         if period >= Day:
-            self._write_log_to_file(Day, is_new=True)
+            self._write_log_to_file(Day)
             # in any event if day was advanced, update tasklist
             tasklist_filename = "{}/{}".format(
                 self.location, PLANNERTASKLISTFILE
