@@ -1,6 +1,7 @@
 from __future__ import absolute_import
+from ..errors import PlannerIsInTheFutureError
 from .utils import get_next_day
-from .base import Period, PeriodAdvanceCriteria
+from .base import Period
 from .day import Day
 from .month import Month
 
@@ -12,16 +13,19 @@ class _Quarter(Period):
     def advance_criteria_met(self, planner, now):
         next_day = get_next_day(planner.date)
         month = next_day.strftime("%B")
-        day_criteria_met = Day.advance_criteria_met(planner, now)
-        if day_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
-            return PeriodAdvanceCriteria.PlannerInFuture
-        elif Month.advance_criteria_met(planner, now) and month.lower() in (
+        try:
+            Day.advance_criteria_met(planner, now)
+        except PlannerIsInTheFutureError:
+            raise
+        if Month.advance_criteria_met(planner, now) and month.lower() in (
             "january",
             "april",
             "july",
             "october",
         ):
-            return PeriodAdvanceCriteria.Satisfied
+            return True
+        else:
+            return False
 
     def get_name(self):
         return "quarter"

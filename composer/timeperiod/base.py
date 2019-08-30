@@ -4,10 +4,6 @@ import abc
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 
 
-class PeriodAdvanceCriteria(object):
-    (Satisfied, DayStillInProgress, PlannerInFuture) = (1, 2, 3)
-
-
 class Period(ABC):
     def __lt__(self, other):
         return self.duration < other.duration

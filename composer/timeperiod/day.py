@@ -1,5 +1,6 @@
 from __future__ import absolute_import
-from .base import Period, PeriodAdvanceCriteria
+from ..errors import PlannerIsInTheFutureError
+from .base import Period
 
 
 class _Day(Period):
@@ -9,16 +10,16 @@ class _Day(Period):
     def advance_criteria_met(self, planner, now):
         today = now.date()
         if planner.date < today:
-            return PeriodAdvanceCriteria.Satisfied
+            return True
         if planner.date == today:
             if now.hour >= 18:
-                return PeriodAdvanceCriteria.Satisfied
+                return True
             else:
                 # current day still in progress
-                return PeriodAdvanceCriteria.DayStillInProgress
+                return False
         else:
             # planner is in the future
-            return PeriodAdvanceCriteria.PlannerInFuture
+            raise PlannerIsInTheFutureError("Planner is in the future!")
 
     def get_name(self):
         return "day"
