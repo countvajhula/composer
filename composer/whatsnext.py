@@ -10,12 +10,11 @@ from . import advice
 from . import config
 from . import updateindex
 from .backend import FilesystemPlanner
-from .timeperiod import Day, Week, Month
+from .timeperiod import Day, Week, Month, Zero
 from .utils import display_message
 
 from .errors import (
     SchedulingError,
-    DayStillInProgressError,
     LayoutError,
     LogfileNotCompletedError,
     PlannerStateError,
@@ -37,13 +36,87 @@ CONFIG_ROOT = os.getenv("COMPOSER_ROOT", os.path.expanduser("~/.composer"))
 CONFIG_FILE = os.path.join(CONFIG_ROOT, "config.ini")
 
 
+def _make_git_commit(wikidir, message):
+    with open(os.devnull, "w") as null:
+        call(["git", "add", "-A"], cwd=wikidir, stdout=null)
+        call(
+            ["git", "commit", "-m", message],
+            cwd=wikidir,
+            stdout=null,
+        )
+
+
+def _show_advice(wikidir, preferences):
+    display_message("~~~ THOUGHT FOR THE DAY ~~~")
+    display_message()
+    filepaths = map(
+        lambda f: wikidir + "/" + f, preferences["lessons_files"]
+    )
+
+    def openfile(fn):
+        try:
+            f = open(fn, "r")
+        except Exception:
+            f = StringIO("")
+        return f
+
+    lessons_files = map(openfile, filepaths)
+    display_message(advice.get_advice(lessons_files))
+
+
+def _post_advance_tasks(wikidir, preferences):
+    """ Update the index to include any newly created files,
+    Commit the post-advance state into git, and display a
+    thought for the day.
+    At the moment, also show a record of things done as part of
+    the advance, but that should eventually be moved to originate
+    at the point where they actually occur.
+    """
+    display_message()
+    display_message(
+        "Moving tasks added for tomorrow over to"
+        " tomorrow's agenda..."
+    )
+    display_message(
+        "Carrying over any unfinished tasks from today"
+        " to tomorrow's agenda..."
+    )
+    display_message(
+        "Checking for any other tasks previously scheduled "
+        "for tomorrow..."
+    )
+    display_message("Creating/updating log files...")
+    display_message("...DONE.")
+    # update index after making changes
+    display_message()
+    display_message("Updating planner wiki index...")
+    updateindex.update_index(wikidir)
+    display_message("...DONE.")
+    # git commit "after"
+    display_message()
+    display_message("Committing all changes...")
+    plannerdate = FilesystemPlanner(wikidir).date
+    (date, month, year) = (
+        plannerdate.day,
+        plannerdate.strftime("%B"),
+        plannerdate.year,
+    )
+    datestr = "%s %d, %d" % (month, date, year)
+    message = "SOD %s" % datestr
+    _make_git_commit(wikidir, message)
+
+    display_message("...DONE.")
+    display_message()
+    _show_advice(wikidir, preferences)
+
+
 def process_wiki(wikidir, preferences, now):
     simulate = True
     while True:
         try:
             planner = FilesystemPlanner(wikidir)
             planner.set_preferences(preferences)
-            planner.advance(now=now, simulate=simulate)
+            status = planner.advance(now=now, simulate=simulate)
         except SimulationPassedError as err:
             # print "DEV: simulation passed. let's do this thing
             # ... for real."
@@ -67,13 +140,8 @@ def process_wiki(wikidir, preferences, now):
                     plannerdate.year,
                 )
                 datestr = "%s %d, %d" % (month, date, year)
-                with open(os.devnull, "w") as null:
-                    call(["git", "add", "-A"], cwd=wikidir, stdout=null)
-                    call(
-                        ["git", "commit", "-m", "EOD %s" % datestr],
-                        cwd=wikidir,
-                        stdout=null,
-                    )
+                message = "EOD %s" % datestr
+                _make_git_commit(wikidir, message)
                 display_message("...DONE.")
             if err.status >= Day:
                 planner = FilesystemPlanner(wikidir)
@@ -121,11 +189,6 @@ def process_wiki(wikidir, preferences, now):
                 ] = config.LOGFILE_CHECKING["LAX"]
             else:
                 continue
-        except DayStillInProgressError as err:
-            display_message(
-                "Current day is still in progress! Try again after 6pm."
-            )
-            break
         except PlannerStateError as err:
             raise
         except SchedulingError as err:
@@ -133,65 +196,18 @@ def process_wiki(wikidir, preferences, now):
         except LayoutError as err:
             raise
         else:
-            display_message()
-            display_message(
-                "Moving tasks added for tomorrow over to"
-                " tomorrow's agenda..."
-            )
-            display_message(
-                "Carrying over any unfinished tasks from today"
-                " to tomorrow's agenda..."
-            )
-            display_message(
-                "Checking for any other tasks previously scheduled "
-                "for tomorrow..."
-            )
-            display_message("Creating/updating log files...")
-            display_message("...DONE.")
-            # update index after making changes
-            display_message()
-            display_message("Updating planner wiki index...")
-            updateindex.update_index(wikidir)
-            display_message("...DONE.")
-            # git commit "after"
-            display_message()
-            display_message("Committing all changes...")
-            plannerdate = FilesystemPlanner(wikidir).date
-            (date, month, year) = (
-                plannerdate.day,
-                plannerdate.strftime("%B"),
-                plannerdate.year,
-            )
-            datestr = "%s %d, %d" % (month, date, year)
-            with open(os.devnull, "w") as null:
-                call(["git", "add", "-A"], cwd=wikidir, stdout=null)
-                call(
-                    ["git", "commit", "-m", "SOD %s" % datestr],
-                    cwd=wikidir,
-                    stdout=null,
-                )
-            display_message("...DONE.")
-            display_message()
-            display_message("~~~ THOUGHT FOR THE DAY ~~~")
-            display_message()
-            filepaths = map(
-                lambda f: wikidir + "/" + f, preferences["lessons_files"]
-            )
-
-            def openfile(fn):
-                try:
-                    f = open(fn, "r")
-                except Exception:
-                    f = StringIO("")
-                return f
-
-            lessons_files = map(openfile, filepaths)
-            display_message(advice.get_advice(lessons_files))
-            if (
-                planner.jumping
-            ):  # if jumping, keep repeating until present-day error thrown
-                simulate = True
+            if status > Zero:
+                _post_advance_tasks(wikidir, preferences)
+                if (
+                    planner.jumping
+                ):  # if jumping, keep repeating until present-day error thrown
+                    simulate = True
+                else:
+                    break
             else:
+                display_message(
+                    "Current day is still in progress! Try again after 6pm."
+                )
                 break
 
 
