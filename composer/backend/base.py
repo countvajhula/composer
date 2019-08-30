@@ -14,7 +14,7 @@ from ..errors import (
 )
 from ..timeperiod import (
     get_next_day,
-    PeriodAdvanceCriteria,
+    get_next_period,
     Zero,
     Day,
     Week,
@@ -26,16 +26,6 @@ from ..timeperiod import (
 from .filesystem import templates
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
-
-
-def _next_period(current_period):
-    periods = (Zero, Day, Week, Month, Quarter, Year)
-    try:
-        index = periods.index(current_period)
-        next_period = periods[index + 1]
-    except (IndexError, ValueError):
-        raise
-    return next_period
 
 
 class PlannerBase(ABC):
@@ -99,32 +89,36 @@ class PlannerBase(ABC):
             current_period = Zero
         if not next_day:
             next_day = get_next_day(self.date)  # the new day to advance to
-        next_period = _next_period(current_period)
-        period_criteria_met = next_period.advance_criteria_met(self, self.now)
-        if period_criteria_met == PeriodAdvanceCriteria.Satisfied:
-            current_period = next_period
+        if current_period == Year:
+            # base case
+            return current_period
+
+        next_period = get_next_period(current_period)
+        try:
+            criteria_met = next_period.advance_criteria_met(self, self.now)
+        except PlannerIsInTheFutureError:
+            raise
+
+        if criteria_met:
             if self.logfile_completion_checking == LOGFILE_CHECKING[
                 "STRICT"
-            ] and not self.check_log_completion(current_period):
-                periodstr = current_period.get_name()
+            ] and not self.check_log_completion(next_period):
+                periodstr = next_period.get_name()
                 msg = (
                     "Looks like you haven't completed your %s's log."
                     " Would you like to do that now?" % periodstr
                 )
                 raise LogfileNotCompletedError(msg, periodstr)
-            templates.write_new_template(self, current_period, next_day)
+            templates.write_new_template(self, next_period, next_day)
 
-            if current_period < Year:
-                return self.advance_period(current_period)
-        elif period_criteria_met == PeriodAdvanceCriteria.DayStillInProgress:
-            raise DayStillInProgressError(
-                "Current day is still in progress! Update after 6pm"
-            )
-        elif period_criteria_met == PeriodAdvanceCriteria.PlannerInFuture:
-            raise PlannerIsInTheFutureError("Planner is in the future!")
+            return self.advance_period(next_period)
         else:
-            templates.write_existing_template(self, next_period, next_day)
-        return current_period
+            # did not advance beyond current period. If we have advanced
+            # at all (e.g. a smaller period), we still want to
+            # update the existing template for the encompassing period
+            if current_period > Zero:
+                templates.write_existing_template(self, next_period, next_day)
+            return current_period
 
     @abc.abstractmethod
     def advance(self, now=None, simulate=False):
