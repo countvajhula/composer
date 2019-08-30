@@ -461,8 +461,7 @@ class FilesystemPlanner(PlannerBase):
         filename = self._log_filename(period)
         if os.path.isfile(filename):
             raise LogfileAlreadyExistsError(
-                "New {period} logfile already exists!"
-                .format(period=period)
+                "New {period} logfile already exists!".format(period=period)
             )
         self._check_files_for_contained_periods(
             get_next_period(period, decreasing=True)
