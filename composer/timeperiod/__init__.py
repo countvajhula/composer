@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from .base import Period, Zero  # noqa
 from .day import Day
 from .week import Week

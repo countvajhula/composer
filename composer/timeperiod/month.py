@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from ..errors import PlannerIsInTheFutureError
 from .base import Period
 from .day import Day

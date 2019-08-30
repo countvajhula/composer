@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from ..errors import PlannerIsInTheFutureError
 from .utils import get_next_day
 from .base import Period
