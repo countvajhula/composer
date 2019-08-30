@@ -511,11 +511,12 @@ class FilesystemPlanner(PlannerBase):
 
         # if this is a simulation, we're good to go - let's break out
         # of the matrix
-        if status >= Day and simulate:
-            raise SimulationPassedError("All systems GO", status)
-
-        # make the changes on disk
-        self.update_disk_state(status)
+        if status >= Day:
+            if simulate:
+                raise SimulationPassedError("All systems GO", status)
+            else:
+                # make the changes on disk
+                self.update_disk_state(status)
 
     def check_log_completion(self, period):
         """ Check the logfile's NOTES section as a determination of whether
