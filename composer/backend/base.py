@@ -7,21 +7,8 @@ from ..config import (
     DEFAULT_SCHEDULE,
     LOGFILE_CHECKING,
 )
-from ..errors import (
-    DayStillInProgressError,
-    LogfileNotCompletedError,
-    PlannerIsInTheFutureError,
-)
-from ..timeperiod import (
-    get_next_day,
-    get_next_period,
-    Zero,
-    Day,
-    Week,
-    Month,
-    Quarter,
-    Year,
-)
+from ..errors import LogfileNotCompletedError, PlannerIsInTheFutureError
+from ..timeperiod import get_next_day, get_next_period, Zero, Year
 
 from .filesystem import templates
 

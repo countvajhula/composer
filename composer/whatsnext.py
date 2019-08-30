@@ -39,19 +39,13 @@ CONFIG_FILE = os.path.join(CONFIG_ROOT, "config.ini")
 def _make_git_commit(wikidir, message):
     with open(os.devnull, "w") as null:
         call(["git", "add", "-A"], cwd=wikidir, stdout=null)
-        call(
-            ["git", "commit", "-m", message],
-            cwd=wikidir,
-            stdout=null,
-        )
+        call(["git", "commit", "-m", message], cwd=wikidir, stdout=null)
 
 
 def _show_advice(wikidir, preferences):
     display_message("~~~ THOUGHT FOR THE DAY ~~~")
     display_message()
-    filepaths = map(
-        lambda f: wikidir + "/" + f, preferences["lessons_files"]
-    )
+    filepaths = map(lambda f: wikidir + "/" + f, preferences["lessons_files"])
 
     def openfile(fn):
         try:
@@ -74,16 +68,14 @@ def _post_advance_tasks(wikidir, preferences):
     """
     display_message()
     display_message(
-        "Moving tasks added for tomorrow over to"
-        " tomorrow's agenda..."
+        "Moving tasks added for tomorrow over to" " tomorrow's agenda..."
     )
     display_message(
         "Carrying over any unfinished tasks from today"
         " to tomorrow's agenda..."
     )
     display_message(
-        "Checking for any other tasks previously scheduled "
-        "for tomorrow..."
+        "Checking for any other tasks previously scheduled " "for tomorrow..."
     )
     display_message("Creating/updating log files...")
     display_message("...DONE.")

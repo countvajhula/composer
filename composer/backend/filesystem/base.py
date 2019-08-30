@@ -3,7 +3,15 @@ import os
 from datetime import datetime
 
 from ..base import PlannerBase
-from ...timeperiod import get_next_period, Day, Week, Month, Quarter, Year, Zero
+from ...timeperiod import (
+    get_next_period,
+    Day,
+    Week,
+    Month,
+    Quarter,
+    Year,
+    Zero,
+)
 from ...errors import (
     BlockedTaskNotScheduledError,
     LogfileAlreadyExistsError,
@@ -424,7 +432,9 @@ class FilesystemPlanner(PlannerBase):
         if period == Zero:
             return
         self._write_log_to_file(period)
-        self._write_files_for_contained_periods(get_next_period(period, decreasing=True))
+        self._write_files_for_contained_periods(
+            get_next_period(period, decreasing=True)
+        )
 
     def update_disk_state(self, period):
         # write the logfiles for the current period as well as
@@ -436,9 +446,7 @@ class FilesystemPlanner(PlannerBase):
             next_period = get_next_period(period)
             self._write_log_to_file(next_period)
         # in any event if day was advanced, update tasklist
-        tasklist_filename = "{}/{}".format(
-            self.location, PLANNERTASKLISTFILE
-        )
+        tasklist_filename = "{}/{}".format(self.location, PLANNERTASKLISTFILE)
 
         self._write_file(self.tasklistfile, tasklist_filename)
 
