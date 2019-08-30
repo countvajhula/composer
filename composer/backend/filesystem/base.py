@@ -429,28 +429,6 @@ class FilesystemPlanner(PlannerBase):
                 filename[filename.rfind("/") + 1 :], filelinkfn
             )  # remove path from filename so it isn't "double counted"
 
-    def _write_files_for_contained_periods(self, period):
-        if period == Zero:
-            return
-        self._write_log_to_file(period)
-        self._write_files_for_contained_periods(
-            get_next_period(period, decreasing=True)
-        )
-
-    def update_disk_state(self, period):
-        # write the logfiles for the current period as well as
-        # all contained periods, since they all advance by one
-        self._write_files_for_contained_periods(period)
-
-        if period < Year:
-            # write the logfile for the encompassing period
-            next_period = get_next_period(period)
-            self._write_log_to_file(next_period)
-        # in any event if day was advanced, update tasklist
-        tasklist_filename = "{}/{}".format(self.location, PLANNERTASKLISTFILE)
-
-        self._write_file(self.tasklistfile, tasklist_filename)
-
     def _check_files_for_contained_periods(self, period):
         """ A helper to check if any time periods just advanced already have
         log files on disk, which is unexpected and an error. This is only
@@ -491,7 +469,7 @@ class FilesystemPlanner(PlannerBase):
                 raise SimulationPassedError("All systems GO", status)
             else:
                 # make the changes on disk
-                self.update_disk_state(status)
+                self.save(status)
 
         return status
 
@@ -543,29 +521,34 @@ class FilesystemPlanner(PlannerBase):
             )
         setattr(self, log_attr, logfile_updated)
 
-    def save(self):
-        """ Write the planner object to the filesystem at the given path."""
-        pathspec = "{}/{}"
-        tasklist_filename = pathspec.format(self.location, PLANNERTASKLISTFILE)
-        day_filename = os.path.realpath(
-            pathspec.format(self.location, PLANNERDAYFILELINK)
+    def _write_files_for_contained_periods(self, period):
+        if period == Zero:
+            return
+        self._write_log_to_file(period)
+        self._write_files_for_contained_periods(
+            get_next_period(period, decreasing=True)
         )
-        week_filename = os.path.realpath(
-            pathspec.format(self.location, PLANNERWEEKFILELINK)
-        )
-        month_filename = os.path.realpath(
-            pathspec.format(self.location, PLANNERMONTHFILELINK)
-        )
-        quarter_filename = os.path.realpath(
-            pathspec.format(self.location, PLANNERQUARTERFILELINK)
-        )
-        year_filename = os.path.realpath(
-            pathspec.format(self.location, PLANNERYEARFILELINK)
+
+    def save(self, period=Year):
+        """ Write the planner object to the filesystem."""
+        # TODO: use pathspec / realpath everywhere.
+        # make construct() use pathspec
+        # construct full os-specific paths in a single helper
+        # with a flag to dereference links (realpath vs abspath probably)
+        # reduce redundancy in construct()
+        # This completes the R/W flow I think... except for the
+        # calling of save in whatsnext which should be moved
+
+        # write the logfiles for the current period as well as
+        # all contained periods, since they all advance by one
+        self._write_files_for_contained_periods(period)
+
+        if period < Year:
+            # write the logfile for the encompassing period
+            next_period = get_next_period(period)
+            self._write_log_to_file(next_period)
+        tasklist_filename = os.path.realpath(
+            PATH_SPECIFICATION.format(path=self.location, filename=PLANNERTASKLISTFILE)
         )
 
         self._write_file(self.tasklistfile, tasklist_filename)
-        self._write_file(self.yearfile, year_filename)
-        self._write_file(self.quarterfile, quarter_filename)
-        self._write_file(self.monthfile, month_filename)
-        self._write_file(self.weekfile, week_filename)
-        self._write_file(self.dayfile, day_filename)
