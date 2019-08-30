@@ -128,10 +128,12 @@ class DayTemplate(Template):
         return daytemplate
 
     def update(self):
-        pass
-
-    def write_existing(self):
-        # if period is DAY, noop
-        # TODO: is it necessary to override this? Presumably we'd never
-        # call it, but if we do maybe it should be supported
-        pass
+        # since day is the smallest period that we track, there's never a case
+        # where we'd want to update an existing day file. Any information meant
+        # to be in day template would already have been included at logfile
+        # creation time, after which it is only manually edited to organize
+        # and record details of the day
+        # So updating an existing day file should be a no-op. For uniformity
+        # we do return the contents of the dayfile here, so that an update
+        # would be equivalent to a no-op.
+        return self.planner.dayfile.read()

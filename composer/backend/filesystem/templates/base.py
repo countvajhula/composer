@@ -85,9 +85,26 @@ class Template(ABC):
     def write_existing(self):
         template = self.update()
         file_attr = self._file_handle()
-        setattr(self.planner, file_attr, StringIO(template))
+        if file_attr:
+            # for the Zero template, this should be a noop
+            # for the Day template, it is a no-op as well
+            # (see day template `update` method)
+            setattr(self.planner, file_attr, StringIO(template))
 
     def write_new(self):
         template = self.build()
         file_attr = self._file_handle()
-        setattr(self.planner, file_attr, StringIO(template))
+        if file_attr:
+            # for the Zero template, this should be a noop
+            setattr(self.planner, file_attr, StringIO(template))
+
+
+class ZeroTemplate(Template):
+    def _file_handle(self):
+        return ""
+
+    def build(self):
+        return ""
+
+    def update(self):
+        return ""

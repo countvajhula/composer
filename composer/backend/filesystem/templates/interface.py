@@ -1,4 +1,5 @@
 from ....timeperiod import Day, Week, Month, Quarter, Year
+from .base import ZeroTemplate
 from .day import DayTemplate
 from .week import WeekTemplate
 from .month import MonthTemplate
@@ -17,6 +18,8 @@ def _get_template(planner, period, next_day):
         template = QuarterTemplate(planner, next_day)
     elif period == Year:
         template = YearTemplate(planner, next_day)
+    else:
+        template = ZeroTemplate(planner, next_day)
     return template
 
 
