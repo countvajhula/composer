@@ -90,12 +90,11 @@ class PlannerBase(ABC):
             if self.logfile_completion_checking == LOGFILE_CHECKING[
                 "STRICT"
             ] and not self.check_log_completion(next_period):
-                periodstr = next_period.get_name()
                 msg = (
                     "Looks like you haven't completed your %s's log."
-                    " Would you like to do that now?" % periodstr
+                    " Would you like to do that now?" % next_period
                 )
-                raise LogfileNotCompletedError(msg, periodstr)
+                raise LogfileNotCompletedError(msg, next_period)
             templates.write_new_template(self, next_period, next_day)
 
             return self.advance_period(next_period)

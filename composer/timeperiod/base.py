@@ -28,6 +28,9 @@ class Period(ABC):
     def __hash__(self):
         return hash(self.__key())
 
+    def __str__(self):
+        return self.get_name()
+
     @abc.abstractmethod
     def advance_criteria_met(self, planner, now):
         raise NotImplementedError
