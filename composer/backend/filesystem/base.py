@@ -337,21 +337,111 @@ class FilesystemPlanner(PlannerBase):
         )
         return due, new_tasklist
 
-    def _write_new_logfile(self, logfile, link_name, new_filename):
-        # extract new period filename from date
-        # write buffer to new file
-        # update currentyear symlink
-        self._write_file(logfile, new_filename)
-        filelinkfn = "{}/{}".format(self.location, link_name)
-        if os.path.islink(filelinkfn):
-            os.remove(filelinkfn)
-        os.symlink(
-            new_filename[new_filename.rfind("/") + 1 :], filelinkfn
-        )  # remove path from filename so it isn't "double counted"
+    def _log_filename(self, period):
+        """ A time period uniquely maps to a single log file on disk for a
+        particular planner instance (which is tied to a wiki root path).  This
+        function returns that filename, given a time period.
+        """
+        (date, month, year) = (
+            self.date.day,
+            self.date.strftime("%B"),
+            self.date.year,
+        )
 
-    def _update_existing_logfile(self, logfile, filename):
-        # write buffer to existing file
-        self._write_file(logfile, filename)
+        if period == Day:
+            filename = "{month} {date}, {year}.wiki".format(
+                month=month, date=date, year=year
+            )
+        elif period == Week:
+            filename = "Week of {month} {date}, {year}.wiki".format(
+                month=month, date=date, year=year
+            )
+        elif period == Month:
+            filename = "Month of {month}, {year}.wiki".format(
+                month=month, year=year
+            )
+        elif period == Quarter:
+            filename = "{quarter} {year}.wiki".format(
+                quarter=quarter_for_month(month), year=year
+            )
+        elif period == Year:
+            filename = "{year}.wiki".format(year=year)
+        path = "{path}/{filename}".format(
+            path=self.location, filename=filename
+        )
+
+        return path
+
+    def _link_name(self, period):
+        """ The 'current' state of the planner in the filesystem is represented
+        as a set of links that point to the current period log files for each
+        encompassing time period, i.e. specifically day, week, month, quarter,
+        and year, each of which corresponds to a unique "current" logfile on
+        disk.  This function returns the symbolic link for the specified time
+        period (which points to the current log file for that period).
+        """
+        if period == Day:
+            link = PLANNERDAYFILELINK
+        elif period == Week:
+            link = PLANNERWEEKFILELINK
+        elif period == Month:
+            link = PLANNERMONTHFILELINK
+        elif period == Quarter:
+            link = PLANNERQUARTERFILELINK
+        elif period == Year:
+            link = PLANNERYEARFILELINK
+
+        return link
+
+    def _write_log_to_file(self, period, is_new=False):
+        """ Write the log for the given period to the filesystem.
+        If this represents an advancement of the period in question,
+        then also update the 'current' state of the planner on disk
+        by updating the relevant symbolic link.
+        """
+        log_attr = self._logfile_attribute(period)
+        log = getattr(self, log_attr)
+        filename = self._log_filename(period)
+        self._write_file(log, filename)
+
+        # update "current" link on disk to the newly created file
+        if is_new:
+            link_name = self._link_name(period)
+            filelinkfn = "{}/{}".format(self.location, link_name)
+            if os.path.islink(filelinkfn):
+                os.remove(filelinkfn)
+            os.symlink(
+                filename[filename.rfind("/") + 1 :], filelinkfn
+            )  # remove path from filename so it isn't "double counted"
+
+    def update_disk_state(self, period=Year):
+        if period >= Year:
+            self._write_log_to_file(Year, is_new=True)
+        if period >= Quarter:
+            self._write_log_to_file(Quarter, is_new=True)
+        if period == Quarter:
+            self._write_log_to_file(Year)
+        if period >= Month:
+            self._write_log_to_file(Month, is_new=True)
+        if period == Month:
+            self._write_log_to_file(Quarter)
+        if period >= Week:
+            self._write_log_to_file(Week, is_new=True)
+        if period == Week:
+            self._write_log_to_file(Month)
+        if period >= Day:
+            self._write_log_to_file(Day, is_new=True)
+            # in any event if day was advanced, update tasklist
+            tasklist_filename = "{}/{}".format(
+                self.location, PLANNERTASKLISTFILE
+            )
+
+            self._write_file(self.tasklistfile, tasklist_filename)
+        if period == Day:
+            self._write_log_to_file(Week)
+
+        # can go in increasing order too?
+        # if so, make next_period a method on parent class
 
     def advance(self, now=None, simulate=False):
         """ Advance planner state to next day, updating week and month info
@@ -364,20 +454,6 @@ class FilesystemPlanner(PlannerBase):
         # save to the known files here
 
         status = super(FilesystemPlanner, self).advance(now, simulate)
-
-        tasklistfn = "{}/{}".format(self.location, PLANNERTASKLISTFILE)
-        dayfn_pre = "{}/{}".format(self.location, PLANNERDAYFILELINK)
-        dayfn_pre = "{}/{}".format(self.location, os.readlink(dayfn_pre))
-        weekfn_pre = "{}/{}".format(self.location, PLANNERWEEKFILELINK)
-        weekfn_pre = "{}/{}".format(self.location, os.readlink(weekfn_pre))
-        monthfn_pre = "{}/{}".format(self.location, PLANNERMONTHFILELINK)
-        monthfn_pre = "{}/{}".format(self.location, os.readlink(monthfn_pre))
-        quarterfn_pre = "{}/{}".format(self.location, PLANNERQUARTERFILELINK)
-        quarterfn_pre = "{}/{}".format(
-            self.location, os.readlink(quarterfn_pre)
-        )
-        yearfn_pre = "{}/{}".format(self.location, PLANNERYEARFILELINK)
-        yearfn_pre = "{}/{}".format(self.location, os.readlink(yearfn_pre))
 
         next_day = self.date
         (date, month, year) = (
@@ -433,36 +509,7 @@ class FilesystemPlanner(PlannerBase):
             raise SimulationPassedError("All systems GO", status)
 
         # make the changes on disk
-        if status >= Year:
-            self._write_new_logfile(
-                self.yearfile, PLANNERYEARFILELINK, yearfn_post
-            )
-        if status >= Quarter:
-            self._write_new_logfile(
-                self.quarterfile, PLANNERQUARTERFILELINK, quarterfn_post
-            )
-        if status == Quarter:
-            self._update_existing_logfile(self.yearfile, yearfn_pre)
-        if status >= Month:
-            self._write_new_logfile(
-                self.monthfile, PLANNERMONTHFILELINK, monthfn_post
-            )
-        if status == Month:
-            self._update_existing_logfile(self.quarterfile, quarterfn_pre)
-        if status >= Week:
-            self._write_new_logfile(
-                self.weekfile, PLANNERWEEKFILELINK, weekfn_post
-            )
-        if status == Week:
-            self._update_existing_logfile(self.monthfile, monthfn_pre)
-        if status >= Day:
-            self._write_new_logfile(
-                self.dayfile, PLANNERDAYFILELINK, dayfn_post
-            )
-            # in any event if day was advanced, update tasklist
-            self._update_existing_logfile(self.tasklistfile, tasklistfn)
-        if status == Day:
-            self._update_existing_logfile(self.weekfile, weekfn_pre)
+        self.update_disk_state(status)
 
     def check_log_completion(self, period):
         """ Check the logfile's NOTES section as a determination of whether
