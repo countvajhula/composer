@@ -450,6 +450,24 @@ class FilesystemPlanner(PlannerBase):
 
         self._write_file(self.tasklistfile, tasklist_filename)
 
+    def _check_files_for_contained_periods(self, period):
+        """ A helper to check if any time periods just advanced already have
+        log files on disk, which is unexpected and an error. This is only
+        appropriate to call after logical advance has occurred (but prior to
+        writing to disk).
+        """
+        if period == Zero:
+            return
+        filename = self._log_filename(period)
+        if os.path.isfile(filename):
+            raise LogfileAlreadyExistsError(
+                "New {period} logfile already exists!"
+                .format(period=period)
+            )
+        self._check_files_for_contained_periods(
+            get_next_period(period, decreasing=True)
+        )
+
     def advance(self, now=None, simulate=False):
         """ Advance planner state to next day, updating week and month info
         as necessary. 'now' arg used only for testing
@@ -460,55 +478,11 @@ class FilesystemPlanner(PlannerBase):
         # (possibly new) buffers
         # save to the known files here
 
+        # if successful, the date (self.date) is advanced to the next day
         status = super(FilesystemPlanner, self).advance(now, simulate)
 
-        next_day = self.date
-        (date, month, year) = (
-            next_day.day,
-            next_day.strftime("%B"),
-            next_day.year,
-        )
         # check for possible errors in planner state before making any changes
-        if status >= Year:
-            yearfn_post = "{path}/{year}.wiki".format(
-                path=self.location, year=year
-            )
-            if os.path.isfile(yearfn_post):
-                raise LogfileAlreadyExistsError(
-                    "New year logfile already exists!"
-                )
-        if status >= Quarter:
-            quarterfn_post = "{path}/{quarter} {year}.wiki".format(
-                path=self.location, quarter=quarter_for_month(month), year=year
-            )
-            if os.path.isfile(quarterfn_post):
-                raise LogfileAlreadyExistsError(
-                    "New quarter logfile already exists!"
-                )
-        if status >= Month:
-            monthfn_post = "{path}/Month of {month}, {year}.wiki".format(
-                path=self.location, month=month, year=year
-            )
-            if os.path.isfile(monthfn_post):
-                raise LogfileAlreadyExistsError(
-                    "New month logfile already exists!"
-                )
-        if status >= Week:
-            weekfn_post = "{path}/Week of {month} {date}, {year}.wiki".format(
-                path=self.location, month=month, date=date, year=year
-            )
-            if os.path.isfile(weekfn_post):
-                raise LogfileAlreadyExistsError(
-                    "New week logfile already exists!"
-                )
-        if status >= Day:
-            dayfn_post = "{path}/{month} {date}, {year}.wiki".format(
-                path=self.location, month=month, date=date, year=year
-            )
-            if os.path.isfile(dayfn_post):
-                raise LogfileAlreadyExistsError(
-                    "New day logfile already exists!"
-                )
+        self._check_files_for_contained_periods(status)
 
         # if this is a simulation, we're good to go - let's break out
         # of the matrix
