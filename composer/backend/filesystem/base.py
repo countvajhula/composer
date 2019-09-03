@@ -216,13 +216,19 @@ class FilesystemPlanner(PlannerBase):
 
         # daily, weekly, monthly checkpoints, periodic items
         self.checkpoints_weekday_file = self._read_file(
-            "{}/{}_Weekday_{}.wiki".format(
-                location, SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
+            full_file_path(
+                root=location,
+                filename="{}_Weekday_{}.wiki".format(
+                    SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
+                ),
             )
         )
         self.checkpoints_weekend_file = self._read_file(
-            "{}/{}_Weekend_{}.wiki".format(
-                location, SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
+            full_file_path(
+                root=location,
+                filename="{}_Weekend_{}.wiki".format(
+                    SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
+                ),
             )
         )
         self.periodic_day_file = self._read_file(
@@ -530,10 +536,6 @@ class FilesystemPlanner(PlannerBase):
 
     def save(self, period=Year):
         """ Write the planner object to the filesystem."""
-        # TODO: use pathspec / realpath everywhere.
-        # make construct() use pathspec
-        # construct full os-specific paths in a single helper
-        # with a flag to dereference links (realpath vs abspath probably)
         # reduce redundancy in construct()
         # This completes the R/W flow I think... except for the
         # calling of save in whatsnext which should be moved
