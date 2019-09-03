@@ -186,78 +186,48 @@ class FilesystemPlanner(PlannerBase):
 
     def construct(self, location=None):
         """ Construct a planner object from a filesystem representation."""
-        # CURRENT planner date used here
         if location is None:
             # needed for tests atm -- eventually make location a required arg
             return
         self.location = location
         self.date = self._get_date()
-        self.tasklistfile = self._read_file(
-            full_file_path(root=location, filename=PLANNERTASKLISTFILE)
-        )
-        self.daythemesfile = self._read_file(
-            full_file_path(root=location, filename=PLANNERDAYTHEMESFILE)
-        )
-        self.dayfile = self._read_file(
-            full_file_path(root=location, filename=PLANNERDAYFILELINK)
-        )
-        self.weekfile = self._read_file(
-            full_file_path(root=location, filename=PLANNERWEEKFILELINK)
-        )
-        self.monthfile = self._read_file(
-            full_file_path(root=location, filename=PLANNERMONTHFILELINK)
-        )
-        self.quarterfile = self._read_file(
-            full_file_path(root=location, filename=PLANNERQUARTERFILELINK)
-        )
-        self.yearfile = self._read_file(
-            full_file_path(root=location, filename=PLANNERYEARFILELINK)
-        )
+        # populate attributes on planner object from files on disk
+        planner_files = {
+            'tasklistfile': PLANNERTASKLISTFILE,
+            'daythemesfile': PLANNERDAYTHEMESFILE,
+            'dayfile': PLANNERDAYFILELINK,
+            'weekfile': PLANNERWEEKFILELINK,
+            'monthfile': PLANNERMONTHFILELINK,
+            'quarterfile': PLANNERQUARTERFILELINK,
+            'yearfile': PLANNERYEARFILELINK,
 
-        # daily, weekly, monthly checkpoints, periodic items
-        self.checkpoints_weekday_file = self._read_file(
-            full_file_path(
-                root=location,
-                filename="{}_Weekday_{}.wiki".format(
-                    SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
+            # daily, weekly, monthly checkpoints
+            'checkpoints_weekday_file': "{}_Weekday_{}.wiki".format(
+                SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
+            ),
+            'checkpoints_weekend_file': "{}_Weekend_{}.wiki".format(
+                SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
+            ),
+            'checkpoints_week_file': CHECKPOINTSWEEKFILE,
+            'checkpoints_month_file': CHECKPOINTSMONTHFILE,
+            'checkpoints_quarter_file': CHECKPOINTSQUARTERFILE,
+            'checkpoints_year_file': CHECKPOINTSYEARFILE,
+
+            # periodic items
+            'periodic_day_file': PERIODICDAILYFILE,
+            'periodic_week_file': PERIODICWEEKLYFILE,
+            'periodic_month_file': PERIODICMONTHLYFILE,
+            'periodic_quarter_file': PERIODICQUARTERLYFILE,
+            'periodic_year_file': PERIODICYEARLYFILE,
+        }
+        for attr, filename in planner_files.items():
+            setattr(
+                self,
+                attr,
+                self._read_file(
+                    full_file_path(root=location, filename=filename)
                 ),
             )
-        )
-        self.checkpoints_weekend_file = self._read_file(
-            full_file_path(
-                root=location,
-                filename="{}_Weekend_{}.wiki".format(
-                    SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
-                ),
-            )
-        )
-        self.periodic_day_file = self._read_file(
-            full_file_path(root=location, filename=PERIODICDAILYFILE)
-        )
-        self.checkpoints_week_file = self._read_file(
-            full_file_path(root=location, filename=CHECKPOINTSWEEKFILE)
-        )
-        self.periodic_week_file = self._read_file(
-            full_file_path(root=location, filename=PERIODICWEEKLYFILE)
-        )
-        self.checkpoints_month_file = self._read_file(
-            full_file_path(root=location, filename=CHECKPOINTSMONTHFILE)
-        )
-        self.periodic_month_file = self._read_file(
-            full_file_path(root=location, filename=PERIODICMONTHLYFILE)
-        )
-        self.checkpoints_quarter_file = self._read_file(
-            full_file_path(root=location, filename=CHECKPOINTSQUARTERFILE)
-        )
-        self.periodic_quarter_file = self._read_file(
-            full_file_path(root=location, filename=PERIODICQUARTERLYFILE)
-        )
-        self.checkpoints_year_file = self._read_file(
-            full_file_path(root=location, filename=CHECKPOINTSYEARFILE)
-        )
-        self.periodic_year_file = self._read_file(
-            full_file_path(root=location, filename=PERIODICYEARLYFILE)
-        )
 
     def schedule_tasks(self):
         """ Parse tasklist and today's agenda for any (e.g. newly-added)
@@ -536,7 +506,6 @@ class FilesystemPlanner(PlannerBase):
 
     def save(self, period=Year):
         """ Write the planner object to the filesystem."""
-        # reduce redundancy in construct()
         # This completes the R/W flow I think... except for the
         # calling of save in whatsnext which should be moved
 
