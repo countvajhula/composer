@@ -30,6 +30,7 @@ from .scheduling import (
 from .utils import (
     add_to_section,
     is_scheduled_task,
+    full_file_path,
     get_task_items,
     item_list_to_string,
     make_file,
@@ -64,7 +65,6 @@ PERIODICQUARTERLYFILE = "Periodic_Quarterly.wiki"
 PERIODICMONTHLYFILE = "Periodic_Monthly.wiki"
 PERIODICWEEKLYFILE = "Periodic_Weekly.wiki"
 PERIODICDAILYFILE = "Periodic_Daily.wiki"
-PATH_SPECIFICATION = "{path}/{filename}"
 
 
 class FilesystemPlanner(PlannerBase):
@@ -174,10 +174,9 @@ class FilesystemPlanner(PlannerBase):
     def _get_date(self):
         """ get planner date, currently looks for the file 'currentday',
         if dne throw exception """
-        plannerdatelink = PATH_SPECIFICATION.format(
-            path=self.location, filename=PLANNERDAYFILELINK
+        plannerdatefn = full_file_path(
+            self.location, PLANNERDAYFILELINK, dereference=True
         )
-        plannerdatefn = os.readlink(plannerdatelink)
         pathidx = plannerdatefn.rfind("/")
         datestr = plannerdatefn[
             pathidx + 1 : -5
@@ -194,39 +193,25 @@ class FilesystemPlanner(PlannerBase):
         self.location = location
         self.date = self._get_date()
         self.tasklistfile = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PLANNERTASKLISTFILE
-            )
+            full_file_path(root=location, filename=PLANNERTASKLISTFILE)
         )
         self.daythemesfile = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PLANNERDAYTHEMESFILE
-            )
+            full_file_path(root=location, filename=PLANNERDAYTHEMESFILE)
         )
         self.dayfile = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PLANNERDAYFILELINK
-            )
+            full_file_path(root=location, filename=PLANNERDAYFILELINK)
         )
         self.weekfile = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PLANNERWEEKFILELINK
-            )
+            full_file_path(root=location, filename=PLANNERWEEKFILELINK)
         )
         self.monthfile = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PLANNERMONTHFILELINK
-            )
+            full_file_path(root=location, filename=PLANNERMONTHFILELINK)
         )
         self.quarterfile = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PLANNERQUARTERFILELINK
-            )
+            full_file_path(root=location, filename=PLANNERQUARTERFILELINK)
         )
         self.yearfile = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PLANNERYEARFILELINK
-            )
+            full_file_path(root=location, filename=PLANNERYEARFILELINK)
         )
 
         # daily, weekly, monthly checkpoints, periodic items
@@ -241,49 +226,31 @@ class FilesystemPlanner(PlannerBase):
             )
         )
         self.periodic_day_file = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PERIODICDAILYFILE
-            )
+            full_file_path(root=location, filename=PERIODICDAILYFILE)
         )
         self.checkpoints_week_file = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=CHECKPOINTSWEEKFILE
-            )
+            full_file_path(root=location, filename=CHECKPOINTSWEEKFILE)
         )
         self.periodic_week_file = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PERIODICWEEKLYFILE
-            )
+            full_file_path(root=location, filename=PERIODICWEEKLYFILE)
         )
         self.checkpoints_month_file = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=CHECKPOINTSMONTHFILE
-            )
+            full_file_path(root=location, filename=CHECKPOINTSMONTHFILE)
         )
         self.periodic_month_file = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PERIODICMONTHLYFILE
-            )
+            full_file_path(root=location, filename=PERIODICMONTHLYFILE)
         )
         self.checkpoints_quarter_file = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=CHECKPOINTSQUARTERFILE
-            )
+            full_file_path(root=location, filename=CHECKPOINTSQUARTERFILE)
         )
         self.periodic_quarter_file = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PERIODICQUARTERLYFILE
-            )
+            full_file_path(root=location, filename=PERIODICQUARTERLYFILE)
         )
         self.checkpoints_year_file = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=CHECKPOINTSYEARFILE
-            )
+            full_file_path(root=location, filename=CHECKPOINTSYEARFILE)
         )
         self.periodic_year_file = self._read_file(
-            PATH_SPECIFICATION.format(
-                path=location, filename=PERIODICYEARLYFILE
-            )
+            full_file_path(root=location, filename=PERIODICYEARLYFILE)
         )
 
     def schedule_tasks(self):
@@ -409,9 +376,7 @@ class FilesystemPlanner(PlannerBase):
             )
         elif period == Year:
             filename = "{year}.wiki".format(year=year)
-        path = os.path.realpath(
-            PATH_SPECIFICATION.format(path=self.location, filename=filename)
-        )
+        path = full_file_path(root=self.location, filename=filename)
 
         return path
 
@@ -456,9 +421,7 @@ class FilesystemPlanner(PlannerBase):
         if is_new:
             # update "current" link on disk to the newly created file
             link_name = self._link_name(period)
-            filelinkfn = PATH_SPECIFICATION.format(
-                path=self.location, filename=link_name
-            )
+            filelinkfn = full_file_path(root=self.location, filename=link_name)
             if os.path.islink(filelinkfn):
                 os.remove(filelinkfn)
             os.symlink(
@@ -583,10 +546,8 @@ class FilesystemPlanner(PlannerBase):
             # write the logfile for the encompassing period
             next_period = get_next_period(period)
             self._write_log_to_file(next_period)
-        tasklist_filename = os.path.realpath(
-            PATH_SPECIFICATION.format(
-                path=self.location, filename=PLANNERTASKLISTFILE
-            )
+        tasklist_filename = full_file_path(
+            root=self.location, filename=PLANNERTASKLISTFILE
         )
 
         self._write_file(self.tasklistfile, tasklist_filename)
