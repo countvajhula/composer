@@ -8,9 +8,7 @@ from ..config import (
     LOGFILE_CHECKING,
 )
 from ..errors import LogfileNotCompletedError, PlannerIsInTheFutureError
-from ..timeperiod import get_next_day, get_next_period, Day, Zero, Year
-
-from .filesystem import templates
+from ..timeperiod import get_next_day, get_next_period, Zero, Year
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 

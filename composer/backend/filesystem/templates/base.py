@@ -3,11 +3,6 @@ import re
 
 from ..utils import is_task
 
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
-
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 
 

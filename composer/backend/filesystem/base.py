@@ -331,7 +331,9 @@ class FilesystemPlanner(PlannerBase):
         and return those, and also return a modified tasklist with those
         tasks removed """
         try:
-            tasks, tasklist_nextday = read_section(self.tasklistfile, 'tomorrow')
+            tasks, tasklist_nextday = read_section(
+                self.tasklistfile, 'tomorrow'
+            )
         except ValueError:
             raise TasklistLayoutError(
                 "Error: No 'TOMORROW' section found in your tasklist!"

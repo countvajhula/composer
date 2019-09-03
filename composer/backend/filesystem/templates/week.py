@@ -24,9 +24,7 @@ class WeekTemplate(Template):
         self.title = ("= WEEK OF %s %d, %d =\n" % (month, date, year)).upper()
         if self.theme:
             self.title += "\n"
-            self.title += (
-                "Theme: *WEEK OF %s*\n" % self.theme.upper()
-            )
+            self.title += "Theme: *WEEK OF %s*\n" % self.theme.upper()
         self.entry = "\t%s [[%s %d, %d]]\n" % (
             self.bullet_character,
             month,

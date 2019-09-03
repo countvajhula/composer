@@ -34,11 +34,7 @@ class YearTemplate(Template):
         newyearcontents = (
             yearcontents[: idx + 1]
             + "\t%s [[%s %d]]\n"
-            % (
-                self.bullet_character,
-                quarter_for_month(month),
-                year,
-            )
+            % (self.bullet_character, quarter_for_month(month), year)
             + yearcontents[idx + 1 :]
         )
         return newyearcontents
