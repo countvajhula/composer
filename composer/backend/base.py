@@ -8,7 +8,7 @@ from ..config import (
     LOGFILE_CHECKING,
 )
 from ..errors import LogfileNotCompletedError, PlannerIsInTheFutureError
-from ..timeperiod import get_next_day, get_next_period, Zero, Year
+from ..timeperiod import get_next_day, get_next_period, Day, Zero, Year
 
 from .filesystem import templates
 
@@ -95,7 +95,7 @@ class PlannerBase(ABC):
                     " Would you like to do that now?" % next_period
                 )
                 raise LogfileNotCompletedError(msg, next_period)
-            templates.write_new_template(self, next_period, next_day)
+            self.write_new_template(next_period, next_day)
 
             return self.advance_period(next_period)
         else:
@@ -103,7 +103,7 @@ class PlannerBase(ABC):
             # at all (e.g. a smaller period), we still want to
             # update the existing template for the encompassing period
             if current_period > Zero:
-                templates.write_existing_template(self, next_period, next_day)
+                self.write_existing_template(next_period, next_day)
             return current_period
 
     @abc.abstractmethod

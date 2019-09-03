@@ -7,7 +7,7 @@ from .quarter import QuarterTemplate
 from .year import YearTemplate
 
 
-def _get_template(planner, period, next_day):
+def get_template(planner, period, next_day):
     if period == Day:
         template = DayTemplate(planner, next_day)
     elif period == Week:
@@ -21,13 +21,3 @@ def _get_template(planner, period, next_day):
     else:
         template = ZeroTemplate(planner, next_day)
     return template
-
-
-def write_new_template(planner, period, next_day):
-    template = _get_template(planner, period, next_day)
-    template.write_new()
-
-
-def write_existing_template(planner, period, next_day):
-    template = _get_template(planner, period, next_day)
-    template.write_existing()

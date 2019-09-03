@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 
 from ..base import PlannerBase
+from ...config import LOGFILE_CHECKING
 from ...timeperiod import (
     get_next_period,
     Day,
@@ -19,6 +20,7 @@ from ...errors import (
     SchedulingDateError,
     SimulationPassedError,
     TasklistLayoutError,
+    TomorrowIsEmptyError,
 )
 from .scheduling import (
     check_logfile_for_errors,
@@ -27,6 +29,7 @@ from .scheduling import (
     SCHEDULED_DATE_PATTERN,
     get_date_for_schedule_string,
 )
+from .templates import get_template
 from .utils import (
     add_to_section,
     is_scheduled_task,
@@ -157,6 +160,8 @@ class FilesystemPlanner(PlannerBase):
             attr = 'quarterfile'
         elif period == Year:
             attr = 'yearfile'
+        elif period == Zero:
+            attr = ''
         return attr
 
     def _read_file(self, filename):
@@ -200,7 +205,6 @@ class FilesystemPlanner(PlannerBase):
             'monthfile': PLANNERMONTHFILELINK,
             'quarterfile': PLANNERQUARTERFILELINK,
             'yearfile': PLANNERYEARFILELINK,
-
             # daily, weekly, monthly checkpoints
             'checkpoints_weekday_file': "{}_Weekday_{}.wiki".format(
                 SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
@@ -212,7 +216,6 @@ class FilesystemPlanner(PlannerBase):
             'checkpoints_month_file': CHECKPOINTSMONTHFILE,
             'checkpoints_quarter_file': CHECKPOINTSQUARTERFILE,
             'checkpoints_year_file': CHECKPOINTSYEARFILE,
-
             # periodic items
             'periodic_day_file': PERIODICDAILYFILE,
             'periodic_week_file': PERIODICWEEKLYFILE,
@@ -282,9 +285,9 @@ class FilesystemPlanner(PlannerBase):
         self.tasklistfile = new_file
 
     def get_due_tasks(self, for_day):
-        """ Look at the SCHEDULED section of the tasklist and retrive any tasks
-        that are due/overdue for the given day (e.g. tomorrow, if preparing
-        tomorrow's agenda).
+        """ Look at the SCHEDULED section of the tasklist and retrieve any
+        tasks that are due/overdue for the given day (e.g. tomorrow, if
+        preparing tomorrow's agenda).
 
         This only operates on explicitly scheduled tasks, not tasks manually
         set aside for tomorrow or which may happen to be appropriate for the
@@ -322,6 +325,52 @@ class FilesystemPlanner(PlannerBase):
             tasklist_no_scheduled, 'scheduled', not_due
         )
         return due, new_tasklist
+
+    def get_tasks_for_tomorrow(self):
+        """ Read the tasklist, parse all tasks under the TOMORROW section
+        and return those, and also return a modified tasklist with those
+        tasks removed """
+        try:
+            tasks, tasklist_nextday = read_section(self.tasklistfile, 'tomorrow')
+        except ValueError:
+            raise TasklistLayoutError(
+                "Error: No 'TOMORROW' section found in your tasklist!"
+                " Please add one and try again."
+            )
+        if (
+            tasks.getvalue() == ""
+            and self.tomorrow_checking == LOGFILE_CHECKING["STRICT"]
+        ):
+            raise TomorrowIsEmptyError(
+                "The tomorrow section is blank. Do you want to add"
+                " some tasks for tomorrow?"
+            )
+        return tasks.read(), tasklist_nextday
+
+    def strip_due_tasks_from_tasklist(self):
+        scheduled, tasklistfile = self.planner.get_due_tasks(self.next_day)
+        tomorrow, tasklistfile = self.planner.get_tasks_for_tomorrow()
+        self.tasklistfile = tasklistfile
+
+    def _write_period_logfile(self, period, contents):
+        log_attr = self._logfile_attribute(period)
+        if log_attr:
+            setattr(self, log_attr, make_file(contents))
+
+    def write_new_template(self, period, next_day):
+        template = get_template(self, period, next_day)
+        contents = template.write_new()
+        self._write_period_logfile(period, contents)
+        if period == Day:
+            # this happens independently in creating the template
+            # vs here. ideally couple them to avoid bugs related
+            # to independent computation of the same thing
+            self.strip_due_tasks_from_tasklist()
+
+    def write_existing_template(self, period, next_day):
+        template = get_template(self, period, next_day)
+        contents = template.write_existing()
+        self._write_period_logfile(period, contents)
 
     def _log_filename(self, period):
         """ A time period uniquely maps to a single log file on disk for a

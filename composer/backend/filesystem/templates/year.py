@@ -9,7 +9,6 @@ class YearTemplate(Template):
     def load_context(self, planner, next_day):
         super(YearTemplate, self).load_context(planner, next_day)
         self.logfile = planner.yearfile
-        self.checkpointsfile = planner.yearfile
         self.checkpointsfile = planner.checkpoints_year_file
         self.periodicfile = planner.periodic_year_file
 
@@ -17,7 +16,7 @@ class YearTemplate(Template):
         month, year = (self.next_day.strftime("%B"), self.next_day.year)
         self.title = "= %d =\n" % year
         self.entry = "\t%s [[%s %d]]\n" % (
-            self.planner.preferred_bullet_char,
+            self.bullet_character,
             quarter_for_month(month),
             year,
         )
@@ -28,7 +27,7 @@ class YearTemplate(Template):
 
     def update(self):
         (month, year) = (self.next_day.strftime("%B"), self.next_day.year)
-        yearcontents = self.planner.yearfile.read()
+        yearcontents = self.logfile.read()
         last_quarter_entry = "Q"
         previdx = yearcontents.find(last_quarter_entry)
         idx = yearcontents.rfind("\n", 0, previdx)
@@ -36,7 +35,7 @@ class YearTemplate(Template):
             yearcontents[: idx + 1]
             + "\t%s [[%s %d]]\n"
             % (
-                self.planner.preferred_bullet_char,
+                self.bullet_character,
                 quarter_for_month(month),
                 year,
             )

@@ -13,6 +13,7 @@ class WeekTemplate(Template):
         self.checkpointsfile = planner.weekfile
         self.checkpointsfile = planner.checkpoints_week_file
         self.periodicfile = planner.periodic_week_file
+        self.theme = planner.week_theme
 
     def build(self):
         (date, month, year) = (
@@ -21,13 +22,13 @@ class WeekTemplate(Template):
             self.next_day.year,
         )
         self.title = ("= WEEK OF %s %d, %d =\n" % (month, date, year)).upper()
-        if self.planner.week_theme:
+        if self.theme:
             self.title += "\n"
             self.title += (
-                "Theme: *WEEK OF %s*\n" % self.planner.week_theme.upper()
+                "Theme: *WEEK OF %s*\n" % self.theme.upper()
             )
         self.entry = "\t%s [[%s %d, %d]]\n" % (
-            self.planner.preferred_bullet_char,
+            self.bullet_character,
             month,
             date,
             year,
@@ -43,7 +44,7 @@ class WeekTemplate(Template):
             self.next_day.strftime("%B"),
             self.next_day.year,
         )
-        weekcontents = self.planner.weekfile.read()
+        weekcontents = self.logfile.read()
         previous_day = self.next_day - datetime.timedelta(days=1)
         (dateprev, monthprev, yearprev) = (
             previous_day.day,
@@ -56,7 +57,7 @@ class WeekTemplate(Template):
         newweekcontents = (
             weekcontents[: idx + 1]
             + "\t%s [[%s %d, %d]]\n"
-            % (self.planner.preferred_bullet_char, month, date, year)
+            % (self.bullet_character, month, date, year)
             + weekcontents[idx + 1 :]
         )
         return newweekcontents

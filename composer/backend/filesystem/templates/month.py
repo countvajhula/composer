@@ -20,7 +20,7 @@ class MonthTemplate(Template):
         )
         self.title = "= %s %d =\n" % (month.upper(), year)
         self.entry = "\t%s [[Week of %s %d, %d]]\n" % (
-            self.planner.preferred_bullet_char,
+            self.bullet_character,
             month,
             date,
             year,
@@ -36,14 +36,14 @@ class MonthTemplate(Template):
             self.next_day.strftime("%B"),
             self.next_day.year,
         )
-        monthcontents = self.planner.monthfile.read()
+        monthcontents = self.logfile.read()
         last_week_entry = "Week of"
         previdx = monthcontents.find(last_week_entry)
         idx = monthcontents.rfind("\n", 0, previdx)
         newmonthcontents = (
             monthcontents[: idx + 1]
             + "\t%s [[Week of %s %d, %d]]\n"
-            % (self.planner.preferred_bullet_char, month, date, year)
+            % (self.bullet_character, month, date, year)
             + monthcontents[idx + 1 :]
         )
         return newmonthcontents

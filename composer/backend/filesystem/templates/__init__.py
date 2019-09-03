@@ -1,3 +1,3 @@
-from .interface import write_existing_template, write_new_template  # noqa
+from .interface import get_template  # noqa
 
-__all__ = ("write_existing_template", "write_new_template")
+__all__ = ("get_template", )

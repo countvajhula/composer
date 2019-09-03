@@ -47,6 +47,7 @@ class Template(ABC):
     def load_context(self, planner, next_day):
         self.tasklistfile = planner.tasklistfile
         self.next_day = next_day
+        self.bullet_character = planner.preferred_bullet_char
 
     @abc.abstractmethod
     def build(self):

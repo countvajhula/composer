@@ -16,8 +16,10 @@ from ..utils import (
     read_section,
 )
 from .base import Template
+from ..utils import contain_file_mutation
 
 
+@contain_file_mutation
 def _do_post_mortem(logfile):
     """ Return a list of done, undone and blocked tasks from today's agenda.
     """
@@ -41,28 +43,6 @@ def _do_post_mortem(logfile):
     return done, undone, blocked
 
 
-def _get_tasks_for_tomorrow(tasklist, tomorrow_checking):
-    """ Read the tasklist, parse all tasks under the TOMORROW section
-    and return those, and also return a modified tasklist with those
-    tasks removed """
-    try:
-        tasks, tasklist_nextday = read_section(tasklist, 'tomorrow')
-    except ValueError:
-        raise TasklistLayoutError(
-            "Error: No 'TOMORROW' section found in your tasklist!"
-            " Please add one and try again."
-        )
-    if (
-        tasks.getvalue() == ""
-        and tomorrow_checking == config.LOGFILE_CHECKING["STRICT"]
-    ):
-        raise TomorrowIsEmptyError(
-            "The tomorrow section is blank. Do you want to add"
-            " some tasks for tomorrow?"
-        )
-    return tasks.read(), tasklist_nextday
-
-
 def _get_theme_for_the_day(day, daythemesfile):
     dailythemes = daythemesfile.read().lower()
     theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -80,13 +60,16 @@ class DayTemplate(Template):
     def load_context(self, planner, next_day):
         super(DayTemplate, self).load_context(planner, next_day)
         self.logfile = planner.dayfile
-        self.checkpointsfile = planner.dayfile
+        self.scheduled, _ = planner.get_due_tasks(next_day)
+        self.tomorrow, _ = planner.get_tasks_for_tomorrow()
         nextdow = next_day.strftime("%A")
         if nextdow.lower() in ("saturday", "sunday"):
             self.checkpointsfile = planner.checkpoints_weekend_file
         else:
             self.checkpointsfile = planner.checkpoints_weekday_file
         self.periodicfile = planner.periodic_day_file
+        # TODO: themes could be made period-agnostic?
+        self.daythemesfile = planner.daythemesfile
 
     def build(self):
         (date, day, month, year) = (
@@ -99,31 +82,23 @@ class DayTemplate(Template):
             "= %s %s %d, %d =\n" % (day, month[:3], date, year)
         ).upper()
 
-        theme = _get_theme_for_the_day(day, self.planner.daythemesfile)
+        theme = _get_theme_for_the_day(day, self.daythemesfile)
         if theme:
             self.title += "\n"
             self.title += "Theme: %s\n" % theme
         self.periodicname = "DAILYs:\n"
-        _, undone, _ = _do_post_mortem(self.planner.dayfile)
-        tasklistfile = self.tasklistfile  # initial state of tasklist file
-        scheduled, tasklistfile = self.planner.get_due_tasks(self.next_day)
-        tomorrow, tasklistfile = _get_tasks_for_tomorrow(
-            tasklistfile, self.planner.tomorrow_checking
-        )
-        # TODO: do this mutation elsewhere
-        self.planner.tasklistfile = (
-            tasklistfile
-        )  # update the tasklist file to the post-processed version
+        _, undone, _ = _do_post_mortem(self.logfile)
+
         self.agenda = ""
         # if we have successfully ensured that every task item ends in a
         # newline character, then we can safely assume here that section
         # components can be neatly concatenated
-        if scheduled:
-            self.agenda += scheduled
+        if self.scheduled:
+            self.agenda += self.scheduled
         if undone:
             self.agenda += undone
-        if tomorrow:
-            self.agenda += tomorrow
+        if self.tomorrow:
+            self.agenda += self.tomorrow
         daytemplate = super(DayTemplate, self).build()
         return daytemplate
 
@@ -136,4 +111,4 @@ class DayTemplate(Template):
         # So updating an existing day file should be a no-op. For uniformity
         # we do return the contents of the dayfile here, so that an update
         # would be equivalent to a no-op.
-        return self.planner.dayfile.read()
+        return self.logfile.read()

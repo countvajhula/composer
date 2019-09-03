@@ -17,7 +17,7 @@ class QuarterTemplate(Template):
         (month, year) = (self.next_day.strftime("%B"), self.next_day.year)
         self.title = "= %s %d =\n" % (quarter_for_month(month), year)
         self.entry = "\t%s [[Month of %s, %d]]\n" % (
-            self.planner.preferred_bullet_char,
+            self.bullet_character,
             month,
             year,
         )
@@ -28,14 +28,14 @@ class QuarterTemplate(Template):
 
     def update(self):
         (month, year) = (self.next_day.strftime("%B"), self.next_day.year)
-        quartercontents = self.planner.quarterfile.read()
+        quartercontents = self.logfile.read()
         last_month_entry = "Month of"
         previdx = quartercontents.find(last_month_entry)
         idx = quartercontents.rfind("\n", 0, previdx)
         newquartercontents = (
             quartercontents[: idx + 1]
             + "\t%s [[Month of %s, %d]]\n"
-            % (self.planner.preferred_bullet_char, month, year)
+            % (self.bullet_character, month, year)
             + quartercontents[idx + 1 :]
         )
         return newquartercontents
