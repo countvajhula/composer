@@ -347,9 +347,11 @@ class FilesystemPlanner(PlannerBase):
             )
         return tasks.read(), tasklist_nextday
 
-    def strip_due_tasks_from_tasklist(self):
-        scheduled, tasklistfile = self.planner.get_due_tasks(self.next_day)
-        tomorrow, tasklistfile = self.planner.get_tasks_for_tomorrow()
+    def strip_due_tasks_from_tasklist(self, next_day):
+        # extract due tasks
+        _, tasklistfile = self.get_due_tasks(next_day)
+        # extract tomorrow section
+        _, tasklistfile = read_section(tasklistfile, 'tomorrow')
         self.tasklistfile = tasklistfile
 
     def _write_period_logfile(self, period, contents):
@@ -365,7 +367,7 @@ class FilesystemPlanner(PlannerBase):
             # this happens independently in creating the template
             # vs here. ideally couple them to avoid bugs related
             # to independent computation of the same thing
-            self.strip_due_tasks_from_tasklist()
+            self.strip_due_tasks_from_tasklist(next_day)
 
     def write_existing_template(self, period, next_day):
         template = get_template(self, period, next_day)

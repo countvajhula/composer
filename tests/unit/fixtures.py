@@ -15,6 +15,7 @@ from composer.config import (
     DEFAULT_SCHEDULE,
     LOGFILE_CHECKING,
 )
+from composer.backend import FilesystemPlanner
 
 
 class PlannerMock(MagicMock):
@@ -316,18 +317,18 @@ def planner():
         "SATURDAY: LAUNDRY DAY\n"
     )
 
-    planner = PlannerMock(
-        tasklistfile=StringIO(tasklist),
-        daythemesfile=StringIO(daythemes),
-        periodic_day_file=StringIO(periodic_day),
-        periodic_week_file=StringIO(periodic_week),
-        periodic_month_file=StringIO(periodic_month),
-        checkpoints_weekday_file=StringIO(checkpoints_weekday),
-        checkpoints_weekend_file=StringIO(checkpoints_weekend),
-        checkpoints_week_file=StringIO(checkpoints_week),
-        checkpoints_month_file=StringIO(checkpoints_month),
-        dayfile=StringIO(daytemplate),
-        weekfile=StringIO(weektemplate),
-        monthfile=StringIO(monthtemplate),
-    )
+    planner = FilesystemPlanner()
+    planner.tasklistfile = StringIO(tasklist)
+    planner.daythemesfile = StringIO(daythemes)
+    planner.periodic_day_file = StringIO(periodic_day)
+    planner.periodic_week_file = StringIO(periodic_week)
+    planner.periodic_month_file = StringIO(periodic_month)
+    planner.checkpoints_weekday_file = StringIO(checkpoints_weekday)
+    planner.checkpoints_weekend_file = StringIO(checkpoints_weekend)
+    planner.checkpoints_week_file = StringIO(checkpoints_week)
+    planner.checkpoints_month_file = StringIO(checkpoints_month)
+    planner.dayfile = StringIO(daytemplate)
+    planner.weekfile = StringIO(weektemplate)
+    planner.monthfile = StringIO(monthtemplate)
+
     return planner

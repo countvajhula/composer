@@ -84,20 +84,16 @@ class Template(ABC):
         raise NotImplementedError
 
     def write_existing(self):
+        # for the Zero template, this should be a noop
+        # for the Day template, it is a no-op as well
+        # (see day template `update` method)
         template = self.update()
-        file_attr = self._file_handle()
-        if file_attr:
-            # for the Zero template, this should be a noop
-            # for the Day template, it is a no-op as well
-            # (see day template `update` method)
-            setattr(self.planner, file_attr, StringIO(template))
+        return template
 
     def write_new(self):
+        # for the Zero template, this should be a noop
         template = self.build()
-        file_attr = self._file_handle()
-        if file_attr:
-            # for the Zero template, this should be a noop
-            setattr(self.planner, file_attr, StringIO(template))
+        return template
 
 
 class ZeroTemplate(Template):
