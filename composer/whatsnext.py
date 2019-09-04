@@ -135,18 +135,6 @@ def process_wiki(wikidir, preferences, now):
                 message = "EOD %s" % datestr
                 _make_git_commit(wikidir, message)
                 display_message("...DONE.")
-            if err.status >= Day:
-                planner = FilesystemPlanner(wikidir)
-                dayagenda = planner.get_agenda(Day)
-                if dayagenda:
-                    planner.update_agenda(Week, dayagenda)
-                planner.save()
-            if err.status >= Week:
-                planner = FilesystemPlanner(wikidir)
-                weekagenda = planner.get_agenda(Week)
-                if weekagenda:
-                    planner.update_agenda(Month, weekagenda)
-                planner.save()
             simulate = False
         except TomorrowIsEmptyError as err:
             yn = raw_input(

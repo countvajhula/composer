@@ -511,7 +511,8 @@ class FilesystemPlanner(PlannerBase):
             notes, _ = read_section(log, 'notes')
         except ValueError:
             raise LogfileLayoutError(
-                "Error: No 'NOTES' section found in your log file!"
+                "Error: No 'NOTES' section found in your {period} log file!"
+                .format(period=period)
             )
         notes = notes.read()
         if notes.strip("\n ") != "":
@@ -520,14 +521,17 @@ class FilesystemPlanner(PlannerBase):
 
     def get_agenda(self, period):
         """ Go through logfile and extract all tasks under AGENDA """
+        if period is Zero:
+            return None
         log_attr = self._logfile_attribute(period)
         log = getattr(self, log_attr)
         try:
             agenda, _ = read_section(log, 'agenda')
         except ValueError:
             raise LogfileLayoutError(
-                "No AGENDA section found in today's log file!"
+                "No AGENDA section found in {period} log file!"
                 " Add one and try again."
+                .format(period=period)
             )
         agenda = agenda.read()
         return agenda
@@ -544,8 +548,9 @@ class FilesystemPlanner(PlannerBase):
             )
         except ValueError:
             raise LogfileLayoutError(
-                "No AGENDA section found in today's log file!"
+                "No AGENDA section found in {period} log file!"
                 " Add one and try again."
+                .format(period=period)
             )
         setattr(self, log_attr, logfile_updated)
 
@@ -559,8 +564,6 @@ class FilesystemPlanner(PlannerBase):
 
     def save(self, period=Year):
         """ Write the planner object to the filesystem."""
-        # This completes the R/W flow I think... except for the
-        # calling of save in whatsnext which should be moved
 
         # write the logfiles for the current period as well as
         # all contained periods, since they all advance by one

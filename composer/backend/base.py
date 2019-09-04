@@ -8,7 +8,7 @@ from ..config import (
     LOGFILE_CHECKING,
 )
 from ..errors import LogfileNotCompletedError, PlannerIsInTheFutureError
-from ..timeperiod import get_next_day, get_next_period, Zero, Year
+from ..timeperiod import get_next_day, get_next_period, Zero, Month, Year
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 
@@ -66,6 +66,28 @@ class PlannerBase(ABC):
     def get_due_tasks(self, for_day):
         raise NotImplementedError
 
+    def cascade_agenda(self, current_period, next_period):
+        """ Append the current period's agenda to the next period's
+        agenda. This 'cascades' actvities up through encompassing
+        time periods, since something worked on on a given day is also
+        worked on during the containing periods (like the week).
+        """
+
+        # TODO: at the moment this doesn't do any parsing or deduplication of
+        # tasks. As a result, containing periods contain the same tasks over
+        # and over again, and often without any changes or only minor
+        # changes. While the feature is somewhat useful for grep style
+        # searching in order to find when things were done, it is minimally
+        # functional and not suitable for perusing. This should be improved,
+        # but for now, to minimize unreasonably large file sizes from
+        # duplication, limit cascade to only day->week->month
+
+        # TODO: this is getting overwritten by write_existing_template
+        if current_period < Month:
+            agenda = self.get_agenda(current_period)
+            if agenda:
+                self.update_agenda(next_period, agenda)
+
     def advance_period(self, current_period=None, next_day=None):
         """ Recursive function to advance planner by day, week, month, quarter, or year
         as the case may be.
@@ -94,6 +116,7 @@ class PlannerBase(ABC):
                 )
                 raise LogfileNotCompletedError(msg, next_period)
             self.write_new_template(next_period, next_day)
+            self.cascade_agenda(current_period, next_period)
 
             return self.advance_period(next_period)
         else:
