@@ -66,7 +66,7 @@ class PlannerBase(ABC):
     def get_due_tasks(self, for_day):
         raise NotImplementedError
 
-    def cascade_agenda(self, current_period, next_period):
+    def cascade_agenda(self, period):
         """ Append the current period's agenda to the next period's
         agenda. This 'cascades' actvities up through encompassing
         time periods, since something worked on on a given day is also
@@ -83,8 +83,9 @@ class PlannerBase(ABC):
         # duplication, limit cascade to only day->week->month
 
         # TODO: this is getting overwritten by write_existing_template
-        if current_period < Month:
-            agenda = self.get_agenda(current_period)
+        if period < Month:
+            agenda = self.get_agenda(period)
+            next_period = get_next_period(period)
             if agenda:
                 self.update_agenda(next_period, agenda)
 
@@ -115,8 +116,26 @@ class PlannerBase(ABC):
                     " Would you like to do that now?" % next_period
                 )
                 raise LogfileNotCompletedError(msg, next_period)
+            # we need to do the cascade before writing the new template since
+            # at that stage the period logfile would reflect the newly written
+            # one rather than the closing state of the one at the end of the
+            # period in question.
+            # Also note we are cascading the agenda for the *next* period to
+            # the still-higher period
+            #
+            # TODO: it would be cleaner if we could handle this as part of
+            # non-advancement of the next period, i.e. as part of modifying the
+            # existing template at that stage (the else clause below). In order
+            # to do this cleanly, it could make sense to define a notion of a
+            # "transaction" so that planner attributes are never mutated
+            # directly -- instead, the proposed changes are added to an active
+            # "transaction" which is reasoned about at each stage and committed
+            # at the end.  this way, we could use either the existing or the
+            # updated versions of any document at any stage, depending on what
+            # needs to be done, and wouldn't be tied to doing the cascade prior
+            # to new template generation here
+            self.cascade_agenda(next_period)
             self.write_new_template(next_period, next_day)
-            self.cascade_agenda(current_period, next_period)
 
             return self.advance_period(next_period)
         else:
