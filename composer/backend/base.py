@@ -166,5 +166,5 @@ class PlannerBase(ABC):
         return status
 
     @abc.abstractmethod
-    def save(self):
+    def save(self, period=Year):
         raise NotImplementedError
