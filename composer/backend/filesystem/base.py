@@ -511,8 +511,8 @@ class FilesystemPlanner(PlannerBase):
             notes, _ = read_section(log, 'notes')
         except ValueError:
             raise LogfileLayoutError(
-                "Error: No 'NOTES' section found in your {period} log file!"
-                .format(period=period)
+                "Error: No 'NOTES' section found in your {period} "
+                "log file!".format(period=period)
             )
         notes = notes.read()
         if notes.strip("\n ") != "":
@@ -530,8 +530,7 @@ class FilesystemPlanner(PlannerBase):
         except ValueError:
             raise LogfileLayoutError(
                 "No AGENDA section found in {period} log file!"
-                " Add one and try again."
-                .format(period=period)
+                " Add one and try again.".format(period=period)
             )
         agenda = agenda.read()
         return agenda
@@ -549,8 +548,7 @@ class FilesystemPlanner(PlannerBase):
         except ValueError:
             raise LogfileLayoutError(
                 "No AGENDA section found in {period} log file!"
-                " Add one and try again."
-                .format(period=period)
+                " Add one and try again.".format(period=period)
             )
         setattr(self, log_attr, logfile_updated)
 

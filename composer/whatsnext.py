@@ -10,7 +10,7 @@ from . import advice
 from . import config
 from . import updateindex
 from .backend import FilesystemPlanner
-from .timeperiod import Day, Week, Month, Zero
+from .timeperiod import Day, Week, Zero
 from .utils import display_message
 
 from .errors import (
