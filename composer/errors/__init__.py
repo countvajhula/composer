@@ -1,4 +1,4 @@
-from .base import ComposerError, SimulationPassedError  # noqa
+from .base import ComposerError  # noqa
 from .state import (  # noqa
     DayStillInProgressError,
     LogfileAlreadyExistsError,
@@ -26,7 +26,6 @@ from .scheduling import (  # noqa
 
 __all__ = (
     "ComposerError",
-    "SimulationPassedError",
     "SchedulingError",
     "BlockedTaskNotScheduledError",
     "SchedulingDateError",

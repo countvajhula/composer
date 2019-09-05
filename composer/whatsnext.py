@@ -18,7 +18,6 @@ from .errors import (
     LayoutError,
     LogfileNotCompletedError,
     PlannerStateError,
-    SimulationPassedError,
     TomorrowIsEmptyError,
 )
 
@@ -56,6 +55,14 @@ def _show_advice(wikidir, preferences):
 
     lessons_files = map(openfile, filepaths)
     display_message(advice.get_advice(lessons_files))
+
+
+def _ask_theme_for_week(preferences):
+    theme = raw_input(
+        "(Optional) Enter a theme for the upcoming week,"
+        " e.g. Week of 'Timeliness', or 'Completion':__"
+    )
+    preferences['week_theme'] = theme if theme else None
 
 
 def _post_advance_tasks(wikidir, preferences):
@@ -103,39 +110,15 @@ def _post_advance_tasks(wikidir, preferences):
 
 
 def process_wiki(wikidir, preferences, now):
-    simulate = True
+    """ Advance the wiki according to any configured preferences.
+    """
+    # simulate the changes first and then when it's all OK, make the necessary
+    # preparations (e.g. git commit) and actually perform the changes
     while True:
         try:
             planner = FilesystemPlanner(wikidir)
             planner.set_preferences(preferences)
-            status = planner.advance(now=now, simulate=simulate)
-        except SimulationPassedError as err:
-            # print "DEV: simulation passed. let's do this thing
-            # ... for real."
-            if err.status >= Week:
-                theme = raw_input(
-                    "(Optional) Enter a theme for the upcoming week,"
-                    " e.g. Week of 'Timeliness', or 'Completion':__"
-                )
-                preferences['week_theme'] = theme if theme else None
-            if err.status >= Day:
-                # git commit a "before", now that we know changes
-                # are about to be written to planner
-                display_message()
-                display_message(
-                    "Saving EOD planner state before making changes..."
-                )
-                plannerdate = FilesystemPlanner(wikidir).date
-                (date, month, year) = (
-                    plannerdate.day,
-                    plannerdate.strftime("%B"),
-                    plannerdate.year,
-                )
-                datestr = "%s %d, %d" % (month, date, year)
-                message = "EOD %s" % datestr
-                _make_git_commit(wikidir, message)
-                display_message("...DONE.")
-            simulate = False
+            status = planner.advance(now=now)
         except TomorrowIsEmptyError as err:
             yn = raw_input(
                 "The tomorrow section is blank. Do you want to add"
@@ -176,13 +159,37 @@ def process_wiki(wikidir, preferences, now):
         except LayoutError as err:
             raise
         else:
+            # print "DEV: simulation passed. let's do this thing
+            # ... for real."
+            if status >= Week:
+                _ask_theme_for_week(preferences)  # mutates preferences
+            if status >= Day:
+                # git commit a "before", now that we know changes
+                # are about to be written to planner
+                display_message()
+                display_message(
+                    "Saving EOD planner state before making changes..."
+                )
+                plannerdate = FilesystemPlanner(wikidir).date
+                (date, month, year) = (
+                    plannerdate.day,
+                    plannerdate.strftime("%B"),
+                    plannerdate.year,
+                )
+                datestr = "%s %d, %d" % (month, date, year)
+                message = "EOD %s" % datestr
+                _make_git_commit(wikidir, message)
+                display_message("...DONE.")
+
             if status > Zero:
+                # actually make the changes on disk. No changes should
+                # have been persisted up to this point
+                planner.save(status)
+
                 _post_advance_tasks(wikidir, preferences)
                 if (
-                    planner.jumping
+                    not planner.jumping
                 ):  # if jumping, keep repeating until present-day error thrown
-                    simulate = True
-                else:
                     break
             else:
                 display_message(
@@ -230,9 +237,6 @@ def main(wikipath=None, test=False, jump=False):
         display_message()
         display_message(">>> Get ready to JUMP! <<<")
         display_message()
-
-    # simulate the changes first and then when it's all OK, make the necessary
-    # preparations (e.g. git commit) and actually perform the changes
 
     for wikidir in wikidirs:
         display_message()

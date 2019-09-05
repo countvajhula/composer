@@ -18,7 +18,6 @@ from ...errors import (
     LogfileAlreadyExistsError,
     LogfileLayoutError,
     SchedulingDateError,
-    SimulationPassedError,
     TasklistLayoutError,
     TomorrowIsEmptyError,
 )
@@ -474,7 +473,7 @@ class FilesystemPlanner(PlannerBase):
             get_next_period(period, decreasing=True)
         )
 
-    def advance(self, now=None, simulate=False):
+    def advance(self, now=None):
         """ Advance planner state to next day, updating week and month info
         as necessary. 'now' arg used only for testing
         """
@@ -485,19 +484,10 @@ class FilesystemPlanner(PlannerBase):
         # save to the known files here
 
         # if successful, the date (self.date) is advanced to the next day
-        status = super(FilesystemPlanner, self).advance(now, simulate)
+        status = super(FilesystemPlanner, self).advance(now)
 
         # check for possible errors in planner state before making any changes
         self._check_files_for_contained_periods(status)
-
-        # if this is a simulation, we're good to go - let's break out
-        # of the matrix
-        if status >= Day:
-            if simulate:
-                raise SimulationPassedError("All systems GO", status)
-            else:
-                # make the changes on disk
-                self.save(status)
 
         return status
 

@@ -133,7 +133,9 @@ class PlannerBase(ABC):
             # at the end.  this way, we could use either the existing or the
             # updated versions of any document at any stage, depending on what
             # needs to be done, and wouldn't be tied to doing the cascade prior
-            # to new template generation here
+            # to new template generation here.
+            # Consider using the python transaction library to keep these
+            # transaction-specific semantics streamlined
             self.cascade_agenda(next_period)
             self.write_new_template(next_period, next_day)
 
@@ -147,7 +149,7 @@ class PlannerBase(ABC):
             return current_period
 
     @abc.abstractmethod
-    def advance(self, now=None, simulate=False):
+    def advance(self, now=None):
         """ Advance planner state to next day, updating week and month info
         as necessary. 'now' arg used only for testing
         """
