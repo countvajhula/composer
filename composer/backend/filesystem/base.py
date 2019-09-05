@@ -190,6 +190,8 @@ class FilesystemPlanner(PlannerBase):
 
     def construct(self, location=None):
         """ Construct a planner object from a filesystem representation."""
+        # use a bunch of StringIO buffers for the Planner object
+        # populate them here from real files
         if location is None:
             # needed for tests atm -- eventually make location a required arg
             return
@@ -477,17 +479,11 @@ class FilesystemPlanner(PlannerBase):
         """ Advance planner state to next day, updating week and month info
         as necessary. 'now' arg used only for testing
         """
-        # use a bunch of StringIO buffers for the Planner object
-        # populate them here from real files
         # after the advance() returns, the handles will be updated to the
         # (possibly new) buffers
-        # save to the known files here
 
         # if successful, the date (self.date) is advanced to the next day
         status = super(FilesystemPlanner, self).advance(now)
-
-        # check for possible errors in planner state before making any changes
-        self._check_files_for_contained_periods(status)
 
         return status
 
@@ -552,6 +548,10 @@ class FilesystemPlanner(PlannerBase):
 
     def save(self, period=Year):
         """ Write the planner object to the filesystem."""
+
+        # check for possible errors in planner state before making any changes
+        # if errors are found, an exception is raised and no changes are made
+        self._check_files_for_contained_periods(period)
 
         # write the logfiles for the current period as well as
         # all contained periods, since they all advance by one

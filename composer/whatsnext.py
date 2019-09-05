@@ -184,7 +184,10 @@ def process_wiki(wikidir, preferences, now):
             if status > Zero:
                 # actually make the changes on disk. No changes should
                 # have been persisted up to this point
-                planner.save(status)
+                try:
+                    planner.save(status)
+                except PlannerStateError:
+                    raise
 
                 _post_advance_tasks(wikidir, preferences)
                 if (
