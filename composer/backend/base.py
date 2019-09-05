@@ -148,10 +148,14 @@ class PlannerBase(ABC):
                 self.write_existing_template(next_period, next_day)
             return current_period
 
-    @abc.abstractmethod
     def advance(self, now=None):
         """ Advance planner state to next day, updating week and month info
         as necessary. 'now' arg used only for testing
+        If successful, the date (self.date) is advanced to the next day
+
+        Note that for the filesystem planner, after the advance() returns, the
+        file handles will have been updated to the (possibly new) buffers (but
+        still not persisted until save() is called).
         """
         if not now:
             now = datetime.now()

@@ -475,18 +475,6 @@ class FilesystemPlanner(PlannerBase):
             get_next_period(period, decreasing=True)
         )
 
-    def advance(self, now=None):
-        """ Advance planner state to next day, updating week and month info
-        as necessary. 'now' arg used only for testing
-        """
-        # after the advance() returns, the handles will be updated to the
-        # (possibly new) buffers
-
-        # if successful, the date (self.date) is advanced to the next day
-        status = super(FilesystemPlanner, self).advance(now)
-
-        return status
-
     def check_log_completion(self, period):
         """ Check the logfile's NOTES section as a determination of whether
         the log has been completed """
