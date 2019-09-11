@@ -75,14 +75,14 @@ def _post_advance_tasks(wikidir, preferences):
     """
     display_message()
     display_message(
-        "Moving tasks added for tomorrow over to" " tomorrow's agenda..."
+        "Moving tasks added for tomorrow over to tomorrow's agenda..."
     )
     display_message(
         "Carrying over any unfinished tasks from today"
         " to tomorrow's agenda..."
     )
     display_message(
-        "Checking for any other tasks previously scheduled " "for tomorrow..."
+        "Checking for any other tasks previously scheduled for tomorrow..."
     )
     display_message("Creating/updating log files...")
     display_message("...DONE.")

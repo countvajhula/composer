@@ -473,6 +473,10 @@ class FilesystemPlanner(PlannerBase):
         If this represents an advancement of the period in question,
         then also update the 'current' state of the planner on disk
         by updating the relevant symbolic link.
+
+        :param bool is_existing: If true, then write to an existing file.
+            Otherwise, write a new file and update the existing link to point
+            to it.
         """
         log = self._get_logfile(period)
         filename = self._log_filename(period, is_existing)
