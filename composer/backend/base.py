@@ -9,6 +9,7 @@ from ..config import (
 )
 from ..errors import LogfileNotCompletedError, PlannerIsInTheFutureError
 from ..timeperiod import get_next_day, get_next_period, Zero, Month, Year
+from ..utils import display_message
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 
@@ -99,12 +100,14 @@ class PlannerBase(ABC):
         # period since at that stage the logfile attribute would reflect the
         # newly written one rather than the closing state of the one at the end
         # of the period in question.
+        display_message("Performing bookkeeping for {period}'s end...".format(period=period))
         self.cascade_agenda(period)
 
     def begin_period(self, period, next_day):
         """ Perform any tasks needed to begin a new period.
         At the moment this just creates a log for the new period.
         """
+        display_message("Beginning new {period}...".format(period=period))
         self.create_log(period, next_day)
 
     def advance_period(self, current_period=None, next_day=None):

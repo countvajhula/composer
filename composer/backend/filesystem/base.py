@@ -21,6 +21,7 @@ from ...errors import (
     TasklistLayoutError,
     TomorrowIsEmptyError,
 )
+from ...utils import display_message
 from .scheduling import (
     check_logfile_for_errors,
     check_scheduled_section_for_errors,
@@ -253,6 +254,9 @@ class FilesystemPlanner(PlannerBase):
         # TODO: keep low-level operations contained in utils -- make/extend
         # additional interfaces as needed
         # TODO: these diagnostics are not covered by tests
+        display_message(
+            "Tracking any newly scheduled tasks..."
+        )
         check_scheduled_section_for_errors(self)
         check_logfile_for_errors(self.dayfile)
         # ignore tasks in tomorrow since actively scheduled by you
@@ -311,6 +315,9 @@ class FilesystemPlanner(PlannerBase):
                 raise
             return for_day >= matched_date["date"]
 
+        display_message(
+            "Checking previously scheduled tasks for any that are due tomorrow..."
+        )
         try:
             scheduled, tasklist_no_scheduled = read_section(
                 self.tasklistfile, "scheduled"
@@ -331,6 +338,9 @@ class FilesystemPlanner(PlannerBase):
         """ Read the tasklist, parse all tasks under the TOMORROW section
         and return those, and also return a modified tasklist with those
         tasks removed """
+        display_message(
+            "Moving tasks added for tomorrow over to tomorrow's agenda..."
+        )
         try:
             tasks, tasklist_nextday = read_section(
                 self.tasklistfile, 'tomorrow'
@@ -373,6 +383,7 @@ class FilesystemPlanner(PlannerBase):
         corresponding to the period in question to the newly created logical
         file.
         """
+        display_message("Creating log file for {period}...".format(period=period))
         template = get_template(self, period, next_day)
         contents = template.write_new()
         self._update_period_logfile(period, contents)
@@ -386,6 +397,7 @@ class FilesystemPlanner(PlannerBase):
         """ Update the existing log for the specified period to account for the
         advancement of a contained period.
         """
+        display_message("Updating log file for {period}...".format(period=period))
         template = get_template(self, period, next_day)
         contents = template.write_existing()
         self._update_period_logfile(period, contents)

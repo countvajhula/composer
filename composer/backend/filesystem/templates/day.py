@@ -1,5 +1,7 @@
 from ....errors import LogfileLayoutError
+from ....utils import display_message
 from ..utils import (
+    contain_file_mutation,
     filter_items,
     get_task_items,
     is_completed_task,
@@ -11,13 +13,16 @@ from ..utils import (
     read_section,
 )
 from .base import Template
-from ..utils import contain_file_mutation
 
 
 @contain_file_mutation
 def _do_post_mortem(logfile):
     """ Return a list of done, undone and blocked tasks from today's agenda.
     """
+    display_message(
+        "Carrying over any unfinished tasks from today"
+        " to tomorrow's agenda..."
+    )
     try:
         tasks, _ = read_section(logfile, 'agenda')
     except ValueError:

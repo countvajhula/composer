@@ -73,24 +73,10 @@ def _post_advance_tasks(wikidir, preferences):
     the advance, but that should eventually be moved to originate
     at the point where they actually occur.
     """
-    display_message()
-    display_message(
-        "Moving tasks added for tomorrow over to tomorrow's agenda..."
-    )
-    display_message(
-        "Carrying over any unfinished tasks from today"
-        " to tomorrow's agenda..."
-    )
-    display_message(
-        "Checking for any other tasks previously scheduled for tomorrow..."
-    )
-    display_message("Creating/updating log files...")
-    display_message("...DONE.")
     # update index after making changes
     display_message()
     display_message("Updating planner wiki index...")
     updateindex.update_index(wikidir)
-    display_message("...DONE.")
     # git commit "after"
     display_message()
     display_message("Committing all changes...")
@@ -104,7 +90,6 @@ def _post_advance_tasks(wikidir, preferences):
     message = "SOD %s" % datestr
     _make_git_commit(wikidir, message)
 
-    display_message("...DONE.")
     display_message()
     _show_advice(wikidir, preferences)
 
@@ -114,7 +99,13 @@ def process_wiki(wikidir, preferences, now):
     """
     # simulate the changes first and then when it's all OK, make the necessary
     # preparations (e.g. git commit) and actually perform the changes
+    display_message()
+    display_message(
+        ">>> Operating on planner at location: %s <<<" % wikidir
+    )
+
     while True:
+        display_message()
         try:
             planner = FilesystemPlanner(wikidir)
             planner.set_preferences(preferences)
@@ -179,7 +170,6 @@ def process_wiki(wikidir, preferences, now):
                 datestr = "%s %d, %d" % (month, date, year)
                 message = "EOD %s" % datestr
                 _make_git_commit(wikidir, message)
-                display_message("...DONE.")
 
             if status > Zero:
                 # actually make the changes on disk. No changes should
@@ -242,11 +232,6 @@ def main(wikipath=None, test=False, jump=False):
         display_message()
 
     for wikidir in wikidirs:
-        display_message()
-        display_message(
-            ">>> Operating on planner at location: %s <<<" % wikidir
-        )
-        display_message()
         process_wiki(wikidir, preferences, now)
 
 
