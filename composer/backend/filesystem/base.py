@@ -390,15 +390,17 @@ class FilesystemPlanner(PlannerBase):
         contents = template.write_existing()
         self._update_period_logfile(period, contents)
 
-    def _log_filename(self, period):
+    def _log_filename(self, period, for_date=None):
         """ A time period uniquely maps to a single log file on disk for a
         particular planner instance (which is tied to a wiki root path).  This
         function returns that filename, given a time period.
         """
+        if not for_date:
+            for_date = self.date
         (date, month, year) = (
-            self.date.day,
-            self.date.strftime("%B"),
-            self.date.year,
+            for_date.day,
+            for_date.strftime("%B"),
+            for_date.year,
         )
 
         if period == Day:
@@ -444,14 +446,14 @@ class FilesystemPlanner(PlannerBase):
 
         return link
 
-    def _write_log_to_file(self, period):
+    def _write_log_to_file(self, period, for_date=None):
         """ Write the log for the given period to the filesystem.
         If this represents an advancement of the period in question,
         then also update the 'current' state of the planner on disk
         by updating the relevant symbolic link.
         """
         log = self._get_logfile(period)
-        filename = self._log_filename(period)
+        filename = self._log_filename(period, for_date)
         if os.path.isfile(filename):
             is_new = False
         else:
@@ -546,6 +548,9 @@ class FilesystemPlanner(PlannerBase):
     def save(self, period=Year):
         """ Write the planner object to the filesystem."""
 
+        # note original planner date prior to advance
+        original_date = self._get_date()
+
         # check for possible errors in planner state before making any changes
         # if errors are found, an exception is raised and no changes are made
         self._check_files_for_contained_periods(period)
@@ -557,7 +562,9 @@ class FilesystemPlanner(PlannerBase):
         if period < Year:
             # write the logfile for the encompassing period
             next_period = get_next_period(period)
-            self._write_log_to_file(next_period)
+            # use the pre-advance date to determine the filename for the
+            # encompassing period
+            self._write_log_to_file(next_period, for_date=original_date)
         tasklist_filename = full_file_path(
             root=self.location, filename=PLANNERTASKLISTFILE
         )
