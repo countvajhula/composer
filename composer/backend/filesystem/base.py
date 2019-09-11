@@ -390,17 +390,16 @@ class FilesystemPlanner(PlannerBase):
         contents = template.write_existing()
         self._update_period_logfile(period, contents)
 
-    def _log_filename(self, period, for_date=None):
-        """ A time period uniquely maps to a single log file on disk for a
-        particular planner instance (which is tied to a wiki root path).  This
-        function returns that filename, given a time period.
-        """
-        if not for_date:
-            for_date = self.date
+    def _get_path_for_existing_log(self, period):
+        link = self._link_name(period)
+        path = full_file_path(root=self.location, filename=link, dereference=True)
+        return path
+
+    def _get_path_for_new_log(self, period):
         (date, month, year) = (
-            for_date.day,
-            for_date.strftime("%B"),
-            for_date.year,
+            self.date.day,
+            self.date.strftime("%B"),
+            self.date.year,
         )
 
         if period == Day:
@@ -425,6 +424,29 @@ class FilesystemPlanner(PlannerBase):
 
         return path
 
+    def _log_filename(self, period, is_existing=False):
+        """ A time period uniquely maps to a single log file on disk for a
+        particular planner instance (which is tied to a wiki root path).  This
+        function returns that filename, given a time period. At the moment this
+        simply assumes that the reference date is the start of the indicated
+        period and constructs a standard filename based on that, but it may be
+        desirable to infer the correct filename for the actual or hypothetical
+        logfile that would encompass the reference date, based on the current
+        period boundary criteria used by the planner.
+
+        :param :class:`composer.timeperiod.Period` period: The time period for
+            which to determine a filename
+        :param bool is_existing: Whether to return the filename for an existing
+            log file for the indicated period. If true, then this simply uses
+            the current state on disk and doesn't compute the filename
+        """
+        if is_existing:
+            # use the existing state on disk, don't compute a path
+            return self._get_path_for_existing_log(period)
+        else:
+            # compute a filename based on the reference date
+            return self._get_path_for_new_log(period)
+
     def _link_name(self, period):
         """ The 'current' state of the planner in the filesystem is represented
         as a set of links that point to the current period log files for each
@@ -446,14 +468,14 @@ class FilesystemPlanner(PlannerBase):
 
         return link
 
-    def _write_log_to_file(self, period, for_date=None):
+    def _write_log_to_file(self, period, is_existing=False):
         """ Write the log for the given period to the filesystem.
         If this represents an advancement of the period in question,
         then also update the 'current' state of the planner on disk
         by updating the relevant symbolic link.
         """
         log = self._get_logfile(period)
-        filename = self._log_filename(period, for_date)
+        filename = self._log_filename(period, is_existing)
         if os.path.isfile(filename):
             is_new = False
         else:
@@ -548,9 +570,6 @@ class FilesystemPlanner(PlannerBase):
     def save(self, period=Year):
         """ Write the planner object to the filesystem."""
 
-        # note original planner date prior to advance
-        original_date = self._get_date()
-
         # check for possible errors in planner state before making any changes
         # if errors are found, an exception is raised and no changes are made
         self._check_files_for_contained_periods(period)
@@ -564,7 +583,7 @@ class FilesystemPlanner(PlannerBase):
             next_period = get_next_period(period)
             # use the pre-advance date to determine the filename for the
             # encompassing period
-            self._write_log_to_file(next_period, for_date=original_date)
+            self._write_log_to_file(next_period, is_existing=True)
         tasklist_filename = full_file_path(
             root=self.location, filename=PLANNERTASKLISTFILE
         )
