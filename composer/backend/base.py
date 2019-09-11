@@ -89,6 +89,20 @@ class PlannerBase(ABC):
             if agenda:
                 self.update_agenda(next_period, agenda)
 
+    def end_period(self, period):
+        """ Perform any tasks needed to close out a period.
+        At the moment this cascades the period's agenda to the containing
+        period's agenda, since for example anything done on some day is also
+        done in that containing week.
+        """
+        self.cascade_agenda(period)
+
+    def begin_period(self, period, next_day):
+        """ Perform any tasks needed to begin a new period.
+        At the moment this just creates a log for the new period.
+        """
+        self.create_log(period, next_day)
+
     def advance_period(self, current_period=None, next_day=None):
         """ Recursive function to advance planner by day, week, month, quarter, or year
         as the case may be.
@@ -125,8 +139,8 @@ class PlannerBase(ABC):
             # task done as part of the start of the new contained period
             # Also note we are cascading the agenda for the *next* period to
             # the still-higher period
-            self.cascade_agenda(next_period)
-            self.create_log(next_period, next_day)
+            self.end_period(next_period)
+            self.begin_period(next_period, next_day)
 
             return self.advance_period(next_period)
         else:
