@@ -476,15 +476,11 @@ class FilesystemPlanner(PlannerBase):
         """
         log = self._get_logfile(period)
         filename = self._log_filename(period, is_existing)
-        if os.path.isfile(filename):
-            is_new = False
-        else:
-            is_new = True
 
         # write the file to disk
         self._write_file(log, filename)
 
-        if is_new:
+        if not is_existing:
             # update "current" link on disk to the newly created file
             link_name = self._link_name(period)
             filelinkfn = full_file_path(root=self.location, filename=link_name)

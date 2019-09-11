@@ -95,6 +95,10 @@ class PlannerBase(ABC):
         period's agenda, since for example anything done on some day is also
         done in that containing week.
         """
+        # we need to do the cascade before writing the new template for the
+        # period since at that stage the logfile attribute would reflect the
+        # newly written one rather than the closing state of the one at the end
+        # of the period in question.
         self.cascade_agenda(period)
 
     def begin_period(self, period, next_day):
@@ -130,15 +134,7 @@ class PlannerBase(ABC):
                     " Would you like to do that now?" % next_period
                 )
                 raise LogfileNotCompletedError(msg, next_period)
-            # we need to do the cascade before writing the new template since
-            # at that stage the period logfile would reflect the newly written
-            # one rather than the closing state of the one at the end of the
-            # period in question. As such, cascading is a task done as part of
-            # the end of a contained period, while updating an existing
-            # containing template to account for a newly created logfile is a
-            # task done as part of the start of the new contained period
-            # Also note we are cascading the agenda for the *next* period to
-            # the still-higher period
+
             self.end_period(next_period)
             self.begin_period(next_period, next_day)
 
