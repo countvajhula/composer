@@ -35,7 +35,7 @@ class TestNewTemplateIntegrity(object):
         monthtemplate += "NOTES:\n\n\n"
         monthtemplate += "TIME SPENT ON PLANNER: "
 
-        planner.write_new_template(Month, next_day)
+        planner.create_log(Month, next_day)
 
         assert planner.monthfile.read() == monthtemplate
 
@@ -66,7 +66,7 @@ class TestNewTemplateIntegrity(object):
         weektemplate += "NOTES:\n\n\n"
         weektemplate += "TIME SPENT ON PLANNER: "
 
-        planner.write_new_template(Week, next_day)
+        planner.create_log(Week, next_day)
 
         assert planner.weekfile.read() == weektemplate
 
@@ -184,7 +184,7 @@ class TestNewTemplateIntegrity(object):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        my_planner.write_new_template(Day, next_day)
+        my_planner.create_log(Day, next_day)
 
         assert my_planner.dayfile.read() == daytemplate
         assert my_planner.tasklistfile.read() == tasklist_nextday
@@ -217,7 +217,7 @@ class TestExistingTemplateUpdateIntegrity(object):
             "TIME SPENT ON PLANNER: "
         )
 
-        planner.write_existing_template(Month, next_day)
+        planner.update_log(Month, next_day)
         assert planner.monthfile.read() == monthtemplate_updated
 
     def test_update_existing_week_template(self, planner):
@@ -250,5 +250,5 @@ class TestExistingTemplateUpdateIntegrity(object):
             "TIME SPENT ON PLANNER: "
         )
 
-        planner.write_existing_template(Week, next_day)
+        planner.update_log(Week, next_day)
         assert planner.weekfile.read() == weektemplate_updated

@@ -31,6 +31,9 @@ class MonthTemplate(Template):
         return template
 
     def update(self):
+        """ Create a link to the new week log file in the current month log
+        file.
+        """
         (date, month, year) = (
             self.next_day.day,
             self.next_day.strftime("%B"),

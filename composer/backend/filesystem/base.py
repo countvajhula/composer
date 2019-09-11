@@ -362,25 +362,33 @@ class FilesystemPlanner(PlannerBase):
         log = getattr(self, log_attr)
         return log
 
-    def _write_period_logfile(self, period, contents):
+    def _update_period_logfile(self, period, contents):
         log_attr = self._logfile_attribute(period)
         if log_attr:
             setattr(self, log_attr, make_file(contents))
 
-    def write_new_template(self, period, next_day):
+    def create_log(self, period, next_day):
+        """ Create a new log for the specified period and associate it with the
+        current Planner instance. This updates the logfile attribute
+        corresponding to the period in question to the newly created logical
+        file.
+        """
         template = get_template(self, period, next_day)
         contents = template.write_new()
-        self._write_period_logfile(period, contents)
+        self._update_period_logfile(period, contents)
         if period == Day:
             # this happens independently in creating the template
             # vs here. ideally couple them to avoid bugs related
             # to independent computation of the same thing
             self.strip_due_tasks_from_tasklist(next_day)
 
-    def write_existing_template(self, period, next_day):
+    def update_log(self, period, next_day):
+        """ Update the existing log for the specified period to account for the
+        advancement of a contained period.
+        """
         template = get_template(self, period, next_day)
         contents = template.write_existing()
-        self._write_period_logfile(period, contents)
+        self._update_period_logfile(period, contents)
 
     def _log_filename(self, period):
         """ A time period uniquely maps to a single log file on disk for a
@@ -525,7 +533,7 @@ class FilesystemPlanner(PlannerBase):
                 "No AGENDA section found in {period} log file!"
                 " Add one and try again.".format(period=period)
             )
-        self._write_period_logfile(period, logfile_updated.getvalue())
+        self._update_period_logfile(period, logfile_updated.getvalue())
 
     def _write_files_for_contained_periods(self, period):
         if period == Zero:

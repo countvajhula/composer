@@ -82,7 +82,7 @@ class PlannerBase(ABC):
         # but for now, to minimize unreasonably large file sizes from
         # duplication, limit cascade to only day->week->month
 
-        # TODO: this is getting overwritten by write_existing_template
+        # TODO: this is getting overwritten by update_log
         if period < Month:
             agenda = self.get_agenda(period)
             next_period = get_next_period(period)
@@ -119,25 +119,13 @@ class PlannerBase(ABC):
             # we need to do the cascade before writing the new template since
             # at that stage the period logfile would reflect the newly written
             # one rather than the closing state of the one at the end of the
-            # period in question.
+            # period in question. As such, cascading is a "pre-advance" task,
+            # while updating an existing containing template to account for
+            # a newly created logfile is a "post-advance" task
             # Also note we are cascading the agenda for the *next* period to
             # the still-higher period
-            #
-            # TODO: it would be cleaner if we could handle this as part of
-            # non-advancement of the next period, i.e. as part of modifying the
-            # existing template at that stage (the else clause below). In order
-            # to do this cleanly, it could make sense to define a notion of a
-            # "transaction" so that planner attributes are never mutated
-            # directly -- instead, the proposed changes are added to an active
-            # "transaction" which is reasoned about at each stage and committed
-            # at the end.  this way, we could use either the existing or the
-            # updated versions of any document at any stage, depending on what
-            # needs to be done, and wouldn't be tied to doing the cascade prior
-            # to new template generation here.
-            # Consider using the python transaction library to keep these
-            # transaction-specific semantics streamlined
             self.cascade_agenda(next_period)
-            self.write_new_template(next_period, next_day)
+            self.create_log(next_period, next_day)
 
             return self.advance_period(next_period)
         else:
@@ -145,7 +133,7 @@ class PlannerBase(ABC):
             # at all (e.g. a smaller period), we still want to
             # update the existing template for the encompassing period
             if current_period > Zero:
-                self.write_existing_template(next_period, next_day)
+                self.update_log(next_period, next_day)
             return current_period
 
     def advance(self, now=None):

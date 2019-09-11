@@ -440,7 +440,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        planner.write_new_template(Day, next_day)
+        planner.create_log(Day, next_day)
 
         self.assertEqual(planner.dayfile.read(), daytemplate)
 
@@ -498,7 +498,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        planner.write_new_template(Day, next_day)
+        planner.create_log(Day, next_day)
 
         self.assertEqual(planner.dayfile.read(), daytemplate)
 
@@ -560,7 +560,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        planner.write_new_template(Day, next_day)
+        planner.create_log(Day, next_day)
 
         self.assertEqual(planner.dayfile.read(), daytemplate)
         self.assertEqual(planner.tasklistfile.read(), self.tasklist)
@@ -623,7 +623,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        planner.write_new_template(Day, next_day)
+        planner.create_log(Day, next_day)
 
         self.assertEqual(planner.dayfile.read(), daytemplate)
 
@@ -680,7 +680,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        planner.write_new_template(Day, next_day)
+        planner.create_log(Day, next_day)
 
         self.assertEqual(planner.dayfile.read(), daytemplate)
 
@@ -741,7 +741,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "TIME SPENT ON PLANNER: "
 
         planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
-        planner.write_new_template(Day, next_day)
+        planner.create_log(Day, next_day)
 
         self.assertEqual(planner.dayfile.read(), daytemplate)
         self.assertEqual(
@@ -809,6 +809,6 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        planner.write_new_template(Day, next_day)
+        planner.create_log(Day, next_day)
 
         self.assertEqual(planner.dayfile.read(), daytemplate)

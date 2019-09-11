@@ -46,6 +46,10 @@ class Template(ABC):
 
     @abc.abstractmethod
     def build(self):
+        """ Create a new log file for the current date by specifying a template
+        and populating it with configured contents (like periodic tasks) for
+        the relevant period.
+        """
         template = ""
         if self.title:
             self.title = _tidy_item(self.title)

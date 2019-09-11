@@ -37,6 +37,9 @@ class WeekTemplate(Template):
         return weektemplate
 
     def update(self):
+        """ Create a link to the new day log file in the current week log
+        file.
+        """
         (date, month, year) = (
             self.next_day.day,
             self.next_day.strftime("%B"),
