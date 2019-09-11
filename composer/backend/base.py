@@ -100,7 +100,11 @@ class PlannerBase(ABC):
         # period since at that stage the logfile attribute would reflect the
         # newly written one rather than the closing state of the one at the end
         # of the period in question.
-        display_message("Performing bookkeeping for {period}'s end...".format(period=period))
+        display_message(
+            "Performing bookkeeping for {period}'s end...".format(
+                period=period
+            )
+        )
         self.cascade_agenda(period)
 
     def begin_period(self, period, next_day):

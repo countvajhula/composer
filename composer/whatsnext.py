@@ -100,9 +100,7 @@ def process_wiki(wikidir, preferences, now):
     # simulate the changes first and then when it's all OK, make the necessary
     # preparations (e.g. git commit) and actually perform the changes
     display_message()
-    display_message(
-        ">>> Operating on planner at location: %s <<<" % wikidir
-    )
+    display_message(">>> Operating on planner at location: %s <<<" % wikidir)
 
     while True:
         display_message()

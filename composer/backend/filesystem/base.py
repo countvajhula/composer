@@ -254,9 +254,7 @@ class FilesystemPlanner(PlannerBase):
         # TODO: keep low-level operations contained in utils -- make/extend
         # additional interfaces as needed
         # TODO: these diagnostics are not covered by tests
-        display_message(
-            "Tracking any newly scheduled tasks..."
-        )
+        display_message("Tracking any newly scheduled tasks...")
         check_scheduled_section_for_errors(self)
         check_logfile_for_errors(self.dayfile)
         # ignore tasks in tomorrow since actively scheduled by you
@@ -316,7 +314,8 @@ class FilesystemPlanner(PlannerBase):
             return for_day >= matched_date["date"]
 
         display_message(
-            "Checking previously scheduled tasks for any that are due tomorrow..."
+            "Checking previously scheduled tasks for any that "
+            "are due tomorrow..."
         )
         try:
             scheduled, tasklist_no_scheduled = read_section(
@@ -383,7 +382,9 @@ class FilesystemPlanner(PlannerBase):
         corresponding to the period in question to the newly created logical
         file.
         """
-        display_message("Creating log file for {period}...".format(period=period))
+        display_message(
+            "Creating log file for {period}...".format(period=period)
+        )
         template = get_template(self, period, next_day)
         contents = template.write_new()
         self._update_period_logfile(period, contents)
@@ -397,14 +398,18 @@ class FilesystemPlanner(PlannerBase):
         """ Update the existing log for the specified period to account for the
         advancement of a contained period.
         """
-        display_message("Updating log file for {period}...".format(period=period))
+        display_message(
+            "Updating log file for {period}...".format(period=period)
+        )
         template = get_template(self, period, next_day)
         contents = template.write_existing()
         self._update_period_logfile(period, contents)
 
     def _get_path_for_existing_log(self, period):
         link = self._link_name(period)
-        path = full_file_path(root=self.location, filename=link, dereference=True)
+        path = full_file_path(
+            root=self.location, filename=link, dereference=True
+        )
         return path
 
     def _get_path_for_new_log(self, period):
