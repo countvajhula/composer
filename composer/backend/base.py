@@ -119,9 +119,10 @@ class PlannerBase(ABC):
             # we need to do the cascade before writing the new template since
             # at that stage the period logfile would reflect the newly written
             # one rather than the closing state of the one at the end of the
-            # period in question. As such, cascading is a "pre-advance" task,
-            # while updating an existing containing template to account for
-            # a newly created logfile is a "post-advance" task
+            # period in question. As such, cascading is a task done as part of
+            # the end of a contained period, while updating an existing
+            # containing template to account for a newly created logfile is a
+            # task done as part of the start of the new contained period
             # Also note we are cascading the agenda for the *next* period to
             # the still-higher period
             self.cascade_agenda(next_period)

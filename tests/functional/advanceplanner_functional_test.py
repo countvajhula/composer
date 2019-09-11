@@ -17,6 +17,7 @@ class AdvancePlanner(unittest.TestCase):
         now = datetime.datetime(2012, 12, 6, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
         status = planner.advance(now)
+        planner.save(status)
         self.assertEqual(status, Day)
 
     def test_advance_planner_week(self):
@@ -28,6 +29,7 @@ class AdvancePlanner(unittest.TestCase):
         now = datetime.datetime(2012, 12, 8, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
         status = planner.advance(now)
+        planner.save(status)
         self.assertEqual(status, Week)
 
     def test_advance_planner_month(self):
@@ -39,6 +41,7 @@ class AdvancePlanner(unittest.TestCase):
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
         status = planner.advance(now)
+        planner.save(status)
         self.assertEqual(status, Month)
 
     def test_advance_planner_quarter(self):
@@ -50,6 +53,7 @@ class AdvancePlanner(unittest.TestCase):
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
         status = planner.advance(now)
+        planner.save(status)
         self.assertEqual(status, Quarter)
 
     def test_advance_planner_year(self):
@@ -61,4 +65,5 @@ class AdvancePlanner(unittest.TestCase):
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
         status = planner.advance(now)
+        planner.save(status)
         self.assertEqual(status, Year)
