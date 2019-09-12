@@ -67,6 +67,14 @@ class PlannerBase(ABC):
     def get_due_tasks(self, for_day):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def create_log(self, period, next_day):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def update_log(self, period, next_day):
+        raise NotImplementedError
+
     def cascade_agenda(self, period):
         """ Append the current period's agenda to the next period's
         agenda. This 'cascades' actvities up through encompassing
