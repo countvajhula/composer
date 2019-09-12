@@ -113,6 +113,15 @@ class PlannerBase(ABC):
                 period=period
             )
         )
+        if self.logfile_completion_checking == LOGFILE_CHECKING[
+            "STRICT"
+        ] and not self.check_log_completion(period):
+            msg = (
+                "Looks like you haven't completed your %s's log."
+                " Would you like to do that now?" % period
+            )
+            raise LogfileNotCompletedError(msg, period)
+
         self.cascade_agenda(period)
 
     def begin_period(self, period, next_day):
@@ -141,15 +150,6 @@ class PlannerBase(ABC):
             raise
 
         if criteria_met:
-            if self.logfile_completion_checking == LOGFILE_CHECKING[
-                "STRICT"
-            ] and not self.check_log_completion(next_period):
-                msg = (
-                    "Looks like you haven't completed your %s's log."
-                    " Would you like to do that now?" % next_period
-                )
-                raise LogfileNotCompletedError(msg, next_period)
-
             self.end_period(next_period)
             self.begin_period(next_period, next_day)
 
