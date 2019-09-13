@@ -15,34 +15,6 @@ from ..utils import (
 from .base import Template
 
 
-@contain_file_mutation
-def _do_post_mortem(logfile):
-    """ Return a list of done, undone and blocked tasks from today's agenda.
-    """
-    display_message(
-        "Carrying over any unfinished tasks from today"
-        " to tomorrow's agenda..."
-    )
-    try:
-        tasks, _ = read_section(logfile, 'agenda')
-    except ValueError:
-        raise LogfileLayoutError(
-            "No AGENDA section found in today's log file!"
-            " Add one and try again."
-        )
-    items = get_task_items(tasks)
-    done = filter_items(
-        items, lambda item: (is_completed_task(item) or is_invalid_task(item))
-    )
-    undone = filter_items(
-        items, lambda item: (is_undone_task(item) or is_wip_task(item))
-    )
-    blocked = filter_items(items, is_scheduled_task)
-    done, undone, blocked = map(item_list_to_string, (done, undone, blocked))
-
-    return done, undone, blocked
-
-
 def _get_theme_for_the_day(day, daythemesfile):
     dailythemes = daythemesfile.read().lower()
     theme = dailythemes[dailythemes.index(day.lower()) :]
