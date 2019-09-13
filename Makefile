@@ -125,8 +125,8 @@ debug: test-debug
 
 tldr: test-tldr
 
-coverage:
-	coverage run --source composer setup.py test
+coverage: clean-test
+	coverage run --source composer setup.py test --addopts $(UNIT_TESTS_PATH)
 	coverage report -m
 	coverage html
 	open coverage_html_report/index.html
