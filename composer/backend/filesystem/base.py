@@ -33,8 +33,11 @@ from .templates import get_template
 from .utils import (
     add_to_section,
     is_scheduled_task,
+    filter_items,
     full_file_path,
     get_task_items,
+    is_undone_task,
+    is_wip_task,
     item_list_to_string,
     make_file,
     quarter_for_month,
@@ -336,7 +339,8 @@ class FilesystemPlanner(PlannerBase):
     def get_tasks_for_tomorrow(self):
         """ Read the tasklist, parse all tasks under the TOMORROW section
         and return those, and also return a modified tasklist with those
-        tasks removed """
+        tasks removed
+        """
         display_message(
             "Moving tasks added for tomorrow over to tomorrow's agenda..."
         )
@@ -358,6 +362,29 @@ class FilesystemPlanner(PlannerBase):
                 " some tasks for tomorrow?"
             )
         return tasks.read(), tasklist_nextday
+
+    def get_unfinished_tasks(self):
+        """ Get tasks from today's agenda that are either undone or in
+        progress.
+        """
+        display_message(
+            "Carrying over any unfinished tasks from today"
+            " to tomorrow's agenda..."
+        )
+        try:
+            tasks, _ = read_section(self.dayfile, 'agenda')
+        except ValueError:
+            raise LogfileLayoutError(
+                "No AGENDA section found in today's log file!"
+                " Add one and try again."
+            )
+
+        def is_unfinished(item):
+            return (is_undone_task(item) or is_wip_task(item))
+
+        tasks = item_list_to_string(get_task_items(tasks, is_unfinished))
+
+        return tasks
 
     def strip_due_tasks_from_tasklist(self, next_day):
         # extract due tasks
@@ -392,6 +419,8 @@ class FilesystemPlanner(PlannerBase):
             # this happens independently in creating the template
             # vs here. ideally couple them to avoid bugs related
             # to independent computation of the same thing
+            # TODO: related: previously scheduled tasks message showing up
+            # twice
             self.strip_due_tasks_from_tasklist(next_day)
 
     def update_log(self, period, next_day):

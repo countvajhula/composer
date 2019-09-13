@@ -62,6 +62,7 @@ class DayTemplate(Template):
         self.logfile = planner.dayfile
         self.scheduled, _ = planner.get_due_tasks(next_day)
         self.tomorrow, _ = planner.get_tasks_for_tomorrow()
+        self.undone = planner.get_unfinished_tasks()
         nextdow = next_day.strftime("%A")
         if nextdow.lower() in ("saturday", "sunday"):
             self.checkpointsfile = planner.checkpoints_weekend_file
@@ -87,7 +88,6 @@ class DayTemplate(Template):
             self.title += "\n"
             self.title += "Theme: %s\n" % theme
         self.periodicname = "DAILYs:\n"
-        _, undone, _ = _do_post_mortem(self.logfile)
 
         self.agenda = ""
         # if we have successfully ensured that every task item ends in a
@@ -95,8 +95,8 @@ class DayTemplate(Template):
         # components can be neatly concatenated
         if self.scheduled:
             self.agenda += self.scheduled
-        if undone:
-            self.agenda += undone
+        if self.undone:
+            self.agenda += self.undone
         if self.tomorrow:
             self.agenda += self.tomorrow
         daytemplate = super(DayTemplate, self).build()
