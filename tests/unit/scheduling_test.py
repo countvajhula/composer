@@ -1,7 +1,11 @@
 import datetime
+import pytest
 import unittest
 
+from mock import patch
+
 from composer.backend import FilesystemPlanner
+from composer.backend.filesystem.scheduling import to_standard_date_format
 from composer.errors import (
     BlockedTaskNotScheduledError,
     ScheduledTaskParsingError,
@@ -11,6 +15,61 @@ try:  # py2
     from StringIO import StringIO
 except ImportError:  # py3
     from io import StringIO
+
+
+class TestToStandardDateFormat(object):
+    def test_already_standard(self):
+        date = datetime.datetime(2012, 12, 12)
+        item = "[o] do this [$DECEMBER 12, 2012$]"
+        expected = item
+        with patch(
+            "composer.backend.filesystem.scheduling"
+            ".get_date_for_schedule_string"
+        ) as mock_get_date:
+            mock_get_date.return_value = {
+                'date': date,
+                'datestr': 'DECEMBER 12, 2012',
+            }
+            standard = to_standard_date_format(item)
+        assert standard == expected
+
+    def test_nonstandard(self):
+        date = datetime.datetime(2012, 12, 12)
+        item = "[o] do this [$12 DECEMBER, 2012$]"
+        expected = "[o] do this [$DECEMBER 12, 2012$]"
+        with patch(
+            "composer.backend.filesystem.scheduling"
+            ".get_date_for_schedule_string"
+        ) as mock_get_date:
+            mock_get_date.return_value = {
+                'date': date,
+                'datestr': 'DECEMBER 12, 2012',
+            }
+            standard = to_standard_date_format(item)
+        assert standard == expected
+
+    def test_retains_subtasks(self):
+        date = datetime.datetime(2012, 12, 12)
+        item = (
+            "[o] do this [$12 DECEMBER, 2012$]\n"
+            "\t[\] first thing\n"
+            "\t[ ] second thing\n"
+        )
+        expected = (
+            "[o] do this [$DECEMBER 12, 2012$]\n"
+            "\t[\] first thing\n"
+            "\t[ ] second thing\n"
+        )
+        with patch(
+            "composer.backend.filesystem.scheduling"
+            ".get_date_for_schedule_string"
+        ) as mock_get_date:
+            mock_get_date.return_value = {
+                'date': date,
+                'datestr': 'DECEMBER 12, 2012',
+            }
+            standard = to_standard_date_format(item)
+        assert standard == expected
 
 
 class PlannerTaskSchedulingTester(unittest.TestCase):
