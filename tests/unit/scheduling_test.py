@@ -52,12 +52,12 @@ class TestToStandardDateFormat(object):
         date = datetime.datetime(2012, 12, 12)
         item = (
             "[o] do this [$12 DECEMBER, 2012$]\n"
-            "\t[\] first thing\n"
+            "\t[\\] first thing\n"
             "\t[ ] second thing\n"
         )
         expected = (
             "[o] do this [$DECEMBER 12, 2012$]\n"
-            "\t[\] first thing\n"
+            "\t[\\] first thing\n"
             "\t[ ] second thing\n"
         )
         with patch(

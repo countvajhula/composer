@@ -416,7 +416,9 @@ class FilesystemPlanner(PlannerBase):
             undone = self.get_todays_unfinished_tasks()
 
         template = get_template(self, period, next_day)
-        contents = template.write_new(scheduled=scheduled, tomorrow=tomorrow, undone=undone)
+        contents = template.write_new(
+            scheduled=scheduled, tomorrow=tomorrow, undone=undone
+        )
         self._update_period_logfile(period, contents)
 
     def update_log(self, period, next_day):
