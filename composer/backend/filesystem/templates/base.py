@@ -20,7 +20,6 @@ def _tidy_item(item):
 
 class Template(ABC):
 
-    planner = None
     title = None
     entry = None
     agenda = None
@@ -30,7 +29,6 @@ class Template(ABC):
     checkpointsfile = None
 
     def __init__(self, planner, next_day):
-        self.planner = planner  # need this for mutating it at the end
         self.load_context(planner, next_day)
 
     @abc.abstractmethod
