@@ -68,6 +68,14 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_tasks_for_tomorrow(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_unfinished_tasks(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def create_log(self, period, next_day):
         raise NotImplementedError
 
