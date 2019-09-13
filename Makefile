@@ -75,10 +75,10 @@ black:
 test-unit:
 	python setup.py test --addopts $(UNIT_TESTS_PATH)
 
-test-functional:
+test-functional: clean-test
 	python setup.py test --addopts $(FUNCTIONAL_TESTS_PATH)
 
-test-all: test-unit test-functional
+test-all: clean-test test-unit test-functional
 
 test:
 ifdef DEST
