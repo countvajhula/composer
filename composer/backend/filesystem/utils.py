@@ -118,9 +118,9 @@ def parse_task(task):
     independently, e.g. to check for scheduled date and ensure that it's
     present in the header specifically, and not just anywhere in the task.
     """
-    with make_file(task) as f:
-        header = f.readline()
-        contents = f.read()
+    f = make_file(task)
+    header = f.readline()
+    contents = f.read()
     return header, contents
 
 
