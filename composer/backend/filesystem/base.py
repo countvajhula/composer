@@ -33,7 +33,6 @@ from .templates import get_template
 from .utils import (
     add_to_section,
     is_scheduled_task,
-    filter_items,
     full_file_path,
     get_task_items,
     is_undone_task,
@@ -380,7 +379,7 @@ class FilesystemPlanner(PlannerBase):
             )
 
         def is_unfinished(item):
-            return (is_undone_task(item) or is_wip_task(item))
+            return is_undone_task(item) or is_wip_task(item)
 
         tasks = item_list_to_string(get_task_items(tasks, is_unfinished))
 
