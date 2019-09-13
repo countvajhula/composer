@@ -8,7 +8,6 @@ class MonthTemplate(Template):
     def load_context(self, planner, next_day):
         super(MonthTemplate, self).load_context(planner, next_day)
         self.logfile = planner.monthfile
-        self.checkpointsfile = planner.monthfile
         self.checkpointsfile = planner.checkpoints_month_file
         self.periodicfile = planner.periodic_month_file
 

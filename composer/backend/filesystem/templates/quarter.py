@@ -9,7 +9,6 @@ class QuarterTemplate(Template):
     def load_context(self, planner, next_day):
         super(QuarterTemplate, self).load_context(planner, next_day)
         self.logfile = planner.quarterfile
-        self.checkpointsfile = planner.quarterfile
         self.checkpointsfile = planner.checkpoints_quarter_file
         self.periodicfile = planner.periodic_quarter_file
 

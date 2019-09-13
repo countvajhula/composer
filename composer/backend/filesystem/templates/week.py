@@ -10,7 +10,6 @@ class WeekTemplate(Template):
     def load_context(self, planner, next_day):
         super(WeekTemplate, self).load_context(planner, next_day)
         self.logfile = planner.weekfile
-        self.checkpointsfile = planner.weekfile
         self.checkpointsfile = planner.checkpoints_week_file
         self.periodicfile = planner.periodic_week_file
         self.theme = planner.week_theme
