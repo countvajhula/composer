@@ -595,7 +595,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]  # seems this happens even without declaring it here - need to reset these in tearDown()
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Day)
 
     def test_decision_for_first_week_too_short_day_advance(self):
@@ -609,7 +609,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Day)
 
     def test_decision_for_first_week_borderline_too_short_day_advance(self):
@@ -623,7 +623,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Day)
 
     def test_decision_for_last_week_too_short_day_advance(self):
@@ -637,7 +637,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Day)
 
     def test_decision_for_last_week_borderline_too_short_day_advance(self):
@@ -651,7 +651,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Day)
 
     def test_decision_for_typical_week_advance(self):
@@ -663,7 +663,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Week)
 
     def test_decision_for_first_week_borderline_long_enough_week_advance(self):
@@ -677,7 +677,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Week)
 
     def test_decision_for_last_week_borderline_long_enough_week_advance(self):
@@ -691,7 +691,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Week)
 
     def test_decision_for_month_advance(self):
@@ -703,7 +703,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Month)
 
     def test_decision_for_quarter_advance(self):
@@ -715,7 +715,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Quarter)
 
     def test_decision_for_year_advance(self):
@@ -727,7 +727,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance_period()
+        status = self.planner.advance()
         self.assertEqual(status, Year)
 
     def test_planner_advance_year(self):
@@ -765,7 +765,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
 
-        self.planner.advance_period()
+        self.planner.advance()
 
         self.assertEqual(
             self.planner.yearfile.read(), self.yearadvance_yeartemplate
@@ -815,7 +815,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        self.planner.advance_period()
+        self.planner.advance()
         self.assertEqual(
             self.planner.quarterfile.read(),
             self.quarteradvance_quartertemplate,
@@ -862,7 +862,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        self.planner.advance_period()
+        self.planner.advance()
         self.assertEqual(
             self.planner.monthfile.read(), self.monthadvance_monthtemplate
         )
@@ -905,7 +905,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        self.planner.advance_period()
+        self.planner.advance()
         self.assertEqual(
             self.planner.weekfile.read(), self.weekadvance_weektemplate
         )
@@ -948,7 +948,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        self.planner.advance_period()
+        self.planner.advance()
         self.assertEqual(self.planner.dayfile.read(), daytemplate)
         self.assertEqual(
             self.planner.weekfile.read(), self.dayadvance_weektemplate
