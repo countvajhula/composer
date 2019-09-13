@@ -14,7 +14,7 @@ class WeekTemplate(Template):
         self.periodicfile = planner.periodic_week_file
         self.theme = planner.week_theme
 
-    def build(self):
+    def build(self, **kwargs):
         (date, month, year) = (
             self.next_day.day,
             self.next_day.strftime("%B"),

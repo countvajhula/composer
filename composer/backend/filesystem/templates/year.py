@@ -12,7 +12,7 @@ class YearTemplate(Template):
         self.checkpointsfile = planner.checkpoints_year_file
         self.periodicfile = planner.periodic_year_file
 
-    def build(self):
+    def build(self, **kwargs):
         month, year = (self.next_day.strftime("%B"), self.next_day.year)
         self.title = "= %d =\n" % year
         self.entry = "\t%s [[%s %d]]\n" % (

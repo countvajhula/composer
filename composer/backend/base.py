@@ -72,7 +72,7 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_unfinished_tasks(self):
+    def get_todays_unfinished_tasks(self):
         raise NotImplementedError
 
     @abc.abstractmethod

@@ -292,7 +292,8 @@ class FilesystemPlanner(PlannerBase):
     def get_due_tasks(self, for_day):
         """ Look at the SCHEDULED section of the tasklist and retrieve any
         tasks that are due/overdue for the given day (e.g. tomorrow, if
-        preparing tomorrow's agenda).
+        preparing tomorrow's agenda). **This also mutates the tasklist by
+        removing these tasks from it.**
 
         This only operates on explicitly scheduled tasks, not tasks manually
         set aside for tomorrow or which may happen to be appropriate for the
@@ -333,12 +334,13 @@ class FilesystemPlanner(PlannerBase):
         new_tasklist = add_to_section(
             tasklist_no_scheduled, 'scheduled', not_due
         )
-        return due, new_tasklist
+        self.tasklistfile = new_tasklist
+        return due
 
     def get_tasks_for_tomorrow(self):
         """ Read the tasklist, parse all tasks under the TOMORROW section
-        and return those, and also return a modified tasklist with those
-        tasks removed
+        and return those. **This also mutates the tasklist by removing those
+        tasks from it.**
         """
         display_message(
             "Moving tasks added for tomorrow over to tomorrow's agenda..."
@@ -360,9 +362,10 @@ class FilesystemPlanner(PlannerBase):
                 "The tomorrow section is blank. Do you want to add"
                 " some tasks for tomorrow?"
             )
-        return tasks.read(), tasklist_nextday
+        self.tasklistfile = tasklist_nextday
+        return tasks.read()
 
-    def get_unfinished_tasks(self):
+    def get_todays_unfinished_tasks(self):
         """ Get tasks from today's agenda that are either undone or in
         progress.
         """
@@ -385,13 +388,6 @@ class FilesystemPlanner(PlannerBase):
 
         return tasks
 
-    def strip_due_tasks_from_tasklist(self, next_day):
-        # extract due tasks
-        _, tasklistfile = self.get_due_tasks(next_day)
-        # extract tomorrow section
-        _, tasklistfile = read_section(tasklistfile, 'tomorrow')
-        self.tasklistfile = tasklistfile
-
     def _get_logfile(self, period):
         log_attr = self._logfile_attribute(period)
         log = getattr(self, log_attr)
@@ -411,16 +407,15 @@ class FilesystemPlanner(PlannerBase):
         display_message(
             "Creating log file for {period}...".format(period=period)
         )
-        template = get_template(self, period, next_day)
-        contents = template.write_new()
-        self._update_period_logfile(period, contents)
+        scheduled = tomorrow = undone = None
         if period == Day:
-            # this happens independently in creating the template
-            # vs here. ideally couple them to avoid bugs related
-            # to independent computation of the same thing
-            # TODO: related: previously scheduled tasks message showing up
-            # twice
-            self.strip_due_tasks_from_tasklist(next_day)
+            scheduled = self.get_due_tasks(next_day)
+            tomorrow = self.get_tasks_for_tomorrow()
+            undone = self.get_todays_unfinished_tasks()
+
+        template = get_template(self, period, next_day)
+        contents = template.write_new(scheduled=scheduled, tomorrow=tomorrow, undone=undone)
+        self._update_period_logfile(period, contents)
 
     def update_log(self, period, next_day):
         """ Update the existing log for the specified period to account for the

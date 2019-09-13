@@ -87,9 +87,9 @@ class Template(ABC):
         template = self.update()
         return template
 
-    def write_new(self):
+    def write_new(self, **kwargs):
         # for the Zero template, this should be a noop
-        template = self.build()
+        template = self.build(**kwargs)
         return template
 
 

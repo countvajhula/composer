@@ -12,7 +12,7 @@ class QuarterTemplate(Template):
         self.checkpointsfile = planner.checkpoints_quarter_file
         self.periodicfile = planner.periodic_quarter_file
 
-    def build(self):
+    def build(self, **kwargs):
         (month, year) = (self.next_day.strftime("%B"), self.next_day.year)
         self.title = "= %s %d =\n" % (quarter_for_month(month), year)
         self.entry = "\t%s [[Month of %s, %d]]\n" % (

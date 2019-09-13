@@ -18,9 +18,6 @@ class DayTemplate(Template):
     def load_context(self, planner, next_day):
         super(DayTemplate, self).load_context(planner, next_day)
         self.logfile = planner.dayfile
-        self.scheduled, _ = planner.get_due_tasks(next_day)
-        self.tomorrow, _ = planner.get_tasks_for_tomorrow()
-        self.undone = planner.get_unfinished_tasks()
         nextdow = next_day.strftime("%A")
         if nextdow.lower() in ("saturday", "sunday"):
             self.checkpointsfile = planner.checkpoints_weekend_file
@@ -30,7 +27,10 @@ class DayTemplate(Template):
         # TODO: themes could be made period-agnostic?
         self.daythemesfile = planner.daythemesfile
 
-    def build(self):
+    def build(self, **kwargs):
+        scheduled = kwargs.get('scheduled')
+        tomorrow = kwargs.get('tomorrow')
+        undone = kwargs.get('undone')
         (date, day, month, year) = (
             self.next_day.day,
             self.next_day.strftime("%A"),
@@ -51,12 +51,12 @@ class DayTemplate(Template):
         # if we have successfully ensured that every task item ends in a
         # newline character, then we can safely assume here that section
         # components can be neatly concatenated
-        if self.scheduled:
-            self.agenda += self.scheduled
-        if self.undone:
-            self.agenda += self.undone
-        if self.tomorrow:
-            self.agenda += self.tomorrow
+        if scheduled:
+            self.agenda += scheduled
+        if undone:
+            self.agenda += undone
+        if tomorrow:
+            self.agenda += tomorrow
         daytemplate = super(DayTemplate, self).build()
         return daytemplate
 

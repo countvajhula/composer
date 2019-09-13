@@ -11,7 +11,7 @@ class MonthTemplate(Template):
         self.checkpointsfile = planner.checkpoints_month_file
         self.periodicfile = planner.periodic_month_file
 
-    def build(self):
+    def build(self, **kwargs):
         (date, month, year) = (
             self.next_day.day,
             self.next_day.strftime("%B"),
