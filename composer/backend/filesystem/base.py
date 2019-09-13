@@ -40,6 +40,7 @@ from .utils import (
     item_list_to_string,
     make_file,
     quarter_for_month,
+    parse_task,
     partition_items,
     read_file,
     write_file,
@@ -305,11 +306,12 @@ class FilesystemPlanner(PlannerBase):
         """
 
         def is_task_due(task):
-            if not SCHEDULED_DATE_PATTERN.search(task):
+            header, _ = parse_task(task)
+            if not SCHEDULED_DATE_PATTERN.search(header):
                 raise BlockedTaskNotScheduledError(
-                    "Scheduled task has no date!" + task
+                    "Scheduled task has no date!" + header
                 )
-            datestr = SCHEDULED_DATE_PATTERN.search(task).groups()[0]
+            datestr = SCHEDULED_DATE_PATTERN.search(header).groups()[0]
             try:
                 matched_date = get_date_for_schedule_string(datestr)
             except SchedulingDateError:

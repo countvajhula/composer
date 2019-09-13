@@ -11,7 +11,7 @@ from ...errors import (
     ScheduledTaskParsingError,
 )
 from ...timeperiod import get_next_day
-from .utils import get_task_items, is_scheduled_task, read_section
+from .utils import get_task_items, is_scheduled_task, parse_task, read_section
 
 SCHEDULED_DATE_PATTERN = re.compile(r"\[\$?([^\[\$]*)\$?\]$")
 
@@ -345,12 +345,11 @@ def get_date_for_schedule_string(datestr, reference_date=None):
     return None
 
 
-def to_standard_date_format(item, reference_date):
+def to_standard_date_format(item, reference_date=None):
     """ Convert a parsed scheduled task into a standard format. """
-    date_string = item.splitlines()[0]
-    date_string = date_string + '\n' if item.endswith('\n') else date_string
-    if SCHEDULED_DATE_PATTERN.search(date_string):
-        datestr = SCHEDULED_DATE_PATTERN.search(date_string).groups()[0]
+    task_header, task_contents = parse_task(item)
+    if SCHEDULED_DATE_PATTERN.search(task_header):
+        datestr = SCHEDULED_DATE_PATTERN.search(task_header).groups()[0]
         try:
             matched_date = get_date_for_schedule_string(
                 datestr, reference_date
@@ -360,12 +359,13 @@ def to_standard_date_format(item, reference_date):
     else:
         raise BlockedTaskNotScheduledError(
             "No scheduled date for blocked task -- add a date for it: "
-            + date_string
+            + task_header
         )
-    date_string = SCHEDULED_DATE_PATTERN.sub(
-        "[$" + matched_date["datestr"] + "$]", date_string
+    task_header = SCHEDULED_DATE_PATTERN.sub(
+        "[$" + matched_date["datestr"] + "$]", task_header
     )  # replace with standard format
-    return date_string
+    task = task_header + task_contents
+    return task
 
 
 def check_scheduled_section_for_errors(planner):

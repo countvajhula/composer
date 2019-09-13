@@ -112,6 +112,18 @@ def is_eof(line):
     return line == ""
 
 
+def parse_task(task):
+    """ Parse a task (in string form) into the header (first line) and contents
+    (any subtasks or other contents). Useful when we need to parse the header
+    independently, e.g. to check for scheduled date and ensure that it's
+    present in the header specifically, and not just anywhere in the task.
+    """
+    with make_file(task) as f:
+        header = f.readline()
+        contents = f.read()
+    return header, contents
+
+
 def item_list_to_string(items):
     return "".join(items)
 
