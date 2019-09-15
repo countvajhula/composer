@@ -8,7 +8,7 @@ from ..config import (
     LOGFILE_CHECKING,
 )
 from ..errors import LogfileNotCompletedError, PlannerIsInTheFutureError
-from ..timeperiod import get_next_day, get_next_period, Zero, Month, Year
+from ..timeperiod import get_next_day, get_next_period, Zero, Day, Month, Year
 from ..utils import display_message
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
@@ -100,11 +100,10 @@ class PlannerBase(ABC):
         # duplication, limit cascade to only day->week->month
 
         # TODO: this is getting overwritten by update_log
-        if period < Month:
-            agenda = self.get_agenda(period)
-            next_period = get_next_period(period)
-            if agenda:
-                self.update_agenda(next_period, agenda)
+        agenda = self.get_agenda(period)
+        next_period = get_next_period(period)
+        if agenda:
+            self.update_agenda(next_period, agenda)
 
     def end_period(self, period):
         """ Perform any tasks needed to close out a period.
@@ -130,7 +129,12 @@ class PlannerBase(ABC):
             )
             raise LogfileNotCompletedError(msg, period)
 
-        self.cascade_agenda(period)
+        if period == Day:
+            self.schedule_tasks()
+
+        if period < Month:
+            # limit to month to minimize extravagant duplication
+            self.cascade_agenda(period)
 
     def begin_period(self, period, next_day):
         """ Perform any tasks needed to begin a new period.
@@ -185,8 +189,6 @@ class PlannerBase(ABC):
         next_day = get_next_day(self.date)  # the new day to advance to
 
         self.now = now
-
-        self.schedule_tasks()
 
         status = self.advance_period(Zero, next_day)
         if status > Zero:
