@@ -6,6 +6,7 @@ except ImportError:  # py3
     from io import StringIO
 
 from composer.backend import FilesystemPlanner
+from composer.backend.base import PlannerBase
 
 
 def _logfile():
@@ -61,6 +62,45 @@ def empty_logfile():
 @pytest.fixture
 def tasklist_file():
     return _tasklistfile()
+
+
+@pytest.fixture
+def planner_base():
+    class DummyPlanner(PlannerBase):
+        def check_log_completion(self):
+            pass
+
+        def construct(self):
+            pass
+
+        def create_log(self):
+            pass
+
+        def get_agenda(self):
+            pass
+
+        def get_due_tasks(self):
+            pass
+
+        def get_tasks_for_tomorrow(self):
+            pass
+
+        def get_todays_unfinished_tasks(self):
+            pass
+
+        def save(self):
+            pass
+
+        def schedule_tasks(self):
+            pass
+
+        def update_agenda(self):
+            pass
+
+        def update_log(self):
+            pass
+
+    return DummyPlanner()
 
 
 @pytest.fixture

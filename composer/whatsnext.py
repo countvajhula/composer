@@ -224,7 +224,7 @@ def main(wikipath=None, test=False, jump=False):
         now = datetime.datetime(2013, 1, 8, 19, 0, 0)
 
     if jump:
-        preferences.jump = jump
+        preferences['jump'] = jump
         display_message()
         display_message(">>> Get ready to JUMP! <<<")
         display_message()
