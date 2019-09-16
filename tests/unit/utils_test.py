@@ -19,31 +19,31 @@ from .fixtures import logfile, empty_logfile, tasklist_file  # noqa
 class TestReadItem(object):
     def test_generic_item(self, logfile):
         item, _ = read_item(logfile)
-        assert item == "[ ] a task\n"
+        assert item == "AGENDA:\n"
 
     def test_text_item(self, logfile):
-        logfile.readline()
-        logfile.readline()
+        for _ in range(3):
+            logfile.readline()
         file = make_file(logfile.read())
         item, _ = read_item(file)
         assert item == "Just some additional clarifications\n"
 
     def test_blank_line(self, logfile):
-        logfile.readline()
-        logfile.readline()
-        logfile.readline()
+        for _ in range(4):
+            logfile.readline()
         file = make_file(logfile.read())
         item, _ = read_item(file)
         assert item == "\n"
 
     def test_task(self, logfile):
-        logfile.readline()
+        for _ in range(2):
+            logfile.readline()
         file = make_file(logfile.read())
         item, _ = read_item(file)
         assert item == "[\\] a WIP task\n"
 
     def test_task_with_subtasks(self, logfile):
-        for _ in range(5):
+        for _ in range(6):
             logfile.readline()
         file = make_file(logfile.read())
         item, _ = read_item(file)
@@ -61,6 +61,7 @@ class TestReadItem(object):
 
     def test_complement_when_found(self, logfile):
         expected = (
+            "[ ] a task\n"
             "[\\] a WIP task\n"
             "Just some additional clarifications\n"
             "\n"
@@ -84,13 +85,18 @@ class TestPartitionAt(object):
     def test_first_part(self, logfile):
         pattern = re.compile(r"^Just")
         first, _ = partition_at(logfile, pattern)
-        expected = "[ ] a task\n" "[\\] a WIP task\n"
+        expected = (
+            "AGENDA:\n"
+            "[ ] a task\n"
+            "[\\] a WIP task\n"
+        )
         assert first.read() == expected
 
     def test_first_part_inclusive(self, logfile):
         pattern = re.compile(r"^Just")
         first, _ = partition_at(logfile, pattern, inclusive=True)
         expected = (
+            "AGENDA:\n"
             "[ ] a task\n"
             "[\\] a WIP task\n"
             "Just some additional clarifications\n"

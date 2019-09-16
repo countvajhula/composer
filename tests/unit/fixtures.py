@@ -11,6 +11,7 @@ from composer.backend.base import PlannerBase
 
 def _logfile():
     contents = (
+        "AGENDA:\n"
         "[ ] a task\n"
         "[\\] a WIP task\n"
         "Just some additional clarifications\n"
