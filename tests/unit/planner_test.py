@@ -9,7 +9,6 @@ from .fixtures import planner_base
 
 
 class TestAdvance(object):
-
     @patch('composer.backend.base.get_next_day')
     def test_no_advance(self, mock_next_day, planner_base):
         current_day = datetime.date(2013, 1, 1)
@@ -36,7 +35,6 @@ class TestAdvance(object):
 
 
 class TestPreferences(object):
-
     def test_set_preferences(self, planner_base):
         planner = planner_base
         preferences = {
@@ -51,7 +49,10 @@ class TestPreferences(object):
         assert planner.schedule == preferences['schedule']
         assert planner.preferred_bullet_char == preferences['bullet_character']
         assert planner.jumping == preferences['jump']
-        assert planner.logfile_completion_checking == preferences['logfile_completion_checking']
+        assert (
+            planner.logfile_completion_checking
+            == preferences['logfile_completion_checking']
+        )
         assert planner.tomorrow_checking == preferences["tomorrow_checking"]
         assert planner.week_theme == preferences.get("week_theme")
 

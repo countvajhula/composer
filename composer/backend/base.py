@@ -120,9 +120,7 @@ class PlannerBase(ABC):
                 period=period
             )
         )
-        if self.logfile_completion_checking == LOGFILE_CHECKING[
-            "STRICT"
-        ] and not self.check_log_completion(period):
+        if not self.check_log_completion(period):
             msg = (
                 "Looks like you haven't completed your %s's log."
                 " Would you like to do that now?" % period
@@ -142,6 +140,9 @@ class PlannerBase(ABC):
         """
         display_message("Beginning new {period}...".format(period=period))
         self.create_log(period, next_day)
+
+    def continue_period(self, period, next_day):
+        self.update_log(period, next_day)
 
     def advance_period(self, current_period=None, next_day=None):
         """ Recursive function to advance planner by day, week, month, quarter, or year
@@ -165,13 +166,13 @@ class PlannerBase(ABC):
             self.end_period(next_period)
             self.begin_period(next_period, next_day)
 
-            return self.advance_period(next_period)
+            return self.advance_period(next_period, next_day)
         else:
             # did not advance beyond current period. If we have advanced
             # at all (e.g. a smaller period), we still want to
             # update the existing template for the encompassing period
             if current_period > Zero:
-                self.update_log(next_period, next_day)
+                self.continue_period(next_period, next_day)
             return current_period
 
     def advance(self, now=None):
