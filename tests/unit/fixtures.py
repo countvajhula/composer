@@ -68,19 +68,22 @@ def tasklist_file():
 @pytest.fixture
 def planner_base():
     class DummyPlanner(PlannerBase):
-        def check_log_completion(self):
+        def construct(self, location=None):
             pass
 
-        def construct(self):
+        def get_agenda(self, period):
             pass
 
-        def create_log(self):
+        def update_agenda(self, period, agenda):
             pass
 
-        def get_agenda(self):
+        def check_log_completion(self, period):
             pass
 
-        def get_due_tasks(self):
+        def schedule_tasks(self):
+            pass
+
+        def get_due_tasks(self, for_day):
             pass
 
         def get_tasks_for_tomorrow(self):
@@ -89,16 +92,13 @@ def planner_base():
         def get_todays_unfinished_tasks(self):
             pass
 
-        def save(self):
+        def create_log(self, period, next_day):
             pass
 
-        def schedule_tasks(self):
+        def update_log(self, period, next_day):
             pass
 
-        def update_agenda(self):
-            pass
-
-        def update_log(self):
+        def save(self, period=None):
             pass
 
     return DummyPlanner()
