@@ -2,7 +2,7 @@ import datetime
 import pytest
 
 from composer.config import LOGFILE_CHECKING
-from composer.timeperiod import Zero, Day, Week, Month, Quarter, Year
+from composer.timeperiod import Zero, Day, Week
 
 from mock import MagicMock, patch
 from .fixtures import planner_base
