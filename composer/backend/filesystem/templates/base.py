@@ -43,7 +43,7 @@ class Template(ABC):
         self.bullet_character = planner.preferred_bullet_char
 
     @abc.abstractmethod
-    def build(self):
+    def build(self, **kwargs):
         """ Create a new log file for the current date by specifying a template
         and populating it with configured contents (like periodic tasks) for
         the relevant period.
@@ -97,7 +97,7 @@ class ZeroTemplate(Template):
     def _file_handle(self):
         return ""
 
-    def build(self):
+    def build(self, **kwargs):
         return ""
 
     def update(self):
