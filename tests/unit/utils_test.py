@@ -259,6 +259,16 @@ class TestAddToSection(object):
         )
         assert updated.read() == expected
 
+    def test_file_containing_only_section(self):
+        contents = "AGENDA:\n[ ] do this\n[\\] another thing\n"
+        new_tasks = "[ ] one more thing to do!\n"
+        file = make_file(contents)
+        updated = add_to_section(
+            file, 'AGENDA', new_tasks, above=False, ensure_separator=True
+        )
+        expected = contents + new_tasks
+        assert updated.read() == expected
+
     def test_separator_added_if_needed(self, tasklist_file):
         new_tasks = "[ ] one more thing to do!\n"
         updated = add_to_section(

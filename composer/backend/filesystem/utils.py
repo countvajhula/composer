@@ -295,7 +295,7 @@ def add_to_section(file, section, tasks, above=True, ensure_separator=False):
         if (
             ensure_separator
             and not is_section_separator(make_file(tasks).readlines()[-1])
-            and not is_section_separator(copy_file(remaining).readlines()[0])
+            and remaining.getvalue() and not is_section_separator(copy_file(remaining).readlines()[0])
         ):
             # in extracting the section from the original file, we disregarded
             # a section separator (if present). Add it back here. (ideally this
