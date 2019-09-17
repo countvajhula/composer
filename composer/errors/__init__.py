@@ -1,4 +1,4 @@
-from .base import ComposerError  # noqa
+from .base import ComposerError, ConfigError  # noqa
 from .state import (  # noqa
     DayStillInProgressError,
     LogfileAlreadyExistsError,
@@ -26,6 +26,7 @@ from .scheduling import (  # noqa
 
 __all__ = (
     "ComposerError",
+    "ConfigError",
     "SchedulingError",
     "BlockedTaskNotScheduledError",
     "SchedulingDateError",

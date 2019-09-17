@@ -32,7 +32,7 @@ except NameError:  # py3
     raw_input = input
 
 CONFIG_ROOT = os.getenv("COMPOSER_ROOT", os.path.expanduser("~/.composer"))
-CONFIG_FILE = os.path.join(CONFIG_ROOT, "config.ini")
+CONFIG_FILE = os.path.join(CONFIG_ROOT, config.CONFIG_FILENAME)
 
 
 def _make_git_commit(wikidir, message):
@@ -101,6 +101,8 @@ def process_wiki(wikidir, preferences, now):
     # preparations (e.g. git commit) and actually perform the changes
     display_message()
     display_message(">>> Operating on planner at location: %s <<<" % wikidir)
+
+    config.update_wiki_specific_preferences(wikidir, preferences)  # mutates preferences
 
     while True:
         display_message()
@@ -230,7 +232,11 @@ def main(wikipath=None, test=False, jump=False):
         display_message()
 
     for wikidir in wikidirs:
-        process_wiki(wikidir, preferences, now)
+        process_wiki(
+            wikidir,
+            preferences.copy(),  # contain any wiki-specific modifications
+            now,
+        )
 
 
 if __name__ == "__main__":
