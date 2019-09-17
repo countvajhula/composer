@@ -538,23 +538,6 @@ class FilesystemPlanner(PlannerBase):
                 filename[filename.rfind("/") + 1 :], filelinkfn
             )  # remove path from filename so it isn't "double counted"
 
-    def _check_files_for_contained_periods(self, period):
-        """ A helper to check if any time periods just advanced already have
-        log files on disk, which is unexpected and an error. This is only
-        appropriate to call after logical advance has occurred (but prior to
-        writing to disk).
-        """
-        if period == Zero:
-            return
-        filename = self._log_filename(period)
-        if os.path.isfile(filename):
-            raise LogfileAlreadyExistsError(
-                "New {period} logfile already exists!".format(period=period)
-            )
-        self._check_files_for_contained_periods(
-            get_next_period(period, decreasing=True)
-        )
-
     def check_log_completion(self, period):
         """ Check the logfile's NOTES section as a determination of whether
         the log has been completed """
@@ -607,6 +590,23 @@ class FilesystemPlanner(PlannerBase):
                 " Add one and try again.".format(period=period)
             )
         self._update_period_logfile(period, logfile_updated.getvalue())
+
+    def _check_files_for_contained_periods(self, period):
+        """ A helper to check if any time periods just advanced already have
+        log files on disk, which is unexpected and an error. This is only
+        appropriate to call after logical advance has occurred (but prior to
+        writing to disk).
+        """
+        if period == Zero:
+            return
+        filename = self._log_filename(period)
+        if os.path.isfile(filename):
+            raise LogfileAlreadyExistsError(
+                "New {period} logfile already exists!".format(period=period)
+            )
+        self._check_files_for_contained_periods(
+            get_next_period(period, decreasing=True)
+        )
 
     def _write_files_for_contained_periods(self, period):
         if period == Zero:

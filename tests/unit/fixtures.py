@@ -1,3 +1,4 @@
+import datetime
 import pytest
 
 try:  # py2
@@ -111,7 +112,9 @@ def planner_base():
         def save(self, period=None):
             pass
 
-    return DummyPlanner()
+    planner = DummyPlanner()
+    planner.date = datetime.date.today()
+    return planner
 
 
 @pytest.fixture
@@ -160,6 +163,59 @@ def planner():
         "UNSCHEDULED:\n"
         "\n"
         "SCHEDULED:\n"
+    )
+
+    yeartemplate = (
+        "= 2012 =\n"
+        "\n"
+        'Theme: *"PUT IT BACK" 2012*\n'
+        "\n"
+        "\t* [[Q4 2015]]\n"
+        "\t* [[Q3 2015]]\n"
+        "\t* [[Q2 2015]]\n"
+        "\t* [[Q1 2015]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] Q1 - []\n"
+        "[ ] Q2 - []\n"
+        "[ ] Q3 - []\n"
+        "[ ] Q4 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "\n"
+        "YEARLYs:\n"
+        "[ ] 1 significant life achievement\n"
+        "\n"
+        "NOTES:\n"
+        "\n"
+        "\n"
+        "TIME SPENT ON PLANNER: \n"
+    )
+
+    quartertemplate = (
+        "= Q4 2012 =\n"
+        "\n"
+        "\t* [[Month of December, 2012]]\n"
+        "\t* [[Month of November, 2012]]\n"
+        "\t* [[Month of October, 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] MONTH 1 - []\n"
+        "[ ] MONTH 2 - []\n"
+        "[ ] MONTH 3 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "\n"
+        "QUARTERLYs:\n"
+        "[ ] 1 major research achievement\n"
+        "[ ] 1 major coding achievement\n"
+        "[ ] 1 unique achievement\n"
+        "[ ] update financials\n"
+        "\n"
+        "NOTES:\n"
+        "\n"
+        "\n"
+        "TIME SPENT ON PLANNER: \n"
     )
 
     monthtemplate = (
@@ -278,5 +334,10 @@ def planner():
     planner.dayfile = StringIO(daytemplate)
     planner.weekfile = StringIO(weektemplate)
     planner.monthfile = StringIO(monthtemplate)
+    planner.quarterfile = StringIO(quartertemplate)
+    planner.yearfile = StringIO(yeartemplate)
+
+    planner.date = datetime.date.today()
+    planner.location = ''
 
     return planner

@@ -6,12 +6,14 @@ from .quarter import Quarter
 from .utils import get_next_day
 from .year import Year
 
+TIME_PERIODS = (Zero, Day, Week, Month, Quarter, Year)
+
 
 # TODO: move this to a module
 def get_next_period(current_period, decreasing=False):
-    periods = (Zero, Day, Week, Month, Quarter, Year)
+    periods = TIME_PERIODS
     if decreasing:
-        periods = tuple(reversed(periods))
+        periods = tuple(reversed(TIME_PERIODS))
     try:
         index = periods.index(current_period)
         next_period = periods[index + 1]
