@@ -541,9 +541,7 @@ class FilesystemPlanner(PlannerBase):
     def check_log_completion(self, period):
         """ Check the logfile's NOTES section as a determination of whether
         the log has been completed """
-        if self.logfile_completion_checking == LOGFILE_CHECKING[
-            "LAX"
-        ]:
+        if self.logfile_completion_checking == LOGFILE_CHECKING["LAX"]:
             return True
 
         completed = False

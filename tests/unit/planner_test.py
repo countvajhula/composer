@@ -49,8 +49,9 @@ class TestAdvance(object):
 
 
 class TestAdvancePeriod(object):
-
-    def _set_up_advance(self, mock_next_day, mock_next_period, planner_base, n=1):
+    def _set_up_advance(
+        self, mock_next_day, mock_next_period, planner_base, n=1
+    ):
         now = datetime.datetime(2013, 1, 1)
         planner_base.now = now
         current_day = now.date()
@@ -64,7 +65,9 @@ class TestAdvancePeriod(object):
 
     @patch('composer.backend.base.get_next_period')
     @patch('composer.backend.base.get_next_day')
-    def test_advance_ends_period(self, mock_next_day, mock_next_period, planner_base):
+    def test_advance_ends_period(
+        self, mock_next_day, mock_next_period, planner_base
+    ):
         self._set_up_advance(mock_next_day, mock_next_period, planner_base)
         planner_base.end_period = MagicMock()
         planner_base.advance_period(Day)
@@ -72,7 +75,9 @@ class TestAdvancePeriod(object):
 
     @patch('composer.backend.base.get_next_period')
     @patch('composer.backend.base.get_next_day')
-    def test_advance_begins_period(self, mock_next_day, mock_next_period, planner_base):
+    def test_advance_begins_period(
+        self, mock_next_day, mock_next_period, planner_base
+    ):
         self._set_up_advance(mock_next_day, mock_next_period, planner_base)
         planner_base.end_period = MagicMock()
         planner_base.begin_period = MagicMock()
@@ -81,8 +86,12 @@ class TestAdvancePeriod(object):
 
     @patch('composer.backend.base.get_next_period')
     @patch('composer.backend.base.get_next_day')
-    def test_advance_attempts_encompassing_period(self, mock_next_day, mock_next_period, planner_base):
-        self._set_up_advance(mock_next_day, mock_next_period, planner_base, n=2)
+    def test_advance_attempts_encompassing_period(
+        self, mock_next_day, mock_next_period, planner_base
+    ):
+        self._set_up_advance(
+            mock_next_day, mock_next_period, planner_base, n=2
+        )
         planner_base.end_period = MagicMock()
         planner_base.begin_period = MagicMock()
         result = planner_base.advance_period(Day)
@@ -90,8 +99,12 @@ class TestAdvancePeriod(object):
 
     @patch('composer.backend.base.get_next_period')
     @patch('composer.backend.base.get_next_day')
-    def test_no_advance_continues_period(self, mock_next_day, mock_next_period, planner_base):
-        self._set_up_advance(mock_next_day, mock_next_period, planner_base, n=0)
+    def test_no_advance_continues_period(
+        self, mock_next_day, mock_next_period, planner_base
+    ):
+        self._set_up_advance(
+            mock_next_day, mock_next_period, planner_base, n=0
+        )
         planner_base.end_period = MagicMock()
         planner_base.begin_period = MagicMock()
         planner_base.continue_period = MagicMock()
@@ -100,7 +113,6 @@ class TestAdvancePeriod(object):
 
 
 class TestBeginPeriod(object):
-
     def test_begin_period_creates_log(self, planner_base):
         next_day = datetime.date(2013, 1, 2)
         planner_base.create_log = MagicMock()
@@ -109,7 +121,6 @@ class TestBeginPeriod(object):
 
 
 class TestEndPeriod(object):
-
     def test_end_period_checks_log_completion(self, planner_base):
         planner_base.check_log_completion = MagicMock()
         planner_base.end_period(Day)

@@ -3,7 +3,11 @@ import pytest
 from composer.backend.filesystem.utils import make_file
 from composer.config import LOGFILE_CHECKING
 from composer.errors import LogfileAlreadyExistsError, LogfileLayoutError
-from composer.backend.filesystem.base import PLANNERMONTHFILELINK, PLANNERQUARTERFILELINK, PLANNERTASKLISTFILE
+from composer.backend.filesystem.base import (
+    PLANNERMONTHFILELINK,
+    PLANNERQUARTERFILELINK,
+    PLANNERTASKLISTFILE,
+)
 from composer.timeperiod import Zero, Day, Month, Week, TIME_PERIODS
 
 from mock import MagicMock, patch
@@ -17,7 +21,9 @@ class TestGetAgenda(object):
 
     def test_missing_agenda_raises_error(self, planner):
         mock_get_logfile = MagicMock()
-        mock_get_logfile.return_value = make_file("[ ] a task\n[\\] another task")
+        mock_get_logfile.return_value = make_file(
+            "[ ] a task\n[\\] another task"
+        )
         planner._get_logfile = mock_get_logfile
         with pytest.raises(LogfileLayoutError):
             planner.get_agenda(Day)
@@ -45,7 +51,9 @@ class TestGetAgenda(object):
 class TestUpdateAgenda(object):
     def test_missing_agenda_raises_error(self, planner):
         mock_get_logfile = MagicMock()
-        mock_get_logfile.return_value = make_file("[ ] a task\n[\\] another task")
+        mock_get_logfile.return_value = make_file(
+            "[ ] a task\n[\\] another task"
+        )
         planner._get_logfile = mock_get_logfile
         with pytest.raises(LogfileLayoutError):
             planner.update_agenda(Day, "[ ] new task\n")
@@ -56,20 +64,21 @@ class TestUpdateAgenda(object):
         planner._get_logfile = mock_get_logfile
         updates = "[ ] new task\n"
         expected = (
-            "AGENDA:\n"
-            "[ ] a task\n"
-            "[\\] a WIP task\n"
-            "Just some additional clarifications\n"
-            "\n"
-            "[o] a scheduled task [$TOMORROW$]\n"
-            "[ ] a task with subtasks\n"
-            "\t[ ] first thing\n"
-            "\tclarification of first thing\n"
-            "\t[ ] second thing\n"
-            "[ ] another task\n"
-        ) + updates + (
-            "\n"
-            "NOTES:\n"
+            (
+                "AGENDA:\n"
+                "[ ] a task\n"
+                "[\\] a WIP task\n"
+                "Just some additional clarifications\n"
+                "\n"
+                "[o] a scheduled task [$TOMORROW$]\n"
+                "[ ] a task with subtasks\n"
+                "\t[ ] first thing\n"
+                "\tclarification of first thing\n"
+                "\t[ ] second thing\n"
+                "[ ] another task\n"
+            )
+            + updates
+            + ("\n" "NOTES:\n")
         )
         planner.update_agenda(Day, updates)
         assert planner.dayfile.getvalue() == expected
@@ -95,24 +104,29 @@ class TestCheckLogCompletion(object):
         assert result is True
 
 
-
 class TestSave(object):
-    @patch('composer.backend.filesystem.base.os.path.isfile', return_value=True)
+    @patch(
+        'composer.backend.filesystem.base.os.path.isfile', return_value=True
+    )
     def test_new_logfile_preexists_raises_error(self, mock_isfile, planner):
         with pytest.raises(LogfileAlreadyExistsError):
             planner.save()
 
     def _note_filename(self):
         self.filenames = []
+
         def make_note(contents, filename):
             name_index = filename.rfind('/')
-            name = filename[name_index+1:]
+            name = filename[name_index + 1 :]
             self.filenames.append(name)
+
         return make_note
 
     @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
-    def test_writes_log_for_all_periods(self, mock_write_file, mock_os, planner):
+    def test_writes_log_for_all_periods(
+        self, mock_write_file, mock_os, planner
+    ):
         mock_os.path.isfile.return_value = False
         planner.save()
         expected_files_written = (
@@ -132,7 +146,9 @@ class TestSave(object):
 
     @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
-    def test_writes_log_for_contained_period(self, mock_write_file, mock_os, planner):
+    def test_writes_log_for_contained_period(
+        self, mock_write_file, mock_os, planner
+    ):
         mock_os.path.isfile.return_value = False
         mock_write_file.side_effect = self._note_filename()
         planner.save(Month)
@@ -140,21 +156,29 @@ class TestSave(object):
 
     @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
-    def test_writes_log_for_encompassing_period(self, mock_write_file, mock_os, planner):
+    def test_writes_log_for_encompassing_period(
+        self, mock_write_file, mock_os, planner
+    ):
         mock_os.path.isfile.return_value = False
         mock_write_file.side_effect = self._note_filename()
         planner.save(Week)
         # because os is mocked, this filename remains 'currentmonth'
-        assert any(PLANNERMONTHFILELINK in filename for filename in self.filenames)
+        assert any(
+            PLANNERMONTHFILELINK in filename for filename in self.filenames
+        )
 
     @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
-    def test_does_not_write_log_for_unaffected_period(self, mock_write_file, mock_os, planner):
+    def test_does_not_write_log_for_unaffected_period(
+        self, mock_write_file, mock_os, planner
+    ):
         mock_os.path.isfile.return_value = False
         mock_write_file.side_effect = self._note_filename()
         planner.save(Week)
         # because os is mocked, this filename remains 'currentquarter'
-        assert not any(PLANNERQUARTERFILELINK in filename for filename in self.filenames)
+        assert not any(
+            PLANNERQUARTERFILELINK in filename for filename in self.filenames
+        )
 
     @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
@@ -162,4 +186,6 @@ class TestSave(object):
         mock_os.path.isfile.return_value = False
         mock_write_file.side_effect = self._note_filename()
         planner.save(Week)
-        assert any(PLANNERTASKLISTFILE in filename for filename in self.filenames)
+        assert any(
+            PLANNERTASKLISTFILE in filename for filename in self.filenames
+        )

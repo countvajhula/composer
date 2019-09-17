@@ -87,11 +87,7 @@ class TestPartitionAt(object):
     def test_first_part(self, logfile):
         pattern = re.compile(r"^Just")
         first, _ = partition_at(logfile, pattern)
-        expected = (
-            "AGENDA:\n"
-            "[ ] a task\n"
-            "[\\] a WIP task\n"
-        )
+        expected = "AGENDA:\n" "[ ] a task\n" "[\\] a WIP task\n"
         assert first.read() == expected
 
     def test_first_part_inclusive(self, logfile):

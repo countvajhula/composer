@@ -36,6 +36,7 @@ def _empty_logfile():
 def _complete_logfile():
     return StringIO(_logfile().read() + "Did lots of things today.\n")
 
+
 def _tasklistfile():
     contents = (
         "TOMORROW:\n"
