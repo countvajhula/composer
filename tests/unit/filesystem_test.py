@@ -39,3 +39,21 @@ class TestGetAgenda(object):
         )
         result = planner.get_agenda(Day)
         assert result == expected
+
+
+class TestUpdateAgenda(object):
+    def test_missing_agenda_raises_error(self, planner):
+        mock_get_logfile = MagicMock()
+        mock_get_logfile.return_value = make_file("[ ] a task\n[\\] another task")
+        planner._get_logfile = mock_get_logfile
+        with pytest.raises(LogfileLayoutError):
+            planner.update_agenda(Day, "[ ] new task\n")
+
+    def test_normal(self, planner, logfile):
+        mock_get_logfile = MagicMock()
+        mock_get_logfile.return_value = logfile
+        planner._get_logfile = mock_get_logfile
+        updates = "[ ] new task\n"
+        expected = logfile.getvalue() + updates
+        planner.update_agenda(Day, updates)
+        assert planner.dayfile.getvalue() == expected
