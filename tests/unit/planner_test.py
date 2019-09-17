@@ -1,5 +1,4 @@
 import datetime
-import pytest
 
 from composer.config import LOGFILE_CHECKING
 from composer.timeperiod import Zero, Day, Week
