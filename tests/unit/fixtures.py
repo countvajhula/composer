@@ -22,6 +22,8 @@ def _logfile():
         "\tclarification of first thing\n"
         "\t[ ] second thing\n"
         "[ ] another task\n"
+        "\n"
+        "NOTES:\n"
     )
     return StringIO(contents)
 
@@ -29,6 +31,9 @@ def _logfile():
 def _empty_logfile():
     return StringIO("")
 
+
+def _complete_logfile():
+    return StringIO(_logfile().read() + "Did lots of things today.\n")
 
 def _tasklistfile():
     contents = (
@@ -58,6 +63,11 @@ def logfile():
 @pytest.fixture
 def empty_logfile():
     return _empty_logfile()
+
+
+@pytest.fixture
+def complete_logfile():
+    return _complete_logfile()
 
 
 @pytest.fixture

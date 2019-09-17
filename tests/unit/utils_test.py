@@ -71,6 +71,8 @@ class TestReadItem(object):
             "\tclarification of first thing\n"
             "\t[ ] second thing\n"
             "[ ] another task\n"
+            "\n"
+            "NOTES:\n"
         )
 
         _, complement = read_item(logfile)
@@ -115,6 +117,8 @@ class TestPartitionAt(object):
             "\tclarification of first thing\n"
             "\t[ ] second thing\n"
             "[ ] another task\n"
+            "\n"
+            "NOTES:\n"
         )
         assert second.read() == expected
 
@@ -129,6 +133,8 @@ class TestPartitionAt(object):
             "\tclarification of first thing\n"
             "\t[ ] second thing\n"
             "[ ] another task\n"
+            "\n"
+            "NOTES:\n"
         )
         assert second.read() == expected
 
