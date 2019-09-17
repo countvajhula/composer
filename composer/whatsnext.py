@@ -102,7 +102,9 @@ def process_wiki(wikidir, preferences, now):
     display_message()
     display_message(">>> Operating on planner at location: %s <<<" % wikidir)
 
-    config.update_wiki_specific_preferences(wikidir, preferences)  # mutates preferences
+    config.update_wiki_specific_preferences(
+        wikidir, preferences
+    )  # mutates preferences
 
     while True:
         display_message()

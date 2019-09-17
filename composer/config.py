@@ -24,7 +24,9 @@ def read_user_preferences(config_path):
         as indicated in the config file.
     """
     if not os.path.isfile(config_path):
-        raise ConfigError("Composer config file at {path} missing!".format(path=config_path))
+        raise ConfigError(
+            "Composer config file at {path} missing!".format(path=config_path)
+        )
     config = configparser.ConfigParser()
     config.read(config_path)
     preferences = dict(config["general"])
