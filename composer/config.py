@@ -16,6 +16,12 @@ DEFAULT_SCHEDULE = "standard"
 DEFAULT_BULLET_CHARACTER = "*"
 
 
+def _read_config(config_path):
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    return config
+
+
 def read_user_preferences(config_path):
     """ Read composer config including wiki paths.
 
@@ -27,8 +33,7 @@ def read_user_preferences(config_path):
         raise ConfigError(
             "Composer config file at {path} missing!".format(path=config_path)
         )
-    config = configparser.ConfigParser()
-    config.read(config_path)
+    config = _read_config(config_path)
     preferences = dict(config["general"])
     # convert from string to list
     preferences["wikis"] = next(csv.reader([preferences["wikis"]]))

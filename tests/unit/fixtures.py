@@ -10,6 +10,26 @@ from composer.backend import FilesystemPlanner
 from composer.backend.base import PlannerBase
 
 
+def _config_file():
+    contents = (
+        "[general]\n"
+        "wikis=/Users/siddhartha/log/themanwiki,/Users/siddhartha/log/ferdywiki,/Users/siddhartha/log/planner\n"
+        "lessons_files=Lessons_Introspective.wiki,Lessons_General.wiki,Lessons_Advice.wiki,Lessons_Experimental.wiki\n"
+        "; schedule is the daily schedule to use -- if you set a value of 'abc'\n"
+        "; then there should be files called Checkpoints_Weekday_Abc.wiki\n"
+        "; and Checkpoints_Weekend_Abc.wiki at the wiki path\n"
+        "; e.g. /Users/myuser/log/wiki/Checkpoints_Weekday_Abc.wiki\n"
+        "schedule=standard\n"
+        "bullet_character=*\n"
+    )
+    return StringIO(contents)
+
+
+@pytest.fixture
+def config_file():
+    return _config_file()
+
+
 def _logfile():
     contents = (
         "AGENDA:\n"
@@ -29,12 +49,27 @@ def _logfile():
     return StringIO(contents)
 
 
+@pytest.fixture
+def logfile():
+    return _logfile()
+
+
 def _empty_logfile():
     return StringIO("")
 
 
+@pytest.fixture
+def empty_logfile():
+    return _empty_logfile()
+
+
 def _complete_logfile():
     return StringIO(_logfile().read() + "Did lots of things today.\n")
+
+
+@pytest.fixture
+def complete_logfile():
+    return _complete_logfile()
 
 
 def _tasklistfile():
@@ -58,27 +93,11 @@ def _tasklistfile():
 
 
 @pytest.fixture
-def logfile():
-    return _logfile()
-
-
-@pytest.fixture
-def empty_logfile():
-    return _empty_logfile()
-
-
-@pytest.fixture
-def complete_logfile():
-    return _complete_logfile()
-
-
-@pytest.fixture
 def tasklist_file():
     return _tasklistfile()
 
 
-@pytest.fixture
-def planner_base():
+def _planner_base():
     class DummyPlanner(PlannerBase):
         def construct(self, location=None):
             pass
@@ -119,7 +138,11 @@ def planner_base():
 
 
 @pytest.fixture
-def planner():
+def planner_base():
+    return _planner_base()
+
+
+def _planner():
     tasklist = (
         "TOMORROW:\n"
         "[ ] contact dude\n"
@@ -342,3 +365,8 @@ def planner():
     planner.location = ''
 
     return planner
+
+
+@pytest.fixture
+def planner():
+    return _planner()
