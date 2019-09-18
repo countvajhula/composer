@@ -10,18 +10,14 @@ import re
 import click
 
 from composer.backend import FilesystemPlanner
+from composer.backend.filesystem.base import PLANNERDAYFILELINK, PLANNERWEEKFILELINK, PLANNERMONTHFILELINK, PLANNERQUARTERFILELINK
 from composer.backend.filesystem.utils import read_file
 from composer.utils import display_message
 from composer.timeperiod import Week
 from composer import config
 
 CONFIG_ROOT = os.getenv("COMPOSER_ROOT", os.path.expanduser("~/.composer"))
-CONFIG_FILE = os.path.join(CONFIG_ROOT, "config.ini")
-
-PLANNERDAYFILELINK = "currentday"
-PLANNERWEEKFILELINK = "currentweek"
-PLANNERMONTHFILELINK = "currentmonth"
-PLANNERQUARTERFILELINK = "currentquarter"
+CONFIG_FILE = os.path.join(CONFIG_ROOT, config.CONFIG_FILENAME)
 
 
 def get_filename(wikidir, filelink):
@@ -161,7 +157,14 @@ def get_logs_times_this_quarter(wikidir):
     return (logs, times)
 
 
-@click.command(help=("Collect recent log data to help with retrospectives."))
+@click.command(
+    help=(
+        "Collect recent log data to help with retrospectives.\n"
+        "WIKIPATH is the path of the wiki to operate on.\n"
+        "If not provided, uses the path(s) specified in "
+        "config.ini"
+    )
+)
 @click.argument("wikipath", required=False)
 def main(wikipath=None):
     preferences = config.read_user_preferences(CONFIG_FILE)
