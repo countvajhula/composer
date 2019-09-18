@@ -1,4 +1,7 @@
 import abc
+import datetime
+
+from datetime import timedelta
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 
@@ -38,6 +41,23 @@ class Period(ABC):
     @abc.abstractmethod
     def get_name(self):
         raise NotImplementedError
+
+    def get_start_date(self, planner_date):
+        now = datetime.datetime.now()
+        current_date = planner_date
+        previous_date = current_date - timedelta(days=1)
+        while not self.advance_criteria_met(previous_date, now):
+            current_date = previous_date
+            previous_date -= timedelta(days=1)
+        return current_date
+
+    def get_end_date(self, planner_date):
+        now = datetime.datetime.now()
+        current_date = planner_date
+        while not self.advance_criteria_met(current_date, now):
+            current_date += timedelta(days=1)
+        return current_date
+
 
 
 class _Zero(Period):

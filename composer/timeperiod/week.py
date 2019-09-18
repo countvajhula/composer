@@ -1,7 +1,4 @@
 import calendar
-import datetime
-
-from datetime import timedelta
 
 from ..errors import PlannerIsInTheFutureError
 from .base import Period
@@ -37,22 +34,6 @@ class _Week(Period):
 
     def get_name(self):
         return "week"
-
-    def get_start_date(self, planner_date):
-        now = datetime.datetime.now()
-        current_date = planner_date
-        previous_date = current_date - timedelta(days=1)
-        while not self.advance_criteria_met(previous_date, now):
-            current_date = previous_date
-            previous_date -= timedelta(days=1)
-        return current_date
-
-    def get_end_date(self, planner_date):
-        now = datetime.datetime.now()
-        current_date = planner_date
-        while not self.advance_criteria_met(current_date, now):
-            current_date += timedelta(days=1)
-        return current_date
 
 
 Week = _Week()
