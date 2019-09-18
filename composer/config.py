@@ -54,13 +54,13 @@ def update_wiki_specific_preferences(wikidir, preferences):
     config_path = os.path.join(wikidir, CONFIG_FILENAME)
     if not os.path.isfile(config_path):
         return
-    config = configparser.ConfigParser()
-    config.read(config_path)
+    config = _read_config(config_path)
     wiki_preferences = dict(config["general"])
     # convert from string to list
-    wiki_preferences["lessons_files"] = next(
-        csv.reader([preferences["lessons_files"]])
-    )
+    if wiki_preferences.get('lessons_files'):
+        wiki_preferences["lessons_files"] = next(
+            csv.reader([preferences["lessons_files"]])
+        )
     # override lessons files, schedule, preferred bullet char, and
     # anything else
     preferences.update(wiki_preferences)

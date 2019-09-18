@@ -30,6 +30,16 @@ def config_file():
     return _config_file()
 
 
+def _wiki_config_file():
+    contents = "[general]\n" "bullet_character=-\n"
+    return StringIO(contents)
+
+
+@pytest.fixture
+def wiki_config_file():
+    return _wiki_config_file()
+
+
 def _logfile():
     contents = (
         "AGENDA:\n"
