@@ -9,14 +9,14 @@ class _Quarter(Period):
 
     duration = 3 * 4 * 7 * 24 * 60 * 60
 
-    def advance_criteria_met(self, planner, now):
-        next_day = get_next_day(planner.date)
+    def advance_criteria_met(self, planner_date, now):
+        next_day = get_next_day(planner_date)
         month = next_day.strftime("%B")
         try:
-            Day.advance_criteria_met(planner, now)
+            Day.advance_criteria_met(planner_date, now)
         except PlannerIsInTheFutureError:
             raise
-        if Month.advance_criteria_met(planner, now) and month.lower() in (
+        if Month.advance_criteria_met(planner_date, now) and month.lower() in (
             "january",
             "april",
             "july",

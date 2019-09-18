@@ -94,7 +94,7 @@ def get_logs_times_this_month(wikidir):
         logs += "Week of " + str(planner.date) + "\n" + log + "\n\n"
         times.append(time)
         planner.date += datetime.timedelta(days=1)
-        while not Week.advance_criteria_met(planner, datetime.datetime.now()):
+        while not Week.advance_criteria_met(planner.date, datetime.datetime.now()):
             planner.date += datetime.timedelta(days=1)
         planner.date += datetime.timedelta(
             days=1

@@ -12,20 +12,20 @@ class _Week(Period):
 
     duration = 7 * 24 * 60 * 60
 
-    def advance_criteria_met(self, planner, now):
+    def advance_criteria_met(self, planner_date, now):
         # note that these dates are ~next~ day values
-        dow = planner.date.strftime("%A")
-        year = planner.date.year
+        dow = planner_date.strftime("%A")
+        year = planner_date.year
         try:
-            day_criteria_met = Day.advance_criteria_met(planner, now)
+            day_criteria_met = Day.advance_criteria_met(planner_date, now)
         except PlannerIsInTheFutureError:
             raise
-        if Month.advance_criteria_met(planner, now) or (
+        if Month.advance_criteria_met(planner_date, now) or (
             day_criteria_met
             and dow.lower() == "saturday"
-            and planner.date.day >= MIN_WEEK_LENGTH
-            and calendar.monthrange(year, planner.date.month)[1]
-            - planner.date.day
+            and planner_date.day >= MIN_WEEK_LENGTH
+            and calendar.monthrange(year, planner_date.month)[1]
+            - planner_date.day
             >= MIN_WEEK_LENGTH
         ):
             return True

@@ -6,11 +6,11 @@ class _Day(Period):
 
     duration = 24 * 60 * 60
 
-    def advance_criteria_met(self, planner, now):
+    def advance_criteria_met(self, planner_date, now):
         today = now.date()
-        if planner.date < today:
+        if planner_date < today:
             return True
-        if planner.date == today:
+        if planner_date == today:
             if now.hour >= 18:
                 return True
             else:

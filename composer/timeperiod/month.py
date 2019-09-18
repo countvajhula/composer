@@ -9,10 +9,10 @@ class _Month(Period):
 
     duration = 4 * 7 * 24 * 60 * 60
 
-    def advance_criteria_met(self, planner, now):
-        next_day = get_next_day(planner.date)
+    def advance_criteria_met(self, planner_date, now):
+        next_day = get_next_day(planner_date)
         try:
-            day_criteria_met = Day.advance_criteria_met(planner, now)
+            day_criteria_met = Day.advance_criteria_met(planner_date, now)
         except PlannerIsInTheFutureError:
             raise
         if next_day.day == 1 and day_criteria_met:

@@ -32,7 +32,7 @@ class Period(ABC):
         return self.get_name()
 
     @abc.abstractmethod
-    def advance_criteria_met(self, planner, now):
+    def advance_criteria_met(self, planner_date, now):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -44,7 +44,7 @@ class _Zero(Period):
 
     duration = 0
 
-    def advance_criteria_met(self, planner, now):
+    def advance_criteria_met(self, planner_date, now):
         """ A null period for 'algebraic' convenience. """
         raise NotImplementedError
 
