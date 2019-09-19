@@ -441,18 +441,20 @@ class FilesystemPlanner(PlannerBase):
         contents = template.write_existing()
         self._update_period_logfile(period, contents)
 
-    def _get_path_for_existing_log(self, period):
+    def _get_existing_log_path(self, period):
         link = self._link_name(period)
         path = full_file_path(
             root=self.location, filename=link, dereference=True
         )
         return path
 
-    def _get_path_for_new_log(self, period):
+    def _get_log_path_for_date(self, period, for_date=None):
+        if not for_date:
+            for_date = self.date
         (date, month, year) = (
-            self.date.day,
-            self.date.strftime("%B"),
-            self.date.year,
+            for_date.day,
+            for_date.strftime("%B"),
+            for_date.year,
         )
 
         if period == Day:
@@ -495,10 +497,10 @@ class FilesystemPlanner(PlannerBase):
         """
         if is_existing:
             # use the existing state on disk, don't compute a path
-            return self._get_path_for_existing_log(period)
+            return self._get_existing_log_path(period)
         else:
             # compute a filename based on the reference date
-            return self._get_path_for_new_log(period)
+            return self._get_log_path_for_date(period)
 
     def _link_name(self, period):
         """ The 'current' state of the planner in the filesystem is represented
