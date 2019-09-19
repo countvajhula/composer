@@ -390,6 +390,15 @@ class FilesystemPlanner(PlannerBase):
 
         return tasks
 
+    def get_logfile_for_date(self, period, for_date):
+        """ Get the logfile for the specified period that is tracking the
+        specified date.
+        """
+        start_date = period.get_start_date(for_date)
+        log_path = self._get_log_path_for_date(period, start_date)
+        log = self._read_file(log_path)
+        return log
+
     def _get_logfile(self, period):
         log_attr = self._logfile_attribute(period)
         log = getattr(self, log_attr)
