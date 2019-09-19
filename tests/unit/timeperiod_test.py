@@ -1,8 +1,6 @@
 import datetime
 
-from composer.timeperiod import (
-    Day, Week, Month, Quarter, Year,
-)
+from composer.timeperiod import Day, Week, Month, Quarter, Year
 
 
 class TestStartDate(object):
@@ -44,7 +42,9 @@ class TestWeekStartDate(TestStartDate):
 
     def test_beginning_of_month(self):
         current_date = datetime.date(2013, 5, 3)  # Friday
-        expected = datetime.date(2013, 5, 1)  # 1st of month, not Sunday (short week)
+        expected = datetime.date(
+            2013, 5, 1
+        )  # 1st of month, not Sunday (short week)
         result = Week.get_start_date(current_date)
         assert result == expected
 

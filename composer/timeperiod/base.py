@@ -59,7 +59,6 @@ class Period(ABC):
         return current_date
 
 
-
 class _Zero(Period):
 
     duration = 0

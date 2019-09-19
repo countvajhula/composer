@@ -10,7 +10,12 @@ import re
 import click
 
 from composer.backend import FilesystemPlanner
-from composer.backend.filesystem.base import PLANNERDAYFILELINK, PLANNERWEEKFILELINK, PLANNERMONTHFILELINK, PLANNERQUARTERFILELINK
+from composer.backend.filesystem.base import (
+    PLANNERDAYFILELINK,
+    PLANNERWEEKFILELINK,
+    PLANNERMONTHFILELINK,
+    PLANNERQUARTERFILELINK,
+)
 from composer.backend.filesystem.utils import read_file
 from composer.utils import display_message
 from composer.timeperiod import Week
@@ -94,7 +99,9 @@ def get_logs_times_this_month(wikidir):
         logs += "Week of " + str(planner.date) + "\n" + log + "\n\n"
         times.append(time)
         planner.date += datetime.timedelta(days=1)
-        while not Week.advance_criteria_met(planner.date, datetime.datetime.now()):
+        while not Week.advance_criteria_met(
+            planner.date, datetime.datetime.now()
+        ):
             planner.date += datetime.timedelta(days=1)
         planner.date += datetime.timedelta(
             days=1

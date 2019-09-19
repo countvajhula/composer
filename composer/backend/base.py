@@ -158,7 +158,9 @@ class PlannerBase(ABC):
 
         next_period = get_next_period(current_period)
         try:
-            criteria_met = next_period.advance_criteria_met(self.date, self.now)
+            criteria_met = next_period.advance_criteria_met(
+                self.date, self.now
+            )
         except PlannerIsInTheFutureError:
             raise
 

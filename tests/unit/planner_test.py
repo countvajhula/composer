@@ -57,7 +57,9 @@ class TestAdvancePeriod(object):
         planner_base.date = current_day
         next_day = datetime.date(2013, 1, 2)
         mock_next_day.return_value = next_day
-        next_period = Week.__class__()  # patching the singleton directly has global effect
+        next_period = (
+            Week.__class__()
+        )  # patching the singleton directly has global effect
         mock_criteria_met = TrueTimes(n)
         next_period.advance_criteria_met = mock_criteria_met
         mock_next_period.return_value = next_period
