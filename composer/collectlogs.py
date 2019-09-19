@@ -11,7 +11,6 @@ import click
 
 from composer.backend import FilesystemPlanner
 from composer.backend.filesystem.base import (
-    PLANNERDAYFILELINK,
     PLANNERWEEKFILELINK,
     PLANNERMONTHFILELINK,
     PLANNERQUARTERFILELINK,

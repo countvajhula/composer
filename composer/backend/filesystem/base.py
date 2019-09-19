@@ -38,6 +38,11 @@ from .utils import (
     partition_items,
     read_section,
 )
+# should minimize use of primitives in this file
+# if necessary, provide duplicate versions of functions
+# at the relevant abstraction level and have those internally
+# map to and from the lower abstraction level to leverage
+# the low level operations at the higher level in a formal way
 from .primitives import (
     is_scheduled_task,
     is_undone_task,

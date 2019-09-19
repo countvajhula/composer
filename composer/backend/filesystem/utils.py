@@ -20,6 +20,7 @@ from .primitives import (
 # separation isn't quite achieved at the moment, and so abstractions do
 # currently leak between the layers
 
+
 def quarter_for_month(month):
     if month.lower() in ("january", "february", "march"):
         return "Q1"
