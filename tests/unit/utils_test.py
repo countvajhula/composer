@@ -9,6 +9,8 @@ from composer.backend.filesystem.utils import (
     partition_at,
     partition_items,
     get_task_items,
+)
+from composer.backend.filesystem.primitives import (
     is_completed_task,
     is_undone_task,
 )

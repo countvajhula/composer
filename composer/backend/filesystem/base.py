@@ -32,21 +32,22 @@ from .scheduling import (
 from .templates import get_template
 from .utils import (
     add_to_section,
-    is_scheduled_task,
-    full_file_path,
     get_task_items,
-    is_undone_task,
-    is_wip_task,
     item_list_to_string,
-    make_file,
     quarter_for_month,
-    parse_task,
     partition_items,
-    read_file,
-    write_file,
     read_section,
 )
-
+from .primitives import (
+    is_scheduled_task,
+    is_undone_task,
+    is_wip_task,
+    parse_task,
+    make_file,
+    full_file_path,
+    read_file,
+    write_file,
+)
 
 try:  # py2
     from StringIO import StringIO

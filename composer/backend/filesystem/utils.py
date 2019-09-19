@@ -1,54 +1,24 @@
-import os
-import re
-
-from functools import wraps
-
-SECTION_PATTERN = re.compile(r"^[A-Z][A-Z][A-Za-z ]+:")
-SECTION_OR_EOF_PATTERN = re.compile(r"(^[A-Z][A-Z][A-Za-z ]+:|\A\Z)")
-TASK_PATTERN = re.compile(r"^\t*\[")
-SECTION_SEPARATOR = '\n'
-PATH_SPECIFICATION = "{path}/{filename}"
-
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
+from .primitives import (
+    make_file,
+    contain_file_mutation,
+    copy_file,
+    is_section_separator,
+    get_section_pattern,
+    SECTION_OR_EOF_PATTERN,
+    SECTION_SEPARATOR,
+    is_eof,
+    is_subtask,
+)
 
 
-def contain_file_mutation(fn):
-    """ For functions that operate on files, this makes is so that these file
-    arguments are passed in "by value" rather than "by reference," so that
-    any mutation done on the file as part of processing (e.g. even just reading
-    the file amounts to this, since it modifies the state of the file viz. its
-    "read position") is contained within the function and not reflected in the
-    calling context. This allows file processing to be done in a "functional"
-    way, keeping side-effects contained and eliminating the need for state
-    management.
-    """
-
-    @wraps(fn)
-    def wrapper(*args, **kwargs):
-        new_args = [
-            copy_file(arg) if isinstance(arg, StringIO) else arg
-            for arg in args
-        ]
-        new_kwargs = {
-            k: (copy_file(v) if isinstance(v, StringIO) else v)
-            for k, v in kwargs.items()
-        }
-        result = fn(*new_args, **new_kwargs)
-        if isinstance(result, tuple):
-            new_result = [
-                copy_file(r) if isinstance(r, StringIO) else r for r in result
-            ]
-        else:
-            new_result = (
-                copy_file(result) if isinstance(result, StringIO) else result
-            )
-        return new_result
-
-    return wrapper
-
+# This module roughly contains the abstraction level between core planner logic
+# and the underlying (filesystem) representation. It roughly deals in "entries"
+# and lists of entries, which themselves may be moved between sections in a
+# logfile. It should ideally facilitate a separation point where higher-level
+# code does not deal in files anymore but rather in entries or sections or
+# whatever other high-level abstractions make sense for the planner. This
+# separation isn't quite achieved at the moment, and so abstractions do
+# currently leak between the layers
 
 def quarter_for_month(month):
     if month.lower() in ("january", "february", "march"):
@@ -59,69 +29,6 @@ def quarter_for_month(month):
         return "Q3"
     elif month.lower() in ("october", "november", "december"):
         return "Q4"
-
-
-def get_section_pattern(section):
-    return re.compile(r'^' + section.upper())
-
-
-# TODO: replace these type predicates with regexes?
-def is_scheduled_task(line):
-    return line.startswith("[o")
-
-
-def is_task(line):
-    return line.startswith("[")
-
-
-def is_subtask(line):
-    return line.startswith("\t")
-
-
-def is_section(line, section_name=None):
-    pattern = (
-        get_section_pattern(section_name) if section_name else SECTION_PATTERN
-    )
-    return pattern.search(line)
-
-
-def is_blank_line(line):
-    return line.startswith("\n")
-
-
-is_section_separator = is_blank_line
-
-
-def is_completed_task(line):
-    return line.startswith("[x")
-
-
-def is_invalid_task(line):
-    return line.startswith("[-")
-
-
-def is_undone_task(line):
-    return line.startswith("[ ")
-
-
-def is_wip_task(line):
-    return line.startswith("[\\")
-
-
-def is_eof(line):
-    return line == ""
-
-
-def parse_task(task):
-    """ Parse a task (in string form) into the header (first line) and contents
-    (any subtasks or other contents). Useful when we need to parse the header
-    independently, e.g. to check for scheduled date and ensure that it's
-    present in the header specifically, and not just anywhere in the task.
-    """
-    f = make_file(task)
-    header = f.readline()
-    contents = f.read()
-    return header, contents
 
 
 def item_list_to_string(items):
@@ -320,48 +227,3 @@ def add_to_section(file, section, tasks, above=True, ensure_separator=False):
             above,
             ensure_separator,
         )
-
-
-def full_file_path(root, filename, dereference=False):
-    """ Given a path root and a filename, construct an OS-specific filesystem
-    path.
-
-    :param str root: The base path
-    :param str filename: The name of the file
-    :param bool dereference: If the file is a symbolic link, the constructed
-    path could either return the path to the link, or the path to the linked
-    original file. If dereference is True, then return the path to the original
-    file, otherwise to the link itself without following it.
-
-    :returns str: The constructed path
-    """
-    if dereference:
-        path_fn = os.path.realpath
-    else:
-        path_fn = os.path.abspath
-    return path_fn(PATH_SPECIFICATION.format(path=root, filename=filename))
-
-
-def make_file(string=""):
-    """ 'Files' are the abstraction level at which the planner is implemented
-    in terms of the filesystem. We prefer to work with files rather than the
-    more elementary string representation.
-    """
-    return StringIO(string)
-
-
-def copy_file(file):
-    # we only operate on StringIO files and not actual files
-    # except at the entry and exit points
-    return make_file(file.getvalue())
-
-
-def read_file(filepath):
-    with open(filepath, "r") as f:
-        contents = f.read()
-    return contents
-
-
-def write_file(contents, filepath):
-    with open(filepath, "w") as f:
-        f.write(contents)

@@ -1,7 +1,7 @@
 import abc
 import re
 
-from ..utils import is_task
+from ..primitives import is_task
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 

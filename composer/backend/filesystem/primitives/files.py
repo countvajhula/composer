@@ -1,0 +1,58 @@
+from functools import wraps
+
+try:  # py2
+    from StringIO import StringIO
+except ImportError:  # py3
+    from io import StringIO
+
+
+def contain_file_mutation(fn):
+    """ For functions that operate on files, this makes is so that these file
+    arguments are passed in "by value" rather than "by reference," so that
+    any mutation done on the file as part of processing (e.g. even just reading
+    the file amounts to this, since it modifies the state of the file viz. its
+    "read position") is contained within the function and not reflected in the
+    calling context. This allows file processing to be done in a "functional"
+    way, keeping side-effects contained and eliminating the need for state
+    management.
+    """
+
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        new_args = [
+            copy_file(arg) if isinstance(arg, StringIO) else arg
+            for arg in args
+        ]
+        new_kwargs = {
+            k: (copy_file(v) if isinstance(v, StringIO) else v)
+            for k, v in kwargs.items()
+        }
+        result = fn(*new_args, **new_kwargs)
+        if isinstance(result, tuple):
+            new_result = [
+                copy_file(r) if isinstance(r, StringIO) else r for r in result
+            ]
+        else:
+            new_result = (
+                copy_file(result) if isinstance(result, StringIO) else result
+            )
+        return new_result
+
+    return wrapper
+
+
+def make_file(string=""):
+    """ 'Files' (entailing the concept of "lines") are the abstraction level at
+    which the planner is implemented in terms of the filesystem. We prefer to
+    work with files rather than the more elementary string representation. On
+    the other hand, files also entail the idea of storage and a hierarchical
+    namespace. These are storage and indexing concerns that are orthogonal to
+    planner logic and should ideally be kept abstracted at higher levels.
+    """
+    return StringIO(string)
+
+
+def copy_file(file):
+    # we only operate on StringIO files and not actual files
+    # except at the entry and exit points
+    return make_file(file.getvalue())

@@ -16,7 +16,7 @@ from composer.backend.filesystem.base import (
     PLANNERMONTHFILELINK,
     PLANNERQUARTERFILELINK,
 )
-from composer.backend.filesystem.utils import read_file
+from composer.backend.filesystem.primitives import read_file
 from composer.utils import display_message
 from composer.timeperiod import Week
 from composer import config
