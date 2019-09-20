@@ -4,7 +4,7 @@ import pytest
 from composer.backend import FilesystemPlanner
 from composer.timeperiod import Day, Week, Month
 
-from .fixtures import planner
+from ...fixtures import planner
 
 
 class TestNewTemplateIntegrity(object):

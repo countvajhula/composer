@@ -10,7 +10,7 @@ from composer.timeperiod import Zero, Day, Month, Week
 from composer.timeperiod.interface import TIME_PERIODS
 
 from mock import MagicMock, patch
-from .fixtures import planner, logfile, complete_logfile
+from ...fixtures import planner, logfile, complete_logfile
 
 
 class TestGetAgenda(object):

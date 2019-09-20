@@ -4,7 +4,7 @@ from composer.config import LOGFILE_CHECKING
 from composer.timeperiod import Zero, Day, Week
 
 from mock import MagicMock, patch
-from .fixtures import planner_base
+from ..fixtures import planner_base
 
 
 class TrueTimes(object):

@@ -17,7 +17,7 @@ from composer.backend.filesystem.primitives.parsing import (
     is_undone_task,
 )
 
-from .fixtures import logfile, empty_logfile, tasklist_file  # noqa
+from ...fixtures import logfile, empty_logfile, tasklist_file  # noqa
 
 
 class TestReadItem(object):
