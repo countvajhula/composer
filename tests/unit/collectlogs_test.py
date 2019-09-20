@@ -72,3 +72,4 @@ class TestGetLogsTimes(object):
         mock_get_logs.return_value = [MagicMock(), MagicMock()]
         (logs, times) = get_logs_times('/path/to/wiki', Week)
         assert 'notes' in logs
+        assert 10 in times

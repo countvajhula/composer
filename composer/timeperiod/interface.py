@@ -1,4 +1,4 @@
-from .base import Period, Zero  # noqa
+from .base import Zero  # noqa
 from .day import Day
 from .week import Week
 from .month import Month
