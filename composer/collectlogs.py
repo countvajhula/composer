@@ -21,11 +21,6 @@ CONFIG_ROOT = os.getenv("COMPOSER_ROOT", os.path.expanduser("~/.composer"))
 CONFIG_FILE = os.path.join(CONFIG_ROOT, config.CONFIG_FILENAME)
 
 
-def get_filename(wikidir, filelink):
-    flink = "%s/%s" % (wikidir, filelink)
-    return os.readlink(flink)
-
-
 def extract_log_time_from_text(logtext):
     notes_idx = re.search(r"NOTES:\n", logtext).end()
     end_idx = re.search(r"\nTIME", logtext).start()
@@ -36,11 +31,8 @@ def extract_log_time_from_text(logtext):
 
 
 def get_logs_times(wikidir, period):
-    """ read currentweek link as filename;
-    parse out first day of week from filename;
-    open days in order and re search for NOTES. Extract until ^TIME
-    exit on file not found error
-    return notes separated by lines and headed by dates
+    """ get constituent log notes and time spent for the specified period.
+    return notes separated by lines and headed by dates.
     """
     planner = FilesystemPlanner(wikidir)
     logs = get_constituent_logs(period, planner.date, wikidir)
@@ -63,30 +55,6 @@ def get_logs_times(wikidir, period):
     return (logs_string, times)
 
 
-def get_logs_times_this_week(wikidir):
-    return get_logs_times(wikidir, Week)
-
-
-def get_logs_times_this_month(wikidir):
-    """ read currentmonth link as filename;
-    parse out first week of month from filename;
-    open weeks in order and re search for NOTES. Extract until ^TIME
-    exit on file not found error
-    return notes separated by lines and headed by dates
-    """
-    return get_logs_times(wikidir, Month)
-
-
-def get_logs_times_this_quarter(wikidir):
-    """ read currentquarter link as filename;
-    parse out first month of quarter from filename;
-    open months in order and re search for NOTES. Extract until ^TIME
-    exit on file not found error
-    return notes separated by lines and headed by dates
-    """
-    return get_logs_times(wikidir, Quarter)
-
-
 @click.command(
     help=(
         "Collect recent log data to help with retrospectives.\n"
@@ -105,9 +73,9 @@ def main(wikipath=None):
     else:
         wikidirs = preferences["wikis"]
     for wikidir in wikidirs:
-        (weeklogs, weektimes) = get_logs_times_this_week(wikidir)
-        (monthlogs, monthtimes) = get_logs_times_this_month(wikidir)
-        (quarterlogs, quartertimes) = get_logs_times_this_quarter(wikidir)
+        (weeklogs, weektimes) = get_logs_times(wikidir, Week)
+        (monthlogs, monthtimes) = get_logs_times(wikidir, Month)
+        (quarterlogs, quartertimes) = get_logs_times(wikidir, Quarter)
         display_message("Daily logs for the past week (%s)" % wikidir)
         display_message(weeklogs)
         display_message("Daily Times:")
