@@ -6,6 +6,7 @@ FUNCTIONAL_TESTS_PATH = tests/functional
 help:
 	@echo "clean - remove all build, test, coverage and Python artifacts, and reset test wikis"
 	@echo "build - install package and dependencies for local development"
+	@echo "docs - generate Sphinx HTML documentation, including API docs"
 	@echo "clean - clean all build and test artifacts and reset any test wikis"
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
@@ -37,6 +38,14 @@ help:
 
 build:
 	pip install -e .[dev]
+
+docs: build
+	rm -f docs/composer.rst
+	rm -f docs/modules.rst
+	sphinx-apidoc -o docs/ composer
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs html
+	open docs/_build/html/index.html
 
 clean: clean-build clean-pyc clean-test
 
@@ -135,4 +144,4 @@ sdist: clean
 	python setup.py sdist
 	ls -l dist
 
-.PHONY: help build clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint black test-unit test-functional test-all test test-stop test-debug test-matrix test-tldr test-wiki debug coverage sdist
+.PHONY: help build docs clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint black test-unit test-functional test-all test test-stop test-debug test-matrix test-tldr test-wiki debug coverage sdist

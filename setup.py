@@ -16,6 +16,7 @@ test_requirements = [
 dev_requirements = [
     'flake8',
     'bump2version',
+    'sphinx',
 ]
 
 setup_requirements = [
