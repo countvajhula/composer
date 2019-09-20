@@ -44,18 +44,27 @@ def contain_file_mutation(fn):
     return wrapper
 
 
-def make_file(string=""):
+def make_file(contents=""):
     """ 'Files' (entailing the concept of "lines") are the abstraction level at
     which the planner is implemented in terms of the filesystem. We prefer to
     work with files rather than the more elementary string representation. On
     the other hand, files also entail the idea of storage and a hierarchical
-    namespace. These are storage and indexing concerns that are orthogonal to
-    planner logic and should ideally be kept abstracted at higher levels.
+    namespace. We are concerned with the former notion of a file here, rather
+    than the storage and indexing concerns.
+
+    :param str contents: A string to be treated as a file
+    :returns :class:`io.StringIO`: A file representation of the input
     """
-    return StringIO(string)
+    return StringIO(contents)
 
 
 def copy_file(file):
+    """ Make a logical copy of a file (i.e. at the abstraction level of files
+    rather than the filesystem).
+
+    :param :class:`io.StringIO` file: The file to copy
+    :returns :class:`io.StringIO`: A copy of the file
+    """
     # we only operate on StringIO files and not actual files
     # except at the entry and exit points
     return make_file(file.getvalue())
@@ -66,10 +75,18 @@ def read_file(filename):
     of the file. This logical representation will be used for analysis and
     processing so that the actual file on disk isn't affected until any
     such processing is complete.
+
+    :param filename: Path to a file on disk
+    :returns :class:`io.StringIO`: A logical file mirroring the file on disk
     """
     contents = _read_file(filename)
     return make_file(contents)
 
 
 def write_file(file, filename):
+    """ Write a logical file as an actual file on disk.
+
+    :param :class:`io.StringIO` file: The file to write
+    :param filename: Path to write to
+    """
     _write_file(file.read(), filename)
