@@ -9,12 +9,22 @@ except NameError:  # py2
 
 
 def get_log_for_date(period, for_date, planner_root):
-    """ Get the logfile for the specified period that is tracking the
-    specified date for the planner at the specified location.
+    """ For any date, a time period uniquely maps to a single log file on disk
+    for a particular planner instance (which is tied to a wiki root path).
+    This function returns that file for the given time period and date.
+
+    That is, this returns the logfile for the specified period that is tracking
+    the specified date for the planner at the specified location.
 
     This is an interface rather than a planner method since it answers a
     question about the historical data tracked at the path managed by the
     planner, rather than the current actionable state of the planner.
+
+    :param :class:`~composer.timeperiod.Period` period: The time period
+        for which we want the log file
+    :param :class:`datetime.date` for_date: The date of interest
+    :param str planner_root: The root path of the planner wiki
+    :returns :class:`io.StringIO`: The log file
     """
     if period < Day:
         return None

@@ -24,19 +24,14 @@ def quarter_for_month(month):
 
 
 def get_log_filename(for_date, period, root=None):
-    """ A time period uniquely maps to a single log file on disk for a
-    particular planner instance (which is tied to a wiki root path).  This
-    function returns that filename, given a time period. At the moment this
-    simply assumes that the reference date is the start of the indicated
-    period and constructs a standard filename based on that, but it may be
-    desirable to infer the correct filename for the actual or hypothetical
-    logfile that would encompass the reference date, based on the current
-    period boundary criteria used by the planner.
+    """ Construct a standard filename for a log based on the provided date and
+    time period. This is simply a utility to generate a filename from the date
+    based on a template for the time period, and is not aware of the actual
+    period boundaries that would be used by the planner in creating new files.
 
-    :param bool is_existing: Whether to return the filename for an existing
-        log file for the indicated period. If true, then this simply uses
-        the current state on disk and doesn't compute the filename
-    :param :class:`composer.timeperiod.Period` period: The time period for
+    :param :class:`datetime.date` for_date: The date for which to generate
+        a filename
+    :param :class:`~composer.timeperiod.Period` period: The time period for
         which to determine a filename
     :param str root: The base filesystem path relative to which the path
         should be computed. If no root path is provided, then return just
