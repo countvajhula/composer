@@ -547,7 +547,12 @@ class FilesystemPlanner(PlannerBase):
         )  # don't need full path in filename since it's relative to the link
 
     def save(self, period=Year):
-        """ Write the planner object to the filesystem."""
+        """ Write the planner object to the filesystem.
+
+        :param :class:`~composer.timeperiod.Period` period: The highest period
+            advanced -- only log files encompassed by this period will be
+            updated. If unspecified, all logfiles will be overwritten.
+        """
 
         # check for possible errors in planner state before making any changes
         # if errors are found, an exception is raised and no changes are made

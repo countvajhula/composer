@@ -76,12 +76,22 @@ def full_file_path(root, filename, dereference=False):
     return path_fn(PATH_SPECIFICATION.format(path=root, filename=filename))
 
 
-def read_file(filepath):
-    with open(filepath, "r") as f:
+def read_file(path):
+    """ Read a file on disk.
+
+    :param str path: Filesystem path to the file
+    :returns str: Contents of the file
+    """
+    with open(path, "r") as f:
         contents = f.read()
     return contents
 
 
-def write_file(contents, filepath):
-    with open(filepath, "w") as f:
+def write_file(contents, path):
+    """ Write a file to disk (overwrites existing file if present).
+
+    :param str contents: Contents to be written to the file
+    :param str path: Filesystem path to the file
+    """
+    with open(path, "w") as f:
         f.write(contents)
