@@ -1,4 +1,4 @@
-from ..utils import quarter_for_month
+from ..primitives import quarter_for_month
 from .base import Template
 
 

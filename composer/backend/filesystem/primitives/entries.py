@@ -1,7 +1,9 @@
-from .primitives import (
+from .files import (
     make_file,
     contain_file_mutation,
     copy_file,
+)
+from .parsing import (
     is_section_separator,
     get_section_pattern,
     SECTION_OR_EOF_PATTERN,
@@ -19,17 +21,6 @@ from .primitives import (
 # whatever other high-level abstractions make sense for the planner. This
 # separation isn't quite achieved at the moment, and so abstractions do
 # currently leak between the layers
-
-
-def quarter_for_month(month):
-    if month.lower() in ("january", "february", "march"):
-        return "Q1"
-    elif month.lower() in ("april", "may", "june"):
-        return "Q2"
-    elif month.lower() in ("july", "august", "september"):
-        return "Q3"
-    elif month.lower() in ("october", "november", "december"):
-        return "Q4"
 
 
 def item_list_to_string(items):

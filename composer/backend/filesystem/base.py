@@ -30,28 +30,26 @@ from .scheduling import (
     get_date_for_schedule_string,
 )
 from .templates import get_template
-from .utils import (
-    add_to_section,
-    get_task_items,
-    item_list_to_string,
-    quarter_for_month,
-    partition_items,
-    read_section,
-)
-# should minimize use of primitives in this file
-# if necessary, provide duplicate versions of functions
-# at the relevant abstraction level and have those internally
-# map to and from the lower abstraction level to leverage
-# the low level operations at the higher level in a formal way
+# should minimize use of low-level (lower than "entry" level) primitives in
+# this file. if necessary, provide duplicate versions of functions at the
+# relevant abstraction level and have those internally map to and from the
+# lower abstraction level to leverage the low level operations at the higher
+# level in a formal way
 from .primitives import (
     is_scheduled_task,
     is_undone_task,
     is_wip_task,
+    get_log_filename,
     parse_task,
     make_file,
     full_file_path,
     read_file,
     write_file,
+    add_to_section,
+    get_task_items,
+    item_list_to_string,
+    partition_items,
+    read_section,
 )
 
 try:  # py2
@@ -64,10 +62,6 @@ SCHEDULE_FILE_PREFIX = "Checkpoints"
 PLANNERTASKLISTFILE = "TaskList.wiki"
 PLANNERDAYTHEMESFILE = "DayThemes.wiki"
 PLANNERDAYFILELINK = "currentday"
-PLANNERWEEKFILELINK = "currentweek"
-PLANNERMONTHFILELINK = "currentmonth"
-PLANNERQUARTERFILELINK = "currentquarter"
-PLANNERYEARFILELINK = "currentyear"
 CHECKPOINTSWEEKFILE = "Checkpoints_Week.wiki"
 CHECKPOINTSMONTHFILE = "Checkpoints_Month.wiki"
 CHECKPOINTSQUARTERFILE = "Checkpoints_Quarter.wiki"
@@ -173,17 +167,23 @@ class FilesystemPlanner(PlannerBase):
             attr = ''
         return attr
 
-    def _read_file(self, filename):
-        """ Read a file on disk and produce an in-memory logical representation
-        of the file. This logical representation will be used for analysis and
-        processing so that the actual file on disk isn't affected until any
-        such processing is complete.
+    def _get_logfile(self, period):
+        """ Time period-agnostic "getter" for the concerned logfile attribute.
+        Note: This would be unnecessary if each planner instance was only
+        concerned with a specific period rather than all periods.
         """
-        contents = read_file(filename)
-        return StringIO(contents)
+        log_attr = self._logfile_attribute(period)
+        log = getattr(self, log_attr)
+        return log
 
-    def _write_file(self, file, filename):
-        write_file(file.read(), filename)
+    def _update_logfile(self, period, contents):
+        """ Time period-agnostic "setter" for the concerned logfile attribute.
+        Note: This would be unnecessary if each planner instance was only
+        concerned with a specific period rather than all periods.
+        """
+        log_attr = self._logfile_attribute(period)
+        if log_attr:
+            setattr(self, log_attr, make_file(contents))
 
     def _get_date(self):
         """ get planner date, currently looks for the file 'currentday',
@@ -211,11 +211,11 @@ class FilesystemPlanner(PlannerBase):
         planner_files = {
             'tasklistfile': PLANNERTASKLISTFILE,
             'daythemesfile': PLANNERDAYTHEMESFILE,
-            'dayfile': PLANNERDAYFILELINK,
-            'weekfile': PLANNERWEEKFILELINK,
-            'monthfile': PLANNERMONTHFILELINK,
-            'quarterfile': PLANNERQUARTERFILELINK,
-            'yearfile': PLANNERYEARFILELINK,
+            'dayfile': get_log_filename(self.date, Day),
+            'weekfile': get_log_filename(self.date, Week),
+            'monthfile': get_log_filename(self.date, Month),
+            'quarterfile': get_log_filename(self.date, Quarter),
+            'yearfile': get_log_filename(self.date, Year),
             # daily, weekly, monthly checkpoints
             'checkpoints_weekday_file': "{}_Weekday_{}.wiki".format(
                 SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
@@ -238,7 +238,7 @@ class FilesystemPlanner(PlannerBase):
             setattr(
                 self,
                 attr,
-                self._read_file(
+                read_file(
                     full_file_path(root=location, filename=filename)
                 ),
             )
@@ -396,25 +396,6 @@ class FilesystemPlanner(PlannerBase):
 
         return tasks
 
-    def get_logfile_for_date(self, period, for_date):
-        """ Get the logfile for the specified period that is tracking the
-        specified date.
-        """
-        start_date = period.get_start_date(for_date)
-        log_path = self._get_log_path_for_date(period, start_date)
-        log = self._read_file(log_path)
-        return log
-
-    def _get_logfile(self, period):
-        log_attr = self._logfile_attribute(period)
-        log = getattr(self, log_attr)
-        return log
-
-    def _update_period_logfile(self, period, contents):
-        log_attr = self._logfile_attribute(period)
-        if log_attr:
-            setattr(self, log_attr, make_file(contents))
-
     def create_log(self, period, next_day):
         """ Create a new log for the specified period and associate it with the
         current Planner instance. This updates the logfile attribute
@@ -434,7 +415,7 @@ class FilesystemPlanner(PlannerBase):
         contents = template.write_new(
             scheduled=scheduled, tomorrow=tomorrow, undone=undone
         )
-        self._update_period_logfile(period, contents)
+        self._update_logfile(period, contents)
 
     def update_log(self, period, next_day):
         """ Update the existing log for the specified period to account for the
@@ -445,115 +426,7 @@ class FilesystemPlanner(PlannerBase):
         )
         template = get_template(self, period, next_day)
         contents = template.write_existing()
-        self._update_period_logfile(period, contents)
-
-    def _get_existing_log_path(self, period):
-        link = self._link_name(period)
-        path = full_file_path(
-            root=self.location, filename=link, dereference=True
-        )
-        return path
-
-    def _get_log_path_for_date(self, period, for_date=None):
-        if not for_date:
-            for_date = self.date
-        (date, month, year) = (
-            for_date.day,
-            for_date.strftime("%B"),
-            for_date.year,
-        )
-
-        if period == Day:
-            filename = "{month} {date}, {year}.wiki".format(
-                month=month, date=date, year=year
-            )
-        elif period == Week:
-            filename = "Week of {month} {date}, {year}.wiki".format(
-                month=month, date=date, year=year
-            )
-        elif period == Month:
-            filename = "Month of {month}, {year}.wiki".format(
-                month=month, year=year
-            )
-        elif period == Quarter:
-            filename = "{quarter} {year}.wiki".format(
-                quarter=quarter_for_month(month), year=year
-            )
-        elif period == Year:
-            filename = "{year}.wiki".format(year=year)
-        path = full_file_path(root=self.location, filename=filename)
-
-        return path
-
-    def _log_filename(self, period, is_existing=False):
-        """ A time period uniquely maps to a single log file on disk for a
-        particular planner instance (which is tied to a wiki root path).  This
-        function returns that filename, given a time period. At the moment this
-        simply assumes that the reference date is the start of the indicated
-        period and constructs a standard filename based on that, but it may be
-        desirable to infer the correct filename for the actual or hypothetical
-        logfile that would encompass the reference date, based on the current
-        period boundary criteria used by the planner.
-
-        :param :class:`composer.timeperiod.Period` period: The time period for
-            which to determine a filename
-        :param bool is_existing: Whether to return the filename for an existing
-            log file for the indicated period. If true, then this simply uses
-            the current state on disk and doesn't compute the filename
-        """
-        if is_existing:
-            # use the existing state on disk, don't compute a path
-            return self._get_existing_log_path(period)
-        else:
-            # compute a filename based on the reference date
-            return self._get_log_path_for_date(period)
-
-    def _link_name(self, period):
-        """ The 'current' state of the planner in the filesystem is represented
-        as a set of links that point to the current period log files for each
-        encompassing time period, i.e. specifically day, week, month, quarter,
-        and year, each of which corresponds to a unique "current" logfile on
-        disk.  This function returns the symbolic link for the specified time
-        period (which points to the current log file for that period).
-        """
-        if period == Day:
-            link = PLANNERDAYFILELINK
-        elif period == Week:
-            link = PLANNERWEEKFILELINK
-        elif period == Month:
-            link = PLANNERMONTHFILELINK
-        elif period == Quarter:
-            link = PLANNERQUARTERFILELINK
-        elif period == Year:
-            link = PLANNERYEARFILELINK
-
-        return link
-
-    def _write_log_to_file(self, period, is_existing=False):
-        """ Write the log for the given period to the filesystem.
-        If this represents an advancement of the period in question,
-        then also update the 'current' state of the planner on disk
-        by updating the relevant symbolic link.
-
-        :param bool is_existing: If true, then write to an existing file.
-            Otherwise, write a new file and update the existing link to point
-            to it.
-        """
-        log = self._get_logfile(period)
-        filename = self._log_filename(period, is_existing)
-
-        # write the file to disk
-        self._write_file(log, filename)
-
-        if not is_existing:
-            # update "current" link on disk to the newly created file
-            link_name = self._link_name(period)
-            filelinkfn = full_file_path(root=self.location, filename=link_name)
-            if os.path.islink(filelinkfn):
-                os.remove(filelinkfn)
-            os.symlink(
-                filename[filename.rfind("/") + 1 :], filelinkfn
-            )  # remove path from filename so it isn't "double counted"
+        self._update_logfile(period, contents)
 
     def check_log_completion(self, period):
         """ Check the logfile's NOTES section as a determination of whether
@@ -604,7 +477,13 @@ class FilesystemPlanner(PlannerBase):
                 "No AGENDA section found in {period} log file!"
                 " Add one and try again.".format(period=period)
             )
-        self._update_period_logfile(period, logfile_updated.getvalue())
+        self._update_logfile(period, logfile_updated.getvalue())
+
+    def _ensure_file_does_not_exist(self, filename, period):
+        if os.path.isfile(filename):
+            raise LogfileAlreadyExistsError(
+                "New {period} logfile already exists!".format(period=period)
+            )
 
     def _check_files_for_contained_periods(self, period):
         """ A helper to check if any time periods just advanced already have
@@ -614,14 +493,39 @@ class FilesystemPlanner(PlannerBase):
         """
         if period == Zero:
             return
-        filename = self._log_filename(period)
-        if os.path.isfile(filename):
-            raise LogfileAlreadyExistsError(
-                "New {period} logfile already exists!".format(period=period)
-            )
+        filename = get_log_filename(self.date, period, root=self.location)
+        self._ensure_file_does_not_exist(filename, period)
         self._check_files_for_contained_periods(
             get_next_period(period, decreasing=True)
         )
+
+    def _write_log_to_file(self, period, overwrite=False):
+        """ Write the log for the given period to the filesystem.
+        If this represents an advancement of the period in question,
+        then also update the 'current' state of the planner on disk
+        by updating the relevant symbolic link.
+
+        :param bool overwrite: If true, then overwriting an existing file does
+            not raise an error. Otherwise, assume we intend to write a new
+            file, and raise an exception if one is already found on disk.
+        """
+        log = self._get_logfile(period)
+        # "get actual file" is a separate interface from
+        # just generating a filename - the latter is a UX/convention
+        # thing, whereas the former is integrated into the planner logic
+        filename = get_log_filename(self.date, period, root=self.location)
+        if not overwrite:
+            # note: a failure here would be unexpected since we are doing
+            # writes in a "transactional" way, i.e. at the point when we
+            # save, we expect that any possible errors have already been
+            # precluded so that changes are either made wholesale, or
+            # not at all. Maybe this method should be explicitly indicated
+            # in transaction semantics so that this check can be removed
+            # without it feeling unsafe
+            self._ensure_file_does_not_exist(filename, period)
+
+        # write the file to disk
+        write_file(log, filename)
 
     def _write_files_for_contained_periods(self, period):
         if period == Zero:
@@ -630,6 +534,17 @@ class FilesystemPlanner(PlannerBase):
         self._write_files_for_contained_periods(
             get_next_period(period, decreasing=True)
         )
+
+    def _update_current_date_link(self):
+        # update "current" link on disk to the newly created file
+        link_name = PLANNERDAYFILELINK
+        filelinkfn = full_file_path(root=self.location, filename=link_name)
+        if os.path.islink(filelinkfn):
+            os.remove(filelinkfn)
+        filename = get_log_filename(self.date, Day, root=self.location)
+        os.symlink(
+            filename[filename.rfind("/") + 1 :], filelinkfn
+        )  # remove path from filename so it isn't "double counted"
 
     def save(self, period=Year):
         """ Write the planner object to the filesystem."""
@@ -647,9 +562,11 @@ class FilesystemPlanner(PlannerBase):
             next_period = get_next_period(period)
             # use the pre-advance date to determine the filename for the
             # encompassing period
-            self._write_log_to_file(next_period, is_existing=True)
+            self._write_log_to_file(next_period, overwrite=True)
         tasklist_filename = full_file_path(
             root=self.location, filename=PLANNERTASKLISTFILE
         )
 
-        self._write_file(self.tasklistfile, tasklist_filename)
+        write_file(self.tasklistfile, tasklist_filename)
+
+        self._update_current_date_link()

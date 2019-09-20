@@ -1,16 +1,18 @@
 import pytest
 import re
 
-from composer.backend.filesystem.utils import (
+from composer.backend.filesystem.primitives.entries import (
     add_to_section,
-    make_file,
-    read_item,
     read_section,
     partition_at,
     partition_items,
     get_task_items,
+    read_item,
 )
-from composer.backend.filesystem.primitives import (
+from composer.backend.filesystem.primitives.files import (
+    make_file,
+)
+from composer.backend.filesystem.primitives.parsing import (
     is_completed_task,
     is_undone_task,
 )

@@ -1,5 +1,8 @@
 from functools import wraps
 
+from .storage import read_file as _read_file
+from .storage import write_file as _write_file
+
 try:  # py2
     from StringIO import StringIO
 except ImportError:  # py3
@@ -56,3 +59,17 @@ def copy_file(file):
     # we only operate on StringIO files and not actual files
     # except at the entry and exit points
     return make_file(file.getvalue())
+
+
+def read_file(self, filename):
+    """ Read a file on disk and produce an in-memory logical representation
+    of the file. This logical representation will be used for analysis and
+    processing so that the actual file on disk isn't affected until any
+    such processing is complete.
+    """
+    contents = _read_file(filename)
+    return make_file(contents)
+
+
+def write_file(self, file, filename):
+    _write_file(file.read(), filename)

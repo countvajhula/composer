@@ -1,11 +1,9 @@
 import pytest
 
-from composer.backend.filesystem.utils import make_file
+from composer.backend.filesystem.primitives.files import make_file
 from composer.config import LOGFILE_CHECKING
 from composer.errors import LogfileAlreadyExistsError, LogfileLayoutError
 from composer.backend.filesystem.base import (
-    PLANNERMONTHFILELINK,
-    PLANNERQUARTERFILELINK,
     PLANNERTASKLISTFILE,
 )
 from composer.timeperiod import Zero, Day, Month, Week, TIME_PERIODS
@@ -162,9 +160,8 @@ class TestSave(object):
         mock_os.path.isfile.return_value = False
         mock_write_file.side_effect = self._note_filename()
         planner.save(Week)
-        # because os is mocked, this filename remains 'currentmonth'
         assert any(
-            PLANNERMONTHFILELINK in filename for filename in self.filenames
+            'Month' in filename for filename in self.filenames
         )
 
     @patch('composer.backend.filesystem.base.os')
@@ -174,10 +171,10 @@ class TestSave(object):
     ):
         mock_os.path.isfile.return_value = False
         mock_write_file.side_effect = self._note_filename()
-        planner.save(Week)
+        planner.save(Day)
         # because os is mocked, this filename remains 'currentquarter'
         assert not any(
-            PLANNERQUARTERFILELINK in filename for filename in self.filenames
+            'Month' in filename for filename in self.filenames
         )
 
     @patch('composer.backend.filesystem.base.os')
