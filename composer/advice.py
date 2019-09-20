@@ -20,8 +20,16 @@ CONFIG_FILE = os.path.join(CONFIG_ROOT, config.CONFIG_FILENAME)
 
 
 def extract_lessons(lessons_files):
-    # a list containing all lines in a file with leading # removed
-    # and trailing \n added
+    """ Extract lessons from the provided files.
+
+    Note that lines beginning with a number are treated as lessons, and
+    everything else is ignored.
+
+    :param list lessons_files: List of files (FLOs) from which to extract
+        lessons
+    :returns list: A list containing all lessons in a file with leading
+        numbering removed and a single trailing \n added
+    """
     def extract_lessons_raw(f):
         line = f.readline()
         if not line:
@@ -39,7 +47,11 @@ def extract_lessons(lessons_files):
 
 
 def get_advice(lessons_files):
-    # extract individual lessons from files into a flat list
+    """ Extract individual lessons from files into a flat list.
+
+    :param list lessons_files: List of files (FLOs) from which to extract
+        lessons
+    """
     lessons = extract_lessons(lessons_files)
     # return lesson by choosing a random element of this list
     if lessons:
