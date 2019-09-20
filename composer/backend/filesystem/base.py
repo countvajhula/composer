@@ -513,9 +513,6 @@ class FilesystemPlanner(PlannerBase):
             file, and raise an exception if one is already found on disk.
         """
         log = self._get_logfile(period)
-        # "get actual file" is a separate interface from
-        # just generating a filename - the latter is a UX/convention
-        # thing, whereas the former is integrated into the planner logic
         filename = get_log_filename(self.date, period, root=self.location)
         if not overwrite:
             # note: a failure here would be unexpected since we are doing
