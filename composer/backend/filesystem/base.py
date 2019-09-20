@@ -53,12 +53,6 @@ from .primitives import (
     read_section,
 )
 
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
-
-
 SCHEDULE_FILE_PREFIX = "Checkpoints"
 PLANNERTASKLISTFILE = "TaskList.wiki"
 PLANNERDAYTHEMESFILE = "DayThemes.wiki"
@@ -99,7 +93,7 @@ class FilesystemPlanner(PlannerBase):
 
     @property
     def tasklistfile(self):
-        return StringIO(self._tasklistfile.getvalue())
+        return make_file(self._tasklistfile.getvalue())
 
     @tasklistfile.setter
     def tasklistfile(self, value):
@@ -107,7 +101,7 @@ class FilesystemPlanner(PlannerBase):
 
     @property
     def daythemesfile(self):
-        return StringIO(self._daythemesfile.getvalue())
+        return make_file(self._daythemesfile.getvalue())
 
     @daythemesfile.setter
     def daythemesfile(self, value):
@@ -115,7 +109,7 @@ class FilesystemPlanner(PlannerBase):
 
     @property
     def dayfile(self):
-        return StringIO(self._dayfile.getvalue())
+        return make_file(self._dayfile.getvalue())
 
     @dayfile.setter
     def dayfile(self, value):
@@ -123,7 +117,7 @@ class FilesystemPlanner(PlannerBase):
 
     @property
     def weekfile(self):
-        return StringIO(self._weekfile.getvalue())
+        return make_file(self._weekfile.getvalue())
 
     @weekfile.setter
     def weekfile(self, value):
@@ -131,7 +125,7 @@ class FilesystemPlanner(PlannerBase):
 
     @property
     def monthfile(self):
-        return StringIO(self._monthfile.getvalue())
+        return make_file(self._monthfile.getvalue())
 
     @monthfile.setter
     def monthfile(self, value):
@@ -139,7 +133,7 @@ class FilesystemPlanner(PlannerBase):
 
     @property
     def quarterfile(self):
-        return StringIO(self._quarterfile.getvalue())
+        return make_file(self._quarterfile.getvalue())
 
     @quarterfile.setter
     def quarterfile(self, value):
@@ -147,7 +141,7 @@ class FilesystemPlanner(PlannerBase):
 
     @property
     def yearfile(self):
-        return StringIO(self._yearfile.getvalue())
+        return make_file(self._yearfile.getvalue())
 
     @yearfile.setter
     def yearfile(self, value):
