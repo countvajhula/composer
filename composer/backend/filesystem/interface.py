@@ -1,3 +1,4 @@
+from ...timeperiod import get_next_period
 from .primitives import get_log_filename, read_file
 
 
@@ -13,3 +14,18 @@ def get_log_for_date(period, for_date, planner_root):
     log_path = get_log_filename(start_date, period, planner_root)
     log = read_file(log_path)
     return log
+
+
+def get_constituent_logs(period, for_date, planner_root):
+    """ Get logfiles for the smaller time period constituting the specified
+    time period, e.g. all of the day logfiles for the week.
+    """
+    start_date = period.get_start_date(for_date)
+    end_date = period.get_end_date(for_date)
+    constituent_period = get_next_period(period, decreasing=True)
+    logs = []
+    current_date = start_date
+    while constituent_period.get_end_date(current_date) < end_date:
+        log = get_log_for_date(constituent_period, current_date, planner_root)
+        logs.append(log)
+    return logs

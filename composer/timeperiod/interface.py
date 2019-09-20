@@ -8,7 +8,6 @@ from .year import Year
 TIME_PERIODS = (Zero, Day, Week, Month, Quarter, Year)
 
 
-# TODO: move this to a module
 def get_next_period(current_period, decreasing=False):
     periods = TIME_PERIODS
     if decreasing:
