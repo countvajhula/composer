@@ -5,9 +5,9 @@ from composer.backend.filesystem.primitives.entries import (
     add_to_section,
     read_section,
     partition_at,
-    partition_items,
-    get_task_items,
-    read_item,
+    partition_entries,
+    get_entries,
+    read_entry,
 )
 from composer.backend.filesystem.primitives.files import make_file
 from composer.backend.filesystem.primitives.parsing import (
@@ -18,48 +18,48 @@ from composer.backend.filesystem.primitives.parsing import (
 from ...fixtures import logfile, empty_logfile, tasklist_file  # noqa
 
 
-class TestReadItem(object):
-    def test_generic_item(self, logfile):
-        item, _ = read_item(logfile)
-        assert item == "AGENDA:\n"
+class TestReadEntry(object):
+    def test_generic_entry(self, logfile):
+        entry, _ = read_entry(logfile)
+        assert entry == "AGENDA:\n"
 
-    def test_text_item(self, logfile):
+    def test_text_entry(self, logfile):
         for _ in range(3):
             logfile.readline()
         file = make_file(logfile.read())
-        item, _ = read_item(file)
-        assert item == "Just some additional clarifications\n"
+        entry, _ = read_entry(file)
+        assert entry == "Just some additional clarifications\n"
 
     def test_blank_line(self, logfile):
         for _ in range(4):
             logfile.readline()
         file = make_file(logfile.read())
-        item, _ = read_item(file)
-        assert item == "\n"
+        entry, _ = read_entry(file)
+        assert entry == "\n"
 
     def test_task(self, logfile):
         for _ in range(2):
             logfile.readline()
         file = make_file(logfile.read())
-        item, _ = read_item(file)
-        assert item == "[\\] a WIP task\n"
+        entry, _ = read_entry(file)
+        assert entry == "[\\] a WIP task\n"
 
     def test_task_with_subtasks(self, logfile):
         for _ in range(6):
             logfile.readline()
         file = make_file(logfile.read())
-        item, _ = read_item(file)
+        entry, _ = read_entry(file)
         expected = (
             "[ ] a task with subtasks\n"
             "\t[ ] first thing\n"
             "\tclarification of first thing\n"
             "\t[ ] second thing\n"
         )
-        assert item == expected
+        assert entry == expected
 
     def test_empty_file(self, empty_logfile):
-        item, _ = read_item(empty_logfile)
-        assert item is None
+        entry, _ = read_entry(empty_logfile)
+        assert entry is None
 
     def test_complement_when_found(self, logfile):
         expected = (
@@ -77,11 +77,11 @@ class TestReadItem(object):
             "NOTES:\n"
         )
 
-        _, complement = read_item(logfile)
+        _, complement = read_entry(logfile)
         assert complement.read() == expected
 
     def test_complement_when_not_found(self, empty_logfile):
-        _, complement = read_item(empty_logfile)
+        _, complement = read_entry(empty_logfile)
         assert complement.read() == empty_logfile.read()
 
 
@@ -299,32 +299,32 @@ class TestAddToSection(object):
         assert updated.read() == expected
 
 
-class TestGetTaskItems(object):
-    def test_all_items(self, tasklist_file):
-        items = get_task_items(tasklist_file)
-        items_string = "".join(items)
-        assert items_string == tasklist_file.read()
+class TestGetTaskEntries(object):
+    def test_all_entries(self, tasklist_file):
+        entries = get_entries(tasklist_file)
+        entries_string = "".join(entries)
+        assert entries_string == tasklist_file.read()
 
-    def test_no_items(self, tasklist_file):
-        items = get_task_items(tasklist_file, of_type=lambda x: False)
-        items_string = "".join(items)
-        assert items_string == ""
+    def test_no_entries(self, tasklist_file):
+        entries = get_entries(tasklist_file, of_type=lambda x: False)
+        entries_string = "".join(entries)
+        assert entries_string == ""
 
-    def test_no_matching_items(self, tasklist_file):
-        items = get_task_items(tasklist_file, of_type=is_completed_task)
-        items_string = "".join(items)
-        assert items_string == ""
+    def test_no_matching_entries(self, tasklist_file):
+        entries = get_entries(tasklist_file, of_type=is_completed_task)
+        entries_string = "".join(entries)
+        assert entries_string == ""
 
-    def test_all_matching_items(self, tasklist_file):
-        items = get_task_items(
+    def test_all_matching_entries(self, tasklist_file):
+        entries = get_entries(
             tasklist_file, of_type=lambda x: not is_completed_task(x)
         )
-        items_string = "".join(items)
-        assert items_string == tasklist_file.read()
+        entries_string = "".join(entries)
+        assert entries_string == tasklist_file.read()
 
-    def test_some_items(self, tasklist_file):
-        items = get_task_items(tasklist_file, of_type=is_undone_task)
-        items_string = "".join(items)
+    def test_some_entries(self, tasklist_file):
+        entries = get_entries(tasklist_file, of_type=is_undone_task)
+        entries_string = "".join(entries)
         expected = (
             "[ ] a task\n"
             "[ ] a task with subtasks\n"
@@ -333,13 +333,13 @@ class TestGetTaskItems(object):
             "\t[ ] second thing\n"
             "[ ] another task\n"
         )
-        assert items_string == expected
+        assert entries_string == expected
 
-    def test_some_items_negation(self, tasklist_file):
-        items = get_task_items(
+    def test_some_entries_negation(self, tasklist_file):
+        entries = get_entries(
             tasklist_file, of_type=lambda x: not is_undone_task(x)
         )
-        items_string = "".join(items)
+        entries_string = "".join(entries)
         expected = (
             "TOMORROW:\n"
             "[\\] a WIP task\n"
@@ -350,51 +350,55 @@ class TestGetTaskItems(object):
             "THIS MONTH:\n"
             "UNSCHEDULED:\n"
         )
-        assert items_string == expected
+        assert entries_string == expected
 
-    def test_items_and_negation_equals_original(self, tasklist_file):
-        items = get_task_items(tasklist_file, of_type=is_undone_task)
-        items_string = "".join(items)
-        items_negation = get_task_items(
+    def test_entries_and_negation_equals_original(self, tasklist_file):
+        entries = get_entries(tasklist_file, of_type=is_undone_task)
+        entries_string = "".join(entries)
+        entries_negation = get_entries(
             tasklist_file, of_type=lambda x: not is_undone_task(x)
         )
-        items_negation_string = "".join(items_negation)
-        assert len(items_string + items_negation_string) == len(
+        entries_negation_string = "".join(entries_negation)
+        assert len(entries_string + entries_negation_string) == len(
             tasklist_file.read()
         )
 
     def test_empty_file(self, empty_logfile):
-        items = get_task_items(empty_logfile)
-        items_string = "".join(items)
-        assert items_string == ""
+        entries = get_entries(empty_logfile)
+        entries_string = "".join(entries)
+        assert entries_string == ""
 
 
-class TestPartitionItems(object):
+class TestPartitionEntries(object):
     def test_empty_list(self):
-        items = []
-        filtered, excluded = partition_items(items, lambda item: True)
-        assert filtered == items
-        assert excluded == items
+        entries = []
+        filtered, excluded = partition_entries(entries, lambda entry: True)
+        assert filtered == entries
+        assert excluded == entries
 
     def test_all_pass(self):
-        items = [1, 2, 3]
-        filtered, excluded = partition_items(items, lambda item: True)
-        assert filtered == items
+        entries = [1, 2, 3]
+        filtered, excluded = partition_entries(entries, lambda entry: True)
+        assert filtered == entries
         assert excluded == []
 
     def test_all_fail(self):
-        items = [1, 2, 3]
-        filtered, excluded = partition_items(items, lambda item: False)
+        entries = [1, 2, 3]
+        filtered, excluded = partition_entries(entries, lambda entry: False)
         assert filtered == []
-        assert excluded == items
+        assert excluded == entries
 
     def test_some_pass(self):
-        items = [1, 2, 3]
-        filtered, excluded = partition_items(items, lambda item: item < 3)
+        entries = [1, 2, 3]
+        filtered, excluded = partition_entries(
+            entries, lambda entry: entry < 3
+        )
         assert filtered == [1, 2]
         assert excluded == [3]
 
     def test_pass_and_fail_equal_original(self):
-        items = [1, 2, 3]
-        filtered, excluded = partition_items(items, lambda item: item > 2)
-        assert set(filtered + excluded) == set(items)
+        entries = [1, 2, 3]
+        filtered, excluded = partition_entries(
+            entries, lambda entry: entry > 2
+        )
+        assert set(filtered + excluded) == set(entries)

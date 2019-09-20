@@ -12,7 +12,7 @@ from ...errors import (
 )
 from ...timeperiod import get_next_day
 from .primitives import (
-    get_task_items,
+    get_entries,
     read_section,
     is_scheduled_task,
     parse_task,
@@ -350,9 +350,9 @@ def get_date_for_schedule_string(datestr, reference_date=None):
     return None
 
 
-def to_standard_date_format(item, reference_date=None):
+def to_standard_date_format(entry, reference_date=None):
     """ Convert a parsed scheduled task into a standard format. """
-    task_header, task_contents = parse_task(item)
+    task_header, task_contents = parse_task(entry)
     if SCHEDULED_DATE_PATTERN.search(task_header):
         datestr = SCHEDULED_DATE_PATTERN.search(task_header).groups()[0]
         try:
@@ -375,16 +375,16 @@ def to_standard_date_format(item, reference_date=None):
 
 def check_scheduled_section_for_errors(planner):
     section, _ = read_section(planner.tasklistfile, 'SCHEDULED')
-    items = get_task_items(section)
-    for item in items:
-        item_string = item.splitlines()[0]
-        item_string = (
-            item_string + '\n' if item.endswith('\n') else item_string
+    entries = get_entries(section)
+    for entry in entries:
+        entry_string = entry.splitlines()[0]
+        entry_string = (
+            entry_string + '\n' if entry.endswith('\n') else entry_string
         )
-        if not is_scheduled_task(item_string):
+        if not is_scheduled_task(entry_string):
             raise ScheduledTaskParsingError(
                 "Task in SCHEDULED section does not appear to be formatted"
-                " correctly: " + item_string
+                " correctly: " + entry_string
             )
 
 

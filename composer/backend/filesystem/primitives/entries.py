@@ -19,80 +19,83 @@ from .parsing import (
 # currently leak between the layers
 
 
-def item_list_to_string(items):
-    return "".join(items)
-
-
-def string_to_item_list(string):
-    items, _ = get_task_items(make_file(string))
-    return items
-
-
-def filter_items(item_list, filter_fn):
-    """ Filter an item list to only those that satisfy a given filter function.
+def entries_to_string(entries):
+    """ Convert a list of entries to a string.
     """
-    return [item for item in item_list if filter_fn(item)]
+    return "".join(entries)
 
 
-def exclude_items(item_list, filter_fn):
-    """ Filter an item list to only those that do NOT satisfy a given
+def string_to_entries(string):
+    entries, _ = get_entries(make_file(string))
+    return entries
+
+
+def filter_entries(entries, filter_fn):
+    """ Filter a list of entries to only those that satisfy a given filter
+    function.
+    """
+    return [entry for entry in entries if filter_fn(entry)]
+
+
+def exclude_entries(entries, filter_fn):
+    """ Filter a list of entries to only those that do NOT satisfy a given
     filter function.
     """
-    return [item for item in item_list if not filter_fn(item)]
+    return [entry for entry in entries if not filter_fn(entry)]
 
 
-def partition_items(item_list, filter_fn):
-    """ Partition an item list into two lists based on some filter predicate.
-    The first list will contain the elements that satisfy the predicate, while
-    the second list will contain those that don't.
+def partition_entries(entries, filter_fn):
+    """ Partition a list of entries into two lists based on some filter
+    predicate.  The first list will contain the elements that satisfy the
+    predicate, while the second list will contain those that don't.
     """
-    filtered = filter_items(item_list, filter_fn)
-    excluded = exclude_items(item_list, filter_fn)
+    filtered = filter_entries(entries, filter_fn)
+    excluded = exclude_entries(entries, filter_fn)
     return filtered, excluded
 
 
 @contain_file_mutation
-def read_item(file):
-    """ An 'item' is any line that begins at the 0th position of the line.
+def read_entry(file):
+    """ An 'entry' is any line that begins at the 0th position of the line.
     This could be a blank line, a task, a normal text string, a section
     header, pretty much anything EXCEPT things that begin with a tab
-    character, as these are treated as subsidiary items to be included in
+    character, as these are treated as subsidiary entries to be included in
     the parent.
 
     :param :class:`io.StringIO` file: The file to read from
 
-    :returns str: An item read from the file
+    :returns str: An entry read from the file
     """
-    item = ""
+    entry = ""
     complement = make_file()
     line = file.readline()
     if is_eof(line):
         complement = make_file(file.getvalue())
         return None, complement
-    item += line
+    entry += line
     line = file.readline()
     while is_subtask(line):
-        item += line
+        entry += line
         line = file.readline()
     complement.write(line)
     complement.write(file.read())
-    return item, complement
+    return entry, complement
 
 
-def _read_items(file):
-    items = []
-    item, complement = read_item(file)
-    while item:
-        items.append(item)
-        item, complement = read_item(complement)
-    return items
+def _read_entries(file):
+    entries = []
+    entry, complement = read_entry(file)
+    while entry:
+        entries.append(entry)
+        entry, complement = read_entry(complement)
+    return entries
 
 
 @contain_file_mutation
-def get_task_items(file, of_type=None):
-    """ Parse a given file into task items, based on the supplied criteria.
-    A task item generally corresponds to a line in the input file, along with
-    any subtasks items that fall under it.
+def get_entries(file, of_type=None):
+    """ Parse a given file into entries, based on the supplied criteria.
+    An entry generally corresponds to a line in the input file, along with
+    any subtask entries that fall under it.
 
     :param :class:`io.StringIO` file: The file to read from
     :param :class:`_sre.SRE_Pattern` until_pattern: A pattern to look for.
@@ -103,14 +106,14 @@ def get_task_items(file, of_type=None):
         point, i.e. the one containing the pattern.
     :param int starting_position: Buffer position to start reading the
         input file from.
-    :param function of_type: Get only task items that match this type. This
+    :param function of_type: Get only entries that match this type. This
         argument should be a predicate function that returns true or
         false based on a type determination on the argument.
     """
     if not of_type:
         of_type = lambda x: True
-    items = [item for item in _read_items(file) if of_type(item)]
-    return items
+    entries = [entry for entry in _read_entries(file) if of_type(entry)]
+    return entries
 
 
 @contain_file_mutation

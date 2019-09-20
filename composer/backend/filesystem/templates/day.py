@@ -48,7 +48,7 @@ class DayTemplate(Template):
         self.periodicname = "DAILYs:\n"
 
         self.agenda = ""
-        # if we have successfully ensured that every task item ends in a
+        # if we have successfully ensured that every entry ends in a
         # newline character, then we can safely assume here that section
         # components can be neatly concatenated
         if scheduled:

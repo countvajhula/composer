@@ -1,8 +1,8 @@
 from .entries import (  # noqa
     add_to_section,
-    get_task_items,
-    item_list_to_string,
-    partition_items,
+    get_entries,
+    entries_to_string,
+    partition_entries,
     read_section,
 )
 from .files import make_file, read_file, write_file  # noqa
@@ -22,9 +22,9 @@ from .storage import (
 
 __all__ = (
     "add_to_section",
-    "get_task_items",
-    "item_list_to_string",
-    "partition_items",
+    "get_entries",
+    "entries_to_string",
+    "partition_entries",
     "read_section",
     "make_file",
     "read_file",

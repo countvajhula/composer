@@ -47,9 +47,9 @@ from .primitives import (
     read_file,
     write_file,
     add_to_section,
-    get_task_items,
-    item_list_to_string,
-    partition_items,
+    get_entries,
+    entries_to_string,
+    partition_entries,
     read_section,
 )
 
@@ -261,7 +261,7 @@ class FilesystemPlanner(PlannerBase):
         current day's log file for errors [TODO: move out of this function]
         """
         # TODO: add a "diagnostic" function for sections w/ a checker fn
-        # to be applied to items
+        # to be applied to entries
         # (can generalize the existing helper for scheduled section)
         # TODO: keep low-level operations contained in utils -- make/extend
         # additional interfaces as needed
@@ -273,16 +273,16 @@ class FilesystemPlanner(PlannerBase):
         tomorrow, tasklist_no_tomorrow = read_section(
             self.tasklistfile, 'TOMORROW'
         )
-        task_items = get_task_items(tasklist_no_tomorrow)
-        tasklist_tasks, tasklist_no_scheduled = partition_items(
-            task_items, is_scheduled_task
+        entries = get_entries(tasklist_no_tomorrow)
+        tasklist_tasks, tasklist_no_scheduled = partition_entries(
+            entries, is_scheduled_task
         )
         # TODO: these interfaces should operate at a high level and translate
         # up/down only at the beginning and end
         tasklist_no_scheduled = make_file(
-            item_list_to_string(tasklist_no_scheduled)
+            entries_to_string(tasklist_no_scheduled)
         )
-        day_tasks = get_task_items(self.dayfile, of_type=is_scheduled_task)
+        day_tasks = get_entries(self.dayfile, of_type=is_scheduled_task)
         tasks = tasklist_tasks + day_tasks
         tasks = [
             (
@@ -292,7 +292,7 @@ class FilesystemPlanner(PlannerBase):
             )
             for task in tasks
         ]
-        tasks = item_list_to_string(tasks)
+        tasks = entries_to_string(tasks)
         new_file = add_to_section(tasklist_no_scheduled, "SCHEDULED", tasks)
         new_file = add_to_section(
             new_file, "TOMORROW", tomorrow.read()
@@ -339,9 +339,9 @@ class FilesystemPlanner(PlannerBase):
             raise TasklistLayoutError(
                 "No SCHEDULED section found in TaskList!"
             )
-        items = get_task_items(scheduled)
-        due, not_due = partition_items(items, is_task_due)
-        due, not_due = map(item_list_to_string, (due, not_due))
+        entries = get_entries(scheduled)
+        due, not_due = partition_entries(entries, is_task_due)
+        due, not_due = map(entries_to_string, (due, not_due))
         new_tasklist = add_to_section(
             tasklist_no_scheduled, 'scheduled', not_due
         )
@@ -392,10 +392,10 @@ class FilesystemPlanner(PlannerBase):
                 " Add one and try again."
             )
 
-        def is_unfinished(item):
-            return is_undone_task(item) or is_wip_task(item)
+        def is_unfinished(entry):
+            return is_undone_task(entry) or is_wip_task(entry)
 
-        tasks = item_list_to_string(get_task_items(tasks, is_unfinished))
+        tasks = entries_to_string(get_entries(tasks, is_unfinished))
 
         return tasks
 
