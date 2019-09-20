@@ -2,6 +2,11 @@ from datetime import timedelta
 from ...timeperiod import get_next_period, Day
 from .primitives import get_log_filename, read_file
 
+try:  # py3
+    FileNotFoundError
+except NameError:  # py2
+    FileNotFoundError = IOError
+
 
 def get_log_for_date(period, for_date, planner_root):
     """ Get the logfile for the specified period that is tracking the

@@ -4,6 +4,11 @@ from mock import patch
 from composer.backend.filesystem.interface import get_constituent_logs
 from composer.timeperiod import Day, Week
 
+try:  # py3
+    FileNotFoundError
+except NameError:  # py2
+    FileNotFoundError = IOError
+
 
 class LogTimes(object):
 
