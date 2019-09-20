@@ -6,7 +6,8 @@ from composer.errors import LogfileAlreadyExistsError, LogfileLayoutError
 from composer.backend.filesystem.base import (
     PLANNERTASKLISTFILE,
 )
-from composer.timeperiod import Zero, Day, Month, Week, TIME_PERIODS
+from composer.timeperiod import Zero, Day, Month, Week
+from composer.timeperiod.interface import TIME_PERIODS
 
 from mock import MagicMock, patch
 from .fixtures import planner, logfile, complete_logfile
