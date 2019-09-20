@@ -2,3 +2,4 @@
 -/.eggs
 -/composer.egg-info
 -/.pytest_cache
+-/docs/_build
