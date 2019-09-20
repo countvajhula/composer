@@ -1,5 +1,4 @@
-from datetime import date
-from datetime import timedelta
+from datetime import date, timedelta
 from mock import patch
 
 from composer.backend.filesystem.interface import get_constituent_logs

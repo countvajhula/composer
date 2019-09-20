@@ -1,6 +1,13 @@
 import unittest
 
-import composer.collectlogs as collectlogs
+from datetime import date, timedelta
+
+from composer.collectlogs import extract_log_time_from_text, get_logs_times
+from composer.timeperiod import Week
+
+from mock import patch, MagicMock
+
+from .fixtures import planner
 
 
 class SampleLogs(unittest.TestCase):
@@ -47,6 +54,21 @@ class SampleLogs(unittest.TestCase):
         expected_log = "Notes for the day."
         expected_time = "10 mins"
         self.assertEqual(
-            collectlogs.extract_log_time_from_text(self.daylog),
+            extract_log_time_from_text(self.daylog),
             (expected_log, expected_time),
         )
+
+
+class TestGetLogsTimes(object):
+    @patch('composer.collectlogs.get_constituent_logs')
+    @patch('composer.collectlogs.extract_log_time_from_text')
+    @patch('composer.collectlogs.FilesystemPlanner')
+    def test_get_logs_times(
+        self, mock_planner, mock_extract_log, mock_get_logs, planner
+    ):
+        planner.date = date.today() - timedelta(days=15)
+        mock_planner.return_value = planner
+        mock_extract_log.return_value = ('notes', 10)
+        mock_get_logs.return_value = [MagicMock(), MagicMock()]
+        (logs, times) = get_logs_times('/path/to/wiki', Week)
+        assert 'notes' in logs
