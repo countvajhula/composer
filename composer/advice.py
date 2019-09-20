@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
+import os
 import re
 import sys
+
+import click
+
 from random import choice
 
 from . import config
@@ -11,6 +15,9 @@ try:  # py2
     from StringIO import StringIO
 except ImportError:  # py3
     from io import StringIO
+
+CONFIG_ROOT = os.getenv("COMPOSER_ROOT", os.path.expanduser("~/.composer"))
+CONFIG_FILE = os.path.join(CONFIG_ROOT, config.CONFIG_FILENAME)
 
 
 def extract_lessons(lessons_files):
@@ -41,25 +48,29 @@ def get_advice(lessons_files):
     return ""
 
 
-if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        wikidirs = config.PRODUCTION_WIKIDIRS
+@click.command(
+    help=(
+        "Select and display a random piece of advice from the configured "
+        "advice files.\n"
+        "WIKIPATH is the path of the wiki to operate on.\n"
+        "If not provided, uses the path(s) specified in "
+        "config.ini"
+    )
+)
+@click.argument("wikipath", required=False)
+def main(wikipath=None):
+    preferences = config.read_user_preferences(CONFIG_FILE)
+    # if wikipath is specified, it should override
+    # the configured paths in the ini file
+    if wikipath:
+        wikidirs = [wikipath]
     else:
-        if sys.argv[1] == "-t" or sys.argv[1] == "--test":
-            wikidirs = config.TEST_WIKIDIRS
-            display_message()
-            display_message(
-                ">>> Operating in TEST mode on planners at locations: %s <<<"
-                % wikidirs
-            )
-            display_message()
-        else:
-            raise Exception("Invalid command line arguments")
+        wikidirs = preferences["wikis"]
 
     filepaths = []
     for wikidir in wikidirs:
         filepaths.extend(
-            map(lambda f: wikidir + "/" + f, config.LESSONS_FILES)
+            map(lambda f: wikidir + "/" + f, preferences['lessons_files'])
         )
 
     def openfile(fn):
@@ -72,3 +83,7 @@ if __name__ == "__main__":
     lessons_files = map(openfile, filepaths)
 
     display_message(get_advice(lessons_files))
+
+
+if __name__ == "__main__":
+    main()

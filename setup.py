@@ -41,6 +41,7 @@ setup(
     entry_points={
         'console_scripts': ['whats-next=composer.whatsnext:main',
                             'collect-logs=composer.collectlogs:main',
-                            'update-index=composer.updateindex:main'],
+                            'update-index=composer.updateindex:main',
+                            'show-advice=composer.advice:main'],
     },
 )
