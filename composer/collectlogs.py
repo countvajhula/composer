@@ -3,21 +3,18 @@
 """ Just a hacked-together script to collect notes from the present
 week, month, ..., to help save time on retrospectives """
 
-import datetime
 import os
 import re
 
 import click
 
+from datetime import timedelta
+
 from composer.backend import FilesystemPlanner
-from composer.backend.filesystem.base import (
-    PLANNERWEEKFILELINK,
-    PLANNERMONTHFILELINK,
-    PLANNERQUARTERFILELINK,
-)
-from composer.backend.filesystem.primitives import read_file
+from composer.backend.filesystem.interface import get_constituent_logs
+from composer.backend.filesystem.primitives import get_log_filename
 from composer.utils import display_message
-from composer.timeperiod import Week
+from composer.timeperiod import Week, Month, Quarter, get_next_period
 from composer import config
 
 CONFIG_ROOT = os.getenv("COMPOSER_ROOT", os.path.expanduser("~/.composer"))
@@ -38,7 +35,7 @@ def extract_log_time_from_text(logtext):
     return (log, time)
 
 
-def get_logs_times_this_week(wikidir):
+def get_logs_times(wikidir, period):
     """ read currentweek link as filename;
     parse out first day of week from filename;
     open days in order and re search for NOTES. Extract until ^TIME
@@ -46,30 +43,21 @@ def get_logs_times_this_week(wikidir):
     return notes separated by lines and headed by dates
     """
     planner = FilesystemPlanner(wikidir)
-    (logs, times) = ("", [])
-    fn = get_filename(wikidir, PLANNERWEEKFILELINK)
-    startday_str = re.search(
-        r"[^\.]*", fn[8:]
-    ).group()  # confirm what group does
-    planner.date = datetime.datetime.strptime(startday_str, "%B %d, %Y").date()
-    fnpath = "%s/%s.wiki" % (
-        wikidir,
-        planner.date.strftime("%B %d, %Y").replace(" 0", " "),
-    )
-    while True:
-        try:
-            logtext = read_file(fnpath)
-        except Exception:
-            break
-        (log, time) = extract_log_time_from_text(logtext)
-        logs += str(planner.date) + "\n" + log + "\n\n"
+    logs = get_constituent_logs(period, planner.date, wikidir)
+    constituent_period = get_next_period(period, decreasing=True)
+    (logs_string, times) = ("", [])
+    current_date = period.get_start_date(planner.date)
+    for log in logs:
+        (log, time) = extract_log_time_from_text(log.read())
+        start_date = constituent_period.get_start_date(current_date)
+        logs_string += get_log_filename(start_date, constituent_period) + "\n" + log + "\n\n"
         times.append(time)
-        planner.date += datetime.timedelta(days=1)
-        fnpath = "%s/%s.wiki" % (
-            wikidir,
-            planner.date.strftime("%B %d, %Y").replace(" 0", " "),
-        )  # handle "January 01" as "January 1"
-    return (logs, times)
+        current_date = constituent_period.get_end_date(current_date) + timedelta(days=1)
+    return (logs_string, times)
+
+
+def get_logs_times_this_week(wikidir):
+    return get_logs_times(wikidir, Week)
 
 
 def get_logs_times_this_month(wikidir):
@@ -79,37 +67,7 @@ def get_logs_times_this_month(wikidir):
     exit on file not found error
     return notes separated by lines and headed by dates
     """
-    planner = FilesystemPlanner(wikidir)
-    (logs, times) = ("", [])
-    fn = get_filename(wikidir, PLANNERMONTHFILELINK)
-    month = fn.split()[2].strip(",")
-    startday_str = month + " 1, " + fn.split()[3][0:4]
-    planner.date = datetime.datetime.strptime(startday_str, "%B %d, %Y").date()
-    fnpath = "%s/Week of %s.wiki" % (
-        wikidir,
-        planner.date.strftime("%B %d, %Y").replace(" 0", " "),
-    )
-    while True:
-        try:
-            logtext = read_file(fnpath)
-        except Exception:
-            break
-        (log, time) = extract_log_time_from_text(logtext)
-        logs += "Week of " + str(planner.date) + "\n" + log + "\n\n"
-        times.append(time)
-        planner.date += datetime.timedelta(days=1)
-        while not Week.advance_criteria_met(
-            planner.date, datetime.datetime.now()
-        ):
-            planner.date += datetime.timedelta(days=1)
-        planner.date += datetime.timedelta(
-            days=1
-        )  # next day is the one we're looking for
-        fnpath = "%s/Week of %s.wiki" % (
-            wikidir,
-            planner.date.strftime("%B %d, %Y").replace(" 0", " "),
-        )
-    return (logs, times)
+    return get_logs_times(wikidir, Month)
 
 
 def get_logs_times_this_quarter(wikidir):
@@ -119,48 +77,7 @@ def get_logs_times_this_quarter(wikidir):
     exit on file not found error
     return notes separated by lines and headed by dates
     """
-    planner = FilesystemPlanner(wikidir)
-    (logs, times) = ("", [])
-    fn = get_filename(wikidir, PLANNERQUARTERFILELINK)
-    quarter = fn.split()[0]
-    if quarter == "Q1":
-        month = "January"
-    elif quarter == "Q2":
-        month = "April"
-    elif quarter == "Q3":
-        month = "July"
-    elif quarter == "Q4":
-        month = "October"
-    else:
-        raise Exception(
-            "Quarter filename not recognized! Must be e.g. 'Q1 2014'"
-        )
-    startmonth_str = month + ", " + fn.split()[1][0:4]
-    planner.date = datetime.datetime.strptime(startmonth_str, "%B, %Y").date()
-    fnpath = "%s/Month of %s.wiki" % (wikidir, planner.date.strftime("%B, %Y"))
-    while True:
-        try:
-            logtext = read_file(fnpath)
-        except Exception:
-            break
-        (log, time) = extract_log_time_from_text(logtext)
-        logs += (
-            "Month of " + planner.date.strftime("%B, %Y") + "\n" + log + "\n\n"
-        )
-        times.append(time)
-        if planner.date.month < 12:
-            planner.date = datetime.date(
-                planner.date.year, planner.date.month + 1, planner.date.day
-            )
-        else:
-            planner.date = datetime.date(
-                planner.date.year + 1, 1, planner.date.day
-            )
-        fnpath = "%s/Month of %s.wiki" % (
-            wikidir,
-            planner.date.strftime("%B, %Y"),
-        )
-    return (logs, times)
+    return get_logs_times(wikidir, Quarter)
 
 
 @click.command(
