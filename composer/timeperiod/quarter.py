@@ -4,12 +4,7 @@ from .base import Period
 from .day import Day
 from .month import Month
 
-FIRST_MONTH_IN_QUARTER = (
-    "january",
-    "april",
-    "july",
-    "october",
-)
+FIRST_MONTH_IN_QUARTER = ("january", "april", "july", "october")
 
 
 class _Quarter(Period):
@@ -31,7 +26,10 @@ class _Quarter(Period):
             Day.advance_criteria_met(planner_date, now)
         except PlannerIsInTheFutureError:
             raise
-        if Month.advance_criteria_met(planner_date, now) and month.lower() in FIRST_MONTH_IN_QUARTER:
+        if (
+            Month.advance_criteria_met(planner_date, now)
+            and month.lower() in FIRST_MONTH_IN_QUARTER
+        ):
             return True
         else:
             return False

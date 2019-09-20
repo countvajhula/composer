@@ -30,6 +30,7 @@ def extract_lessons(lessons_files):
     :returns list: A list containing all lessons in a file with leading
         numbering removed and a single trailing \n added
     """
+
     def extract_lessons_raw(f):
         line = f.readline()
         if not line:
