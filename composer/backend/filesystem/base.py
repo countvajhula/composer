@@ -541,10 +541,10 @@ class FilesystemPlanner(PlannerBase):
         filelinkfn = full_file_path(root=self.location, filename=link_name)
         if os.path.islink(filelinkfn):
             os.remove(filelinkfn)
-        filename = get_log_filename(self.date, Day, root=self.location)
+        filename = get_log_filename(self.date, Day)
         os.symlink(
-            filename[filename.rfind("/") + 1 :], filelinkfn
-        )  # remove path from filename so it isn't "double counted"
+            filename, filelinkfn
+        )  # don't need full path in filename since it's relative to the link
 
     def save(self, period=Year):
         """ Write the planner object to the filesystem."""
