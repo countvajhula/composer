@@ -65,11 +65,11 @@ class _Zero(Period):
 
     def advance_criteria_met(self, planner_date, now):
         """ A null period for 'algebraic' convenience. """
-        raise NotImplementedError
+        return True
 
     def get_name(self):
         """ A null period for 'algebraic' convenience. """
-        raise NotImplementedError
+        return "zero"
 
 
 Zero = _Zero()

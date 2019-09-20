@@ -1,5 +1,5 @@
 from datetime import timedelta
-from ...timeperiod import get_next_period
+from ...timeperiod import get_next_period, Day
 from .primitives import get_log_filename, read_file
 
 
@@ -11,6 +11,8 @@ def get_log_for_date(period, for_date, planner_root):
     question about the historical data tracked at the path managed by the
     planner, rather than the current actionable state of the planner.
     """
+    if period < Day:
+        return None
     start_date = period.get_start_date(for_date)
     log_path = get_log_filename(start_date, period, planner_root)
     log = read_file(log_path)
@@ -21,6 +23,8 @@ def get_constituent_logs(period, for_date, planner_root):
     """ Get logfiles for the smaller time period constituting the specified
     time period, e.g. all of the day logfiles for the week.
     """
+    if period <= Day:
+        return []
     start_date = period.get_start_date(for_date)
     end_date = period.get_end_date(for_date)
     constituent_period = get_next_period(period, decreasing=True)
