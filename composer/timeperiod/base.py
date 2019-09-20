@@ -43,6 +43,12 @@ class Period(ABC):
         raise NotImplementedError
 
     def get_start_date(self, planner_date):
+        """ Given a date, return the date corresponding to the
+        start of the present period (e.g. Week) encompassing that date.
+
+        :param :class:`datetime.date` planner_date: The reference date
+        :returns :class:`datetime.date`: The start date of the concerned period
+        """
         now = datetime.datetime.now()
         current_date = planner_date
         previous_date = current_date - timedelta(days=1)
@@ -52,6 +58,12 @@ class Period(ABC):
         return current_date
 
     def get_end_date(self, planner_date):
+        """ Given a date, return the date corresponding to the
+        end of the present period (e.g. Week) encompassing that date.
+
+        :param :class:`datetime.date` planner_date: The reference date
+        :returns :class:`datetime.date`: The end date of the concerned period
+        """
         now = datetime.datetime.now()
         current_date = planner_date
         while not self.advance_criteria_met(current_date, now):

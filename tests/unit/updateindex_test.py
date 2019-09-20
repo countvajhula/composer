@@ -25,7 +25,7 @@ class WikiPagesKnownValues(unittest.TestCase):
     def test_empty_input(self):
         """ Check that an empty list is returned if an empty file list is supplied"""
         wikipages = updateindex.get_wiki_pages_among_files([])
-        self.assertEqual(wikipages, [])
+        self.assertEqual(list(wikipages), [])
 
 
 class BadInput(unittest.TestCase):

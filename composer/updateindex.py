@@ -12,14 +12,34 @@ INDEXFILE = "Pages.wiki"
 INDEXTITLE = "= INDEX ="
 
 
+def is_wiki(filename):
+    return filename[-5:] == ".wiki"
+
+
+def truncate_extension(filename):
+    return filename[:-5]
+
+
 def get_wiki_pages_among_files(fileslist):
-    # wikipages = filter(lambda(thisfile): thisfile[-5:]=='.wiki', fileslist)
-    return [
-        thisfile[:-5] for thisfile in fileslist if thisfile[-5:] == ".wiki"
-    ]
+    """ Identify files in the given list that are wiki files, and return these
+    sans the .wiki extension.
+
+    :param list fileslist: A list of filenames
+    :returns list: Only the wiki files, with extensions truncated
+    """
+    return map(truncate_extension, filter(is_wiki, fileslist))
 
 
 def update_index(plannerpath, indexfile=None, indextitle=None):
+    """ Generate the index from all .wiki files present at the provided
+    path. Use the provided filename and title string, if any, or use defaults.
+    This generates the index from scratch and overwrites any existing index
+    file that may be present.
+
+    :param str plannerpath: The location of the wiki
+    :param str indexfile: The filename to use when saving the generated index
+    :param str indextitle: A title string to use at the top of the file
+    """
     if not indexfile:
         indexfile = INDEXFILE
     if not indextitle:

@@ -95,7 +95,14 @@ def _post_advance_tasks(wikidir, preferences):
 
 
 def process_wiki(wikidir, preferences, now):
-    """ Advance the wiki according to any configured preferences.
+    """ Advance the wiki at the specified path, according to any configured
+    preferences.
+
+    :param str wikidir: The path to the wiki
+    :param dict preferences: User preferences e.g. from a config file
+    :param :class:`datetime.datetime` now: The time to treat as current real
+        world time. Not sure if it's used for anything aside from testing the
+        jump feature
     """
     # simulate the changes first and then when it's all OK, make the necessary
     # preparations (e.g. git commit) and actually perform the changes
@@ -211,7 +218,6 @@ def process_wiki(wikidir, preferences, now):
 )
 @click.option("-j", "--jump", is_flag=True, help="Jump to present day.")
 def main(wikipath=None, test=False, jump=False):
-    # Moved pending tasks from today over to tomorrow's agenda
     # could try: [Display score for today]
 
     now = None

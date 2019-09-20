@@ -50,6 +50,8 @@ def update_wiki_specific_preferences(wikidir, preferences):
     read previously where there is overlap.
 
     :param str wikidir: The location of the wiki
+    :param dict preferences: Preferences read from the main config file
+        that we will override here with wiki-specific config
     """
     config_path = os.path.join(wikidir, CONFIG_FILENAME)
     if not os.path.isfile(config_path):

@@ -13,7 +13,16 @@ class _Week(Period):
     duration = 7 * 24 * 60 * 60
 
     def advance_criteria_met(self, planner_date, now):
-        # note that these dates are ~next~ day values
+        """ Have criteria for advancement to the next week been met?
+
+        :param :class:`datetime.date` planner_date: The current date of the
+            planner
+        :param :class:`datetime.datetime` now: The time to treat as current
+            real world time
+        :returns bool: Whether the criteria have been met
+        """
+        # note that this is checking whether the planner is ~ready for~ an
+        # advance, not whether its current state already represents an advance
         dow = planner_date.strftime("%A")
         year = planner_date.year
         try:
