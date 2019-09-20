@@ -61,7 +61,7 @@ def copy_file(file):
     return make_file(file.getvalue())
 
 
-def read_file(self, filename):
+def read_file(filename):
     """ Read a file on disk and produce an in-memory logical representation
     of the file. This logical representation will be used for analysis and
     processing so that the actual file on disk isn't affected until any
@@ -71,5 +71,5 @@ def read_file(self, filename):
     return make_file(contents)
 
 
-def write_file(self, file, filename):
+def write_file(file, filename):
     _write_file(file.read(), filename)

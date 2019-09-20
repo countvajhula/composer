@@ -212,10 +212,10 @@ class FilesystemPlanner(PlannerBase):
             'tasklistfile': PLANNERTASKLISTFILE,
             'daythemesfile': PLANNERDAYTHEMESFILE,
             'dayfile': get_log_filename(self.date, Day),
-            'weekfile': get_log_filename(self.date, Week),
-            'monthfile': get_log_filename(self.date, Month),
-            'quarterfile': get_log_filename(self.date, Quarter),
-            'yearfile': get_log_filename(self.date, Year),
+            'weekfile': get_log_filename(Week.get_start_date(self.date), Week),
+            'monthfile': get_log_filename(Month.get_start_date(self.date), Month),
+            'quarterfile': get_log_filename(Quarter.get_start_date(self.date), Quarter),
+            'yearfile': get_log_filename(Year.get_start_date(self.date), Year),
             # daily, weekly, monthly checkpoints
             'checkpoints_weekday_file': "{}_Weekday_{}.wiki".format(
                 SCHEDULE_FILE_PREFIX, self.schedule.capitalize()

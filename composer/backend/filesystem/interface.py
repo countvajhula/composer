@@ -1,3 +1,4 @@
+from datetime import timedelta
 from ...timeperiod import get_next_period
 from .primitives import get_log_filename, read_file
 
@@ -25,7 +26,14 @@ def get_constituent_logs(period, for_date, planner_root):
     constituent_period = get_next_period(period, decreasing=True)
     logs = []
     current_date = start_date
-    while constituent_period.get_end_date(current_date) < end_date:
-        log = get_log_for_date(constituent_period, current_date, planner_root)
+    constituent_end_date = constituent_period.get_end_date(current_date)
+    while constituent_end_date <= end_date:
+        try:
+            log = get_log_for_date(constituent_period, current_date, planner_root)
+        except FileNotFoundError:
+            # in-progress period, i.e. no log yet exists
+            break
         logs.append(log)
+        current_date = constituent_end_date + timedelta(days=1)
+        constituent_end_date = constituent_period.get_end_date(current_date)
     return logs

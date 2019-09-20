@@ -55,6 +55,8 @@ def get_log_filename(for_date, period, root=None):
     )
     if root:
         path = full_file_path(root, filename=filename)
+    else:
+        path = filename
 
     return path
 
