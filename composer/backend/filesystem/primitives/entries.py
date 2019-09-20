@@ -1,8 +1,4 @@
-from .files import (
-    make_file,
-    contain_file_mutation,
-    copy_file,
-)
+from .files import make_file, contain_file_mutation, copy_file
 from .parsing import (
     is_section_separator,
     get_section_pattern,

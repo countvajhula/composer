@@ -33,7 +33,9 @@ def get_constituent_logs(period, for_date, planner_root):
     constituent_end_date = constituent_period.get_end_date(current_date)
     while constituent_end_date <= end_date:
         try:
-            log = get_log_for_date(constituent_period, current_date, planner_root)
+            log = get_log_for_date(
+                constituent_period, current_date, planner_root
+            )
         except FileNotFoundError:
             # in-progress period, i.e. no log yet exists
             break

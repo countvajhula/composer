@@ -9,9 +9,7 @@ from composer.backend.filesystem.primitives.entries import (
     get_task_items,
     read_item,
 )
-from composer.backend.filesystem.primitives.files import (
-    make_file,
-)
+from composer.backend.filesystem.primitives.files import make_file
 from composer.backend.filesystem.primitives.parsing import (
     is_completed_task,
     is_undone_task,

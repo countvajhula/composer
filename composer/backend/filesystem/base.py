@@ -30,6 +30,7 @@ from .scheduling import (
     get_date_for_schedule_string,
 )
 from .templates import get_template
+
 # should minimize use of low-level (lower than "entry" level) primitives in
 # this file. if necessary, provide duplicate versions of functions at the
 # relevant abstraction level and have those internally map to and from the
@@ -213,8 +214,12 @@ class FilesystemPlanner(PlannerBase):
             'daythemesfile': PLANNERDAYTHEMESFILE,
             'dayfile': get_log_filename(self.date, Day),
             'weekfile': get_log_filename(Week.get_start_date(self.date), Week),
-            'monthfile': get_log_filename(Month.get_start_date(self.date), Month),
-            'quarterfile': get_log_filename(Quarter.get_start_date(self.date), Quarter),
+            'monthfile': get_log_filename(
+                Month.get_start_date(self.date), Month
+            ),
+            'quarterfile': get_log_filename(
+                Quarter.get_start_date(self.date), Quarter
+            ),
             'yearfile': get_log_filename(Year.get_start_date(self.date), Year),
             # daily, weekly, monthly checkpoints
             'checkpoints_weekday_file': "{}_Weekday_{}.wiki".format(
@@ -238,9 +243,7 @@ class FilesystemPlanner(PlannerBase):
             setattr(
                 self,
                 attr,
-                read_file(
-                    full_file_path(root=location, filename=filename)
-                ),
+                read_file(full_file_path(root=location, filename=filename)),
             )
 
     def schedule_tasks(self):

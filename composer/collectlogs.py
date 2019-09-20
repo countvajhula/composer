@@ -50,9 +50,16 @@ def get_logs_times(wikidir, period):
     for log in logs:
         (log, time) = extract_log_time_from_text(log.read())
         start_date = constituent_period.get_start_date(current_date)
-        logs_string += get_log_filename(start_date, constituent_period) + "\n" + log + "\n\n"
+        logs_string += (
+            get_log_filename(start_date, constituent_period)
+            + "\n"
+            + log
+            + "\n\n"
+        )
         times.append(time)
-        current_date = constituent_period.get_end_date(current_date) + timedelta(days=1)
+        current_date = constituent_period.get_end_date(
+            current_date
+        ) + timedelta(days=1)
     return (logs_string, times)
 
 

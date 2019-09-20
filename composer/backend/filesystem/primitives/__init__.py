@@ -13,7 +13,11 @@ from .parsing import (  # noqa
     is_wip_task,
     parse_task,
 )
-from .storage import full_file_path, get_log_filename, quarter_for_month  # noqa
+from .storage import (
+    full_file_path,
+    get_log_filename,
+    quarter_for_month,
+)  # noqa
 
 
 __all__ = (
