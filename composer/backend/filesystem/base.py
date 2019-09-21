@@ -91,6 +91,11 @@ class FilesystemPlanner(PlannerBase):
     def __init__(self, location=None):
         self.construct(location)
 
+    # use 'getters' and 'setters' for file attributes so that any state changes
+    # to their values (e.g. "head" position after reading the file's contents)
+    # are contained within the client code and not reflected on the planner
+    # instance unless it is explicitly modified via a setter
+
     @property
     def tasklistfile(self):
         return make_file(self._tasklistfile.getvalue())
@@ -261,7 +266,7 @@ class FilesystemPlanner(PlannerBase):
         # additional interfaces as needed
         # TODO: these diagnostics are not covered by tests
         display_message("Tracking any newly scheduled tasks...")
-        check_scheduled_section_for_errors(self)
+        check_scheduled_section_for_errors(self.tasklistfile)
         check_logfile_for_errors(self.dayfile)
         # ignore tasks in tomorrow since actively scheduled by you
         tomorrow, tasklist_no_tomorrow = read_section(

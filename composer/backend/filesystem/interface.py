@@ -37,6 +37,12 @@ def get_log_for_date(period, for_date, planner_root):
 def get_constituent_logs(period, for_date, planner_root):
     """ Get logfiles for the smaller time period constituting the specified
     time period, e.g. all of the day logfiles for the week.
+
+    :param :class:`~composer.timeperiod.Period` period: The time period
+        for which we want constituent log files
+    :param :class:`datetime.date` for_date: The date of interest
+    :param str planner_root: The root path of the planner wiki
+    :returns list: The constituent logs
     """
     if period <= Day:
         return []

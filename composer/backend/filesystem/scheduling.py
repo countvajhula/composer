@@ -21,20 +21,41 @@ from .primitives import (
 SCHEDULED_DATE_PATTERN = re.compile(r"\[\$?([^\[\$]*)\$?\]$")
 
 
-def get_appropriate_year(month, day, today):
+def get_appropriate_year(month, day, reference_date):
+    """ For date formats where the year is unspecified, determine the
+    appropriate year by ensuring that the resulting date is in the future.
+
+    :param int month: Indicated month
+    :param int day: Indicated day
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns int: The appropriate year for the date
+    """
     # if current year would result in negative, then use next year,
     # otherwise current year
-    date_thisyear = datetime.date(today.year, month, day)
-    if date_thisyear < today:
-        return today.year + 1
+    date_thisyear = datetime.date(reference_date.year, month, day)
+    if date_thisyear < reference_date:
+        return reference_date.year + 1
     else:
-        return today.year
+        return reference_date.year
 
 
 def get_date_for_schedule_string(datestr, reference_date=None):
-    """ try various acceptable formats and return the first one that works
+    """ Parse a given string representing a date.
+
+    Try various acceptable formats and return the first one that works
     Returns both a specific python date that can be used as well as a
-    'standard format' date string that unambiguously represents the date
+    'standard format' date string that unambiguously represents the date.
+
+    The source date strings map down to a smaller set of "standard formats"
+    These classes should be made explicit at some point to minimize
+    duplication.
+
+    :param str datestr: A string representing a follow-up date for a
+        blocked/scheduled item
+    :param :class:`datetime.date` reference_date: Reference date to use in
+        parsing the indicated scheduled date
+    :returns tuple: A python date object, and a "standard format" string
+        representing the date
     """
     date = None
     month_name_to_number = dict(
@@ -351,7 +372,13 @@ def get_date_for_schedule_string(datestr, reference_date=None):
 
 
 def to_standard_date_format(entry, reference_date=None):
-    """ Convert a parsed scheduled task into a standard format. """
+    """ Convert a parsed scheduled task into a standard format.
+
+    :param str entry: The entry with a scheduled date
+    :param :class:`datetime.date` reference_date: Reference date to use in
+        parsing the indicated scheduled date
+    :returns str: The entry with the scheduled date in a standard format
+    """
     task_header, task_contents = parse_task(entry)
     if SCHEDULED_DATE_PATTERN.search(task_header):
         datestr = SCHEDULED_DATE_PATTERN.search(task_header).groups()[0]
@@ -373,8 +400,13 @@ def to_standard_date_format(entry, reference_date=None):
     return task
 
 
-def check_scheduled_section_for_errors(planner):
-    section, _ = read_section(planner.tasklistfile, 'SCHEDULED')
+def check_scheduled_section_for_errors(tasklistfile):
+    """ Check that the tasklist includes a scheduled section and that
+    it contains only scheduled tasks.
+
+    :param :class:`io.StringIO` tasklistfile: The tasklist
+    """
+    section, _ = read_section(tasklistfile, 'SCHEDULED')
     entries = get_entries(section)
     for entry in entries:
         entry_string = entry.splitlines()[0]
@@ -389,6 +421,10 @@ def check_scheduled_section_for_errors(planner):
 
 
 def check_logfile_for_errors(logfile):
+    """ Check that the logfile includes an agenda section.
+
+    :param :class:`io.StringIO` logfile: The log file
+    """
     try:
         read_section(logfile, "AGENDA")
     except ValueError:
