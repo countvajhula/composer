@@ -21,11 +21,19 @@ from .parsing import (
 
 def entries_to_string(entries):
     """ Convert a list of entries to a string.
+
+    :param list entries: A list of entries (strings)
+    :returns str: A string formed by concatenating all of the entries
     """
     return "".join(entries)
 
 
 def string_to_entries(string):
+    """ Convert a string to a list of entries.
+
+    :param string str: A string containing entries
+    :param list entries: A list of entries (strings)
+    """
     entries, _ = get_entries(make_file(string))
     return entries
 
@@ -33,6 +41,10 @@ def string_to_entries(string):
 def filter_entries(entries, filter_fn):
     """ Filter a list of entries to only those that satisfy a given filter
     function.
+
+    :param list entries: A list of entries (strings)
+    :param function filter_fn: A predicate function
+    :returns list: A list containing only those entries passing the predicate
     """
     return [entry for entry in entries if filter_fn(entry)]
 
@@ -40,6 +52,10 @@ def filter_entries(entries, filter_fn):
 def exclude_entries(entries, filter_fn):
     """ Filter a list of entries to only those that do NOT satisfy a given
     filter function.
+
+    :param list entries: A list of entries (strings)
+    :param function filter_fn: A predicate function
+    :returns list: A list containing only those entries failing the predicate
     """
     return [entry for entry in entries if not filter_fn(entry)]
 
@@ -48,6 +64,11 @@ def partition_entries(entries, filter_fn):
     """ Partition a list of entries into two lists based on some filter
     predicate.  The first list will contain the elements that satisfy the
     predicate, while the second list will contain those that don't.
+
+    :param list entries: A list of entries (strings)
+    :param function filter_fn: A predicate function
+    :returns tuple: A pair with a list containing only those entries passing
+        the predicate, and another list containing only those failing
     """
     filtered = filter_entries(entries, filter_fn)
     excluded = exclude_entries(entries, filter_fn)
@@ -118,27 +139,47 @@ def get_entries(file, of_type=None):
 
 @contain_file_mutation
 def partition_at(file, pattern, or_eof=False, inclusive=False):
-    contents, complement = make_file(), make_file()
+    """ Partition a file into two files at the occurrence of a pattern.  The
+    first file will contain the contents before the pattern, while the second
+    list will contain those after it.
+
+    :param :class:`io.StringIO` file: A text file to partition
+    :param :class:`_sre.SRE_Pattern` pattern: A pattern (regex) to find
+    :param bool or_eof: If true, then handles missing pattern gracefully
+        and does not treat it as an error. Otherwise, raises an error if the
+        pattern is missing.
+    :param bool inclusive: Whether to include the pattern in the 'before' file
+    :returns tuple: A pair with a file containing the contents before
+        the pattern, and another file containing the contents after
+    """
+    before, after = make_file(), make_file()
     line = file.readline()
     while line:
         if not pattern.search(line):
-            contents.write(line)
+            before.write(line)
             line = file.readline()
             continue
         if inclusive:
-            contents.write(line)
+            before.write(line)
         else:
-            complement.write(line)
+            after.write(line)
         break
     if not line and not or_eof:
         raise ValueError("Pattern {} not found in file!".format(pattern))
-    complement.write(file.read())
+    after.write(file.read())
 
-    return contents, complement
+    return before, after
 
 
 @contain_file_mutation
 def read_section(file, section):
+    """ Retrieve the contents of a specified section in a file.
+
+    :param :class:`io.StringIO` file: A text file to parse
+    :param str section: The name of the section
+    :returns tuple: A pair with a file containing the contents of the section,
+        and another file containing everything else
+    """
     pattern = get_section_pattern(section)
     complement = make_file()
     try:
@@ -174,6 +215,15 @@ def add_to_section(file, section, tasks, above=True, ensure_separator=False):
     can be added either at the top or bottom of the section, and any
     pre-existing contents of the section are preserved alongside the new
     additions.
+
+    :param :class:`io.StringIO` file: A text file
+    :param str section: The name of the section
+    :param str tasks: Text to add to the section
+    :param bool above: Whether to add the tasks above the existing contents or
+        below them
+    :param bool ensure_separator: Whether to ensure that a section separator is
+        present after the new contents have been added (see comment below)
+    :returns :class:`io.StringIO`: The new file including the additions
     """
 
     try:
