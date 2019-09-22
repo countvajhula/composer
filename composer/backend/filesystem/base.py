@@ -1,7 +1,5 @@
 import os
 
-from datetime import datetime
-
 from ..base import PlannerBase
 from ...config import LOGFILE_CHECKING
 from ...timeperiod import (
@@ -154,6 +152,12 @@ class FilesystemPlanner(PlannerBase):
         self._yearfile = value
 
     def _logfile_attribute(self, period):
+        """ A helper to get the name of the attribute on the planner instance
+        corresponding to the log file for the given period.
+
+        :param :class:`~composer.timeperiod.Period` period: A time period
+        :returns str: The attribute name
+        """
         if period == Day:
             attr = 'dayfile'
         elif period == Week:
@@ -172,6 +176,10 @@ class FilesystemPlanner(PlannerBase):
         """ Time period-agnostic "getter" for the concerned logfile attribute.
         Note: This would be unnecessary if each planner instance was only
         concerned with a specific period rather than all periods.
+
+        :param :class:`~composer.timeperiod.Period` period: A time period
+        :returns :class:`io.StringIO`: A file corresponding to the log for
+            the given time period
         """
         log_attr = self._logfile_attribute(period)
         log = getattr(self, log_attr)
@@ -181,6 +189,9 @@ class FilesystemPlanner(PlannerBase):
         """ Time period-agnostic "setter" for the concerned logfile attribute.
         Note: This would be unnecessary if each planner instance was only
         concerned with a specific period rather than all periods.
+
+        :param :class:`~composer.timeperiod.Period` period: A time period
+        :param str contents: The new contents of the log file
         """
         log_attr = self._logfile_attribute(period)
         if log_attr:
@@ -314,6 +325,9 @@ class FilesystemPlanner(PlannerBase):
         Note: task scheduling should already have been performed on relevant
         logfiles (like the previous day's) to migrate those tasks to the
         tasklist.
+
+        :param :class:`datetime.date` for_day: The date to get due tasks for
+        :returns str: The tasks that are due
         """
 
         def is_task_due(task):
@@ -354,6 +368,8 @@ class FilesystemPlanner(PlannerBase):
         """ Read the tasklist, parse all tasks under the TOMORROW section
         and return those. **This also mutates the tasklist by removing those
         tasks from it.**
+
+        :returns str: The tasks for tomorrow
         """
         display_message(
             "Moving tasks added for tomorrow over to tomorrow's agenda..."
@@ -381,6 +397,8 @@ class FilesystemPlanner(PlannerBase):
     def get_todays_unfinished_tasks(self):
         """ Get tasks from today's agenda that are either undone or in
         progress.
+
+        :returns str: Unfinished tasks from today's log file
         """
         display_message(
             "Carrying over any unfinished tasks from today"
@@ -403,9 +421,13 @@ class FilesystemPlanner(PlannerBase):
 
     def create_log(self, period, next_day):
         """ Create a new log for the specified period and associate it with the
-        current Planner instance. This updates the logfile attribute
+        current Planner instance. **This updates the logfile attribute
         corresponding to the period in question to the newly created logical
-        file.
+        file.**
+
+        :param :class:`~composer.timeperiod.Period` period: The period for
+            which to create the log file
+        :param :class:`dateime.date` next_day: The date for the new log file
         """
         display_message(
             "Creating log file for {period}...".format(period=period)
@@ -425,6 +447,11 @@ class FilesystemPlanner(PlannerBase):
     def update_log(self, period, next_day):
         """ Update the existing log for the specified period to account for the
         advancement of a contained period.
+
+        :param :class:`~composer.timeperiod.Period` period: The period for
+            which to update the log file
+        :param :class:`dateime.date` next_day: The new day in consideration of
+            which the log file needs to be updated
         """
         display_message(
             "Updating log file for {period}...".format(period=period)
@@ -434,8 +461,13 @@ class FilesystemPlanner(PlannerBase):
         self._update_logfile(period, contents)
 
     def check_log_completion(self, period):
-        """ Check the logfile's NOTES section as a determination of whether
-        the log has been completed """
+        """ Check whether the log for a period has been completed. Uses the
+        logfile's NOTES section as an indicator of this.
+
+        :param :class:`~composer.timeperiod.Period` period: The period for
+            which to check log completion
+        :returns bool: Whether the log for the period has been completed
+        """
         if self.logfile_completion_checking == LOGFILE_CHECKING["LAX"]:
             return True
 
@@ -454,7 +486,12 @@ class FilesystemPlanner(PlannerBase):
         return completed
 
     def get_agenda(self, period):
-        """ Go through logfile and extract all tasks under AGENDA """
+        """ Go through logfile and extract all tasks under AGENDA
+
+        :param :class:`~composer.timeperiod.Period` period: Get the agenda
+            for this time period
+        :returns str: The agenda
+        """
         if period is Zero:
             return None
         log = self._get_logfile(period)
@@ -471,6 +508,10 @@ class FilesystemPlanner(PlannerBase):
     def update_agenda(self, period, agenda):
         """ Update the agenda for the given period with the provided agenda by
         appending the new contents to the existing ones.
+
+        :param :class:`~composer.timeperiod.Period` period: Update the agenda
+            for this period
+        :param str agenda: New contents to be appended to the agenda
         """
         log = self._get_logfile(period)
         try:
@@ -495,6 +536,8 @@ class FilesystemPlanner(PlannerBase):
         log files on disk, which is unexpected and an error. This is only
         appropriate to call after logical advance has occurred (but prior to
         writing to disk).
+
+        :param :class:`~composer.timeperiod.Period` period: A time period
         """
         if period == Zero:
             return
@@ -530,6 +573,11 @@ class FilesystemPlanner(PlannerBase):
         write_file(log, filename)
 
     def _write_files_for_contained_periods(self, period):
+        """ Write all log files corresponding to periods contained within
+        a given time period.
+
+        :param :class:`~composer.timeperiod.Period` period: A time period
+        """
         if period == Zero:
             return
         self._write_log_to_file(period)
@@ -538,7 +586,9 @@ class FilesystemPlanner(PlannerBase):
         )
 
     def _update_current_date_link(self):
-        # update "current" link on disk to the newly created file
+        """ Update "current" link on disk to the newly created log file
+        for the date to which the planner was advanced.
+        """
         link_name = PLANNERDAYFILELINK
         filelinkfn = full_file_path(root=self.location, filename=link_name)
         if os.path.islink(filelinkfn):
