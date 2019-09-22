@@ -51,6 +51,7 @@ from .primitives import (
     entries_to_string,
     partition_entries,
     read_section,
+    bare_filename,
 )
 
 SCHEDULE_FILE_PREFIX = "Checkpoints"
@@ -186,20 +187,22 @@ class FilesystemPlanner(PlannerBase):
             setattr(self, log_attr, make_file(contents))
 
     def _get_date(self):
-        """ get planner date, currently looks for the file 'currentday',
-        if dne throw exception """
+        """ Get date from planner's current state on disk.
+        The current date is tracked using a symbolic link which points to the
+        latest daily logfile generated.
+        """
         plannerdatefn = full_file_path(
             self.location, PLANNERDAYFILELINK, dereference=True
         )
-        pathidx = plannerdatefn.rfind("/")
-        datestr = plannerdatefn[
-            pathidx + 1 : -5
-        ]  # trim path from beginning and '.wiki' from end
-        plannerdate = datetime.strptime(datestr, "%B %d, %Y").date()
+        datestr = bare_filename(plannerdatefn)
+        plannerdate = get_date_for_schedule_string(datestr)['date']
         return plannerdate
 
     def construct(self, location=None):
-        """ Construct a planner object from a filesystem representation."""
+        """ Construct a planner object from a filesystem representation.
+
+        :param str location: Filesystem path to planner wiki
+        """
         # use a bunch of StringIO buffers for the Planner object
         # populate them here from real files
         if location is None:

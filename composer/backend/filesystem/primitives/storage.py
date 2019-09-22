@@ -81,6 +81,34 @@ def full_file_path(root, filename, dereference=False):
     return path_fn(PATH_SPECIFICATION.format(path=root, filename=filename))
 
 
+def strip_extension(filename):
+    """ Strip the extension from the end of the filename.
+
+    :param str filename: The filename
+    :returns str: The filename sans extension
+    """
+    return filename[:filename.rfind(".")]
+
+
+def strip_prefix(filename):
+    """ Strip the path prefix from the start of the filename.
+
+    :param str filename: The filename
+    :returns str: The filename sans path prefix
+    """
+    # TODO: tests and edge cases
+    return filename[filename.rfind("/") + 1:]
+
+
+def bare_filename(filename):
+    """ Strip path prefix as well as extension from a filename.
+
+    :param str filename: The filename
+    :returns str: The filename sans path prefix and extension
+    """
+    return strip_extension(strip_prefix(filename))
+
+
 def read_file(path):
     """ Read a file on disk.
 

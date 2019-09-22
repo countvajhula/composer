@@ -4,6 +4,7 @@ import os
 import click
 
 from composer.utils import display_message
+from composer.backend.filesystem.primitives import strip_extension
 
 # TODO: need to improve this script to do regex matching on wiki page names,
 # and sort the pages by type and in chronological order + Misc/uncategorized
@@ -16,10 +17,6 @@ def is_wiki(filename):
     return filename[-5:] == ".wiki"
 
 
-def truncate_extension(filename):
-    return filename[:-5]
-
-
 def get_wiki_pages_among_files(fileslist):
     """ Identify files in the given list that are wiki files, and return these
     sans the .wiki extension.
@@ -27,7 +24,7 @@ def get_wiki_pages_among_files(fileslist):
     :param list fileslist: A list of filenames
     :returns list: Only the wiki files, with extensions truncated
     """
-    return map(truncate_extension, filter(is_wiki, fileslist))
+    return map(strip_extension, filter(is_wiki, fileslist))
 
 
 def update_index(plannerpath, indexfile=None, indextitle=None):
