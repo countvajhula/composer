@@ -38,6 +38,15 @@ class Template(ABC):
 
     @abc.abstractmethod
     def load_context(self, planner, next_day):
+        """ Store any relevant context that may be needed in populating a
+        logfile from a template.
+
+        :param :class:`~composer.backend.filesystem.base.FilesystemPlanner`
+            planner: The planner instance in connection with which log files
+            are to be populated.
+        :param :class:`datetime.date` next_day: The next day we are advancing
+            to
+        """
         self.tasklistfile = planner.tasklistfile
         self.next_day = next_day
         self.bullet_character = planner.preferred_bullet_char
@@ -47,6 +56,8 @@ class Template(ABC):
         """ Create a new log file for the current date by specifying a template
         and populating it with configured contents (like periodic tasks) for
         the relevant period.
+
+        :returns str: The log file created from the template
         """
         template = ""
         if self.title:
@@ -78,19 +89,12 @@ class Template(ABC):
 
     @abc.abstractmethod
     def update(self):
+        """ Update an existing log file for the current date in relation to a
+        specified template.
+
+        :returns str: The updated log file
+        """
         raise NotImplementedError
-
-    def write_existing(self):
-        # for the Zero template, this should be a noop
-        # for the Day template, it is a no-op as well
-        # (see day template `update` method)
-        template = self.update()
-        return template
-
-    def write_new(self, **kwargs):
-        # for the Zero template, this should be a noop
-        template = self.build(**kwargs)
-        return template
 
 
 class ZeroTemplate(Template):

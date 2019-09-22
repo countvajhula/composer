@@ -26,6 +26,11 @@ class QuarterTemplate(Template):
         return template
 
     def update(self):
+        """ Create a link to the new month log file in the current quarter log
+        file.
+
+        :returns str: The updated log file
+        """
         (month, year) = (self.next_day.strftime("%B"), self.next_day.year)
         quartercontents = self.logfile.read()
         last_month_entry = "Month of"

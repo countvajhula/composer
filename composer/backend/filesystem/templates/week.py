@@ -38,6 +38,8 @@ class WeekTemplate(Template):
     def update(self):
         """ Create a link to the new day log file in the current week log
         file.
+
+        :returns str: The updated log file
         """
         (date, month, year) = (
             self.next_day.day,
