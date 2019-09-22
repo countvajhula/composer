@@ -280,11 +280,6 @@ def string_to_date(datestr, reference_date=None):
                 "Relative date found, but no context available"
             )
         date = get_next_day(reference_date)
-        (month, day, year) = (
-            get_month_name(date.month).upper(),
-            str(date.day),
-            str(date.year),
-        )
         period = Day
     elif dateformat16.search(datestr):  # <DOW> e.g. MONDAY
         if not reference_date:
@@ -297,11 +292,6 @@ def string_to_date(datestr, reference_date=None):
         ]
         dow = [d.strftime("%A").upper() for d in upcomingweek]
         date = upcomingweek[dow.index(dowToSchedule)]
-        (month, day, year) = (
-            get_month_name(date.month).upper(),
-            str(date.day),
-            str(date.year),
-        )
         period = Day
     elif dateformat17.search(datestr):  # <DOW> short e.g. MON
         if not reference_date:
@@ -314,11 +304,6 @@ def string_to_date(datestr, reference_date=None):
         ]
         dow = [d.strftime("%a").upper() for d in upcomingweek]
         date = upcomingweek[dow.index(dowToSchedule)]
-        (month, day, year) = (
-            get_month_name(date.month).upper(),
-            str(date.day),
-            str(date.year),
-        )
         period = Day
     elif dateformat10.search(datestr):  # MONTH, e.g. DECEMBER
         if not reference_date:
@@ -337,20 +322,10 @@ def string_to_date(datestr, reference_date=None):
         period = Month
     elif dateformat11.search(datestr):
         (monthn, dayn, yearn) = map(int, dateformat11.search(datestr).groups())
-        (month, day, year) = (
-            get_month_name(monthn).upper(),
-            str(dayn),
-            str(yearn),
-        )
         date = datetime.date(yearn, monthn, dayn)
         period = Day
     elif dateformat12.search(datestr):
         (monthn, dayn, yearn) = map(int, dateformat12.search(datestr).groups())
-        (month, day, year) = (
-            get_month_name(monthn).upper(),
-            str(dayn),
-            str(yearn),
-        )
         date = datetime.date(yearn, monthn, dayn)
         period = Day
     elif dateformat14.search(datestr):  # NEXT WEEK
@@ -364,11 +339,6 @@ def string_to_date(datestr, reference_date=None):
         ]
         dow = [d.strftime("%A").upper() for d in upcomingweek]
         date = upcomingweek[dow.index(dowToSchedule)]
-        (month, day, year) = (
-            get_month_name(date.month).upper(),
-            str(date.day),
-            str(date.year),
-        )
         period = Week
     elif dateformat15.search(datestr):  # NEXT MONTH
         if not reference_date:
@@ -380,11 +350,6 @@ def string_to_date(datestr, reference_date=None):
         ]
         dates = [d.day for d in upcomingmonth]
         date = upcomingmonth[dates.index(1)]
-        (month, day, year) = (
-            get_month_name(date.month).upper(),
-            str(date.day),
-            str(date.year),
-        )
         period = Month
     else:
         raise DateFormatError(
