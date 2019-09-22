@@ -75,10 +75,18 @@ def date_to_string(date, period):
         for the relevant time period
     """
     if period == Day:
-        date_string = "%s %s, %s" % (get_month_name(date.month), date.day, date.year)
+        date_string = "%s %s, %s" % (
+            get_month_name(date.month),
+            date.day,
+            date.year,
+        )
     elif period == Week:
-        date_string = "WEEK OF %s %s, %s" % (get_month_name(date.month).upper(), date.day, date.year)
-    else:
+        date_string = "WEEK OF %s %s, %s" % (
+            get_month_name(date.month).upper(),
+            date.day,
+            date.year,
+        )
+    else:  # TODO: standard format for other time periods
         date_string = "%s %s" % (get_month_name(date.month), date.year)
     return date_string.upper()
 
@@ -92,7 +100,8 @@ def string_to_date(datestr, reference_date=None):
         blocked/scheduled item
     :param :class:`datetime.date` reference_date: Reference date to use in
         parsing the indicated scheduled date
-    :returns :class:`datetime.date`: A python date object
+    :returns tuple: A python date object, and the relevant time period implied
+        by the string representation
     """
     date = None
     # TODO: change these to annotated regex's
@@ -373,9 +382,7 @@ def sanitize_entry(entry, reference_date=None):
     if SCHEDULED_DATE_PATTERN.search(task_header):
         datestr = SCHEDULED_DATE_PATTERN.search(task_header).groups()[0]
         try:
-            matched_date = string_to_date(
-                datestr, reference_date
-            )
+            matched_date = string_to_date(datestr, reference_date)
         except SchedulingDateError:
             raise
     else:

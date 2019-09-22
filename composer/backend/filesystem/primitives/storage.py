@@ -87,7 +87,7 @@ def strip_extension(filename):
     :param str filename: The filename
     :returns str: The filename sans extension
     """
-    return filename[:filename.rfind(".")]
+    return filename[: filename.rfind(".")]
 
 
 def strip_prefix(filename):
@@ -97,7 +97,7 @@ def strip_prefix(filename):
     :returns str: The filename sans path prefix
     """
     # TODO: tests and edge cases
-    return filename[filename.rfind("/") + 1:]
+    return filename[filename.rfind("/") + 1 :]
 
 
 def bare_filename(filename):

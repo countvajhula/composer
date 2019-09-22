@@ -18,7 +18,7 @@ from .storage import (
     get_log_filename,
     quarter_for_month,
     bare_filename,
-    strip_extension
+    strip_extension,
 )  # noqa
 
 

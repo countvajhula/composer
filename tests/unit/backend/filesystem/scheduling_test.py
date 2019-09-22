@@ -23,13 +23,9 @@ class TestToStandardDateFormat(object):
         entry = "[o] do this [$DECEMBER 12, 2012$]"
         expected = entry
         with patch(
-            "composer.backend.filesystem.scheduling"
-            ".string_to_date"
+            "composer.backend.filesystem.scheduling" ".string_to_date"
         ) as mock_get_date:
-            mock_get_date.return_value = (
-                date,
-                Day
-            )
+            mock_get_date.return_value = (date, Day)
             standard = sanitize_entry(entry)
         assert standard == expected
 
@@ -38,13 +34,9 @@ class TestToStandardDateFormat(object):
         entry = "[o] do this [$12 DECEMBER, 2012$]"
         expected = "[o] do this [$DECEMBER 12, 2012$]"
         with patch(
-            "composer.backend.filesystem.scheduling"
-            ".string_to_date"
+            "composer.backend.filesystem.scheduling" ".string_to_date"
         ) as mock_get_date:
-            mock_get_date.return_value = (
-                date,
-                Day
-            )
+            mock_get_date.return_value = (date, Day)
             standard = sanitize_entry(entry)
         assert standard == expected
 
@@ -61,13 +53,9 @@ class TestToStandardDateFormat(object):
             "\t[ ] second thing\n"
         )
         with patch(
-            "composer.backend.filesystem.scheduling"
-            ".string_to_date"
+            "composer.backend.filesystem.scheduling" ".string_to_date"
         ) as mock_get_date:
-            mock_get_date.return_value = (
-                date,
-                Day
-            )
+            mock_get_date.return_value = (date, Day)
             standard = sanitize_entry(entry)
         assert standard == expected
 
