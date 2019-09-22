@@ -25,9 +25,9 @@ from ...utils import display_message
 from .scheduling import (
     check_logfile_for_errors,
     check_scheduled_section_for_errors,
-    to_standard_date_format,
+    sanitize_entry,
     SCHEDULED_DATE_PATTERN,
-    get_date_for_schedule_string,
+    string_to_date,
 )
 from .templates import get_template
 
@@ -195,7 +195,7 @@ class FilesystemPlanner(PlannerBase):
             self.location, PLANNERDAYFILELINK, dereference=True
         )
         datestr = bare_filename(plannerdatefn)
-        plannerdate = get_date_for_schedule_string(datestr)['date']
+        plannerdate, _ = string_to_date(datestr)
         return plannerdate
 
     def construct(self, location=None):
@@ -288,7 +288,7 @@ class FilesystemPlanner(PlannerBase):
         tasks = tasklist_tasks + day_tasks
         tasks = [
             (
-                to_standard_date_format(task, self.date)
+                sanitize_entry(task, self.date)
                 if is_scheduled_task(task)
                 else task
             )
@@ -324,10 +324,10 @@ class FilesystemPlanner(PlannerBase):
                 )
             datestr = SCHEDULED_DATE_PATTERN.search(header).groups()[0]
             try:
-                matched_date = get_date_for_schedule_string(datestr)
+                matched_date, _ = string_to_date(datestr)
             except SchedulingDateError:
                 raise
-            return for_day >= matched_date["date"]
+            return for_day >= matched_date
 
         display_message(
             "Checking previously scheduled tasks for any that "

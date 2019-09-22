@@ -4,7 +4,8 @@ import unittest
 from mock import patch
 
 from composer.backend import FilesystemPlanner
-from composer.backend.filesystem.scheduling import to_standard_date_format
+from composer.backend.filesystem.scheduling import sanitize_entry
+from composer.timeperiod import Day
 from composer.errors import (
     BlockedTaskNotScheduledError,
     ScheduledTaskParsingError,
@@ -23,13 +24,13 @@ class TestToStandardDateFormat(object):
         expected = entry
         with patch(
             "composer.backend.filesystem.scheduling"
-            ".get_date_for_schedule_string"
+            ".string_to_date"
         ) as mock_get_date:
-            mock_get_date.return_value = {
-                'date': date,
-                'datestr': 'DECEMBER 12, 2012',
-            }
-            standard = to_standard_date_format(entry)
+            mock_get_date.return_value = (
+                date,
+                Day
+            )
+            standard = sanitize_entry(entry)
         assert standard == expected
 
     def test_nonstandard(self):
@@ -38,13 +39,13 @@ class TestToStandardDateFormat(object):
         expected = "[o] do this [$DECEMBER 12, 2012$]"
         with patch(
             "composer.backend.filesystem.scheduling"
-            ".get_date_for_schedule_string"
+            ".string_to_date"
         ) as mock_get_date:
-            mock_get_date.return_value = {
-                'date': date,
-                'datestr': 'DECEMBER 12, 2012',
-            }
-            standard = to_standard_date_format(entry)
+            mock_get_date.return_value = (
+                date,
+                Day
+            )
+            standard = sanitize_entry(entry)
         assert standard == expected
 
     def test_retains_subtasks(self):
@@ -61,13 +62,13 @@ class TestToStandardDateFormat(object):
         )
         with patch(
             "composer.backend.filesystem.scheduling"
-            ".get_date_for_schedule_string"
+            ".string_to_date"
         ) as mock_get_date:
-            mock_get_date.return_value = {
-                'date': date,
-                'datestr': 'DECEMBER 12, 2012',
-            }
-            standard = to_standard_date_format(entry)
+            mock_get_date.return_value = (
+                date,
+                Day
+            )
+            standard = sanitize_entry(entry)
         assert standard == expected
 
 

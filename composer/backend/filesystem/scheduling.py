@@ -10,7 +10,7 @@ from ...errors import (
     SchedulingDateError,
     ScheduledTaskParsingError,
 )
-from ...timeperiod import get_next_day
+from ...timeperiod import get_next_day, Day, Week, Month
 from .primitives import (
     get_entries,
     read_section,
@@ -19,6 +19,30 @@ from .primitives import (
 )
 
 SCHEDULED_DATE_PATTERN = re.compile(r"\[\$?([^\[\$]*)\$?\]$")
+
+
+def get_month_number(monthname):
+    """ Get the calendar number corresponding to the month of the year.
+
+    :param str monthname: The name of the month
+    :returns int: The number of the month
+    """
+    month_name_to_number = dict(
+        (v.lower(), k) for k, v in enumerate(calendar.month_name)
+    )
+    return month_name_to_number[monthname.lower()]
+
+
+def get_month_name(monthnumber):
+    """ Get the name of the month corresponding to a calendar month number.
+
+    :param int monthnumber: The number of the month
+    :returns str: The name of the month
+    """
+    month_number_to_name = dict(
+        (k, v) for k, v in enumerate(calendar.month_name)
+    )
+    return month_number_to_name[monthnumber]
 
 
 def get_appropriate_year(month, day, reference_date):
@@ -39,38 +63,38 @@ def get_appropriate_year(month, day, reference_date):
         return reference_date.year
 
 
-def get_date_for_schedule_string(datestr, reference_date=None):
+def date_to_string(date, period):
+    """
+    For each time period define a "standard format" for the date string
+    representation that unambiguously represents the date.
+
+    :param :class:`datetime.date` date: A date
+    :param :class:`~composer.timeperiod.Period` period: The relevant time
+        period for this date
+    :returns str: a "standard format" string representing the provided date
+        for the relevant time period
+    """
+    if period == Day:
+        date_string = "%s %s, %s" % (get_month_name(date.month), date.day, date.year)
+    elif period == Week:
+        date_string = "WEEK OF %s %s, %s" % (get_month_name(date.month).upper(), date.day, date.year)
+    else:
+        date_string = "%s %s" % (get_month_name(date.month), date.year)
+    return date_string.upper()
+
+
+def string_to_date(datestr, reference_date=None):
     """ Parse a given string representing a date.
 
-    Try various acceptable formats and return the first one that works
-    Returns both a specific python date that can be used as well as a
-    'standard format' date string that unambiguously represents the date.
-
-    The source date strings map down to a smaller set of "standard formats"
-    These classes should be made explicit at some point to minimize
-    duplication.
+    Tries various acceptable date formats until one works.
 
     :param str datestr: A string representing a follow-up date for a
         blocked/scheduled item
     :param :class:`datetime.date` reference_date: Reference date to use in
         parsing the indicated scheduled date
-    :returns tuple: A python date object, and a "standard format" string
-        representing the date
+    :returns :class:`datetime.date`: A python date object
     """
     date = None
-    month_name_to_number = dict(
-        (v.lower(), k) for k, v in enumerate(calendar.month_name)
-    )
-    month_number_to_name = dict(
-        (k, v) for k, v in enumerate(calendar.month_name)
-    )
-
-    def get_month_number(monthname):
-        return month_name_to_number[monthname.lower()]
-
-    def get_month_name(monthnumber):
-        return month_number_to_name[monthnumber]
-
     # TODO: change these to annotated regex's
     # MONTH DD, YYYY (w optional space or comma or both)
     dateformat1 = re.compile(
@@ -127,13 +151,13 @@ def get_date_for_schedule_string(datestr, reference_date=None):
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
-        datestr_std = "%s %s, %s" % (month, day, year)
+        period = Day
     elif dateformat2.search(datestr):
         (day, month, year) = dateformat2.search(datestr).groups()
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
-        datestr_std = "%s %s, %s" % (month, day, year)
+        period = Day
     elif dateformat3.search(datestr):
         if not reference_date:
             raise RelativeDateError(
@@ -145,7 +169,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
-        datestr_std = "%s %s, %s" % (month, day, year)
+        period = Day
     elif dateformat4.search(datestr):
         if not reference_date:
             raise RelativeDateError(
@@ -157,7 +181,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
-        datestr_std = "%s %s, %s" % (month, day, year)
+        period = Day
     elif dateformat5.search(datestr):
         # std = Week of Month dd(sunday/1), yyyy
         (month, day, year) = dateformat5.search(datestr).groups()
@@ -176,7 +200,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
-        datestr_std = "WEEK OF %s %s, %s" % (month.upper(), day, year)
+        period = Week
     elif dateformat6.search(datestr):
         (day, month, year) = dateformat6.search(datestr).groups()
         (monthn, dayn, yearn) = (get_month_number(month), int(day), int(year))
@@ -194,7 +218,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
-        datestr_std = "WEEK OF %s %s, %s" % (month.upper(), day, year)
+        period = Week
     elif dateformat7.search(datestr):
         if not reference_date:
             raise RelativeDateError(
@@ -218,7 +242,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
-        datestr_std = "WEEK OF %s %s, %s" % (month.upper(), day, year)
+        period = Week
     elif dateformat8.search(datestr):
         if not reference_date:
             raise RelativeDateError(
@@ -242,14 +266,14 @@ def get_date_for_schedule_string(datestr, reference_date=None):
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
-        datestr_std = "WEEK OF %s %s, %s" % (month.upper(), day, year)
+        period = Week
     elif dateformat9.search(datestr):
         (month, year) = dateformat9.search(datestr).groups()
         day = str(1)
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
-        datestr_std = "%s %s" % (month, year)
+        period = Month
     elif dateformat13.search(datestr):  # TOMORROW
         if not reference_date:
             raise RelativeDateError(
@@ -261,7 +285,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
             str(date.day),
             str(date.year),
         )
-        datestr_std = "%s %s, %s" % (month, day, year)
+        period = Day
     elif dateformat16.search(datestr):  # <DOW> e.g. MONDAY
         if not reference_date:
             raise RelativeDateError(
@@ -278,7 +302,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
             str(date.day),
             str(date.year),
         )
-        datestr_std = "%s %s, %s" % (month, day, year)
+        period = Day
     elif dateformat17.search(datestr):  # <DOW> short e.g. MON
         if not reference_date:
             raise RelativeDateError(
@@ -295,7 +319,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
             str(date.day),
             str(date.year),
         )
-        datestr_std = "%s %s, %s" % (month, day, year)
+        period = Day
     elif dateformat10.search(datestr):  # MONTH, e.g. DECEMBER
         if not reference_date:
             raise RelativeDateError(
@@ -310,7 +334,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
-        datestr_std = "%s %s" % (month, year)
+        period = Month
     elif dateformat11.search(datestr):
         (monthn, dayn, yearn) = map(int, dateformat11.search(datestr).groups())
         (month, day, year) = (
@@ -319,7 +343,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
             str(yearn),
         )
         date = datetime.date(yearn, monthn, dayn)
-        datestr_std = "%s %s, %s" % (month, day, year)
+        period = Day
     elif dateformat12.search(datestr):
         (monthn, dayn, yearn) = map(int, dateformat12.search(datestr).groups())
         (month, day, year) = (
@@ -328,7 +352,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
             str(yearn),
         )
         date = datetime.date(yearn, monthn, dayn)
-        datestr_std = "%s %s, %s" % (month, day, year)
+        period = Day
     elif dateformat14.search(datestr):  # NEXT WEEK
         if not reference_date:
             raise RelativeDateError(
@@ -345,7 +369,7 @@ def get_date_for_schedule_string(datestr, reference_date=None):
             str(date.day),
             str(date.year),
         )
-        datestr_std = "WEEK OF %s %s, %s" % (month.upper(), day, year)
+        period = Week
     elif dateformat15.search(datestr):  # NEXT MONTH
         if not reference_date:
             raise RelativeDateError(
@@ -361,29 +385,30 @@ def get_date_for_schedule_string(datestr, reference_date=None):
             str(date.day),
             str(date.year),
         )
-        datestr_std = "%s %s" % (month, year)
+        period = Month
     else:
         raise DateFormatError(
             "Date format does not match any acceptable formats! " + datestr
         )
     if date:
-        return {"date": date, "datestr": datestr_std.upper()}
+        return date, period
     return None
 
 
-def to_standard_date_format(entry, reference_date=None):
+def sanitize_entry(entry, reference_date=None):
     """ Convert a parsed scheduled task into a standard format.
 
     :param str entry: The entry with a scheduled date
     :param :class:`datetime.date` reference_date: Reference date to use in
         parsing the indicated scheduled date
-    :returns str: The entry with the scheduled date in a standard format
+    :returns str: The entry, with the scheduled date converted to a standard
+        format
     """
     task_header, task_contents = parse_task(entry)
     if SCHEDULED_DATE_PATTERN.search(task_header):
         datestr = SCHEDULED_DATE_PATTERN.search(task_header).groups()[0]
         try:
-            matched_date = get_date_for_schedule_string(
+            matched_date = string_to_date(
                 datestr, reference_date
             )
         except SchedulingDateError:
@@ -393,8 +418,9 @@ def to_standard_date_format(entry, reference_date=None):
             "No scheduled date for blocked task -- add a date for it: "
             + task_header
         )
+    datestr = date_to_string(*matched_date)
     task_header = SCHEDULED_DATE_PATTERN.sub(
-        "[$" + matched_date["datestr"] + "$]", task_header
+        "[$" + datestr + "$]", task_header
     )  # replace with standard format
     task = task_header + task_contents
     return task
