@@ -541,11 +541,22 @@ class FilesystemPlanner(PlannerBase):
         """
         if period == Zero:
             return
-        filename = get_log_filename(self.date, period, root=self.location)
+        filename = self._get_filename(period)
         self._ensure_file_does_not_exist(filename, period)
         self._check_files_for_contained_periods(
             get_next_period(period, decreasing=True)
         )
+
+    def _get_filename(self, period):
+        """ Genenerate a full path to the current log file for a given
+        period.  This file need not actually exist on disk yet (e.g. in case we
+        have just advanced but haven't saved the files to disk).
+
+        :param :class:`~composer.timeperiod.Period` period: A time period
+        :returns str: The path to the log file
+        """
+        start_date = period.get_start_date(self.date)
+        return get_log_filename(start_date, period, root=self.location)
 
     def _write_log_to_file(self, period, overwrite=False):
         """ Write the log for the given period to the filesystem.
@@ -558,7 +569,7 @@ class FilesystemPlanner(PlannerBase):
             file, and raise an exception if one is already found on disk.
         """
         log = self._get_logfile(period)
-        filename = get_log_filename(self.date, period, root=self.location)
+        filename = self._get_filename(period)
         if not overwrite:
             # note: a failure here would be unexpected since we are doing
             # writes in a "transactional" way, i.e. at the point when we
