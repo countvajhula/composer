@@ -22,6 +22,12 @@ CONFIG_FILE = os.path.join(CONFIG_ROOT, config.CONFIG_FILENAME)
 
 
 def extract_log_time_from_text(logtext):
+    """ Given the contents of a log file, return the contents of the notes
+    section and the time taken.
+
+    :param str logtext: The contents of a log file
+    :returns tuple: The log (str) and time (str)
+    """
     notes_idx = re.search(r"NOTES:\n", logtext).end()
     end_idx = re.search(r"\nTIME", logtext).start()
     log = logtext[notes_idx:end_idx].strip(" \n")
@@ -31,8 +37,13 @@ def extract_log_time_from_text(logtext):
 
 
 def get_logs_times(wikidir, period):
-    """ get constituent log notes and time spent for the specified period.
-    return notes separated by lines and headed by dates.
+    """ Get constituent log notes and time spent for the specified period.
+    E.g. for a month, this would return the notes and times for each contained
+    week.  Return notes separated by lines and headed by dates.
+
+    :param str wikidir: The path to the planner wiki
+    :param :class:`~composer.timeperiod.Period` period: A
+    :returns tuple: The logs (str) and times (list)
     """
     planner = FilesystemPlanner(wikidir)
     logs = get_constituent_logs(period, planner.date, wikidir)
