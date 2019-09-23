@@ -120,7 +120,6 @@ class PlannerBase(ABC):
         # but for now, to minimize unreasonably large file sizes from
         # duplication, limit cascade to only day->week->month
 
-        # TODO: this is getting overwritten by update_log
         agenda = self.get_agenda(period)
         next_period = get_next_period(period)
         if agenda:
