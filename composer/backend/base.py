@@ -7,8 +7,20 @@ from ..config import (
     DEFAULT_SCHEDULE,
     LOGFILE_CHECKING,
 )
-from ..errors import LogfileNotCompletedError, PlannerIsInTheFutureError
-from ..timeperiod import get_next_day, get_next_period, Zero, Day, Month, Year
+from ..errors import (
+    LogfileNotCompletedError,
+    PlannerIsInTheFutureError,
+    MissingThemeError,
+)
+from ..timeperiod import (
+    get_next_day,
+    get_next_period,
+    Zero,
+    Day,
+    Week,
+    Month,
+    Year,
+)
 from ..utils import display_message
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
@@ -152,6 +164,10 @@ class PlannerBase(ABC):
         :param :class:`~composer.timeperiod.Period` period: The period to begin
         """
         display_message("Beginning new {period}...".format(period=period))
+        if period == Week and self.week_theme is None:
+            # it would be an empty string (rather than None) if the user
+            # was asked about it but chose to enter nothing
+            raise MissingThemeError("Missing theme for the week!", period=Week)
         self.create_log(period, next_day)
 
     def continue_period(self, period, next_day):

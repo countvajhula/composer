@@ -585,6 +585,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.periodic_month_file = StringIO(self.periodic_month)
         self.planner.periodic_week_file = StringIO(self.periodic_week)
         self.planner.periodic_day_file = StringIO(self.periodic_day)
+        self.planner.week_theme = ''
 
     def test_decision_for_typical_day_advance(self):
         """ Check that planner advance takes the correct decision to advance day on a typical day change boundary """

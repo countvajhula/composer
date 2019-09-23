@@ -10,7 +10,7 @@ from . import advice
 from . import config
 from . import updateindex
 from .backend import FilesystemPlanner
-from .timeperiod import Day, Week, Zero
+from .timeperiod import Day, Zero
 from .utils import display_message
 
 from .errors import (
@@ -19,6 +19,7 @@ from .errors import (
     LogfileNotCompletedError,
     PlannerStateError,
     TomorrowIsEmptyError,
+    MissingThemeError,
 )
 
 try:  # py2
@@ -55,14 +56,6 @@ def _show_advice(wikidir, preferences):
 
     lessons_files = map(openfile, filepaths)
     display_message(advice.get_advice(lessons_files))
-
-
-def _ask_theme_for_week(preferences):
-    theme = raw_input(
-        "(Optional) Enter a theme for the upcoming week,"
-        " e.g. Week of 'Timeliness', or 'Completion':__"
-    )
-    preferences['week_theme'] = theme if theme else None
 
 
 def _post_advance_tasks(wikidir, preferences):
@@ -158,11 +151,20 @@ def process_wiki(wikidir, preferences, now):
             raise
         except LayoutError as err:
             raise
+        except MissingThemeError as err:
+            theme = raw_input(
+                "(Optional) Enter a theme for the upcoming {period}, "
+                "e.g. {period_cap} of 'Timeliness', "
+                "or 'Completion':__".format(
+                    period=err.period, period_cap=str(err.period).capitalize()
+                )
+            )
+            preferences[
+                "week_theme"
+            ] = theme  # empty string if the user entered nothing
         else:
             # print "DEV: simulation passed. let's do this thing
             # ... for real."
-            if status >= Week:
-                _ask_theme_for_week(preferences)  # mutates preferences
             if status >= Day:
                 # git commit a "before", now that we know changes
                 # are about to be written to planner

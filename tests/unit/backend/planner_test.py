@@ -55,6 +55,7 @@ class TestAdvancePeriod(object):
         planner_base.now = now
         current_day = now.date()
         planner_base.date = current_day
+        planner_base.week_theme = ''
         next_day = datetime.date(2013, 1, 2)
         mock_next_day.return_value = next_day
         next_period = (

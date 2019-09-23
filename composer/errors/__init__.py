@@ -9,6 +9,7 @@ from .user import (
     UserError,
     TomorrowIsEmptyError,
     LogfileNotCompletedError,
+    MissingThemeError,
 )  # noqa
 from .layout import (
     LayoutError,
@@ -42,4 +43,5 @@ __all__ = (
     "LogfileAlreadyExistsError",
     "PlannerIsInTheFutureError",
     "PlannerStateError",
+    "MissingThemeError",
 )
