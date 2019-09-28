@@ -411,6 +411,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         planner.periodic_day_file = periodicfile
         planner.dayfile = dayfile
         planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
+        planner.next_day_planner = FilesystemPlanner()
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -442,7 +443,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 
         planner.create_log(Day, next_day)
 
-        self.assertEqual(planner.dayfile.read(), daytemplate)
+        self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
 
     def test_agenda_has_undone_tasks(self):
         """ Check that any undone tasks from today are carried over to tomorrow's agenda """
@@ -467,6 +468,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         planner.periodic_day_file = periodicfile
         planner.dayfile = dayfile
         planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
+        planner.next_day_planner = FilesystemPlanner()
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -500,7 +502,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 
         planner.create_log(Day, next_day)
 
-        self.assertEqual(planner.dayfile.read(), daytemplate)
+        self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
 
     def test_agenda_has_tomorrows_tasks(self):
         """ Check that tomorrow's agenda has tasks added for tomorrow, and that
@@ -526,6 +528,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile
         planner.dayfile = dayfile
+        planner.next_day_planner = FilesystemPlanner()
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -562,7 +565,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 
         planner.create_log(Day, next_day)
 
-        self.assertEqual(planner.dayfile.read(), daytemplate)
+        self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
         self.assertEqual(planner.tasklistfile.read(), self.tasklist)
 
     def test_agenda_has_both_tomorrows_tasks_and_undone_tasks(self):
@@ -587,6 +590,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile
         planner.dayfile = dayfile
+        planner.next_day_planner = FilesystemPlanner()
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -625,7 +629,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 
         planner.create_log(Day, next_day)
 
-        self.assertEqual(planner.dayfile.read(), daytemplate)
+        self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
 
     def test_agenda_is_empty_when_scheduled_tasks_are_not_for_tomorrow(self):
         """ Check that tomorrow's agenda is empty when no scheduled tasks are scheduled for tomorrow
@@ -651,6 +655,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         planner.periodic_day_file = periodicfile
         planner.dayfile = dayfile
         planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
+        planner.next_day_planner = FilesystemPlanner()
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -682,7 +687,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 
         planner.create_log(Day, next_day)
 
-        self.assertEqual(planner.dayfile.read(), daytemplate)
+        self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
 
     def test_agenda_contains_tasks_scheduled_for_tomorrow(self):
         """ Check that tomorrow's agenda contains scheduled tasks that are scheduled for tomorrow
@@ -708,6 +713,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile
         planner.dayfile = dayfile
+        planner.next_day_planner = FilesystemPlanner()
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -743,7 +749,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         planner.create_log(Day, next_day)
 
-        self.assertEqual(planner.dayfile.read(), daytemplate)
+        self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
         self.assertEqual(
             planner.tasklistfile.read(),
             self.tasklist_scheduledfortomorrow_post,
@@ -771,6 +777,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile
         planner.dayfile = dayfile
+        planner.next_day_planner = FilesystemPlanner()
 
         dailythemes = self.daythemes.lower()
         theme = dailythemes[dailythemes.index(day.lower()) :]
@@ -811,4 +818,4 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 
         planner.create_log(Day, next_day)
 
-        self.assertEqual(planner.dayfile.read(), daytemplate)
+        self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)

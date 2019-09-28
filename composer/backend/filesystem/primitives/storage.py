@@ -87,7 +87,8 @@ def strip_extension(filename):
     :param str filename: The filename
     :returns str: The filename sans extension
     """
-    return filename[: filename.rfind(".")]
+    index = filename.rfind(".")
+    return (filename[:index] if index >= 0 else filename)
 
 
 def strip_prefix(filename):

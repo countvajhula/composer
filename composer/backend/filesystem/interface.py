@@ -1,5 +1,8 @@
+import os
 from datetime import timedelta
-from ...timeperiod import get_next_period, Day
+from ...timeperiod import get_next_period, Day, Zero
+from ...errors import LogfileAlreadyExistsError
+
 from .primitives import get_log_filename, read_file
 
 try:  # py3
@@ -64,3 +67,17 @@ def get_constituent_logs(period, for_date, planner_root):
         current_date = constituent_end_date + timedelta(days=1)
         constituent_end_date = constituent_period.get_end_date(current_date)
     return logs
+
+
+def ensure_file_does_not_exist(filename, period):
+    """ Ensure that a file does not already exist on disk. Raises an
+    exception if it does.
+
+    :param str filename: The path to the file
+    :param :class:`~composer.timeperiod.Period` period: The time period
+        for which we are interested in writing a log file
+    """
+    if os.path.isfile(filename):
+        raise LogfileAlreadyExistsError(
+            "New {period} logfile already exists!".format(period=period)
+        )

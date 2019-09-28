@@ -34,6 +34,7 @@ class PlannerBase(ABC):
     schedule = DEFAULT_SCHEDULE
     week_theme = None
     jumping = False
+    next_day_planner = None
 
     def set_preferences(self, preferences):
         """ Set planner preferences, e.g. schedule to operate on, preferred
@@ -239,12 +240,22 @@ class PlannerBase(ABC):
 
         next_day = get_next_day(self.date)  # the new day to advance to
 
+        # essentially create a clone of the planner to be populated
+        # for the next day
+        self.next_day_planner = self.__class__()
+        self.next_day_planner.construct(self.location)
+        self.next_day_planner.date = next_day
+
         self.now = now
 
         status = self.advance_period(Zero, next_day)
-        if status > Zero:
-            self.date = next_day
-        return status
+        if status == Zero:
+            self.next_day_planner = None
+        return status, self.next_day_planner
+
+    @abc.abstractmethod
+    def is_ok_to_advance(self, period=Year):
+        raise NotImplementedError
 
     @abc.abstractmethod
     def save(self, period=Year):

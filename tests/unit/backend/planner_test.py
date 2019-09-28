@@ -4,7 +4,12 @@ from composer.config import LOGFILE_CHECKING
 from composer.timeperiod import Zero, Day, Week
 
 from mock import MagicMock, patch
-from ..fixtures import planner_base
+from ..fixtures import planner_base, planner
+
+try:  # py2
+    from StringIO import StringIO
+except ImportError:  # py3
+    from io import StringIO
 
 
 class TrueTimes(object):
@@ -22,29 +27,51 @@ class TrueTimes(object):
 
 
 class TestAdvance(object):
-    @patch('composer.backend.base.get_next_day')
-    def test_no_advance(self, mock_next_day, planner_base):
-        current_day = datetime.date(2013, 1, 1)
-        planner_base.date = current_day
-        next_day = datetime.date(2013, 1, 2)
+    def _set_up_no_advance(self, planner, mock_next_day, current_day, next_day):
+        planner.date = current_day
         mock_next_day.return_value = next_day
         mock_advance_period = MagicMock()
         mock_advance_period.return_value = Zero
-        planner_base.advance_period = mock_advance_period
-        planner_base.advance()
-        assert planner_base.date == current_day
+        planner.advance_period = mock_advance_period
 
-    @patch('composer.backend.base.get_next_day')
-    def test_advance(self, mock_next_day, planner_base):
-        current_day = datetime.date(2013, 1, 1)
-        planner_base.date = current_day
-        next_day = datetime.date(2013, 1, 2)
+    def _set_up_advance(self, planner, mock_next_day, current_day, next_day):
+        planner.date = current_day
         mock_next_day.return_value = next_day
         mock_advance_period = MagicMock()
         mock_advance_period.return_value = Day
-        planner_base.advance_period = mock_advance_period
-        planner_base.advance()
-        assert planner_base.date == next_day
+        planner.advance_period = mock_advance_period
+
+    @patch('composer.backend.base.get_next_day')
+    def test_no_advance_status(self, mock_next_day, planner_base):
+        current_day = datetime.date(2013, 1, 1)
+        next_day = datetime.date(2013, 1, 2)
+        self._set_up_no_advance(planner_base, mock_next_day, current_day, next_day)
+        status, _  = planner_base.advance()
+        assert status == Zero
+
+    @patch('composer.backend.base.get_next_day')
+    def test_no_advance_next_planner(self, mock_next_day, planner_base):
+        current_day = datetime.date(2013, 1, 1)
+        next_day = datetime.date(2013, 1, 2)
+        self._set_up_no_advance(planner_base, mock_next_day, current_day, next_day)
+        _, next_day_planner = planner_base.advance()
+        assert next_day_planner is None
+
+    @patch('composer.backend.base.get_next_day')
+    def test_advance_status(self, mock_next_day, planner_base):
+        current_day = datetime.date(2013, 1, 1)
+        next_day = datetime.date(2013, 1, 2)
+        self._set_up_advance(planner_base, mock_next_day, current_day, next_day)
+        status, _ = planner_base.advance()
+        assert status == Day
+
+    @patch('composer.backend.base.get_next_day')
+    def test_advance_next_planner(self, mock_next_day, planner_base):
+        current_day = datetime.date(2013, 1, 1)
+        next_day = datetime.date(2013, 1, 2)
+        self._set_up_advance(planner_base, mock_next_day, current_day, next_day)
+        _, next_day_planner = planner_base.advance()
+        assert next_day_planner.date == next_day
 
 
 class TestAdvancePeriod(object):

@@ -1150,6 +1150,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.periodic_month_file = StringIO(self.periodic_month)
         self.planner.periodic_week_file = StringIO(self.periodic_week)
         self.planner.periodic_day_file = StringIO(self.periodic_day)
+        self.planner.next_day_planner = FilesystemPlanner()
 
     def test_agenda_scheduled_tasks_are_scheduled(self):
         """ Check that scheduling tasks pulls all scheduled tasks from today's Agenda

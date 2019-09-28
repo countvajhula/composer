@@ -10,7 +10,7 @@ from . import advice
 from . import config
 from . import updateindex
 from .backend import FilesystemPlanner
-from .timeperiod import Day, Zero
+from .timeperiod import Day, Year, get_next_period
 from .utils import display_message
 
 from .errors import (
@@ -111,7 +111,7 @@ def process_wiki(wikidir, preferences, now):
         try:
             planner = FilesystemPlanner(wikidir)
             planner.set_preferences(preferences)
-            status = planner.advance(now=now)
+            status, next_day_planner = planner.advance(now=now)
         except TomorrowIsEmptyError as err:
             yn = raw_input(
                 "The tomorrow section is blank. Do you want to add"
@@ -182,13 +182,27 @@ def process_wiki(wikidir, preferences, now):
                 message = "EOD %s" % datestr
                 _make_git_commit(wikidir, message)
 
-            if status > Zero:
                 # actually make the changes on disk. No changes should
                 # have been persisted up to this point
                 try:
-                    planner.save(status)
+                    # check for possible errors in planner state before making
+                    # any changes if errors are found, an exception is raised
+                    # and no changes are made
+                    next_day_planner.is_ok_to_advance(status)
                 except PlannerStateError:
                     raise
+
+                # no going back now -- everything is expected to work without
+                # error past this point
+
+                # save all existing periods that advanced, and also one
+                # higher period to account for the advance of contained
+                # periods
+                next_period = get_next_period(status) if status < Year else status
+                planner.save(next_period)
+
+                # save all newly advanced periods
+                next_day_planner.save(status)
 
                 _post_advance_tasks(wikidir, preferences)
                 if (

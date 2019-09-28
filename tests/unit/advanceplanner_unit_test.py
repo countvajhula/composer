@@ -3,9 +3,11 @@
 import unittest
 import datetime
 
+from mock import patch, MagicMock
+
 import composer.config as config
 from composer.backend import FilesystemPlanner
-from composer.timeperiod import Day, Week, Month, Quarter, Year
+from composer.timeperiod import Day, Week, Month, Quarter, Year, Zero
 
 try:  # py2
     from StringIO import StringIO
@@ -586,6 +588,8 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.periodic_week_file = StringIO(self.periodic_week)
         self.planner.periodic_day_file = StringIO(self.periodic_day)
         self.planner.week_theme = ''
+        self.planner.location = ''
+        self.planner.next_day_planner = FilesystemPlanner()
 
     def test_decision_for_typical_day_advance(self):
         """ Check that planner advance takes the correct decision to advance day on a typical day change boundary """
@@ -596,7 +600,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]  # seems this happens even without declaring it here - need to reset these in tearDown()
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Day)
 
     def test_decision_for_first_week_too_short_day_advance(self):
@@ -610,7 +614,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Day)
 
     def test_decision_for_first_week_borderline_too_short_day_advance(self):
@@ -624,7 +628,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Day)
 
     def test_decision_for_last_week_too_short_day_advance(self):
@@ -638,7 +642,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Day)
 
     def test_decision_for_last_week_borderline_too_short_day_advance(self):
@@ -652,7 +656,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Day)
 
     def test_decision_for_typical_week_advance(self):
@@ -664,7 +668,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Week)
 
     def test_decision_for_first_week_borderline_long_enough_week_advance(self):
@@ -678,7 +682,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Week)
 
     def test_decision_for_last_week_borderline_long_enough_week_advance(self):
@@ -692,7 +696,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Week)
 
     def test_decision_for_month_advance(self):
@@ -704,7 +708,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Month)
 
     def test_decision_for_quarter_advance(self):
@@ -716,7 +720,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Quarter)
 
     def test_decision_for_year_advance(self):
@@ -728,13 +732,44 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        status = self.planner.advance()
+        status = self.planner.advance_period()
         self.assertEqual(status, Year)
 
-    def test_planner_advance_year(self):
+    @patch('composer.backend.filesystem.base.full_file_path')
+    @patch('composer.backend.filesystem.base.read_file')
+    @patch('composer.backend.filesystem.base.string_to_date')
+    @patch('composer.backend.base.get_next_day')
+    def test_advance_propagates_tasklist(self, mock_next_day, mock_get_date, mock_read_file, mock_file_path):
+        now = datetime.datetime(2012, 12, 5, 19, 0, 0)
+        today = now.date()
+        mock_get_date.return_value = (today, Day)
+        mock_file_path.return_value = ''
+        mock_read_file.return_value = StringIO('')
+        next_day = today + datetime.timedelta(days=1)
+
+        mock_next_day.return_value = next_day
+
+        self.planner.now = now
+        self.planner.date = now.date()
+        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
+        self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
+            'LAX'
+        ]
+
+        _, next_day_planner = self.planner.advance()
+
+        assert next_day_planner.tasklistfile.getvalue() == self.planner.tasklistfile.getvalue()
+
+    @patch('composer.backend.filesystem.base.read_file')
+    @patch('composer.backend.filesystem.base.full_file_path')
+    @patch('composer.backend.filesystem.base.string_to_date')
+    def test_planner_advance_year(self, mock_get_date, mock_file_path, mock_read_file):
         """ Check that planner advance returns the correct new year, quarter, month, week, and day templates when advancing year """
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         today = now.date()
+        mock_get_date.return_value = (today, Day)
+        mock_file_path.return_value = ''
+        mock_read_file.return_value = StringIO('')
         next_day = today + datetime.timedelta(days=1)
         (date, day, month, year) = (
             next_day.day,
@@ -769,24 +804,31 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.advance()
 
         self.assertEqual(
-            self.planner.yearfile.read(), self.yearadvance_yeartemplate
+            self.planner.next_day_planner.yearfile.read(), self.yearadvance_yeartemplate
         )
         self.assertEqual(
-            self.planner.quarterfile.read(), self.yearadvance_quartertemplate
+            self.planner.next_day_planner.quarterfile.read(), self.yearadvance_quartertemplate
         )
         self.assertEqual(
-            self.planner.monthfile.read(), self.yearadvance_monthtemplate
+            self.planner.next_day_planner.monthfile.read(), self.yearadvance_monthtemplate
         )
         self.assertEqual(
-            self.planner.weekfile.read(), self.yearadvance_weektemplate
+            self.planner.next_day_planner.weekfile.read(), self.yearadvance_weektemplate
         )
-        self.assertEqual(self.planner.dayfile.read(), daytemplate)
+        self.assertEqual(self.planner.next_day_planner.dayfile.read(), daytemplate)
 
-    def test_planner_advance_quarter(self):
+    @patch('composer.backend.filesystem.base.read_file')
+    @patch('composer.backend.filesystem.base.full_file_path')
+    @patch('composer.backend.filesystem.base.string_to_date')
+    def test_planner_advance_quarter(self, mock_get_date, mock_file_path, mock_read_file):
         """ Check that planner advance returns the correct new quarter, month, week, and day templates when advancing quarter """
         now = datetime.datetime(2012, 9, 30, 19, 0, 0)
         self.planner.now = now
-        self.planner.date = now.date()
+        today = now.date()
+        self.planner.date = today
+        mock_get_date.return_value = (today, Day)
+        mock_file_path.return_value = ''
+        mock_read_file.return_value = StringIO('')
         today = now.date()
         next_day = today + datetime.timedelta(days=1)
         (date, day, month, year) = (
@@ -818,21 +860,27 @@ class PlannerAdvanceTester(unittest.TestCase):
         ]
         self.planner.advance()
         self.assertEqual(
-            self.planner.quarterfile.read(),
+            self.planner.next_day_planner.quarterfile.read(),
             self.quarteradvance_quartertemplate,
         )
         self.assertEqual(
-            self.planner.monthfile.read(), self.quarteradvance_monthtemplate
+            self.planner.next_day_planner.monthfile.read(), self.quarteradvance_monthtemplate
         )
         self.assertEqual(
-            self.planner.weekfile.read(), self.quarteradvance_weektemplate
+            self.planner.next_day_planner.weekfile.read(), self.quarteradvance_weektemplate
         )
-        self.assertEqual(self.planner.dayfile.read(), daytemplate)
+        self.assertEqual(self.planner.next_day_planner.dayfile.read(), daytemplate)
 
-    def test_planner_advance_month(self):
+    @patch('composer.backend.filesystem.base.read_file')
+    @patch('composer.backend.filesystem.base.full_file_path')
+    @patch('composer.backend.filesystem.base.string_to_date')
+    def test_planner_advance_month(self, mock_get_date, mock_file_path, mock_read_file):
         """ Check that planner advance returns the correct new month, week, and day templates when advancing month """
         now = datetime.datetime(2012, 11, 30, 19, 0, 0)
         today = now.date()
+        mock_get_date.return_value = (today, Day)
+        mock_file_path.return_value = ''
+        mock_read_file.return_value = StringIO('')
         next_day = today + datetime.timedelta(days=1)
         (date, day, month, year) = (
             next_day.day,
@@ -865,17 +913,23 @@ class PlannerAdvanceTester(unittest.TestCase):
         ]
         self.planner.advance()
         self.assertEqual(
-            self.planner.monthfile.read(), self.monthadvance_monthtemplate
+            self.planner.next_day_planner.monthfile.read(), self.monthadvance_monthtemplate
         )
         self.assertEqual(
-            self.planner.weekfile.read(), self.monthadvance_weektemplate
+            self.planner.next_day_planner.weekfile.read(), self.monthadvance_weektemplate
         )
-        self.assertEqual(self.planner.dayfile.read(), daytemplate)
+        self.assertEqual(self.planner.next_day_planner.dayfile.read(), daytemplate)
 
-    def test_planner_advance_week(self):
+    @patch('composer.backend.filesystem.base.read_file')
+    @patch('composer.backend.filesystem.base.full_file_path')
+    @patch('composer.backend.filesystem.base.string_to_date')
+    def test_planner_advance_week(self, mock_get_date, mock_file_path, mock_read_file):
         """ Check that planner advance returns the correct new week and day templates, and updates the existing month template correctly, when advancing week """
         now = datetime.datetime(2012, 12, 8, 19, 0, 0)
         today = now.date()
+        mock_get_date.return_value = (today, Day)
+        mock_file_path.return_value = ''
+        mock_read_file.return_value = StringIO('')
         next_day = today + datetime.timedelta(days=1)
         (date, day, month, year) = (
             next_day.day,
@@ -908,17 +962,22 @@ class PlannerAdvanceTester(unittest.TestCase):
         ]
         self.planner.advance()
         self.assertEqual(
-            self.planner.weekfile.read(), self.weekadvance_weektemplate
+            self.planner.next_day_planner.weekfile.read(), self.weekadvance_weektemplate
         )
         self.assertEqual(
             self.planner.monthfile.read(), self.weekadvance_monthtemplate
         )
-        self.assertEqual(self.planner.dayfile.read(), daytemplate)
 
-    def test_planner_advance_day(self):
+    @patch('composer.backend.filesystem.base.read_file')
+    @patch('composer.backend.filesystem.base.full_file_path')
+    @patch('composer.backend.filesystem.base.string_to_date')
+    def test_planner_advance_day(self, mock_get_date, mock_file_path, mock_read_file):
         """ Check that planner advance returns the correct new day template, and updates the existing week template, when advancing day """
         now = datetime.datetime(2012, 12, 5, 19, 0, 0)
         today = now.date()
+        mock_get_date.return_value = (today, Day)
+        mock_file_path.return_value = ''
+        mock_read_file.return_value = StringIO('')
         next_day = today + datetime.timedelta(days=1)
         (date, day, month, year) = (
             next_day.day,
@@ -950,7 +1009,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             'LAX'
         ]
         self.planner.advance()
-        self.assertEqual(self.planner.dayfile.read(), daytemplate)
+        self.assertEqual(self.planner.next_day_planner.dayfile.read(), daytemplate)
         self.assertEqual(
             self.planner.weekfile.read(), self.dayadvance_weektemplate
         )

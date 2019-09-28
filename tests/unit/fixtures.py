@@ -8,6 +8,7 @@ except ImportError:  # py3
 
 from composer.backend import FilesystemPlanner
 from composer.backend.base import PlannerBase
+from composer.timeperiod import Day, Week, Month, Quarter, Year
 
 
 def _config_file():
@@ -139,11 +140,15 @@ def _planner_base():
         def update_log(self, period, next_day):
             pass
 
+        def is_ok_to_advance(self, period=Year):
+            pass
+
         def save(self, period=None):
             pass
 
     planner = DummyPlanner()
     planner.date = datetime.date.today()
+    planner.location = ''
     return planner
 
 
@@ -370,6 +375,7 @@ def _planner():
     planner.monthfile = StringIO(monthtemplate)
     planner.quarterfile = StringIO(quartertemplate)
     planner.yearfile = StringIO(yeartemplate)
+    planner.next_day_planner = FilesystemPlanner()
 
     planner.date = datetime.date.today()
     planner.location = ''

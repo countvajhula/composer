@@ -153,16 +153,6 @@ class TestSave(object):
 
     @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
-    def test_writes_log_for_encompassing_period(
-        self, mock_write_file, mock_os, planner
-    ):
-        mock_os.path.isfile.return_value = False
-        mock_write_file.side_effect = self._note_filename()
-        planner.save(Week)
-        assert any('Month' in filename for filename in self.filenames)
-
-    @patch('composer.backend.filesystem.base.os')
-    @patch('composer.backend.filesystem.base.write_file')
     def test_does_not_write_log_for_unaffected_period(
         self, mock_write_file, mock_os, planner
     ):

@@ -37,7 +37,7 @@ class TestNewTemplateIntegrity(object):
 
         planner.create_log(Month, next_day)
 
-        assert planner.monthfile.read() == monthtemplate
+        assert planner.next_day_planner.monthfile.read() == monthtemplate
 
     def test_week_template(self, planner):
         """ Test that week template is generated correctly by integrating checkpoints, periodic, etc."""
@@ -68,7 +68,7 @@ class TestNewTemplateIntegrity(object):
 
         planner.create_log(Week, next_day)
 
-        assert planner.weekfile.read() == weektemplate
+        assert planner.next_day_planner.weekfile.read() == weektemplate
 
     @pytest.mark.parametrize("offset", range(7))
     def test_daily_templates(self, planner, offset):
@@ -143,16 +143,6 @@ class TestNewTemplateIntegrity(object):
         theme = theme[: theme.index('\n')].strip().upper()
         theme = "*" + theme + "*"
 
-        # since we need an actual planner instance here. Leveraging the
-        # fixture as a path of least resistance for now
-        my_planner = FilesystemPlanner()
-        my_planner.tasklistfile = planner.tasklistfile
-        my_planner.daythemesfile = planner.daythemesfile
-        my_planner.checkpoints_weekday_file = planner.checkpoints_weekday_file
-        my_planner.checkpoints_weekend_file = planner.checkpoints_weekend_file
-        my_planner.periodic_day_file = planner.periodic_day_file
-        my_planner.dayfile = planner.dayfile
-
         daytemplate = ""
         daytemplate += "= %s %s %d, %d =\n" % (
             day.upper(),
@@ -166,9 +156,9 @@ class TestNewTemplateIntegrity(object):
             daytemplate += "\n"
         daytemplate += "CHECKPOINTS:\n"
         if day.lower() in ('saturday', 'sunday'):
-            daytemplate += my_planner.checkpoints_weekend_file.getvalue()
+            daytemplate += planner.checkpoints_weekend_file.getvalue()
         else:
-            daytemplate += my_planner.checkpoints_weekday_file.getvalue()
+            daytemplate += planner.checkpoints_weekday_file.getvalue()
         daytemplate += "\n"
         daytemplate += "AGENDA:\n"
         daytemplate += "[ ] s'posed to do\n"
@@ -179,15 +169,15 @@ class TestNewTemplateIntegrity(object):
         daytemplate += "[ ] finish project\n"
         daytemplate += "\n"
         daytemplate += "DAILYs:\n"
-        daytemplate += my_planner.periodic_day_file.getvalue()
+        daytemplate += planner.periodic_day_file.getvalue()
         daytemplate += "\n"
         daytemplate += "NOTES:\n\n\n"
         daytemplate += "TIME SPENT ON PLANNER: "
 
-        my_planner.create_log(Day, next_day)
+        planner.create_log(Day, next_day)
 
-        assert my_planner.dayfile.read() == daytemplate
-        assert my_planner.tasklistfile.read() == tasklist_nextday
+        assert planner.next_day_planner.dayfile.read() == daytemplate
+        assert planner.tasklistfile.read() == tasklist_nextday
 
 
 class TestExistingTemplateUpdateIntegrity(object):

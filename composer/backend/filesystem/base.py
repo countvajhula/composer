@@ -13,7 +13,6 @@ from ...timeperiod import (
 )
 from ...errors import (
     BlockedTaskNotScheduledError,
-    LogfileAlreadyExistsError,
     LogfileLayoutError,
     SchedulingDateError,
     TasklistLayoutError,
@@ -28,6 +27,7 @@ from .scheduling import (
     string_to_date,
 )
 from .templates import get_template
+from .interface import ensure_file_does_not_exist
 
 # should minimize use of low-level (lower than "entry" level) primitives in
 # this file. if necessary, provide duplicate versions of functions at the
@@ -197,6 +197,19 @@ class FilesystemPlanner(PlannerBase):
         if log_attr:
             setattr(self, log_attr, make_file(contents))
 
+    def _update_tasklist(self, new_tasklist):
+        """ A setter to update the tasklist on both this planner instance
+        as well as the one for the next day since any changes to the tasklist
+        should be retained on the next day's planner instance. Kind of hacky,
+        and probably implies that the tasklist should be managed outside this
+        period-centric notion of a planner, or even better, that the tasklist
+        should be incorporated into time periods as part of "composing" them.
+
+        :param :class:`io.StringIO` new_tasklist: The new tasklist
+        """
+        self.tasklistfile = new_tasklist
+        self.next_day_planner.tasklistfile = new_tasklist
+
     def _get_date(self):
         """ Get date from planner's current state on disk.
         The current date is tracked using a symbolic link which points to the
@@ -310,7 +323,7 @@ class FilesystemPlanner(PlannerBase):
         new_file = add_to_section(
             new_file, "TOMORROW", tomorrow.read()
         )  # add tomorrow tasks back
-        self.tasklistfile = new_file
+        self._update_tasklist(new_file)
 
     def get_due_tasks(self, for_day):
         """ Look at the SCHEDULED section of the tasklist and retrieve any
@@ -361,7 +374,7 @@ class FilesystemPlanner(PlannerBase):
         new_tasklist = add_to_section(
             tasklist_no_scheduled, 'scheduled', not_due
         )
-        self.tasklistfile = new_tasklist
+        self._update_tasklist(new_tasklist)
         return due
 
     def get_tasks_for_tomorrow(self):
@@ -391,7 +404,7 @@ class FilesystemPlanner(PlannerBase):
                 "The tomorrow section is blank. Do you want to add"
                 " some tasks for tomorrow?"
             )
-        self.tasklistfile = tasklist_nextday
+        self._update_tasklist(tasklist_nextday)
         return tasks.read()
 
     def get_todays_unfinished_tasks(self):
@@ -442,7 +455,10 @@ class FilesystemPlanner(PlannerBase):
         contents = template.build(
             scheduled=scheduled, tomorrow=tomorrow, undone=undone
         )
-        self._update_logfile(period, contents)
+        # set the logfile on the next day's planner instance to the
+        # newly created file, to be saved later
+        log_attr = self._logfile_attribute(period)
+        setattr(self.next_day_planner, log_attr, make_file(contents))
 
     def update_log(self, period, next_day):
         """ Update the existing log for the specified period to account for the
@@ -525,28 +541,6 @@ class FilesystemPlanner(PlannerBase):
             )
         self._update_logfile(period, logfile_updated.getvalue())
 
-    def _ensure_file_does_not_exist(self, filename, period):
-        if os.path.isfile(filename):
-            raise LogfileAlreadyExistsError(
-                "New {period} logfile already exists!".format(period=period)
-            )
-
-    def _check_files_for_contained_periods(self, period):
-        """ A helper to check if any time periods just advanced already have
-        log files on disk, which is unexpected and an error. This is only
-        appropriate to call after logical advance has occurred (but prior to
-        writing to disk).
-
-        :param :class:`~composer.timeperiod.Period` period: A time period
-        """
-        if period == Zero:
-            return
-        filename = self._get_filename(period)
-        self._ensure_file_does_not_exist(filename, period)
-        self._check_files_for_contained_periods(
-            get_next_period(period, decreasing=True)
-        )
-
     def _get_filename(self, period):
         """ Genenerate a full path to the current log file for a given
         period.  This file need not actually exist on disk yet (e.g. in case we
@@ -557,6 +551,22 @@ class FilesystemPlanner(PlannerBase):
         """
         start_date = period.get_start_date(self.date)
         return get_log_filename(start_date, period, root=self.location)
+
+    def is_ok_to_advance(self, period=Year):
+        """ A helper to check if any time periods just advanced already have
+        log files on disk, which is unexpected and an error. This is only
+        appropriate to call after logical advance has occurred (but prior to
+        writing to disk).
+
+        :param :class:`~composer.timeperiod.Period` period: A time period
+        """
+        if period == Zero:
+            return
+        filename = self._get_filename(period)
+        ensure_file_does_not_exist(filename, period)
+        self.is_ok_to_advance(
+            get_next_period(period, decreasing=True)
+        )
 
     def _write_log_to_file(self, period, overwrite=False):
         """ Write the log for the given period to the filesystem.
@@ -578,7 +588,7 @@ class FilesystemPlanner(PlannerBase):
             # not at all. Maybe this method should be explicitly indicated
             # in transaction semantics so that this check can be removed
             # without it feeling unsafe
-            self._ensure_file_does_not_exist(filename, period)
+            ensure_file_does_not_exist(filename, period)
 
         # write the file to disk
         write_file(log, filename)
@@ -617,20 +627,14 @@ class FilesystemPlanner(PlannerBase):
             updated. If unspecified, all logfiles will be overwritten.
         """
 
-        # check for possible errors in planner state before making any changes
-        # if errors are found, an exception is raised and no changes are made
-        self._check_files_for_contained_periods(period)
-
-        # write the logfiles for the current period as well as
-        # all contained periods, since they all advance by one
+        # write the logfile for the current period as well as all contained
+        # periods, since they are all affected by the advance
         self._write_files_for_contained_periods(period)
 
-        if period < Year:
-            # write the logfile for the encompassing period
-            next_period = get_next_period(period)
-            # use the pre-advance date to determine the filename for the
-            # encompassing period
-            self._write_log_to_file(next_period, overwrite=True)
+        # note that this is being saved both before advance
+        # and after advance (redundantly) -- tasklist should be
+        # either managed separately, or incorporated into
+        # time periods directly as a way of "composing" them
         tasklist_filename = full_file_path(
             root=self.location, filename=PLANNERTASKLISTFILE
         )
