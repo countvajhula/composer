@@ -564,9 +564,7 @@ class FilesystemPlanner(PlannerBase):
             return
         filename = self._get_filename(period)
         ensure_file_does_not_exist(filename, period)
-        self.is_ok_to_advance(
-            get_next_period(period, decreasing=True)
-        )
+        self.is_ok_to_advance(get_next_period(period, decreasing=True))
 
     def _write_log_to_file(self, period, overwrite=False):
         """ Write the log for the given period to the filesystem.

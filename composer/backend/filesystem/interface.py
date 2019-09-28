@@ -1,6 +1,6 @@
 import os
 from datetime import timedelta
-from ...timeperiod import get_next_period, Day, Zero
+from ...timeperiod import get_next_period, Day
 from ...errors import LogfileAlreadyExistsError
 
 from .primitives import get_log_filename, read_file

@@ -198,7 +198,9 @@ def process_wiki(wikidir, preferences, now):
                 # save all existing periods that advanced, and also one
                 # higher period to account for the advance of contained
                 # periods
-                next_period = get_next_period(status) if status < Year else status
+                next_period = (
+                    get_next_period(status) if status < Year else status
+                )
                 planner.save(next_period)
 
                 # save all newly advanced periods

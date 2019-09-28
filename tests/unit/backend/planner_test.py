@@ -27,7 +27,9 @@ class TrueTimes(object):
 
 
 class TestAdvance(object):
-    def _set_up_no_advance(self, planner, mock_next_day, current_day, next_day):
+    def _set_up_no_advance(
+        self, planner, mock_next_day, current_day, next_day
+    ):
         planner.date = current_day
         mock_next_day.return_value = next_day
         mock_advance_period = MagicMock()
@@ -45,15 +47,19 @@ class TestAdvance(object):
     def test_no_advance_status(self, mock_next_day, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
-        self._set_up_no_advance(planner_base, mock_next_day, current_day, next_day)
-        status, _  = planner_base.advance()
+        self._set_up_no_advance(
+            planner_base, mock_next_day, current_day, next_day
+        )
+        status, _ = planner_base.advance()
         assert status == Zero
 
     @patch('composer.backend.base.get_next_day')
     def test_no_advance_next_planner(self, mock_next_day, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
-        self._set_up_no_advance(planner_base, mock_next_day, current_day, next_day)
+        self._set_up_no_advance(
+            planner_base, mock_next_day, current_day, next_day
+        )
         _, next_day_planner = planner_base.advance()
         assert next_day_planner is None
 
@@ -61,7 +67,9 @@ class TestAdvance(object):
     def test_advance_status(self, mock_next_day, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
-        self._set_up_advance(planner_base, mock_next_day, current_day, next_day)
+        self._set_up_advance(
+            planner_base, mock_next_day, current_day, next_day
+        )
         status, _ = planner_base.advance()
         assert status == Day
 
@@ -69,7 +77,9 @@ class TestAdvance(object):
     def test_advance_next_planner(self, mock_next_day, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
-        self._set_up_advance(planner_base, mock_next_day, current_day, next_day)
+        self._set_up_advance(
+            planner_base, mock_next_day, current_day, next_day
+        )
         _, next_day_planner = planner_base.advance()
         assert next_day_planner.date == next_day
 
