@@ -566,28 +566,14 @@ class FilesystemPlanner(PlannerBase):
         ensure_file_does_not_exist(filename, period)
         self.is_ok_to_advance(get_next_period(period, decreasing=True))
 
-    def _write_log_to_file(self, period, overwrite=False):
+    def _write_log_to_file(self, period):
         """ Write the log for the given period to the filesystem.
         If this represents an advancement of the period in question,
         then also update the 'current' state of the planner on disk
         by updating the relevant symbolic link.
-
-        :param bool overwrite: If true, then overwriting an existing file does
-            not raise an error. Otherwise, assume we intend to write a new
-            file, and raise an exception if one is already found on disk.
         """
         log = self._get_logfile(period)
         filename = self._get_filename(period)
-        if not overwrite:
-            # note: a failure here would be unexpected since we are doing
-            # writes in a "transactional" way, i.e. at the point when we
-            # save, we expect that any possible errors have already been
-            # precluded so that changes are either made wholesale, or
-            # not at all. Maybe this method should be explicitly indicated
-            # in transaction semantics so that this check can be removed
-            # without it feeling unsafe
-            ensure_file_does_not_exist(filename, period)
-
         # write the file to disk
         write_file(log, filename)
 
