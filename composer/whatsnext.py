@@ -111,13 +111,13 @@ def process_wiki(wikidir, preferences, now):
             status, next_day_planner = planner.advance(now=now)
         except TomorrowIsEmptyError as err:
             yn = raw_input(
-                "The tomorrow section is blank. Do you want to add"
-                " some tasks for tomorrow? [y/n]__"
+                "The tomorrow section is blank. Do you want to work on "
+                "some of this week's tasks tomorrow? [y/n]__"
             )
             if yn.lower().startswith("y"):
                 raw_input(
                     "No problem. Press any key when you are done"
-                    " adding tasks..."
+                    " moving tasks over..."
                 )
             elif yn.lower().startswith("n"):
                 preferences['tomorrow_checking'] = config.LOGFILE_CHECKING[
