@@ -43,6 +43,7 @@ def update_index(plannerpath, indexfile=None, indextitle=None):
         indextitle = INDEXTITLE
     fileslist = os.listdir(plannerpath)
     wikipages = get_wiki_pages_among_files(fileslist)
+    wikipages = sorted(wikipages)  # alphabetical order
     # print "%d wiki pages found: %s" % (len(wikipages), str(wikipages))
     indexfilename = "%s/%s" % (plannerpath, indexfile)
     wikiindex = open(indexfilename, "w")
