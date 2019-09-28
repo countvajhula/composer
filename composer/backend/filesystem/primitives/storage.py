@@ -2,7 +2,7 @@ import os
 
 from ....timeperiod import Day, Week, Month, Quarter, Year
 
-PATH_SPECIFICATION = "{path}/{filename}"
+PATH_SPECIFICATION = "{prefix}/{filename}"
 FILENAME_TEMPLATE = {
     Day: "{month} {date}, {year}.wiki",
     Week: "Week of {month} {date}, {year}.wiki",
@@ -53,15 +53,12 @@ def get_log_filename(for_date, period, root=None):
     filename = FILENAME_TEMPLATE[period].format(
         month=month, date=date, quarter=quarter, year=year
     )
-    if root:
-        path = full_file_path(root, filename=filename)
-    else:
-        path = filename
+    path = full_file_path(filename, root=root)
 
     return path
 
 
-def full_file_path(root, filename, dereference=False):
+def full_file_path(filename, root='', dereference=False):
     """ Given a path root and a filename, construct an OS-specific filesystem
     path.
 
@@ -78,7 +75,12 @@ def full_file_path(root, filename, dereference=False):
         path_fn = os.path.realpath
     else:
         path_fn = os.path.abspath
-    return path_fn(PATH_SPECIFICATION.format(path=root, filename=filename))
+    path = (
+        PATH_SPECIFICATION.format(prefix=root, filename=filename)
+        if root
+        else filename
+    )
+    return path_fn(path)
 
 
 def strip_extension(filename):

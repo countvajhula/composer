@@ -62,9 +62,6 @@ def _post_advance_tasks(wikidir, preferences):
     """ Update the index to include any newly created files,
     Commit the post-advance state into git, and display a
     thought for the day.
-    At the moment, also show a record of things done as part of
-    the advance, but that should eventually be moved to originate
-    at the point where they actually occur.
     """
     # update index after making changes
     display_message()

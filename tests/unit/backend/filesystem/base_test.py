@@ -103,11 +103,12 @@ class TestCheckLogCompletion(object):
 
 class TestSave(object):
     @patch(
-        'composer.backend.filesystem.base.os.path.isfile', return_value=True
+        'composer.backend.filesystem.interface.os.path.isfile',
+        return_value=True,
     )
     def test_new_logfile_preexists_raises_error(self, mock_isfile, planner):
         with pytest.raises(LogfileAlreadyExistsError):
-            planner.save()
+            planner.is_ok_to_advance()
 
     def _note_filename(self):
         self.filenames = []
@@ -119,12 +120,8 @@ class TestSave(object):
 
         return make_note
 
-    @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
-    def test_writes_log_for_all_periods(
-        self, mock_write_file, mock_os, planner
-    ):
-        mock_os.path.isfile.return_value = False
+    def test_writes_log_for_all_periods(self, mock_write_file, planner):
         planner.save()
         expected_files_written = (
             len(TIME_PERIODS)  # all tracked time periods
@@ -133,39 +130,29 @@ class TestSave(object):
         )
         assert mock_write_file.call_count == expected_files_written
 
-    @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
-    def test_writes_log_for_period(self, mock_write_file, mock_os, planner):
-        mock_os.path.isfile.return_value = False
+    def test_writes_log_for_period(self, mock_write_file, planner):
         mock_write_file.side_effect = self._note_filename()
         planner.save(Month)
         assert any('Month' in filename for filename in self.filenames)
 
-    @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
-    def test_writes_log_for_contained_period(
-        self, mock_write_file, mock_os, planner
-    ):
-        mock_os.path.isfile.return_value = False
+    def test_writes_log_for_contained_period(self, mock_write_file, planner):
         mock_write_file.side_effect = self._note_filename()
         planner.save(Month)
         assert any('Week' in filename for filename in self.filenames)
 
-    @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
     def test_does_not_write_log_for_unaffected_period(
-        self, mock_write_file, mock_os, planner
+        self, mock_write_file, planner
     ):
-        mock_os.path.isfile.return_value = False
         mock_write_file.side_effect = self._note_filename()
         planner.save(Day)
         # because os is mocked, this filename remains 'currentquarter'
         assert not any('Month' in filename for filename in self.filenames)
 
-    @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
-    def test_writes_tasklist(self, mock_write_file, mock_os, planner):
-        mock_os.path.isfile.return_value = False
+    def test_writes_tasklist(self, mock_write_file, planner):
         mock_write_file.side_effect = self._note_filename()
         planner.save(Week)
         assert any(

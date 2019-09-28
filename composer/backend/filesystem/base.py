@@ -216,7 +216,7 @@ class FilesystemPlanner(PlannerBase):
         latest daily logfile generated.
         """
         plannerdatefn = full_file_path(
-            self.location, PLANNERDAYFILELINK, dereference=True
+            PLANNERDAYFILELINK, root=self.location, dereference=True
         )
         datestr = bare_filename(plannerdatefn)
         plannerdate, _ = string_to_date(datestr)
