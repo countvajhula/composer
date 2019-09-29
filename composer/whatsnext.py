@@ -205,8 +205,10 @@ def process_wiki(wikidir, preferences, now):
 
                 _post_advance_tasks(wikidir, preferences)
                 if (
-                    not planner.jumping
+                    planner.jumping
                 ):  # if jumping, keep repeating until present-day error thrown
+                    preferences['week_theme'] = None  # reset week theme
+                else:
                     break
             else:
                 display_message(
