@@ -16,7 +16,7 @@ class AdvancePlanner(unittest.TestCase):
         WIKIPATH = 'tests/testwikis/daywiki'
         now = datetime.datetime(2012, 12, 6, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
-        status = planner.advance(now)
+        status, _ = planner.advance(now)
         planner.save(status)
         self.assertEqual(status, Day)
 
@@ -28,7 +28,9 @@ class AdvancePlanner(unittest.TestCase):
         WIKIPATH = 'tests/testwikis/weekwiki'
         now = datetime.datetime(2012, 12, 8, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
-        status = planner.advance(now)
+        preferences = {'week_theme': ''}
+        planner.set_preferences(preferences)
+        status, _ = planner.advance(now)
         planner.save(status)
         self.assertEqual(status, Week)
 
@@ -40,7 +42,9 @@ class AdvancePlanner(unittest.TestCase):
         WIKIPATH = 'tests/testwikis/monthwiki'
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
-        status = planner.advance(now)
+        preferences = {'week_theme': ''}
+        planner.set_preferences(preferences)
+        status, _ = planner.advance(now)
         planner.save(status)
         self.assertEqual(status, Month)
 
@@ -52,7 +56,9 @@ class AdvancePlanner(unittest.TestCase):
         WIKIPATH = 'tests/testwikis/quarterwiki'
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
-        status = planner.advance(now)
+        preferences = {'week_theme': ''}
+        planner.set_preferences(preferences)
+        status, _ = planner.advance(now)
         planner.save(status)
         self.assertEqual(status, Quarter)
 
@@ -64,6 +70,8 @@ class AdvancePlanner(unittest.TestCase):
         WIKIPATH = 'tests/testwikis/yearwiki'
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
-        status = planner.advance(now)
+        preferences = {'week_theme': ''}
+        planner.set_preferences(preferences)
+        status, _ = planner.advance(now)
         planner.save(status)
         self.assertEqual(status, Year)
