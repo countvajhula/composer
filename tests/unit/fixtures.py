@@ -8,7 +8,7 @@ except ImportError:  # py3
 
 from composer.backend import FilesystemPlanner
 from composer.backend.base import PlannerBase
-from composer.timeperiod import Day, Week, Month, Year
+from composer.timeperiod import Year
 
 
 def _config_file():
