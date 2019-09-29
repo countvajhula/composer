@@ -53,17 +53,20 @@ def get_log_filename(for_date, period, root=None):
     filename = FILENAME_TEMPLATE[period].format(
         month=month, date=date, quarter=quarter, year=year
     )
-    path = full_file_path(filename, root=root)
+    if root:
+        path = full_file_path(filename, root=root)
+    else:
+        path = filename
 
     return path
 
 
-def full_file_path(filename, root='', dereference=False):
+def full_file_path(filename, root, dereference=False):
     """ Given a path root and a filename, construct an OS-specific filesystem
     path.
 
-    :param str root: The base path
     :param str filename: The name of the file
+    :param str root: The base path
     :param bool dereference: If the file is a symbolic link, the constructed
     path could either return the path to the link, or the path to the linked
     original file. If dereference is True, then return the path to the original
@@ -75,11 +78,7 @@ def full_file_path(filename, root='', dereference=False):
         path_fn = os.path.realpath
     else:
         path_fn = os.path.abspath
-    path = (
-        PATH_SPECIFICATION.format(prefix=root, filename=filename)
-        if root
-        else filename
-    )
+    path = PATH_SPECIFICATION.format(prefix=root, filename=filename)
     return path_fn(path)
 
 
