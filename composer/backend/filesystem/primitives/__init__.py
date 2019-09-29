@@ -9,8 +9,8 @@ from .files import make_file, read_file, write_file  # noqa
 from .parsing import (  # noqa
     is_scheduled_task,
     is_task,
-    is_undone_task,
-    is_wip_task,
+    is_completed_task,
+    is_invalid_task,
     parse_task,
 )
 from .storage import (
@@ -33,8 +33,8 @@ __all__ = (
     "write_file",
     "is_scheduled_task",
     "is_task",
-    "is_undone_task",
-    "is_wip_task",
+    "is_completed_task",
+    "is_invalid_task",
     "parse_task",
     "full_file_path",
     "get_log_filename",

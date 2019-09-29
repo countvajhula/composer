@@ -36,8 +36,8 @@ from .interface import ensure_file_does_not_exist
 # level in a formal way
 from .primitives import (
     is_scheduled_task,
-    is_undone_task,
-    is_wip_task,
+    is_completed_task,
+    is_invalid_task,
     get_log_filename,
     parse_task,
     make_file,
@@ -426,7 +426,13 @@ class FilesystemPlanner(PlannerBase):
             )
 
         def is_unfinished(entry):
-            return is_undone_task(entry) or is_wip_task(entry)
+            return not any(
+                (
+                    is_completed_task(entry),
+                    is_invalid_task(entry),
+                    is_scheduled_task(entry),  # handled elsewhere
+                )
+            )
 
         tasks = entries_to_string(get_entries(tasks, is_unfinished))
 
