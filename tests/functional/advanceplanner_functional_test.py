@@ -4,7 +4,14 @@ import unittest
 import datetime
 
 from composer.backend import FilesystemPlanner
-from composer.timeperiod import Day, Week, Month, Quarter, Year
+from composer.timeperiod import (
+    Day,
+    Week,
+    Month,
+    Quarter,
+    Year,
+    get_next_period,
+)
 
 
 class AdvancePlanner(unittest.TestCase):
@@ -16,8 +23,10 @@ class AdvancePlanner(unittest.TestCase):
         WIKIPATH = 'tests/testwikis/daywiki'
         now = datetime.datetime(2012, 12, 6, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
-        status, _ = planner.advance(now)
-        planner.save(status)
+        status, next_day_planner = planner.advance(now)
+        next_period = get_next_period(status) if status < Year else status
+        planner.save(next_period)
+        next_day_planner.save(status)
         self.assertEqual(status, Day)
 
     def test_advance_planner_week(self):
@@ -30,8 +39,10 @@ class AdvancePlanner(unittest.TestCase):
         planner = FilesystemPlanner(WIKIPATH)
         preferences = {'week_theme': ''}
         planner.set_preferences(preferences)
-        status, _ = planner.advance(now)
-        planner.save(status)
+        status, next_day_planner = planner.advance(now)
+        next_period = get_next_period(status) if status < Year else status
+        planner.save(next_period)
+        next_day_planner.save(status)
         self.assertEqual(status, Week)
 
     def test_advance_planner_month(self):
@@ -44,8 +55,10 @@ class AdvancePlanner(unittest.TestCase):
         planner = FilesystemPlanner(WIKIPATH)
         preferences = {'week_theme': ''}
         planner.set_preferences(preferences)
-        status, _ = planner.advance(now)
-        planner.save(status)
+        status, next_day_planner = planner.advance(now)
+        next_period = get_next_period(status) if status < Year else status
+        planner.save(next_period)
+        next_day_planner.save(status)
         self.assertEqual(status, Month)
 
     def test_advance_planner_quarter(self):
@@ -58,8 +71,10 @@ class AdvancePlanner(unittest.TestCase):
         planner = FilesystemPlanner(WIKIPATH)
         preferences = {'week_theme': ''}
         planner.set_preferences(preferences)
-        status, _ = planner.advance(now)
-        planner.save(status)
+        status, next_day_planner = planner.advance(now)
+        next_period = get_next_period(status) if status < Year else status
+        planner.save(next_period)
+        next_day_planner.save(status)
         self.assertEqual(status, Quarter)
 
     def test_advance_planner_year(self):
@@ -72,6 +87,8 @@ class AdvancePlanner(unittest.TestCase):
         planner = FilesystemPlanner(WIKIPATH)
         preferences = {'week_theme': ''}
         planner.set_preferences(preferences)
-        status, _ = planner.advance(now)
-        planner.save(status)
+        status, next_day_planner = planner.advance(now)
+        next_period = get_next_period(status) if status < Year else status
+        planner.save(next_period)
+        next_day_planner.save(status)
         self.assertEqual(status, Year)
