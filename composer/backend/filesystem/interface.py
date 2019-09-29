@@ -61,9 +61,12 @@ def get_constituent_logs(period, for_date, planner_root):
                 constituent_period, current_date, planner_root
             )
         except FileNotFoundError:
-            # in-progress period, i.e. no log yet exists
-            break
-        logs.append(log)
+            # could be an in-progress period, i.e. no log yet exists
+            # or just a missing log. we just skip over it and continue until we
+            # hit the end date of the higher period to be sure
+            pass
+        else:
+            logs.append(log)
         current_date = constituent_end_date + timedelta(days=1)
         constituent_end_date = constituent_period.get_end_date(current_date)
     return logs
