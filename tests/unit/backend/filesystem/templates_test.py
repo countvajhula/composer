@@ -1,7 +1,6 @@
 import datetime
 import pytest
 
-from composer.backend import FilesystemPlanner
 from composer.timeperiod import Day, Week, Month
 
 from ...fixtures import planner

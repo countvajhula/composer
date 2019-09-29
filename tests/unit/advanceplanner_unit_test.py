@@ -3,11 +3,11 @@
 import unittest
 import datetime
 
-from mock import patch, MagicMock
+from mock import patch
 
 import composer.config as config
 from composer.backend import FilesystemPlanner
-from composer.timeperiod import Day, Week, Month, Quarter, Year, Zero
+from composer.timeperiod import Day, Week, Month, Quarter, Year
 
 try:  # py2
     from StringIO import StringIO

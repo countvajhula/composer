@@ -4,12 +4,7 @@ from composer.config import LOGFILE_CHECKING
 from composer.timeperiod import Zero, Day, Week
 
 from mock import MagicMock, patch
-from ..fixtures import planner_base, planner
-
-try:  # py2
-    from StringIO import StringIO
-except ImportError:  # py3
-    from io import StringIO
+from ..fixtures import planner_base
 
 
 class TrueTimes(object):
