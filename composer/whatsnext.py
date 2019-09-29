@@ -253,6 +253,7 @@ def main(wikipath=None, test=False, jump=False):
         display_message()
         display_message(">>> Get ready to JUMP! <<<")
         display_message()
+        raw_input()
 
     for wikidir in wikidirs:
         process_wiki(
