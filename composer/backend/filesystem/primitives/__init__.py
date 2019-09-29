@@ -7,6 +7,7 @@ from .entries import (  # noqa
 )
 from .files import make_file, read_file, write_file  # noqa
 from .parsing import (  # noqa
+    is_blank_line,
     is_scheduled_task,
     is_task,
     is_completed_task,
@@ -31,6 +32,7 @@ __all__ = (
     "make_file",
     "read_file",
     "write_file",
+    "is_blank_line",
     "is_scheduled_task",
     "is_task",
     "is_completed_task",

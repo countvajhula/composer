@@ -35,6 +35,7 @@ from .interface import ensure_file_does_not_exist
 # lower abstraction level to leverage the low level operations at the higher
 # level in a formal way
 from .primitives import (
+    is_blank_line,
     is_scheduled_task,
     is_completed_task,
     is_invalid_task,
@@ -430,6 +431,7 @@ class FilesystemPlanner(PlannerBase):
                 (
                     is_completed_task(entry),
                     is_invalid_task(entry),
+                    is_blank_line(entry),  # probably don't want blank lines
                     is_scheduled_task(entry),  # handled elsewhere
                 )
             )
