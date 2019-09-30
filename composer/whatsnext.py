@@ -65,11 +65,11 @@ def _post_advance_tasks(wikidir, preferences):
     """
     # update index after making changes
     display_message()
-    display_message("Updating planner wiki index...")
+    display_message("Updating planner wiki index", interactive=True)
     updateindex.update_index(wikidir)
     # git commit "after"
     display_message()
-    display_message("Committing all changes...")
+    display_message("Committing all changes", interactive=True)
     plannerdate = FilesystemPlanner(wikidir).date
     (date, month, year) = (
         plannerdate.day,
@@ -110,15 +110,21 @@ def process_wiki(wikidir, preferences, now):
             planner.set_preferences(preferences)
             status, next_day_planner = planner.advance(now=now)
         except TomorrowIsEmptyError as err:
-            yn = raw_input(
+            display_message(
                 "The tomorrow section is blank. Do you want to work on "
-                "some of this week's tasks tomorrow? [y/n]__"
+                "some of this week's tasks tomorrow? [y/n]__",
+                newline=False,
+                prompt=True
             )
+            yn = raw_input()
             if yn.lower().startswith("y"):
-                raw_input(
+                display_message(
                     "No problem. Press any key when you are done"
-                    " moving tasks over..."
+                    " moving tasks over.",
+                    newline=False,
+                    prompt=True,
                 )
+                raw_input()
             elif yn.lower().startswith("n"):
                 preferences['tomorrow_checking'] = config.LOGFILE_CHECKING[
                     "LAX"
@@ -126,16 +132,22 @@ def process_wiki(wikidir, preferences, now):
             else:
                 continue
         except LogfileNotCompletedError as err:
-            yn = raw_input(
+            display_message(
                 "Looks like you haven't completed your %s's log"
                 " (e.g. NOTES). Would you like to do that now? [y/n]__"
-                % err.period
+                % err.period,
+                newline=False,
+                prompt=True,
             )
+            yn = raw_input()
             if yn.lower().startswith("y"):
-                raw_input(
+                display_message(
                     "No problem. Press any key when you are done"
-                    " completing your log..."
+                    " completing your log.",
+                    newline=False,
+                    prompt=True,
                 )
+                raw_input()
             elif yn.lower().startswith("n"):
                 preferences[
                     'logfile_completion_checking'
@@ -149,13 +161,16 @@ def process_wiki(wikidir, preferences, now):
         except LayoutError as err:
             raise
         except MissingThemeError as err:
-            theme = raw_input(
+            display_message(
                 "(Optional) Enter a theme for the upcoming {period}, "
                 "e.g. {period_cap} of 'Timeliness', "
                 "or 'Completion':__".format(
                     period=err.period, period_cap=str(err.period).capitalize()
-                )
+                ),
+                newline=False,
+                prompt=True,
             )
+            theme = raw_input()
             preferences[
                 "week_theme"
             ] = theme  # empty string if the user entered nothing
@@ -167,7 +182,7 @@ def process_wiki(wikidir, preferences, now):
                 # are about to be written to planner
                 display_message()
                 display_message(
-                    "Saving EOD planner state before making changes..."
+                    "Saving EOD planner state before making changes", interactive=True
                 )
                 plannerdate = FilesystemPlanner(wikidir).date
                 (date, month, year) = (

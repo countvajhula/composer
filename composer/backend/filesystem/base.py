@@ -293,7 +293,7 @@ class FilesystemPlanner(PlannerBase):
         # TODO: keep low-level operations contained in utils -- make/extend
         # additional interfaces as needed
         # TODO: these diagnostics are not covered by tests
-        display_message("Tracking any newly scheduled tasks...")
+        display_message("Tracking any newly scheduled tasks", interactive=True)
         check_scheduled_section_for_errors(self.tasklistfile)
         check_logfile_for_errors(self.dayfile)
         # ignore tasks in tomorrow since actively scheduled by you
@@ -359,7 +359,7 @@ class FilesystemPlanner(PlannerBase):
 
         display_message(
             "Checking previously scheduled tasks for any that "
-            "are due tomorrow..."
+            "are due tomorrow", interactive=True
         )
         try:
             scheduled, tasklist_no_scheduled = read_section(
@@ -386,7 +386,8 @@ class FilesystemPlanner(PlannerBase):
         :returns str: The tasks for tomorrow
         """
         display_message(
-            "Moving tasks added for tomorrow over to tomorrow's agenda..."
+            "Moving tasks added for tomorrow over to tomorrow's agenda",
+            interactive=True
         )
         try:
             tasks, tasklist_nextday = read_section(
@@ -416,7 +417,8 @@ class FilesystemPlanner(PlannerBase):
         """
         display_message(
             "Carrying over any unfinished tasks from today"
-            " to tomorrow's agenda..."
+            " to tomorrow's agenda",
+            interactive=True
         )
         try:
             tasks, _ = read_section(self.dayfile, 'agenda')
@@ -451,7 +453,8 @@ class FilesystemPlanner(PlannerBase):
         :param :class:`dateime.date` next_day: The date for the new log file
         """
         display_message(
-            "Creating log file for {period}...".format(period=period)
+            "Creating log file for {period}".format(period=period),
+            interactive=True
         )
         scheduled = tomorrow = undone = None
         if period == Day:
@@ -478,7 +481,8 @@ class FilesystemPlanner(PlannerBase):
             which the log file needs to be updated
         """
         display_message(
-            "Updating log file for {period}...".format(period=period)
+            "Updating log file for {period}".format(period=period),
+            interactive=True
         )
         template = get_template(self, period, next_day)
         contents = template.update()

@@ -139,9 +139,10 @@ class PlannerBase(ABC):
         # newly written one rather than the closing state of the one at the end
         # of the period in question.
         display_message(
-            "Performing bookkeeping for {period}'s end...".format(
+            "Performing bookkeeping for {period}'s end".format(
                 period=period
-            )
+            ),
+            interactive=True
         )
         if not self.check_log_completion(period):
             msg = (
@@ -163,7 +164,8 @@ class PlannerBase(ABC):
 
         :param :class:`~composer.timeperiod.Period` period: The period to begin
         """
-        display_message("Beginning new {period}...".format(period=period))
+        display_message("Beginning new {period}".format(period=period),
+                        interactive=True)
         if period == Week and self.week_theme is None:
             # it would be an empty string (rather than None) if the user
             # was asked about it but chose to enter nothing
