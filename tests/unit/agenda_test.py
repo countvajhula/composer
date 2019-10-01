@@ -2,7 +2,7 @@ import datetime
 import unittest
 
 import composer.config as config
-from composer.backend import FilesystemPlanner
+from composer.backend import FilesystemPlanner, FilesystemTasklist
 from composer.timeperiod import Day
 
 try:  # py2
@@ -397,7 +397,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
             next_day.strftime('%B'),
             next_day.year,
         )
-        tasklistfile = StringIO(self.tasklist)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist)
         daythemesfile = StringIO(self.daythemes)
         dayfile = StringIO(self.daytemplate)
         checkpointsfile = StringIO(self.checkpoints_weekday)
@@ -405,7 +406,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
         planner = FilesystemPlanner()
-        planner.tasklistfile = tasklistfile
+        planner.tasklist = tasklist
         planner.daythemesfile = daythemesfile
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile
@@ -454,7 +455,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
             next_day.strftime('%B'),
             next_day.year,
         )
-        tasklistfile = StringIO(self.tasklist)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist)
         daythemesfile = StringIO(self.daythemes)
         dayfile = StringIO(self.daytemplate_undone)
         checkpointsfile = StringIO(self.checkpoints_weekday)
@@ -462,7 +464,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
         planner = FilesystemPlanner()
-        planner.tasklistfile = tasklistfile
+        planner.tasklist = tasklist
         planner.daythemesfile = daythemesfile
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile
@@ -515,7 +517,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
             next_day.strftime('%B'),
             next_day.year,
         )
-        tasklistfile = StringIO(self.tasklist_tomorrow)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist_tomorrow)
         daythemesfile = StringIO(self.daythemes)
         dayfile = StringIO(self.daytemplate)
         checkpointsfile = StringIO(self.checkpoints_weekday)
@@ -523,7 +526,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
         planner = FilesystemPlanner()
-        planner.tasklistfile = tasklistfile
+        planner.tasklist = tasklist
         planner.daythemesfile = daythemesfile
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile
@@ -566,7 +569,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         planner.create_log(Day, next_day)
 
         self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
-        self.assertEqual(planner.tasklistfile.read(), self.tasklist)
+        self.assertEqual(tasklist.file.read(), self.tasklist)
 
     def test_agenda_has_both_tomorrows_tasks_and_undone_tasks(self):
         """ Check that tomorrow's agenda has both undone tasks from today's agenda as well as tasks added for tomorrow """
@@ -577,7 +580,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
             next_day.strftime('%B'),
             next_day.year,
         )
-        tasklistfile = StringIO(self.tasklist_tomorrow)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist_tomorrow)
         daythemesfile = StringIO(self.daythemes)
         dayfile = StringIO(self.daytemplate_undone)
         checkpointsfile = StringIO(self.checkpoints_weekday)
@@ -585,7 +589,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
         planner = FilesystemPlanner()
-        planner.tasklistfile = tasklistfile
+        planner.tasklist = tasklist
         planner.daythemesfile = daythemesfile
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile
@@ -641,7 +645,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
             next_day.strftime('%B'),
             next_day.year,
         )
-        tasklistfile = StringIO(self.tasklist_somescheduled)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist_somescheduled)
         daythemesfile = StringIO(self.daythemes)
         dayfile = StringIO(self.daytemplate)
         checkpointsfile = StringIO(self.checkpoints_weekday)
@@ -649,7 +654,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
         planner = FilesystemPlanner()
-        planner.tasklistfile = tasklistfile
+        planner.tasklist = tasklist
         planner.daythemesfile = daythemesfile
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile
@@ -700,7 +705,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
             next_day.strftime('%B'),
             next_day.year,
         )
-        tasklistfile = StringIO(self.tasklist_scheduledfortomorrow)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist_scheduledfortomorrow)
         daythemesfile = StringIO(self.daythemes)
         dayfile = StringIO(self.daytemplate)
         checkpointsfile = StringIO(self.checkpoints_weekday)
@@ -708,7 +714,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
         planner = FilesystemPlanner()
-        planner.tasklistfile = tasklistfile
+        planner.tasklist = tasklist
         planner.daythemesfile = daythemesfile
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile
@@ -751,7 +757,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
 
         self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
         self.assertEqual(
-            planner.tasklistfile.read(),
+            planner.tasklist.file.read(),
             self.tasklist_scheduledfortomorrow_post,
         )
 
@@ -764,7 +770,8 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
             next_day.strftime('%B'),
             next_day.year,
         )
-        tasklistfile = StringIO(self.tasklist_tomorrowscheduled)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist_tomorrowscheduled)
         daythemesfile = StringIO(self.daythemes)
         dayfile = StringIO(self.daytemplate_undone)
         checkpointsfile = StringIO(self.checkpoints_weekday)
@@ -772,7 +779,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         checkpointsfile = StringIO(self.checkpoints_weekday)
 
         planner = FilesystemPlanner()
-        planner.tasklistfile = tasklistfile
+        planner.tasklist = tasklist
         planner.daythemesfile = daythemesfile
         planner.checkpoints_weekday_file = checkpointsfile
         planner.periodic_day_file = periodicfile

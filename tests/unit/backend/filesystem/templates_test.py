@@ -176,7 +176,7 @@ class TestNewTemplateIntegrity(object):
         planner.create_log(Day, next_day)
 
         assert planner.next_day_planner.dayfile.read() == daytemplate
-        assert planner.tasklistfile.read() == tasklist_nextday
+        assert planner.tasklist.file.read() == tasklist_nextday
 
 
 class TestExistingTemplateUpdateIntegrity(object):

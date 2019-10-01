@@ -9,7 +9,7 @@ import click
 from . import advice
 from . import config
 from . import updateindex
-from .backend import FilesystemPlanner
+from .backend import FilesystemPlanner, FilesystemTasklist
 from .timeperiod import Day, Year, get_next_period
 from .utils import display_message
 
@@ -58,7 +58,7 @@ def _show_advice(wikidir, preferences):
     display_message(advice.get_advice(lessons_files))
 
 
-def _post_advance_tasks(wikidir, preferences):
+def _post_advance_tasks(wikidir, plannerdate, preferences):
     """ Update the index to include any newly created files,
     Commit the post-advance state into git, and display a
     thought for the day.
@@ -70,7 +70,6 @@ def _post_advance_tasks(wikidir, preferences):
     # git commit "after"
     display_message()
     display_message("Committing all changes", interactive=True)
-    plannerdate = FilesystemPlanner(wikidir).date
     (date, month, year) = (
         plannerdate.day,
         plannerdate.strftime("%B"),
@@ -106,7 +105,8 @@ def process_wiki(wikidir, preferences, now):
     while True:
         display_message()
         try:
-            planner = FilesystemPlanner(wikidir)
+            tasklist = FilesystemTasklist(wikidir)
+            planner = FilesystemPlanner(wikidir, tasklist)
             planner.set_preferences(preferences)
             status, next_day_planner = planner.advance(now=now)
         except TomorrowIsEmptyError as err:
@@ -184,7 +184,7 @@ def process_wiki(wikidir, preferences, now):
                 display_message(
                     "Saving EOD planner state before making changes", interactive=True
                 )
-                plannerdate = FilesystemPlanner(wikidir).date
+                plannerdate = planner.date
                 (date, month, year) = (
                     plannerdate.day,
                     plannerdate.strftime("%B"),
@@ -218,7 +218,10 @@ def process_wiki(wikidir, preferences, now):
                 # save all newly advanced periods
                 next_day_planner.save(status)
 
-                _post_advance_tasks(wikidir, preferences)
+                # save the (common) tasklist
+                planner.tasklist.save()
+
+                _post_advance_tasks(wikidir, next_day_planner.date, preferences)
                 if (
                     planner.jumping
                 ):  # if jumping, keep repeating until present-day error thrown

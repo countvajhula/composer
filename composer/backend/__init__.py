@@ -1,3 +1,3 @@
-from .filesystem import FilesystemPlanner  # noqa
+from .filesystem import FilesystemPlanner, FilesystemTasklist  # noqa
 
-__all__ = ("FilesystemPlanner",)
+__all__ = ("FilesystemPlanner", "FilesystemTasklist",)

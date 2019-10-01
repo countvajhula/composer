@@ -35,6 +35,10 @@ class PlannerBase(ABC):
     week_theme = None
     jumping = False
     next_day_planner = None
+    tasklist = None
+
+    def __init__(self, location, tasklist):
+        self.tasklist = tasklist
 
     def set_preferences(self, preferences):
         """ Set planner preferences, e.g. schedule to operate on, preferred
@@ -62,7 +66,7 @@ class PlannerBase(ABC):
             self.tomorrow_checking = LOGFILE_CHECKING["LAX"]
 
     @abc.abstractmethod
-    def construct(self, location=None):
+    def construct(self, location=None, tasklist=None):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -79,14 +83,6 @@ class PlannerBase(ABC):
 
     @abc.abstractmethod
     def schedule_tasks(self):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def get_due_tasks(self, for_day):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def get_tasks_for_tomorrow(self):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -246,6 +242,9 @@ class PlannerBase(ABC):
         # for the next day
         self.next_day_planner = self.__class__()
         self.next_day_planner.construct(self.location)
+        # both current and next day planner instances use
+        # the same tasklist instance
+        self.next_day_planner.tasklist = self.tasklist
         self.next_day_planner.date = next_day
 
         self.now = now
@@ -261,4 +260,16 @@ class PlannerBase(ABC):
 
     @abc.abstractmethod
     def save(self, period=Year):
+        raise NotImplementedError
+
+
+class TasklistBase(ABC):
+
+
+    @abc.abstractmethod
+    def get_due_tasks(self, for_day):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_tasks_for_tomorrow(self):
         raise NotImplementedError

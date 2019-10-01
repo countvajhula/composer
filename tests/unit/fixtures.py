@@ -6,7 +6,7 @@ try:  # py2
 except ImportError:  # py3
     from io import StringIO
 
-from composer.backend import FilesystemPlanner
+from composer.backend import FilesystemPlanner, FilesystemTasklist
 from composer.backend.base import PlannerBase
 from composer.timeperiod import Year
 
@@ -108,8 +108,37 @@ def tasklist_file():
     return _tasklistfile()
 
 
+@pytest.fixture
+def tasklist():
+    tasklist = FilesystemTasklist()
+    tasklist.location = ''
+    tasklist.file = _tasklistfile()
+    return tasklist
+
+
+def _tasklist_base():
+    class DummyTasklist(PlannerBase):
+        def get_due_tasks(self, for_day):
+            pass
+
+        def get_tasks_for_tomorrow(self):
+            pass
+
+    tasklist = DummyTasklist()
+    tasklist.location = ''
+    return planner
+
+
+@pytest.fixture
+def tasklist_base():
+    return _tasklist_base()
+
+
 def _planner_base():
     class DummyPlanner(PlannerBase):
+        def __init__(self):
+            pass
+
         def construct(self, location=None):
             pass
 
@@ -123,12 +152,6 @@ def _planner_base():
             pass
 
         def schedule_tasks(self):
-            pass
-
-        def get_due_tasks(self, for_day):
-            pass
-
-        def get_tasks_for_tomorrow(self):
             pass
 
         def get_todays_unfinished_tasks(self):
@@ -158,7 +181,7 @@ def planner_base():
 
 
 def _planner():
-    tasklist = (
+    tasklist_contents = (
         "TOMORROW:\n"
         "[ ] contact dude\n"
         "[\\] make X\n"
@@ -361,7 +384,9 @@ def _planner():
     )
 
     planner = FilesystemPlanner()
-    planner.tasklistfile = StringIO(tasklist)
+    tasklist = FilesystemTasklist()
+    tasklist.file = StringIO(tasklist_contents)
+    planner.tasklist = tasklist
     planner.daythemesfile = StringIO(daythemes)
     planner.periodic_day_file = StringIO(periodic_day)
     planner.periodic_week_file = StringIO(periodic_week)

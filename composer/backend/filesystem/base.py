@@ -1,6 +1,6 @@
 import os
 
-from ..base import PlannerBase
+from ..base import PlannerBase, TasklistBase
 from ...config import LOGFILE_CHECKING
 from ...timeperiod import (
     get_next_period,
@@ -69,7 +69,6 @@ PERIODICDAILYFILE = "Periodic_Daily.wiki"
 
 
 class FilesystemPlanner(PlannerBase):
-    _tasklistfile = None
     _daythemesfile = None
     _dayfile = None
     _weekfile = None
@@ -88,21 +87,14 @@ class FilesystemPlanner(PlannerBase):
     _periodic_quarter_file = None
     _periodic_year_file = None
 
-    def __init__(self, location=None):
+    def __init__(self, location=None, tasklist=None):
+        super(FilesystemPlanner, self).__init__(location, tasklist)
         self.construct(location)
 
     # use 'getters' and 'setters' for file attributes so that any state changes
     # to their values (e.g. "head" position after reading the file's contents)
     # are contained within the client code and not reflected on the planner
     # instance unless it is explicitly modified via a setter
-
-    @property
-    def tasklistfile(self):
-        return make_file(self._tasklistfile.getvalue())
-
-    @tasklistfile.setter
-    def tasklistfile(self, value):
-        self._tasklistfile = value
 
     @property
     def daythemesfile(self):
@@ -198,19 +190,6 @@ class FilesystemPlanner(PlannerBase):
         if log_attr:
             setattr(self, log_attr, make_file(contents))
 
-    def _update_tasklist(self, new_tasklist):
-        """ A setter to update the tasklist on both this planner instance
-        as well as the one for the next day since any changes to the tasklist
-        should be retained on the next day's planner instance. Kind of hacky,
-        and probably implies that the tasklist should be managed outside this
-        period-centric notion of a planner, or even better, that the tasklist
-        should be incorporated into time periods as part of "composing" them.
-
-        :param :class:`io.StringIO` new_tasklist: The new tasklist
-        """
-        self.tasklistfile = new_tasklist
-        self.next_day_planner.tasklistfile = new_tasklist
-
     def _get_date(self):
         """ Get date from planner's current state on disk.
         The current date is tracked using a symbolic link which points to the
@@ -237,7 +216,6 @@ class FilesystemPlanner(PlannerBase):
         self.date = self._get_date()
         # populate attributes on planner object from files on disk
         planner_files = {
-            'tasklistfile': PLANNERTASKLISTFILE,
             'daythemesfile': PLANNERDAYTHEMESFILE,
             'dayfile': get_log_filename(self.date, Day),
             'weekfile': get_log_filename(Week.get_start_date(self.date), Week),
@@ -294,11 +272,11 @@ class FilesystemPlanner(PlannerBase):
         # additional interfaces as needed
         # TODO: these diagnostics are not covered by tests
         display_message("Tracking any newly scheduled tasks", interactive=True)
-        check_scheduled_section_for_errors(self.tasklistfile)
+        check_scheduled_section_for_errors(self.tasklist.file)
         check_logfile_for_errors(self.dayfile)
         # ignore tasks in tomorrow since actively scheduled by you
         tomorrow, tasklist_no_tomorrow = read_section(
-            self.tasklistfile, 'TOMORROW'
+            self.tasklist.file, 'TOMORROW'
         )
         entries = get_entries(tasklist_no_tomorrow)
         tasklist_tasks, tasklist_no_scheduled = partition_entries(
@@ -324,90 +302,7 @@ class FilesystemPlanner(PlannerBase):
         new_file = add_to_section(
             new_file, "TOMORROW", tomorrow.read()
         )  # add tomorrow tasks back
-        self._update_tasklist(new_file)
-
-    def get_due_tasks(self, for_day):
-        """ Look at the SCHEDULED section of the tasklist and retrieve any
-        tasks that are due/overdue for the given day (e.g. tomorrow, if
-        preparing tomorrow's agenda). **This also mutates the tasklist by
-        removing these tasks from it.**
-
-        This only operates on explicitly scheduled tasks, not tasks manually
-        set aside for tomorrow or which may happen to be appropriate for the
-        given day as determined in some other way (e.g. periodic tasks).
-
-        Note: task scheduling should already have been performed on relevant
-        logfiles (like the previous day's) to migrate those tasks to the
-        tasklist.
-
-        :param :class:`datetime.date` for_day: The date to get due tasks for
-        :returns str: The tasks that are due
-        """
-
-        def is_task_due(task):
-            header, _ = parse_task(task)
-            if not SCHEDULED_DATE_PATTERN.search(header):
-                raise BlockedTaskNotScheduledError(
-                    "Scheduled task has no date!" + header
-                )
-            datestr = SCHEDULED_DATE_PATTERN.search(header).groups()[0]
-            try:
-                matched_date, _ = string_to_date(datestr)
-            except SchedulingDateError:
-                raise
-            return for_day >= matched_date
-
-        display_message(
-            "Checking previously scheduled tasks for any that "
-            "are due tomorrow", interactive=True
-        )
-        try:
-            scheduled, tasklist_no_scheduled = read_section(
-                self.tasklistfile, "scheduled"
-            )
-        except ValueError:
-            raise TasklistLayoutError(
-                "No SCHEDULED section found in TaskList!"
-            )
-        entries = get_entries(scheduled)
-        due, not_due = partition_entries(entries, is_task_due)
-        due, not_due = map(entries_to_string, (due, not_due))
-        new_tasklist = add_to_section(
-            tasklist_no_scheduled, 'scheduled', not_due
-        )
-        self._update_tasklist(new_tasklist)
-        return due
-
-    def get_tasks_for_tomorrow(self):
-        """ Read the tasklist, parse all tasks under the TOMORROW section
-        and return those. **This also mutates the tasklist by removing those
-        tasks from it.**
-
-        :returns str: The tasks for tomorrow
-        """
-        display_message(
-            "Moving tasks added for tomorrow over to tomorrow's agenda",
-            interactive=True
-        )
-        try:
-            tasks, tasklist_nextday = read_section(
-                self.tasklistfile, 'tomorrow'
-            )
-        except ValueError:
-            raise TasklistLayoutError(
-                "Error: No 'TOMORROW' section found in your tasklist!"
-                " Please add one and try again."
-            )
-        if (
-            tasks.getvalue() == ""
-            and self.tomorrow_checking == LOGFILE_CHECKING["STRICT"]
-        ):
-            raise TomorrowIsEmptyError(
-                "The tomorrow section is blank. Do you want to add"
-                " some tasks for tomorrow?"
-            )
-        self._update_tasklist(tasklist_nextday)
-        return tasks.read()
+        self.tasklist.file = new_file
 
     def get_todays_unfinished_tasks(self):
         """ Get tasks from today's agenda that are either undone or in
@@ -458,8 +353,16 @@ class FilesystemPlanner(PlannerBase):
         )
         scheduled = tomorrow = undone = None
         if period == Day:
-            scheduled = self.get_due_tasks(next_day)
-            tomorrow = self.get_tasks_for_tomorrow()
+            scheduled = self.tasklist.get_due_tasks(next_day)
+            tomorrow = self.tasklist.get_tasks_for_tomorrow()
+            if (
+                tomorrow == ""
+                and self.tomorrow_checking == LOGFILE_CHECKING["STRICT"]
+            ):
+                raise TomorrowIsEmptyError(
+                    "The tomorrow section is blank. Do you want to add"
+                    " some tasks for tomorrow?"
+                )
             undone = self.get_todays_unfinished_tasks()
 
         template = get_template(self, period, next_day)
@@ -627,14 +530,112 @@ class FilesystemPlanner(PlannerBase):
         # periods, since they are all affected by the advance
         self._write_files_for_contained_periods(period)
 
-        # note that this is being saved both before advance
-        # and after advance (redundantly) -- tasklist should be
-        # either managed separately, or incorporated into
-        # time periods directly as a way of "composing" them
+        self._update_current_date_link()
+
+
+class FilesystemTasklist(TasklistBase):
+
+    _file = None
+
+    def __init__(self, location=None):
+        self.construct(location)
+
+    @property
+    def file(self):
+        return make_file(self._file.getvalue())
+
+    @file.setter
+    def file(self, value):
+        self._file = value
+
+    def construct(self, location=None):
+        if location is None:
+            # needed for tests atm -- eventually make location a required arg
+            return
+        self.location = location
+        self.file = read_file(full_file_path(root=location, filename=PLANNERTASKLISTFILE))
+
+    def get_due_tasks(self, for_day):
+        """ Look at the SCHEDULED section of the tasklist and retrieve any
+        tasks that are due/overdue for the given day (e.g. tomorrow, if
+        preparing tomorrow's agenda). **This also mutates the tasklist by
+        removing these tasks from it.**
+
+        This only operates on explicitly scheduled tasks, not tasks manually
+        set aside for tomorrow or which may happen to be appropriate for the
+        given day as determined in some other way (e.g. periodic tasks).
+
+        Note: task scheduling should already have been performed on relevant
+        logfiles (like the previous day's) to migrate those tasks to the
+        tasklist.
+
+        :param :class:`datetime.date` for_day: The date to get due tasks for
+        :returns str: The tasks that are due
+        """
+
+        def is_task_due(task):
+            header, _ = parse_task(task)
+            if not SCHEDULED_DATE_PATTERN.search(header):
+                raise BlockedTaskNotScheduledError(
+                    "Scheduled task has no date!" + header
+                )
+            datestr = SCHEDULED_DATE_PATTERN.search(header).groups()[0]
+            try:
+                matched_date, _ = string_to_date(datestr)
+            except SchedulingDateError:
+                raise
+            return for_day >= matched_date
+
+        display_message(
+            "Checking previously scheduled tasks for any that "
+            "are due tomorrow", interactive=True
+        )
+        try:
+            scheduled, tasklist_no_scheduled = read_section(
+                self.file, "scheduled"
+            )
+        except ValueError:
+            raise TasklistLayoutError(
+                "No SCHEDULED section found in TaskList!"
+            )
+        entries = get_entries(scheduled)
+        due, not_due = partition_entries(entries, is_task_due)
+        due, not_due = map(entries_to_string, (due, not_due))
+        new_tasklist = add_to_section(
+            tasklist_no_scheduled, 'scheduled', not_due
+        )
+        self.file = new_tasklist
+        return due
+
+    def get_tasks_for_tomorrow(self):
+        """ Read the tasklist, parse all tasks under the TOMORROW section
+        and return those. **This also mutates the tasklist by removing those
+        tasks from it.**
+
+        :returns str: The tasks for tomorrow
+        """
+        display_message(
+            "Moving tasks added for tomorrow over to tomorrow's agenda",
+            interactive=True
+        )
+        try:
+            tasks, tasklist_nextday = read_section(
+                self.file, 'tomorrow'
+            )
+        except ValueError:
+            raise TasklistLayoutError(
+                "Error: No 'TOMORROW' section found in your tasklist!"
+                " Please add one and try again."
+            )
+        self.file = tasklist_nextday
+        return tasks.read()
+
+    def save(self):
+        """ Write the tasklist object to the filesystem.
+        """
+
         tasklist_filename = full_file_path(
             root=self.location, filename=PLANNERTASKLISTFILE
         )
 
-        write_file(self.tasklistfile, tasklist_filename)
-
-        self._update_current_date_link()
+        write_file(self.file, tasklist_filename)

@@ -47,7 +47,7 @@ class Template(ABC):
         :param :class:`datetime.date` next_day: The next day we are advancing
             to
         """
-        self.tasklistfile = planner.tasklistfile
+        self.tasklistfile = planner.tasklist.file
         self.next_day = next_day
         self.bullet_character = planner.preferred_bullet_char
 

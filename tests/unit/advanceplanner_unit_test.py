@@ -6,7 +6,7 @@ import datetime
 from mock import patch
 
 import composer.config as config
-from composer.backend import FilesystemPlanner
+from composer.backend import FilesystemPlanner, FilesystemTasklist
 from composer.timeperiod import Day, Week, Month, Quarter, Year
 
 try:  # py2
@@ -563,7 +563,9 @@ class PlannerAdvanceTester(unittest.TestCase):
     def setUp(self):
         self.planner = FilesystemPlanner()
         self.planner.date = datetime.date.today()
-        self.planner.tasklistfile = StringIO(self.tasklist)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist)
+        self.planner.tasklist = tasklist
         self.planner.daythemesfile = StringIO(self.daythemes)
         self.planner.dayfile = StringIO(self.daytemplate)
         self.planner.weekfile = StringIO(self.weektemplate)
@@ -761,8 +763,8 @@ class PlannerAdvanceTester(unittest.TestCase):
         _, next_day_planner = self.planner.advance()
 
         assert (
-            next_day_planner.tasklistfile.getvalue()
-            == self.planner.tasklistfile.getvalue()
+            next_day_planner.tasklist.file.getvalue()
+            == self.planner.tasklist.file.getvalue()
         )
 
     @patch('composer.backend.filesystem.base.read_file')

@@ -3,7 +3,7 @@ import unittest
 
 from mock import patch
 
-from composer.backend import FilesystemPlanner
+from composer.backend import FilesystemPlanner, FilesystemTasklist
 from composer.backend.filesystem.scheduling import sanitize_entry
 from composer.timeperiod import Day
 from composer.errors import (
@@ -1126,7 +1126,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
     def setUp(self):
         self.planner = FilesystemPlanner()
         self.planner.date = datetime.date(2012, 12, 19)
-        self.planner.tasklistfile = StringIO(self.tasklist)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist)
+        self.planner.tasklist = tasklist
         self.planner.daythemesfile = StringIO(self.daythemes)
         self.planner.dayfile = StringIO(self.daytemplate)
         self.planner.weekfile = StringIO(self.weektemplate)
@@ -1158,26 +1160,30 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(), self.tasklist_agenda
+            self.planner.tasklist.file.read(), self.tasklist_agenda
         )
 
     def test_task_list_scheduled_tasks_are_scheduled(self):
         """ Check that scheduling tasks pulls all scheduled tasks from the TaskList
         into the SCHEDULED section of the tasklist """
-        self.planner.tasklistfile = StringIO(self.tasklist_somescheduled)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist_somescheduled)
+        self.planner.tasklist = tasklist
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(), self.tasklist_tasklist
+            self.planner.tasklist.file.read(), self.tasklist_tasklist
         )
 
     def test_both_agenda_and_task_list_scheduled_tasks_are_scheduled(self):
         """ Check that scheduling tasks pulls all scheduled tasks from the TaskList and
         today's agenda into the SCHEDULED section of the tasklist """
-        self.planner.tasklistfile = StringIO(self.tasklist_somescheduled)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist_somescheduled)
+        self.planner.tasklist = tasklist
         self.planner.dayfile = StringIO(self.daytemplate_scheduled)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(), self.tasklist_tasklist_agenda
+            self.planner.tasklist.file.read(), self.tasklist_tasklist_agenda
         )
 
     def test_scheduled_task_without_date_raises_exception(self):
@@ -1190,7 +1196,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_badly_formatted_scheduled_task_raises_exception(self):
         """ Check that a task already present in the SCHEDULED section and formatted incorrectly raises an Exception """
-        self.planner.tasklistfile = StringIO(self.tasklist_scheduledbadformat)
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist_scheduledbadformat)
+        self.planner.tasklist = tasklist
         self.assertRaises(
             ScheduledTaskParsingError, self.planner.schedule_tasks
         )
@@ -1200,7 +1208,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format1)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats1to4and11to13,
         )
 
@@ -1209,7 +1217,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format2)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats1to4and11to13,
         )
 
@@ -1219,7 +1227,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format3)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats1to4and11to13,
         )
 
@@ -1229,7 +1237,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format4)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats1to4and11to13,
         )
 
@@ -1238,7 +1246,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format5)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats5to8and14,
         )
 
@@ -1247,7 +1255,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format6)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats5to8and14,
         )
 
@@ -1257,7 +1265,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format7)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats5to8and14,
         )
 
@@ -1267,7 +1275,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format8)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats5to8and14,
         )
 
@@ -1276,7 +1284,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format9)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats9to10and15,
         )
 
@@ -1286,7 +1294,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format10)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats9to10and15,
         )
 
@@ -1295,7 +1303,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format11)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats1to4and11to13,
         )
 
@@ -1304,7 +1312,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format12)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats1to4and11to13,
         )
 
@@ -1314,7 +1322,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format13)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats1to4and11to13,
         )
 
@@ -1324,7 +1332,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format14)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats5to8and14,
         )
 
@@ -1334,7 +1342,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format15)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats9to10and15,
         )
 
@@ -1344,7 +1352,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format16)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats16and17,
         )
 
@@ -1354,7 +1362,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format17)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats16and17,
         )
 
@@ -1366,6 +1374,6 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         )
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklistfile.read(),
+            self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats9to10and15,
         )

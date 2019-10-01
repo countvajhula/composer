@@ -8,7 +8,7 @@ from composer.timeperiod import Zero, Day, Month, Week
 from composer.timeperiod.interface import TIME_PERIODS
 
 from mock import MagicMock, patch
-from ...fixtures import planner, logfile, complete_logfile
+from ...fixtures import planner, logfile, complete_logfile, tasklist
 
 
 class TestGetAgenda(object):
@@ -129,7 +129,6 @@ class TestSave(object):
         expected_files_written = (
             len(TIME_PERIODS)  # all tracked time periods
             - 1  # exclude Zero period
-            + 1  # tasklist
         )
         assert mock_write_file.call_count == expected_files_written
 
@@ -161,9 +160,9 @@ class TestSave(object):
 
     @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
-    def test_writes_tasklist(self, mock_write_file, mock_os, planner):
+    def test_writes_tasklist(self, mock_write_file, mock_os, tasklist):
         mock_write_file.side_effect = self._note_filename()
-        planner.save(Week)
+        tasklist.save()
         assert any(
             PLANNERTASKLISTFILE in filename for filename in self.filenames
         )
