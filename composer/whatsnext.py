@@ -167,6 +167,9 @@ def process_wiki(wikidir, preferences, now):
             ] = theme  # empty string if the user entered nothing
         except AgendaNotReviewedError as err:
             next_day = get_next_day(planner.date)
+            next_period = (
+                get_next_period(err.period) if err.period < Year else Year
+            )
             month_name = get_month_name(next_day.month)
             if err.period == Day:
                 period_string = "tomorrow"
@@ -193,8 +196,17 @@ def process_wiki(wikidir, preferences, now):
                 preferences["agenda_reviewed"] = err.period
             elif yn.lower().startswith("n"):
                 display_message(
-                    "Go ahead and move any tasks in and out of the "
-                    "appropriate task lists. Press any key when you are done.",
+                    "Go ahead and pull in any {next_period} tasks "
+                    "that you'd like to work on {this_period}, or make any "
+                    "other changes you'd like. Press any key when you are "
+                    "done.".format(
+                        next_period="of this {}'s".format(next_period)
+                        if err.period < Year
+                        else "unscheduled",
+                        this_period="next {period}".format(period=err.period)
+                        if err.period > Day
+                        else "tomorrow",
+                    ),
                     newline=False,
                     prompt=True,
                 )

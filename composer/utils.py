@@ -15,7 +15,11 @@ def _write_out(message):
 
 
 def display_message(
-    message=None, newline=True, interactive=False, prompt=False, acknowledge=False,
+    message=None,
+    newline=True,
+    interactive=False,
+    prompt=False,
+    acknowledge=False,
 ):
     """ Show a message to the user.
 
