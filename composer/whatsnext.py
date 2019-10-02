@@ -167,15 +167,16 @@ def process_wiki(wikidir, preferences, now):
             ] = theme  # empty string if the user entered nothing
         except AgendaNotReviewedError as err:
             next_day = get_next_day(planner.date)
+            month_name = get_month_name(next_day.month)
             if err.period == Day:
                 period_string = "tomorrow"
             elif err.period == Week:
                 period_string = "next {period}".format(period=err.period)
             elif err.period == Month:
-                period_string = get_month_name(next_day.month)
+                period_string = month_name
             elif err.period == Quarter:
                 month = get_month_name(next_day.month)
-                period_string = quarter_for_month(next_day.month)
+                period_string = quarter_for_month(month_name)
             elif err.period == Year:
                 period_string = str(next_day.year)
 
