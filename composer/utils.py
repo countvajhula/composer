@@ -1,6 +1,8 @@
 import sys
 from time import sleep
 
+PROGRESS_DELAY = 0
+
 
 def _write_out(message):
     sys.stdout.write(message)
@@ -24,7 +26,7 @@ def display_message(message=None, newline=True, interactive=False, prompt=False)
     _write_out(message)
     if interactive:
         for c in "...":
-            # sleep(0.05)
+            sleep(PROGRESS_DELAY)
             _write_out(c)
     if newline:
         _write_out('\n')
