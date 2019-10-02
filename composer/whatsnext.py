@@ -19,7 +19,6 @@ from .errors import (
     LayoutError,
     LogfileNotCompletedError,
     PlannerStateError,
-    TomorrowIsEmptyError,
     MissingThemeError,
 )
 
@@ -110,28 +109,6 @@ def process_wiki(wikidir, preferences, now):
             planner = FilesystemPlanner(wikidir, tasklist)
             planner.set_preferences(preferences)
             status, next_day_planner = planner.advance(now=now)
-        except TomorrowIsEmptyError as err:
-            display_message(
-                "The tomorrow section is blank. Do you want to work on "
-                "some of this week's tasks tomorrow? [y/n]__",
-                newline=False,
-                prompt=True,
-            )
-            yn = raw_input()
-            if yn.lower().startswith("y"):
-                display_message(
-                    "No problem. Press any key when you are done"
-                    " moving tasks over.",
-                    newline=False,
-                    prompt=True,
-                )
-                raw_input()
-            elif yn.lower().startswith("n"):
-                preferences['tomorrow_checking'] = config.LOGFILE_CHECKING[
-                    "LAX"
-                ]
-            else:
-                continue
         except LogfileNotCompletedError as err:
             display_message(
                 "Looks like you haven't completed your %s's log"

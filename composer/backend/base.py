@@ -29,7 +29,6 @@ ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 
 class PlannerBase(ABC):
     date = None
-    tomorrow_checking = LOGFILE_CHECKING["STRICT"]
     logfile_completion_checking = LOGFILE_CHECKING["STRICT"]
     preferred_bullet_char = DEFAULT_BULLET_CHARACTER
     schedule = DEFAULT_SCHEDULE
@@ -58,9 +57,6 @@ class PlannerBase(ABC):
         self.logfile_completion_checking = preferences.get(
             "logfile_completion_checking", self.logfile_completion_checking
         )
-        self.tomorrow_checking = preferences.get(
-            "tomorrow_checking", self.tomorrow_checking
-        )
         self.week_theme = preferences.get("week_theme", self.week_theme)
         self.agenda_reviewed = preferences.get(
             "agenda_reviewed", self.agenda_reviewed
@@ -68,7 +64,6 @@ class PlannerBase(ABC):
         if self.jumping:
             # jumping overrides preferences for logfile checking
             self.logfile_completion_checking = LOGFILE_CHECKING["LAX"]
-            self.tomorrow_checking = LOGFILE_CHECKING["LAX"]
 
     @abc.abstractmethod
     def construct(self, location=None, tasklist=None):

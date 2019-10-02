@@ -7,7 +7,6 @@ from .state import (  # noqa
 )
 from .user import (
     UserError,
-    TomorrowIsEmptyError,
     LogfileNotCompletedError,
     MissingThemeError,
     AgendaNotReviewedError,
@@ -38,7 +37,6 @@ __all__ = (
     "TasklistLayoutError",
     "LogfileLayoutError",
     "UserError",
-    "TomorrowIsEmptyError",
     "LogfileNotCompletedError",
     "DayStillInProgressError",
     "LogfileAlreadyExistsError",

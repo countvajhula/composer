@@ -212,9 +212,9 @@ class TestPreferences(object):
             "schedule": "standard",
             "bullet_character": "*",
             "logfile_completion_checking": LOGFILE_CHECKING['STRICT'],
-            "tomorrow_checking": LOGFILE_CHECKING['LAX'],
             "jump": False,
             "week_theme": "revival",
+            "agenda_reviewed": Week,
         }
         planner.set_preferences(preferences)
         assert planner.schedule == preferences['schedule']
@@ -224,16 +224,15 @@ class TestPreferences(object):
             planner.logfile_completion_checking
             == preferences['logfile_completion_checking']
         )
-        assert planner.tomorrow_checking == preferences["tomorrow_checking"]
         assert planner.week_theme == preferences.get("week_theme")
+        assert planner.agenda_reviewed == preferences.get("agenda_reviewed")
 
     def test_jump_overrides_strict_checking(self, planner_base):
         planner = planner_base
         preferences = {
             "schedule": "standard",
             "bullet_character": "*",
-            "logfile_completion_checking": 1,
-            "tomorrow_checking": 2,
+            "logfile_completion_checking": LOGFILE_CHECKING['STRICT'],
             "jump": True,
             "week_theme": "revival",
         }
@@ -242,5 +241,4 @@ class TestPreferences(object):
         assert planner.preferred_bullet_char == preferences['bullet_character']
         assert planner.jumping == preferences['jump']
         assert planner.logfile_completion_checking == LOGFILE_CHECKING['LAX']
-        assert planner.tomorrow_checking == LOGFILE_CHECKING['LAX']
         assert planner.week_theme == preferences.get("week_theme")

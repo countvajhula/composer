@@ -599,7 +599,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(2012, 12, 5, 19, 0, 0)
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]  # seems this happens even without declaring it here - need to reset these in tearDown()
@@ -613,7 +612,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         )  # 3/3/2012 is a Saturday, but since current week is only 3 days (too short), should advance only day
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -627,7 +625,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         )  # 2/4/2012 is a Saturday, but since current week is 4 days (just short of requirement), should advance only day
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -641,7 +638,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         )  # 12/29/2012 is a Saturday, but since new week would be too short, should advance only day
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -655,7 +651,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         )  # 2/25/2012 is a Saturday, but since new week is 4 days (just short of requirement), should advance only day
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -667,7 +662,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(2012, 12, 8, 19, 0, 0)
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -681,7 +675,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         )  # 5/5/2012 is Sat, and current week is exactly 5 days long (long enough), so should advance week
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -695,7 +688,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         )  # 5/26/2012 is Sat, and new week would be exactly 5 days long (long enough), so should advance week
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -707,7 +699,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(2012, 11, 30, 19, 0, 0)
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -719,7 +710,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(2012, 3, 31, 19, 0, 0)
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -731,7 +721,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -756,7 +745,6 @@ class PlannerAdvanceTester(unittest.TestCase):
 
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -806,7 +794,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         daytemplate += self.default_weekdaytemplate
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -872,7 +859,6 @@ class PlannerAdvanceTester(unittest.TestCase):
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
         daytemplate += self.default_weekdaytemplate
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -931,7 +917,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         daytemplate += self.default_weekendtemplate
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -986,7 +971,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         daytemplate += self.default_weekendtemplate
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -1037,7 +1021,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         daytemplate += self.default_weekdaytemplate
         self.planner.now = now
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -1053,7 +1036,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         """ Check that, on day advance, current day's agenda is appended to the current week """
         now = datetime.datetime(2012, 12, 5, 19, 0, 0)
         self.planner.date = now.date()
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -1068,7 +1050,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(2012, 12, 5, 19, 0, 0)
         self.planner.date = now.date()
         self.planner.weekfile = StringIO(self.weektemplate_agendaupdated)
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -1083,7 +1064,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(2012, 12, 5, 19, 0, 0)
         self.planner.date = now.date()
         self.planner.monthfile = StringIO(self.monthtemplate_agendaupdated)
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -1098,7 +1078,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         now = datetime.datetime(2012, 12, 5, 19, 0, 0)
         self.planner.date = now.date()
         self.planner.quarterfile = StringIO(self.quartertemplate_agendaupdated)
-        self.planner.tomorrow_checking = config.LOGFILE_CHECKING['LAX']
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]

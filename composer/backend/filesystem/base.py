@@ -16,7 +16,6 @@ from ...errors import (
     LogfileLayoutError,
     SchedulingDateError,
     TasklistLayoutError,
-    TomorrowIsEmptyError,
 )
 from ...utils import display_message
 from .scheduling import (
@@ -355,14 +354,6 @@ class FilesystemPlanner(PlannerBase):
         if period == Day:
             scheduled = self.tasklist.get_due_tasks(next_day)
             tomorrow = self.tasklist.get_tasks_for_tomorrow()
-            if (
-                tomorrow == ""
-                and self.tomorrow_checking == LOGFILE_CHECKING["STRICT"]
-            ):
-                raise TomorrowIsEmptyError(
-                    "The tomorrow section is blank. Do you want to add"
-                    " some tasks for tomorrow?"
-                )
             undone = self.get_todays_unfinished_tasks()
 
         template = get_template(self, period, next_day)
@@ -615,8 +606,8 @@ class FilesystemTasklist(TasklistBase):
         and return those, and also return a version of the tasklist file
         with those tasks removed.
 
-        :returns tuple: The tasks for tomorrow (str), and the 'complement'
-            tasklist file
+        :returns tuple: The tasks under the specified time period (str), and
+            the 'complement' tasklist file
         """
         if period == Day:
             section = 'TOMORROW'
