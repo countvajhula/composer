@@ -115,7 +115,7 @@ def process_wiki(wikidir, preferences, now):
                 "The tomorrow section is blank. Do you want to work on "
                 "some of this week's tasks tomorrow? [y/n]__",
                 newline=False,
-                prompt=True
+                prompt=True,
             )
             yn = raw_input()
             if yn.lower().startswith("y"):
@@ -185,9 +185,9 @@ def process_wiki(wikidir, preferences, now):
                 )
             )
             display_message(err.agenda)
-            display_message("Does that look good? [y/n]__",
-                            newline=False,
-                            prompt=True)
+            display_message(
+                "Does that look good? [y/n]__", newline=False, prompt=True
+            )
             yn = raw_input()
             if yn.lower().startswith("y"):
                 preferences["agenda_reviewed"] = err.period
@@ -208,7 +208,8 @@ def process_wiki(wikidir, preferences, now):
                 # are about to be written to planner
                 display_message()
                 display_message(
-                    "Saving EOD planner state before making changes", interactive=True
+                    "Saving EOD planner state before making changes",
+                    interactive=True,
                 )
                 plannerdate = planner.date
                 (date, month, year) = (
@@ -247,7 +248,9 @@ def process_wiki(wikidir, preferences, now):
                 # save the (common) tasklist
                 planner.tasklist.save()
 
-                _post_advance_tasks(wikidir, next_day_planner.date, preferences)
+                _post_advance_tasks(
+                    wikidir, next_day_planner.date, preferences
+                )
                 if (
                     planner.jumping
                 ):  # if jumping, keep repeating until present-day error thrown

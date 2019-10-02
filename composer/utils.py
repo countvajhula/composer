@@ -9,7 +9,9 @@ def _write_out(message):
     sys.stdout.flush()
 
 
-def display_message(message=None, newline=True, interactive=False, prompt=False):
+def display_message(
+    message=None, newline=True, interactive=False, prompt=False
+):
     """ Show a message to the user.
 
     :param str message: The message

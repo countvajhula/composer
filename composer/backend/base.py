@@ -62,7 +62,9 @@ class PlannerBase(ABC):
             "tomorrow_checking", self.tomorrow_checking
         )
         self.week_theme = preferences.get("week_theme", self.week_theme)
-        self.agenda_reviewed = preferences.get("agenda_reviewed", self.agenda_reviewed)
+        self.agenda_reviewed = preferences.get(
+            "agenda_reviewed", self.agenda_reviewed
+        )
         if self.jumping:
             # jumping overrides preferences for logfile checking
             self.logfile_completion_checking = LOGFILE_CHECKING["LAX"]
@@ -138,10 +140,8 @@ class PlannerBase(ABC):
         # newly written one rather than the closing state of the one at the end
         # of the period in question.
         display_message(
-            "Performing bookkeeping for {period}'s end".format(
-                period=period
-            ),
-            interactive=True
+            "Performing bookkeeping for {period}'s end".format(period=period),
+            interactive=True,
         )
         if not self.check_log_completion(period):
             msg = (
@@ -163,13 +163,16 @@ class PlannerBase(ABC):
 
         :param :class:`~composer.timeperiod.Period` period: The period to begin
         """
-        display_message("Beginning new {period}".format(period=period),
-                        interactive=True)
+        display_message(
+            "Beginning new {period}".format(period=period), interactive=True
+        )
         if period == Week and self.week_theme is None:
             # it would be an empty string (rather than None) if the user
             # was asked about it but chose to enter nothing
-            raise MissingThemeError("Missing theme for the {period}!".format(period=period),
-                                    period=period)
+            raise MissingThemeError(
+                "Missing theme for the {period}!".format(period=period),
+                period=period,
+            )
         self.create_log(period, next_day)
         if self.agenda_reviewed < period:
             if period == Day:
@@ -187,8 +190,11 @@ class PlannerBase(ABC):
             else:
                 # show the agenda as indicated for the period in the tasklist
                 agenda, _ = self.tasklist.get_tasks(period)
-            raise AgendaNotReviewedError("Agenda for {period} not reviewed!".format(period=period),
-                                         period=period, agenda=agenda)
+            raise AgendaNotReviewedError(
+                "Agenda for {period} not reviewed!".format(period=period),
+                period=period,
+                agenda=agenda,
+            )
 
     def continue_period(self, period, next_day):
         """ Perform any tasks needed to continue an existing period in light of
@@ -286,7 +292,6 @@ class PlannerBase(ABC):
 
 
 class TasklistBase(ABC):
-
     @abc.abstractmethod
     def get_tasks(self, period):
         raise NotImplementedError

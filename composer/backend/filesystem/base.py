@@ -313,7 +313,7 @@ class FilesystemPlanner(PlannerBase):
         display_message(
             "Carrying over any unfinished tasks from today"
             " to tomorrow's agenda",
-            interactive=True
+            interactive=True,
         )
         try:
             tasks, _ = read_section(self.dayfile, 'agenda')
@@ -349,7 +349,7 @@ class FilesystemPlanner(PlannerBase):
         """
         display_message(
             "Creating log file for {period}".format(period=period),
-            interactive=True
+            interactive=True,
         )
         scheduled = tomorrow = undone = None
         if period == Day:
@@ -385,7 +385,7 @@ class FilesystemPlanner(PlannerBase):
         """
         display_message(
             "Updating log file for {period}".format(period=period),
-            interactive=True
+            interactive=True,
         )
         template = get_template(self, period, next_day)
         contents = template.update()
@@ -553,7 +553,9 @@ class FilesystemTasklist(TasklistBase):
             # needed for tests atm -- eventually make location a required arg
             return
         self.location = location
-        self.file = read_file(full_file_path(root=location, filename=PLANNERTASKLISTFILE))
+        self.file = read_file(
+            full_file_path(root=location, filename=PLANNERTASKLISTFILE)
+        )
 
     def get_due_tasks(self, for_day):
         """ Look at the SCHEDULED section of the tasklist and retrieve any
@@ -588,7 +590,8 @@ class FilesystemTasklist(TasklistBase):
 
         display_message(
             "Checking previously scheduled tasks for any that "
-            "are due tomorrow", interactive=True
+            "are due tomorrow",
+            interactive=True,
         )
         try:
             scheduled, tasklist_no_scheduled = read_section(
@@ -621,9 +624,7 @@ class FilesystemTasklist(TasklistBase):
             section = 'THIS ' + str(period).upper()
 
         try:
-            tasks, tasklist_complement = read_section(
-                self.file, section
-            )
+            tasks, tasklist_complement = read_section(self.file, section)
         except ValueError:
             raise TasklistLayoutError(
                 "Error: No '{section}' section found in your tasklist!"
@@ -640,7 +641,7 @@ class FilesystemTasklist(TasklistBase):
         """
         display_message(
             "Moving tasks added for tomorrow over to tomorrow's agenda",
-            interactive=True
+            interactive=True,
         )
         tasks, tasklist_nextday = self.get_tasks(Day)
         self.file = tasklist_nextday
