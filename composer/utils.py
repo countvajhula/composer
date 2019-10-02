@@ -40,6 +40,15 @@ def display_message(
             sleep(PROGRESS_DELAY)
             _write_out(c)
     if acknowledge:
-        raw_input()
+        ask_input()
     if newline:
         _write_out('\n')
+
+
+def ask_input(message=''):
+    """ Ask for input from the user.
+
+    :param str message: The message to prompt the user with
+    :returns str: The input from the user
+    """
+    return raw_input(message)

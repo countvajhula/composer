@@ -24,7 +24,7 @@ from .timeperiod import (
     get_next_period,
     get_next_day,
 )
-from .utils import display_message
+from .utils import display_message, ask_input
 
 from .errors import (
     AgendaNotReviewedError,
@@ -39,11 +39,6 @@ try:  # py2
     from StringIO import StringIO
 except ImportError:  # py3
     from io import StringIO
-
-try:  # py2
-    raw_input
-except NameError:  # py3
-    raw_input = input
 
 CONFIG_ROOT = os.getenv("COMPOSER_ROOT", os.path.expanduser("~/.composer"))
 CONFIG_FILE = os.path.join(CONFIG_ROOT, config.CONFIG_FILENAME)
@@ -130,7 +125,7 @@ def process_wiki(wikidir, preferences, now):
                 newline=False,
                 prompt=True,
             )
-            yn = raw_input()
+            yn = ask_input()
             if yn.lower().startswith("y"):
                 display_message(
                     "No problem. Press any key when you are done"
@@ -138,7 +133,7 @@ def process_wiki(wikidir, preferences, now):
                     newline=False,
                     prompt=True,
                 )
-                raw_input()
+                ask_input()
             elif yn.lower().startswith("n"):
                 preferences[
                     'logfile_completion_checking'
@@ -161,7 +156,7 @@ def process_wiki(wikidir, preferences, now):
                 newline=False,
                 prompt=True,
             )
-            theme = raw_input()
+            theme = ask_input()
             preferences[
                 "week_theme"
             ] = theme  # empty string if the user entered nothing
@@ -191,7 +186,7 @@ def process_wiki(wikidir, preferences, now):
             display_message(
                 "Does that look good? [y/n]__", newline=False, prompt=True
             )
-            yn = raw_input()
+            yn = ask_input()
             if yn.lower().startswith("y"):
                 preferences["agenda_reviewed"] = err.period
             elif yn.lower().startswith("n"):
@@ -210,7 +205,7 @@ def process_wiki(wikidir, preferences, now):
                     newline=False,
                     prompt=True,
                 )
-                raw_input()
+                ask_input()
 
         else:
             # print "DEV: simulation passed. let's do this thing
@@ -314,7 +309,7 @@ def main(wikipath=None, test=False, jump=False):
         display_message()
         display_message(">>> Get ready to JUMP! <<<")
         display_message()
-        raw_input()
+        ask_input()
 
     for wikidir in wikidirs:
         process_wiki(
