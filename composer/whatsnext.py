@@ -9,8 +9,21 @@ import click
 from . import advice
 from . import config
 from . import updateindex
-from .backend import FilesystemPlanner, FilesystemTasklist
-from .timeperiod import Day, Year, get_next_period
+from .backend import (
+    FilesystemPlanner,
+    FilesystemTasklist,
+    get_month_name,
+    quarter_for_month,
+)
+from .timeperiod import (
+    Day,
+    Month,
+    Quarter,
+    Week,
+    Year,
+    get_next_period,
+    get_next_day,
+)
 from .utils import display_message
 
 from .errors import (
@@ -153,13 +166,22 @@ def process_wiki(wikidir, preferences, now):
                 "week_theme"
             ] = theme  # empty string if the user entered nothing
         except AgendaNotReviewedError as err:
+            next_day = get_next_day(planner.date)
+            if err.period == Day:
+                period_string = "tomorrow"
+            elif err.period == Week:
+                period_string = "next {period}".format(period=err.period)
+            elif err.period == Month:
+                period_string = get_month_name(next_day.month)
+            elif err.period == Quarter:
+                month = get_month_name(next_day.month)
+                period_string = quarter_for_month(next_day.month)
+            elif err.period == Year:
+                period_string = str(next_day.year)
+
             display_message(
-                "This is what you have lined up for {period_string} "
-                "at the moment:".format(
-                    period_string="tomorrow"
-                    if err.period == Day
-                    else "next {period}".format(period=err.period)
-                )
+                "This is what you have lined up for {period} "
+                "at the moment:".format(period=period_string)
             )
             display_message(err.agenda)
             display_message(

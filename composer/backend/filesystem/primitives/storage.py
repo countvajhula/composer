@@ -15,7 +15,7 @@ FILENAME_TEMPLATE = {
 def quarter_for_month(month):
     """ Given a month, return the quarter that it's part of.
 
-    :param month: The month
+    :param str month: The month
     :returns str: The corresponding quarter
     """
     if month.lower() in ("january", "february", "march"):
