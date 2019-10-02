@@ -1,6 +1,11 @@
 import sys
 from time import sleep
 
+try:  # py2
+    raw_input
+except NameError:  # py3
+    raw_input = input
+
 PROGRESS_DELAY = 0
 
 
@@ -10,7 +15,7 @@ def _write_out(message):
 
 
 def display_message(
-    message=None, newline=True, interactive=False, prompt=False
+    message=None, newline=True, interactive=False, prompt=False, acknowledge=False,
 ):
     """ Show a message to the user.
 
@@ -30,5 +35,7 @@ def display_message(
         for c in "...":
             sleep(PROGRESS_DELAY)
             _write_out(c)
+    if acknowledge:
+        raw_input()
     if newline:
         _write_out('\n')
