@@ -159,15 +159,9 @@ class PlannerBase(ABC):
         :param :class:`~composer.timeperiod.Period` period: The period to begin
         """
         display_message(
-            "Beginning new {period}".format(period=period), interactive=True
+            "Beginning new {period}".format(period=str(period).upper()),
+            interactive=True,
         )
-        if period == Week and self.week_theme is None:
-            # it would be an empty string (rather than None) if the user
-            # was asked about it but chose to enter nothing
-            raise MissingThemeError(
-                "Missing theme for the {period}!".format(period=period),
-                period=period,
-            )
         self.create_log(period, next_day)
         if self.agenda_reviewed < period:
             if period == Day:
@@ -189,6 +183,13 @@ class PlannerBase(ABC):
                 "Agenda for {period} not reviewed!".format(period=period),
                 period=period,
                 agenda=agenda,
+            )
+        if period == Week and self.week_theme is None:
+            # it would be an empty string (rather than None) if the user
+            # was asked about it but chose to enter nothing
+            raise MissingThemeError(
+                "Missing theme for the {period}!".format(period=period),
+                period=period,
             )
 
     def continue_period(self, period, next_day):
