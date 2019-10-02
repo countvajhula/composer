@@ -607,6 +607,30 @@ class FilesystemTasklist(TasklistBase):
         self.file = new_tasklist
         return due
 
+    def get_tasks(self, period):
+        """ Read the tasklist, parse all tasks under a specific time period
+        and return those, and also return a version of the tasklist file
+        with those tasks removed.
+
+        :returns tuple: The tasks for tomorrow (str), and the 'complement'
+            tasklist file
+        """
+        if period == Day:
+            section = 'TOMORROW'
+        else:
+            section = 'THIS ' + str(period).upper()
+
+        try:
+            tasks, tasklist_complement = read_section(
+                self.file, section
+            )
+        except ValueError:
+            raise TasklistLayoutError(
+                "Error: No '{section}' section found in your tasklist!"
+                " Please add one and try again.".format(section=section)
+            )
+        return tasks.read(), tasklist_complement
+
     def get_tasks_for_tomorrow(self):
         """ Read the tasklist, parse all tasks under the TOMORROW section
         and return those. **This also mutates the tasklist by removing those
@@ -618,17 +642,9 @@ class FilesystemTasklist(TasklistBase):
             "Moving tasks added for tomorrow over to tomorrow's agenda",
             interactive=True
         )
-        try:
-            tasks, tasklist_nextday = read_section(
-                self.file, 'tomorrow'
-            )
-        except ValueError:
-            raise TasklistLayoutError(
-                "Error: No 'TOMORROW' section found in your tasklist!"
-                " Please add one and try again."
-            )
+        tasks, tasklist_nextday = self.get_tasks(Day)
         self.file = tasklist_nextday
-        return tasks.read()
+        return tasks
 
     def save(self):
         """ Write the tasklist object to the filesystem.

@@ -14,6 +14,7 @@ from .timeperiod import Day, Year, get_next_period
 from .utils import display_message
 
 from .errors import (
+    AgendaNotReviewedError,
     SchedulingError,
     LayoutError,
     LogfileNotCompletedError,
@@ -174,6 +175,31 @@ def process_wiki(wikidir, preferences, now):
             preferences[
                 "week_theme"
             ] = theme  # empty string if the user entered nothing
+        except AgendaNotReviewedError as err:
+            display_message(
+                "This is what you have lined up for {period_string} "
+                "at the moment:".format(
+                    period_string="tomorrow"
+                    if err.period == Day
+                    else "next {period}".format(period=err.period)
+                )
+            )
+            display_message(err.agenda)
+            display_message("Does that look good? [y/n]__",
+                            newline=False,
+                            prompt=True)
+            yn = raw_input()
+            if yn.lower().startswith("y"):
+                preferences["agenda_reviewed"] = err.period
+            elif yn.lower().startswith("n"):
+                display_message(
+                    "Go ahead and move any tasks in and out of the "
+                    "appropriate task lists. Press any key when you are done.",
+                    newline=False,
+                    prompt=True,
+                )
+                raw_input()
+
         else:
             # print "DEV: simulation passed. let's do this thing
             # ... for real."

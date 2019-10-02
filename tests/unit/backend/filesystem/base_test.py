@@ -11,7 +11,23 @@ from mock import MagicMock, patch
 from ...fixtures import planner, logfile, complete_logfile, tasklist
 
 
-class TestGetAgenda(object):
+class TestFilesystemBase(object):
+    def note_filename(self):
+        self.filenames = []
+
+        def make_note(contents, filename):
+            name_index = filename.rfind('/')
+            name = filename[name_index + 1 :]
+            self.filenames.append(name)
+
+        return make_note
+
+
+class TestPlanner(TestFilesystemBase):
+    pass
+
+
+class TestGetAgenda(TestPlanner):
     def test_no_period_returns_none(self, planner):
         result = planner.get_agenda(Zero)
         assert result is None
@@ -45,7 +61,7 @@ class TestGetAgenda(object):
         assert result == expected
 
 
-class TestUpdateAgenda(object):
+class TestUpdateAgenda(TestPlanner):
     def test_missing_agenda_raises_error(self, planner):
         mock_get_logfile = MagicMock()
         mock_get_logfile.return_value = make_file(
@@ -81,7 +97,7 @@ class TestUpdateAgenda(object):
         assert planner.dayfile.getvalue() == expected
 
 
-class TestCheckLogCompletion(object):
+class TestCheckLogCompletion(TestPlanner):
     def test_lax_checking(self, planner, logfile):
         planner.logfile_completion_checking = LOGFILE_CHECKING['LAX']
         planner.dayfile = logfile
@@ -101,7 +117,7 @@ class TestCheckLogCompletion(object):
         assert result is True
 
 
-class TestSave(object):
+class TestOkToAdvance(TestPlanner):
     @patch(
         'composer.backend.filesystem.interface.os.path.isfile',
         return_value=True,
@@ -110,16 +126,8 @@ class TestSave(object):
         with pytest.raises(LogfileAlreadyExistsError):
             planner.is_ok_to_advance()
 
-    def _note_filename(self):
-        self.filenames = []
 
-        def make_note(contents, filename):
-            name_index = filename.rfind('/')
-            name = filename[name_index + 1 :]
-            self.filenames.append(name)
-
-        return make_note
-
+class TestPlannerSave(TestPlanner):
     @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
     def test_writes_log_for_all_periods(
@@ -135,7 +143,7 @@ class TestSave(object):
     @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
     def test_writes_log_for_period(self, mock_write_file, mock_os, planner):
-        mock_write_file.side_effect = self._note_filename()
+        mock_write_file.side_effect = self.note_filename()
         planner.save(Month)
         assert any('Month' in filename for filename in self.filenames)
 
@@ -144,7 +152,7 @@ class TestSave(object):
     def test_writes_log_for_contained_period(
         self, mock_write_file, mock_os, planner
     ):
-        mock_write_file.side_effect = self._note_filename()
+        mock_write_file.side_effect = self.note_filename()
         planner.save(Month)
         assert any('Week' in filename for filename in self.filenames)
 
@@ -153,15 +161,21 @@ class TestSave(object):
     def test_does_not_write_log_for_unaffected_period(
         self, mock_write_file, mock_os, planner
     ):
-        mock_write_file.side_effect = self._note_filename()
+        mock_write_file.side_effect = self.note_filename()
         planner.save(Day)
         # because os is mocked, this filename remains 'currentquarter'
         assert not any('Month' in filename for filename in self.filenames)
 
+
+class TestTasklist(TestFilesystemBase):
+    pass
+
+
+class TestTasklistSave(TestTasklist):
     @patch('composer.backend.filesystem.base.os')
     @patch('composer.backend.filesystem.base.write_file')
     def test_writes_tasklist(self, mock_write_file, mock_os, tasklist):
-        mock_write_file.side_effect = self._note_filename()
+        mock_write_file.side_effect = self.note_filename()
         tasklist.save()
         assert any(
             PLANNERTASKLISTFILE in filename for filename in self.filenames

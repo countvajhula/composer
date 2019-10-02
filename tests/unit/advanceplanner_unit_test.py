@@ -592,6 +592,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.week_theme = ''
         self.planner.location = ''
         self.planner.next_day_planner = FilesystemPlanner()
+        self.planner.agenda_reviewed = Year
 
     def test_decision_for_typical_day_advance(self):
         """ Check that planner advance takes the correct decision to advance day on a typical day change boundary """

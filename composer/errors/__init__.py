@@ -10,6 +10,7 @@ from .user import (
     TomorrowIsEmptyError,
     LogfileNotCompletedError,
     MissingThemeError,
+    AgendaNotReviewedError,
 )  # noqa
 from .layout import (
     LayoutError,
@@ -44,4 +45,5 @@ __all__ = (
     "PlannerIsInTheFutureError",
     "PlannerStateError",
     "MissingThemeError",
+    "AgendaNotReviewedError",
 )

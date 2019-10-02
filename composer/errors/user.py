@@ -35,3 +35,13 @@ class MissingThemeError(UserError):
 
     def __str__(self):
         return repr(self.value)
+
+
+class AgendaNotReviewedError(UserError):
+    def __init__(self, value, period, agenda):
+        self.value = value
+        self.period = period
+        self.agenda = agenda
+
+    def __str__(self):
+        return repr(self.value)

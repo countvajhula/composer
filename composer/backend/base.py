@@ -8,6 +8,7 @@ from ..config import (
     LOGFILE_CHECKING,
 )
 from ..errors import (
+    AgendaNotReviewedError,
     LogfileNotCompletedError,
     PlannerIsInTheFutureError,
     MissingThemeError,
@@ -35,6 +36,7 @@ class PlannerBase(ABC):
     week_theme = None
     jumping = False
     next_day_planner = None
+    agenda_reviewed = Zero
     tasklist = None
 
     def __init__(self, location, tasklist):
@@ -60,6 +62,7 @@ class PlannerBase(ABC):
             "tomorrow_checking", self.tomorrow_checking
         )
         self.week_theme = preferences.get("week_theme", self.week_theme)
+        self.agenda_reviewed = preferences.get("agenda_reviewed", self.agenda_reviewed)
         if self.jumping:
             # jumping overrides preferences for logfile checking
             self.logfile_completion_checking = LOGFILE_CHECKING["LAX"]
@@ -165,8 +168,27 @@ class PlannerBase(ABC):
         if period == Week and self.week_theme is None:
             # it would be an empty string (rather than None) if the user
             # was asked about it but chose to enter nothing
-            raise MissingThemeError("Missing theme for the week!", period=Week)
+            raise MissingThemeError("Missing theme for the {period}!".format(period=period),
+                                    period=period)
         self.create_log(period, next_day)
+        if self.agenda_reviewed < period:
+            if period == Day:
+                # show the tentative agenda as constituted by tasks added
+                # directly for tomorrow, tasks carrying over from today, and
+                # scheduled tasks becoming due tomorrow. It may make things
+                # simpler if we just do all of those things as part of EOP
+                # activities and constitute them all in the TOMORROW section of
+                # the tasklist, for review by the user. Then, it can be treated
+                # the same as any other period for review here. On the other
+                # hand, this would imply that the disk state is being mutated
+                # by planner logic prior to saving the "pre-advance" state in
+                # git, which may be unsafe
+                agenda = self.next_day_planner.get_agenda(period)
+            else:
+                # show the agenda as indicated for the period in the tasklist
+                agenda, _ = self.tasklist.get_tasks(period)
+            raise AgendaNotReviewedError("Agenda for {period} not reviewed!".format(period=period),
+                                         period=period, agenda=agenda)
 
     def continue_period(self, period, next_day):
         """ Perform any tasks needed to continue an existing period in light of
@@ -265,6 +287,9 @@ class PlannerBase(ABC):
 
 class TasklistBase(ABC):
 
+    @abc.abstractmethod
+    def get_tasks(self, period):
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_due_tasks(self, for_day):
