@@ -142,6 +142,9 @@ def _planner_base():
         def construct(self, location=None):
             pass
 
+        def get_log(self, for_day, period):
+            pass
+
         def get_agenda(self, period):
             pass
 
@@ -157,10 +160,10 @@ def _planner_base():
         def get_todays_unfinished_tasks(self):
             pass
 
-        def create_log(self, period, next_day):
+        def create_log(self, period, for_day):
             pass
 
-        def update_log(self, period, next_day):
+        def update_log(self, period, for_day):
             pass
 
         def is_ok_to_advance(self, period=Year):

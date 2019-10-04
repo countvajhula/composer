@@ -593,6 +593,9 @@ class PlannerAdvanceTester(unittest.TestCase):
         self.planner.location = ''
         self.planner.next_day_planner = FilesystemPlanner()
         self.planner.agenda_reviewed = Year
+        mock_get_log = MagicMock()
+        mock_get_log.return_value = True
+        self.planner.get_log = mock_get_log
 
     def test_decision_for_typical_day_advance(self):
         """ Check that planner advance takes the correct decision to advance day on a typical day change boundary """

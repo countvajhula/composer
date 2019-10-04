@@ -26,7 +26,7 @@ from .scheduling import (
     string_to_date,
 )
 from .templates import get_template
-from .interface import ensure_file_does_not_exist
+from .interface import ensure_file_does_not_exist, get_log_for_date
 
 # should minimize use of low-level (lower than "entry" level) primitives in
 # this file. if necessary, provide duplicate versions of functions at the
@@ -51,6 +51,11 @@ from .primitives import (
     read_section,
     bare_filename,
 )
+
+try:  # py3
+    FileNotFoundError
+except NameError:  # py2
+    FileNotFoundError = IOError
 
 SCHEDULE_FILE_PREFIX = "Checkpoints"
 PLANNERTASKLISTFILE = "TaskList.wiki"
@@ -250,6 +255,21 @@ class FilesystemPlanner(PlannerBase):
                 read_file(full_file_path(root=location, filename=filename)),
             )
 
+    def get_log(self, for_day, period):
+        """ Get the log file responsible for the specified period and date.
+
+        :param :class:`~composer.timeperiod.Period` period: The period for
+            which to get the log file
+        :param :class:`datetime.date` for_day: The reference date to identify
+            the desired log file.
+        """
+        try:
+            log = get_log_for_date(period, for_day, self.location)
+        except FileNotFoundError:
+            return None
+        else:
+            return log
+
     def schedule_tasks(self):
         """ Parse tasklist and today's agenda for any (e.g. newly-added)
         scheduled tasks, and move them to the scheduled section of the tasklist
@@ -336,7 +356,7 @@ class FilesystemPlanner(PlannerBase):
 
         return tasks
 
-    def create_log(self, period, next_day):
+    def create_log(self, period, for_day):
         """ Create a new log for the specified period and associate it with the
         current Planner instance. **This updates the logfile attribute
         corresponding to the period in question to the newly created logical
@@ -344,7 +364,8 @@ class FilesystemPlanner(PlannerBase):
 
         :param :class:`~composer.timeperiod.Period` period: The period for
             which to create the log file
-        :param :class:`dateime.date` next_day: The date for the new log file
+        :param :class:`datetime.date` for_day: The reference date which is to
+            fall under the purview of the new log file.
         """
         display_message(
             "Creating log file for {period}".format(period=period),
@@ -352,11 +373,13 @@ class FilesystemPlanner(PlannerBase):
         )
         scheduled = tomorrow = undone = None
         if period == Day:
-            scheduled = self.tasklist.get_due_tasks(next_day)
+            scheduled = self.tasklist.get_due_tasks(for_day)
             tomorrow = self.tasklist.get_tasks_for_tomorrow()
             undone = self.get_todays_unfinished_tasks()
 
-        template = get_template(self, period, next_day)
+        # for jumps, start date of the period may not equal next day
+        start_date = period.get_start_date(for_day)
+        template = get_template(self, period, start_date)
         contents = template.build(
             scheduled=scheduled, tomorrow=tomorrow, undone=undone
         )
@@ -365,20 +388,20 @@ class FilesystemPlanner(PlannerBase):
         log_attr = self._logfile_attribute(period)
         setattr(self.next_day_planner, log_attr, make_file(contents))
 
-    def update_log(self, period, next_day):
+    def update_log(self, period, for_day):
         """ Update the existing log for the specified period to account for the
         advancement of a contained period.
 
         :param :class:`~composer.timeperiod.Period` period: The period for
             which to update the log file
-        :param :class:`dateime.date` next_day: The new day in consideration of
-            which the log file needs to be updated
+        :param :class:`datetime.date` for_day: The reference date for
+            which the corresponding log file needs to be updated
         """
         display_message(
             "Updating log file for {period}".format(period=period),
             interactive=True,
         )
-        template = get_template(self, period, next_day)
+        template = get_template(self, period, for_day)
         contents = template.update()
         self._update_logfile(period, contents)
 

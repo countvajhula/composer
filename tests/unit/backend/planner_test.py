@@ -83,18 +83,21 @@ class TestAdvance(object):
 
 class TestAdvancePeriod(object):
     def _set_up_advance(
-        self, mock_next_period, planner_base, n=1
+        self, mock_next_period, planner, n=1
     ):
         now = datetime.datetime(2013, 1, 1)
-        planner_base.now = now
+        planner.now = now
         current_day = now.date()
-        planner_base.date = current_day
-        planner_base.week_theme = ''
-        planner_base.agenda_reviewed = Year
+        planner.date = current_day
+        planner.week_theme = ''
+        planner.agenda_reviewed = Year
         next_day = datetime.date(2013, 1, 2)
         mock_next_day = MagicMock()
         mock_next_day.return_value = next_day
-        planner_base.next_day = mock_next_day
+        planner.next_day = mock_next_day
+        mock_get_log = MagicMock()
+        mock_get_log.return_value = True
+        planner.get_log = mock_get_log
         next_period = (
             Week.__class__()
         )  # patching the singleton directly has global effect

@@ -75,6 +75,10 @@ class PlannerBase(ABC):
         return self.jump_to_date if self.jump_to_date else get_next_day(self.date)
 
     @abc.abstractmethod
+    def get_log(self, for_day, period):
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_agenda(self, period):
         raise NotImplementedError
 
@@ -95,11 +99,11 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def create_log(self, period, next_day):
+    def create_log(self, period, for_day):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def update_log(self, period, next_day):
+    def update_log(self, period, for_day):
         raise NotImplementedError
 
     def cascade_agenda(self, period):
@@ -157,17 +161,18 @@ class PlannerBase(ABC):
             # limit to month to minimize extravagant duplication
             self.cascade_agenda(period)
 
-    def begin_period(self, period, next_day):
+    def begin_period(self, period, for_day):
         """ Perform any tasks needed to begin a new period.
         At the moment this just creates a log for the new period.
 
         :param :class:`~composer.timeperiod.Period` period: The period to begin
+        :param :class:`datetime.date` for_day: The day we are advancing to
         """
         display_message(
             "Beginning new {period}".format(period=str(period).upper()),
             interactive=True,
         )
-        self.create_log(period, next_day)
+        self.create_log(period, for_day)
         if self.agenda_reviewed < period:
             if period == Day:
                 # show the tentative agenda as constituted by tasks added
@@ -197,7 +202,7 @@ class PlannerBase(ABC):
                 period=period,
             )
 
-    def continue_period(self, period, next_day):
+    def continue_period(self, period, for_day):
         """ Perform any tasks needed to continue an existing period in light of
         the advance of a contained period.  At the moment this just updates the
         existing log for the period, e.g. to include a link to the newly
@@ -205,8 +210,9 @@ class PlannerBase(ABC):
 
         :param :class:`~composer.timeperiod.Period` period: The period to
             continue
+        :param :class:`datetime.date` for_day: The day we are advancing to
         """
-        self.update_log(period, next_day)
+        self.update_log(period, for_day)
 
     def advance_period(self, current_period=None, next_day=None):
         """ Recursive function to advance planner by day, week, month, quarter,
@@ -234,6 +240,15 @@ class PlannerBase(ABC):
             )
         except PlannerIsInTheFutureError:
             raise
+
+        if next_period > Day and not criteria_met:
+            # if we are jumping, then it's possible that even if calendar-based
+            # period boundary criteria are not met, that it still represents an
+            # advance of the concerned period since we may not already have a
+            # log file tracking the target date
+            is_date_tracked = self.get_log(next_day, next_period)
+            if not is_date_tracked:
+                criteria_met = True
 
         if criteria_met:
             self.end_period(next_period)

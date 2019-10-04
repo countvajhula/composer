@@ -33,7 +33,10 @@ def get_log_for_date(period, for_date, planner_root):
         return None
     start_date = period.get_start_date(for_date)
     log_path = get_log_filename(start_date, period, planner_root)
-    log = read_file(log_path)
+    try:
+        log = read_file(log_path)
+    except FileNotFoundError:
+        raise
     return log
 
 
