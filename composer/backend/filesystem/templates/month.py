@@ -2,20 +2,21 @@ from .base import Template
 
 
 class MonthTemplate(Template):
+
     def _file_handle(self):
         return 'monthfile'
 
-    def load_context(self, planner, next_day):
-        super(MonthTemplate, self).load_context(planner, next_day)
+    def load_context(self, planner, start_date):
+        super(MonthTemplate, self).load_context(planner, start_date)
         self.logfile = planner.monthfile
         self.checkpointsfile = planner.checkpoints_month_file
         self.periodicfile = planner.periodic_month_file
 
     def build(self, **kwargs):
         (date, month, year) = (
-            self.next_day.day,
-            self.next_day.strftime("%B"),
-            self.next_day.year,
+            self.start_date.day,
+            self.start_date.strftime("%B"),
+            self.start_date.year,
         )
         self.title = "= %s %d =\n" % (month.upper(), year)
         self.entry = "\t%s [[Week of %s %d, %d]]\n" % (
@@ -36,9 +37,9 @@ class MonthTemplate(Template):
         :returns str: The updated log file
         """
         (date, month, year) = (
-            self.next_day.day,
-            self.next_day.strftime("%B"),
-            self.next_day.year,
+            self.start_date.day,
+            self.start_date.strftime("%B"),
+            self.start_date.year,
         )
         monthcontents = self.logfile.read()
         last_week_entry = "Week of"

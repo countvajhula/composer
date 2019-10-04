@@ -3,17 +3,18 @@ from .base import Template
 
 
 class YearTemplate(Template):
+
     def _file_handle(self):
         return 'yearfile'
 
-    def load_context(self, planner, next_day):
-        super(YearTemplate, self).load_context(planner, next_day)
+    def load_context(self, planner, start_date):
+        super(YearTemplate, self).load_context(planner, start_date)
         self.logfile = planner.yearfile
         self.checkpointsfile = planner.checkpoints_year_file
         self.periodicfile = planner.periodic_year_file
 
     def build(self, **kwargs):
-        month, year = (self.next_day.strftime("%B"), self.next_day.year)
+        month, year = (self.start_date.strftime("%B"), self.start_date.year)
         self.title = "= %d =\n" % year
         self.entry = "\t%s [[%s %d]]\n" % (
             self.bullet_character,
@@ -31,7 +32,7 @@ class YearTemplate(Template):
 
         :returns str: The updated log file
         """
-        (month, year) = (self.next_day.strftime("%B"), self.next_day.year)
+        (month, year) = (self.start_date.strftime("%B"), self.start_date.year)
         yearcontents = self.logfile.read()
         last_quarter_entry = "Q"
         previdx = yearcontents.find(last_quarter_entry)

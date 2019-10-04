@@ -4,11 +4,12 @@ from .base import Template
 
 
 class WeekTemplate(Template):
+
     def _file_handle(self):
         return 'weekfile'
 
-    def load_context(self, planner, next_day):
-        super(WeekTemplate, self).load_context(planner, next_day)
+    def load_context(self, planner, start_date):
+        super(WeekTemplate, self).load_context(planner, start_date)
         self.logfile = planner.weekfile
         self.checkpointsfile = planner.checkpoints_week_file
         self.periodicfile = planner.periodic_week_file
@@ -16,9 +17,9 @@ class WeekTemplate(Template):
 
     def build(self, **kwargs):
         (date, month, year) = (
-            self.next_day.day,
-            self.next_day.strftime("%B"),
-            self.next_day.year,
+            self.start_date.day,
+            self.start_date.strftime("%B"),
+            self.start_date.year,
         )
         self.title = ("= WEEK OF %s %d, %d =\n" % (month, date, year)).upper()
         if self.theme:
@@ -42,12 +43,12 @@ class WeekTemplate(Template):
         :returns str: The updated log file
         """
         (date, month, year) = (
-            self.next_day.day,
-            self.next_day.strftime("%B"),
-            self.next_day.year,
+            self.start_date.day,
+            self.start_date.strftime("%B"),
+            self.start_date.year,
         )
         weekcontents = self.logfile.read()
-        previous_day = self.next_day - datetime.timedelta(days=1)
+        previous_day = self.start_date - datetime.timedelta(days=1)
         (dateprev, monthprev, yearprev) = (
             previous_day.day,
             previous_day.strftime("%B"),

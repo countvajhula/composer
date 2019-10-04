@@ -3,17 +3,18 @@ from .base import Template
 
 
 class QuarterTemplate(Template):
+
     def _file_handle(self):
         return 'quarterfile'
 
-    def load_context(self, planner, next_day):
-        super(QuarterTemplate, self).load_context(planner, next_day)
+    def load_context(self, planner, start_date):
+        super(QuarterTemplate, self).load_context(planner, start_date)
         self.logfile = planner.quarterfile
         self.checkpointsfile = planner.checkpoints_quarter_file
         self.periodicfile = planner.periodic_quarter_file
 
     def build(self, **kwargs):
-        (month, year) = (self.next_day.strftime("%B"), self.next_day.year)
+        (month, year) = (self.start_date.strftime("%B"), self.start_date.year)
         self.title = "= %s %d =\n" % (quarter_for_month(month), year)
         self.entry = "\t%s [[Month of %s, %d]]\n" % (
             self.bullet_character,
@@ -31,7 +32,7 @@ class QuarterTemplate(Template):
 
         :returns str: The updated log file
         """
-        (month, year) = (self.next_day.strftime("%B"), self.next_day.year)
+        (month, year) = (self.start_date.strftime("%B"), self.start_date.year)
         quartercontents = self.logfile.read()
         last_month_entry = "Month of"
         previdx = quartercontents.find(last_month_entry)

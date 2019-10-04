@@ -12,13 +12,14 @@ def _get_theme_for_the_day(day, daythemesfile):
 
 
 class DayTemplate(Template):
+
     def _file_handle(self):
         return 'dayfile'
 
-    def load_context(self, planner, next_day):
-        super(DayTemplate, self).load_context(planner, next_day)
+    def load_context(self, planner, start_date):
+        super(DayTemplate, self).load_context(planner, start_date)
         self.logfile = planner.dayfile
-        nextdow = next_day.strftime("%A")
+        nextdow = start_date.strftime("%A")
         if nextdow.lower() in ("saturday", "sunday"):
             self.checkpointsfile = planner.checkpoints_weekend_file
         else:
@@ -32,10 +33,10 @@ class DayTemplate(Template):
         tomorrow = kwargs.get('tomorrow')
         undone = kwargs.get('undone')
         (date, day, month, year) = (
-            self.next_day.day,
-            self.next_day.strftime("%A"),
-            self.next_day.strftime("%B"),
-            self.next_day.year,
+            self.start_date.day,
+            self.start_date.strftime("%A"),
+            self.start_date.strftime("%B"),
+            self.start_date.year,
         )
         self.title = (
             "= %s %s %d, %d =\n" % (day, month[:3], date, year)
