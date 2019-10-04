@@ -25,57 +25,57 @@ class TrueTimes(object):
 
 class TestAdvance(object):
     def _set_up_no_advance(
-        self, planner, mock_next_day, current_day, next_day
+        self, planner, current_day, next_day
     ):
         planner.date = current_day
+        mock_next_day = MagicMock()
         mock_next_day.return_value = next_day
+        planner.next_day = mock_next_day
         mock_advance_period = MagicMock()
         mock_advance_period.return_value = Zero
         planner.advance_period = mock_advance_period
 
-    def _set_up_advance(self, planner, mock_next_day, current_day, next_day):
+    def _set_up_advance(self, planner, current_day, next_day):
         planner.date = current_day
+        mock_next_day = MagicMock()
         mock_next_day.return_value = next_day
+        planner.next_day = mock_next_day
         mock_advance_period = MagicMock()
         mock_advance_period.return_value = Day
         planner.advance_period = mock_advance_period
 
-    @patch('composer.backend.base.get_next_day')
-    def test_no_advance_status(self, mock_next_day, planner_base):
+    def test_no_advance_status(self, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
         self._set_up_no_advance(
-            planner_base, mock_next_day, current_day, next_day
+            planner_base, current_day, next_day
         )
         status, _ = planner_base.advance()
         assert status == Zero
 
-    @patch('composer.backend.base.get_next_day')
-    def test_no_advance_next_planner(self, mock_next_day, planner_base):
+    def test_no_advance_next_planner(self, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
         self._set_up_no_advance(
-            planner_base, mock_next_day, current_day, next_day
+            planner_base, current_day, next_day
         )
         _, next_day_planner = planner_base.advance()
         assert next_day_planner is None
 
-    @patch('composer.backend.base.get_next_day')
-    def test_advance_status(self, mock_next_day, planner_base):
+    def test_advance_status(self, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
         self._set_up_advance(
-            planner_base, mock_next_day, current_day, next_day
+            planner_base, current_day, next_day
         )
         status, _ = planner_base.advance()
         assert status == Day
 
-    @patch('composer.backend.base.get_next_day')
-    def test_advance_next_planner(self, mock_next_day, planner_base):
+    def test_advance_next_planner(self, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
         self._set_up_advance(
-            planner_base, mock_next_day, current_day, next_day
+            planner_base, current_day, next_day
         )
         _, next_day_planner = planner_base.advance()
         assert next_day_planner.date == next_day
@@ -83,7 +83,7 @@ class TestAdvance(object):
 
 class TestAdvancePeriod(object):
     def _set_up_advance(
-        self, mock_next_day, mock_next_period, planner_base, n=1
+        self, mock_next_period, planner_base, n=1
     ):
         now = datetime.datetime(2013, 1, 1)
         planner_base.now = now
@@ -92,7 +92,9 @@ class TestAdvancePeriod(object):
         planner_base.week_theme = ''
         planner_base.agenda_reviewed = Year
         next_day = datetime.date(2013, 1, 2)
+        mock_next_day = MagicMock()
         mock_next_day.return_value = next_day
+        planner_base.next_day = mock_next_day
         next_period = (
             Week.__class__()
         )  # patching the singleton directly has global effect
@@ -101,33 +103,30 @@ class TestAdvancePeriod(object):
         mock_next_period.return_value = next_period
 
     @patch('composer.backend.base.get_next_period')
-    @patch('composer.backend.base.get_next_day')
     def test_advance_ends_period(
-        self, mock_next_day, mock_next_period, planner_base
+        self, mock_next_period, planner_base
     ):
-        self._set_up_advance(mock_next_day, mock_next_period, planner_base)
+        self._set_up_advance(mock_next_period, planner_base)
         planner_base.end_period = MagicMock()
         planner_base.advance_period(Day)
         assert planner_base.end_period.called
 
     @patch('composer.backend.base.get_next_period')
-    @patch('composer.backend.base.get_next_day')
     def test_advance_begins_period(
-        self, mock_next_day, mock_next_period, planner_base
+        self, mock_next_period, planner_base
     ):
-        self._set_up_advance(mock_next_day, mock_next_period, planner_base)
+        self._set_up_advance(mock_next_period, planner_base)
         planner_base.end_period = MagicMock()
         planner_base.begin_period = MagicMock()
         planner_base.advance_period(Day)
         assert planner_base.begin_period.called
 
     @patch('composer.backend.base.get_next_period')
-    @patch('composer.backend.base.get_next_day')
     def test_advance_attempts_encompassing_period(
-        self, mock_next_day, mock_next_period, planner_base
+        self, mock_next_period, planner_base
     ):
         self._set_up_advance(
-            mock_next_day, mock_next_period, planner_base, n=2
+            mock_next_period, planner_base, n=2
         )
         planner_base.end_period = MagicMock()
         planner_base.begin_period = MagicMock()
@@ -135,12 +134,11 @@ class TestAdvancePeriod(object):
         assert result == Week
 
     @patch('composer.backend.base.get_next_period')
-    @patch('composer.backend.base.get_next_day')
     def test_no_advance_continues_period(
-        self, mock_next_day, mock_next_period, planner_base
+        self, mock_next_period, planner_base
     ):
         self._set_up_advance(
-            mock_next_day, mock_next_period, planner_base, n=0
+            mock_next_period, planner_base, n=0
         )
         planner_base.end_period = MagicMock()
         planner_base.begin_period = MagicMock()
@@ -219,7 +217,7 @@ class TestPreferences(object):
         planner.set_preferences(preferences)
         assert planner.schedule == preferences['schedule']
         assert planner.preferred_bullet_char == preferences['bullet_character']
-        assert planner.jumping == preferences['jump']
+        assert planner.jump_to_date is None
         assert (
             planner.logfile_completion_checking
             == preferences['logfile_completion_checking']
@@ -227,7 +225,8 @@ class TestPreferences(object):
         assert planner.week_theme == preferences.get("week_theme")
         assert planner.agenda_reviewed == preferences.get("agenda_reviewed")
 
-    def test_jump_overrides_strict_checking(self, planner_base):
+    @patch('composer.backend.base.datetime')
+    def test_jump_overrides_strict_checking(self, mock_datetime, planner_base):
         planner = planner_base
         preferences = {
             "schedule": "standard",
@@ -236,9 +235,11 @@ class TestPreferences(object):
             "jump": True,
             "week_theme": "revival",
         }
+        today = datetime.date.today()
+        mock_datetime.date.today.return_value = today
         planner.set_preferences(preferences)
         assert planner.schedule == preferences['schedule']
         assert planner.preferred_bullet_char == preferences['bullet_character']
-        assert planner.jumping == preferences['jump']
+        assert planner.jump_to_date == today
         assert planner.logfile_completion_checking == LOGFILE_CHECKING['LAX']
         assert planner.week_theme == preferences.get("week_theme")

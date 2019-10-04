@@ -1,6 +1,6 @@
 import abc
 
-from datetime import datetime
+import datetime
 
 from ..config import (
     DEFAULT_BULLET_CHARACTER,
@@ -33,7 +33,7 @@ class PlannerBase(ABC):
     preferred_bullet_char = DEFAULT_BULLET_CHARACTER
     schedule = DEFAULT_SCHEDULE
     week_theme = None
-    jumping = False
+    jump_to_date = None
     next_day_planner = None
     agenda_reviewed = Zero
     tasklist = None
@@ -52,7 +52,8 @@ class PlannerBase(ABC):
         self.preferred_bullet_char = preferences.get(
             "bullet_character", self.preferred_bullet_char
         )
-        self.jumping = preferences.get("jump", self.jumping)
+        if preferences.get("jump"):
+            self.jump_to_date = datetime.date.today()
 
         self.logfile_completion_checking = preferences.get(
             "logfile_completion_checking", self.logfile_completion_checking
@@ -61,13 +62,17 @@ class PlannerBase(ABC):
         self.agenda_reviewed = preferences.get(
             "agenda_reviewed", self.agenda_reviewed
         )
-        if self.jumping:
+        if self.jump_to_date:
             # jumping overrides preferences for logfile checking
+            # TODO: not needed anymore?
             self.logfile_completion_checking = LOGFILE_CHECKING["LAX"]
 
     @abc.abstractmethod
     def construct(self, location=None, tasklist=None):
         raise NotImplementedError
+
+    def next_day(self):
+        return self.jump_to_date if self.jump_to_date else get_next_day(self.date)
 
     @abc.abstractmethod
     def get_agenda(self, period):
@@ -217,7 +222,7 @@ class PlannerBase(ABC):
         if not current_period:
             current_period = Zero
         if not next_day:
-            next_day = get_next_day(self.date)  # the new day to advance to
+            next_day = self.next_day()  # the new day to advance to
         if current_period == Year:
             # base case
             return current_period
@@ -225,7 +230,7 @@ class PlannerBase(ABC):
         next_period = get_next_period(current_period)
         try:
             criteria_met = next_period.advance_criteria_met(
-                self.date, self.now
+                next_day, self.now
             )
         except PlannerIsInTheFutureError:
             raise
@@ -258,9 +263,9 @@ class PlannerBase(ABC):
             advanced
         """
         if not now:
-            now = datetime.now()
+            now = datetime.datetime.now()
 
-        next_day = get_next_day(self.date)  # the new day to advance to
+        next_day = self.next_day()  # the new day to advance to
 
         # essentially create a clone of the planner to be populated
         # for the next day

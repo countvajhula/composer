@@ -161,7 +161,7 @@ def process_wiki(wikidir, preferences, now):
                 "week_theme"
             ] = theme  # empty string if the user entered nothing
         except AgendaNotReviewedError as err:
-            next_day = get_next_day(planner.date)
+            next_day = planner.next_day()
             next_period = (
                 get_next_period(err.period) if err.period < Year else Year
             )
@@ -259,7 +259,7 @@ def process_wiki(wikidir, preferences, now):
                     wikidir, next_day_planner.date, preferences
                 )
                 if (
-                    planner.jumping
+                    planner.jump_to_date
                 ):  # if jumping, keep repeating until present-day error thrown
                     preferences['week_theme'] = None  # reset week theme
                 else:

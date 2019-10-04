@@ -3,7 +3,7 @@
 import unittest
 import datetime
 
-from mock import patch
+from mock import patch, MagicMock
 
 import composer.config as config
 from composer.backend import FilesystemPlanner, FilesystemTasklist
@@ -730,9 +730,8 @@ class PlannerAdvanceTester(unittest.TestCase):
     @patch('composer.backend.filesystem.base.full_file_path')
     @patch('composer.backend.filesystem.base.read_file')
     @patch('composer.backend.filesystem.base.string_to_date')
-    @patch('composer.backend.base.get_next_day')
     def test_advance_propagates_tasklist(
-        self, mock_next_day, mock_get_date, mock_read_file, mock_file_path
+        self, mock_get_date, mock_read_file, mock_file_path
     ):
         now = datetime.datetime(2012, 12, 5, 19, 0, 0)
         today = now.date()
@@ -741,7 +740,9 @@ class PlannerAdvanceTester(unittest.TestCase):
         mock_read_file.return_value = StringIO('')
         next_day = today + datetime.timedelta(days=1)
 
+        mock_next_day = MagicMock()
         mock_next_day.return_value = next_day
+        self.planner.next_day = mock_next_day
 
         self.planner.now = now
         self.planner.date = now.date()

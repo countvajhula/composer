@@ -35,7 +35,7 @@ class Period(ABC):
         return self.get_name()
 
     @abc.abstractmethod
-    def advance_criteria_met(self, planner_date, now):
+    def advance_criteria_met(self, to_date, now):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -52,7 +52,7 @@ class Period(ABC):
         now = datetime.datetime.now()
         current_date = planner_date
         previous_date = current_date - timedelta(days=1)
-        while not self.advance_criteria_met(previous_date, now):
+        while not self.advance_criteria_met(current_date, now):
             current_date = previous_date
             previous_date -= timedelta(days=1)
         return current_date
@@ -66,8 +66,10 @@ class Period(ABC):
         """
         now = datetime.datetime.now()
         current_date = planner_date
-        while not self.advance_criteria_met(current_date, now):
-            current_date += timedelta(days=1)
+        next_date = current_date + timedelta(days=1)
+        while not self.advance_criteria_met(next_date, now):
+            current_date = next_date
+            next_date += timedelta(days=1)
         return current_date
 
 
@@ -75,7 +77,7 @@ class _Zero(Period):
 
     duration = 0
 
-    def advance_criteria_met(self, planner_date, now):
+    def advance_criteria_met(self, to_date, now):
         """ A null period for 'algebraic' convenience. """
         return True
 

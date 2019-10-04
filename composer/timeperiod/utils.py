@@ -1,4 +1,4 @@
-import datetime
+from datetime import timedelta
 
 
 def get_next_day(date):
@@ -8,5 +8,5 @@ def get_next_day(date):
     :param :class:`datetime.date` date: The date to increment
     :returns :class:`datetime.date`: The next date
     """
-    next_day = date + datetime.timedelta(days=1)
+    next_day = date + timedelta(days=1)
     return next_day
