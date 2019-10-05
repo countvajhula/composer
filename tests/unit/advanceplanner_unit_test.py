@@ -599,9 +599,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_typical_day_advance(self):
         """ Check that planner advance takes the correct decision to advance day on a typical day change boundary """
-        now = datetime.datetime(2012, 12, 5, 19, 0, 0)
-        self.planner.now = now
-        self.planner.date = now.date()
+        current_day = datetime.date(2012, 12, 5)
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]  # seems this happens even without declaring it here - need to reset these in tearDown()
@@ -610,11 +609,10 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_first_week_too_short_day_advance(self):
         """ Check that planner advance takes the correct decision to advance only day when first week is too short """
-        now = datetime.datetime(
-            2012, 3, 3, 19, 0, 0
+        current_day = datetime.date(
+            2012, 3, 3
         )  # 3/3/2012 is a Saturday, but since current week is only 3 days (too short), should advance only day
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -623,11 +621,10 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_first_week_borderline_too_short_day_advance(self):
         """ Check that planner advance takes the correct decision to advance only day when first week is just below minimum length """
-        now = datetime.datetime(
-            2012, 2, 4, 19, 0, 0
+        current_day = datetime.date(
+            2012, 2, 4
         )  # 2/4/2012 is a Saturday, but since current week is 4 days (just short of requirement), should advance only day
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -636,11 +633,10 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_last_week_too_short_day_advance(self):
         """ Check that planner advance takes the correct decision to advance only day when last week would be too short """
-        now = datetime.datetime(
-            2012, 12, 29, 19, 0, 0
+        current_day = datetime.date(
+            2012, 12, 29
         )  # 12/29/2012 is a Saturday, but since new week would be too short, should advance only day
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -649,11 +645,10 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_last_week_borderline_too_short_day_advance(self):
         """ Check that planner advance takes the correct decision to advance only day when last week would be just below minimum length """
-        now = datetime.datetime(
-            2012, 2, 25, 19, 0, 0
+        current_day = datetime.date(
+            2012, 2, 25
         )  # 2/25/2012 is a Saturday, but since new week is 4 days (just short of requirement), should advance only day
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -662,9 +657,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_typical_week_advance(self):
         """ Check that planner advance takes the correct decision to advance week on a typical week change boundary """
-        now = datetime.datetime(2012, 12, 8, 19, 0, 0)
-        self.planner.now = now
-        self.planner.date = now.date()
+        current_day = datetime.date(2012, 12, 8)
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -673,11 +667,10 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_first_week_borderline_long_enough_week_advance(self):
         """ Check that planner advance takes the correct decision to advance week when last week would be just at minimum length """
-        now = datetime.datetime(
-            2012, 5, 5, 19, 0, 0
+        current_day = datetime.date(
+            2012, 5, 5
         )  # 5/5/2012 is Sat, and current week is exactly 5 days long (long enough), so should advance week
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -686,11 +679,10 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_last_week_borderline_long_enough_week_advance(self):
         """ Check that planner advance takes the correct decision to advance week when last week would be just at minimum length """
-        now = datetime.datetime(
-            2012, 5, 26, 19, 0, 0
+        current_day = datetime.date(
+            2012, 5, 26
         )  # 5/26/2012 is Sat, and new week would be exactly 5 days long (long enough), so should advance week
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -699,9 +691,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_month_advance(self):
         """ Check that planner advance takes the correct decision to advance month on a month change boundary """
-        now = datetime.datetime(2012, 11, 30, 19, 0, 0)
-        self.planner.now = now
-        self.planner.date = now.date()
+        current_day = datetime.date(2012, 11, 30)
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -710,9 +701,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_quarter_advance(self):
         """ Check that planner advance takes the correct decision to advance quarter on a quarter change boundary """
-        now = datetime.datetime(2012, 3, 31, 19, 0, 0)
-        self.planner.now = now
-        self.planner.date = now.date()
+        current_day = datetime.date(2012, 3, 31)
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -721,9 +711,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_decision_for_year_advance(self):
         """ Check that planner advance takes the correct decision to advance year on a year change boundary """
-        now = datetime.datetime(2012, 12, 31, 19, 0, 0)
-        self.planner.now = now
-        self.planner.date = now.date()
+        current_day = datetime.date(2012, 12, 31)
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -736,8 +725,7 @@ class PlannerAdvanceTester(unittest.TestCase):
     def test_advance_propagates_tasklist(
         self, mock_get_date, mock_read_file, mock_file_path
     ):
-        now = datetime.datetime(2012, 12, 5, 19, 0, 0)
-        today = now.date()
+        today = datetime.date(2012, 12, 5)
         mock_get_date.return_value = (today, Day)
         mock_file_path.return_value = ''
         mock_read_file.return_value = StringIO('')
@@ -747,8 +735,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         mock_next_day.return_value = next_day
         self.planner.next_day = mock_next_day
 
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = today
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -767,8 +754,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self, mock_get_date, mock_file_path, mock_read_file
     ):
         """ Check that planner advance returns the correct new year, quarter, month, week, and day templates when advancing year """
-        now = datetime.datetime(2012, 12, 31, 19, 0, 0)
-        today = now.date()
+        today = datetime.date(2012, 12, 31)
         mock_get_date.return_value = (today, Day)
         mock_file_path.return_value = ''
         mock_read_file.return_value = StringIO('')
@@ -796,8 +782,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
         daytemplate += self.default_weekdaytemplate
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = today
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -831,14 +816,11 @@ class PlannerAdvanceTester(unittest.TestCase):
         self, mock_get_date, mock_file_path, mock_read_file
     ):
         """ Check that planner advance returns the correct new quarter, month, week, and day templates when advancing quarter """
-        now = datetime.datetime(2012, 9, 30, 19, 0, 0)
-        self.planner.now = now
-        today = now.date()
+        today = datetime.date(2012, 9, 30)
         self.planner.date = today
         mock_get_date.return_value = (today, Day)
         mock_file_path.return_value = ''
         mock_read_file.return_value = StringIO('')
-        today = now.date()
         next_day = today + datetime.timedelta(days=1)
         (date, day, month, year) = (
             next_day.day,
@@ -890,8 +872,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self, mock_get_date, mock_file_path, mock_read_file
     ):
         """ Check that planner advance returns the correct new month, week, and day templates when advancing month """
-        now = datetime.datetime(2012, 11, 30, 19, 0, 0)
-        today = now.date()
+        today = datetime.date(2012, 11, 30)
         mock_get_date.return_value = (today, Day)
         mock_file_path.return_value = ''
         mock_read_file.return_value = StringIO('')
@@ -919,8 +900,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
         daytemplate += self.default_weekendtemplate
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = today
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -944,8 +924,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self, mock_get_date, mock_file_path, mock_read_file
     ):
         """ Check that planner advance returns the correct new week and day templates, and updates the existing month template correctly, when advancing week """
-        now = datetime.datetime(2012, 12, 8, 19, 0, 0)
-        today = now.date()
+        today = datetime.date(2012, 12, 8)
         mock_get_date.return_value = (today, Day)
         mock_file_path.return_value = ''
         mock_read_file.return_value = StringIO('')
@@ -973,8 +952,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
         daytemplate += self.default_weekendtemplate
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = today
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -994,8 +972,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         self, mock_get_date, mock_file_path, mock_read_file
     ):
         """ Check that planner advance returns the correct new day template, and updates the existing week template, when advancing day """
-        now = datetime.datetime(2012, 12, 5, 19, 0, 0)
-        today = now.date()
+        today = datetime.date(2012, 12, 5)
         mock_get_date.return_value = (today, Day)
         mock_file_path.return_value = ''
         mock_read_file.return_value = StringIO('')
@@ -1023,8 +1000,7 @@ class PlannerAdvanceTester(unittest.TestCase):
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
         daytemplate += self.default_weekdaytemplate
-        self.planner.now = now
-        self.planner.date = now.date()
+        self.planner.date = today
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -1038,8 +1014,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_planner_advance_week_agenda(self):
         """ Check that, on day advance, current day's agenda is appended to the current week """
-        now = datetime.datetime(2012, 12, 5, 19, 0, 0)
-        self.planner.date = now.date()
+        current_day = datetime.date(2012, 12, 5)
+        self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -1051,8 +1027,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_planner_advance_month_agenda(self):
         """ Check that, on week advance, current week's agenda is appended to the current month """
-        now = datetime.datetime(2012, 12, 5, 19, 0, 0)
-        self.planner.date = now.date()
+        current_day = datetime.date(2012, 12, 5)
+        self.planner.date = current_day
         self.planner.weekfile = StringIO(self.weektemplate_agendaupdated)
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
@@ -1065,8 +1041,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_planner_advance_quarter_agenda(self):
         """ Check that, on month advance, current month's agenda is appended to the current quarter """
-        now = datetime.datetime(2012, 12, 5, 19, 0, 0)
-        self.planner.date = now.date()
+        current_day = datetime.date(2012, 12, 5)
+        self.planner.date = current_day
         self.planner.monthfile = StringIO(self.monthtemplate_agendaupdated)
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
@@ -1079,8 +1055,8 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     def test_planner_advance_year_agenda(self):
         """ Check that, on quarter advance, current quarter's agenda is appended to the current year """
-        now = datetime.datetime(2012, 12, 5, 19, 0, 0)
-        self.planner.date = now.date()
+        current_day = datetime.date(2012, 12, 5)
+        self.planner.date = current_day
         self.planner.quarterfile = StringIO(self.quartertemplate_agendaupdated)
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'

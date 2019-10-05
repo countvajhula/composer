@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import datetime
 import os
 from subprocess import call
 
@@ -83,15 +82,12 @@ def _post_advance_tasks(wikidir, plannerdate, preferences):
     _show_advice(wikidir, preferences)
 
 
-def process_wiki(wikidir, preferences, now):
+def process_wiki(wikidir, preferences):
     """ Advance the wiki at the specified path, according to any configured
     preferences.
 
     :param str wikidir: The path to the wiki
     :param dict preferences: User preferences e.g. from a config file
-    :param :class:`datetime.datetime` now: The time to treat as current real
-        world time. Not sure if it's used for anything aside from testing the
-        jump feature
     """
     # simulate the changes first and then when it's all OK, make the necessary
     # preparations (e.g. git commit) and actually perform the changes
@@ -108,7 +104,7 @@ def process_wiki(wikidir, preferences, now):
             tasklist = FilesystemTasklist(wikidir)
             planner = FilesystemPlanner(wikidir, tasklist)
             planner.set_preferences(preferences)
-            status, next_day_planner = planner.advance(now=now)
+            status, next_day_planner = planner.advance()
         except LogfileNotCompletedError as err:
             display_message(
                 "Looks like you haven't completed your %s's log"
@@ -273,17 +269,9 @@ def process_wiki(wikidir, preferences, now):
     )
 )
 @click.argument("wikipath", required=False)
-@click.option(
-    "-t",
-    "--test",
-    is_flag=True,
-    help=("A temporary flag for testing. To be removed in a future version."),
-)
 @click.option("-j", "--jump", is_flag=True, help="Jump to present day.")
-def main(wikipath=None, test=False, jump=False):
+def main(wikipath=None, jump=False):
     # could try: [Display score for today]
-
-    now = None
 
     preferences = config.read_user_preferences(CONFIG_FILE)
     # if wikipath is specified, it should override
@@ -292,9 +280,6 @@ def main(wikipath=None, test=False, jump=False):
         wikidirs = [wikipath]
     else:
         wikidirs = preferences["wikis"]
-    if test:
-        # so jump can be tested on test wiki
-        now = datetime.datetime(2013, 1, 8, 19, 0, 0)
 
     if jump:
         preferences['jump'] = jump
@@ -307,7 +292,6 @@ def main(wikipath=None, test=False, jump=False):
         process_wiki(
             wikidir,
             preferences.copy(),  # contain any wiki-specific modifications
-            now,
         )
 
 

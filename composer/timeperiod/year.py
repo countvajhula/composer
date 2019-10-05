@@ -10,21 +10,19 @@ class _Year(Period):
 
     duration = 4 * 3 * 4 * 7 * 24 * 60 * 60
 
-    def advance_criteria_met(self, to_date, now):
+    def advance_criteria_met(self, to_date):
         """ Have criteria for advancement to the next year been met?
 
         :param :class:`datetime.date` to_date: The date to advance to
-        :param :class:`datetime.datetime` now: The time to treat as current
-            real world time
         :returns bool: Whether the criteria have been met
         """
         month = to_date.strftime("%B")
         try:
-            Day.advance_criteria_met(to_date, now)
+            Day.advance_criteria_met(to_date)
         except PlannerIsInTheFutureError:
             raise
         if (
-            Quarter.advance_criteria_met(to_date, now)
+            Quarter.advance_criteria_met(to_date)
             and month.lower() == FIRST_MONTH_OF_YEAR
         ):
             return True

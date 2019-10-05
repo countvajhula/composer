@@ -237,7 +237,7 @@ class PlannerBase(ABC):
 
         next_period = get_next_period(current_period)
         try:
-            criteria_met = next_period.advance_criteria_met(next_day, self.now)
+            criteria_met = next_period.advance_criteria_met(next_day)
         except PlannerIsInTheFutureError:
             raise
 
@@ -263,23 +263,18 @@ class PlannerBase(ABC):
                 self.continue_period(next_period, next_day)
             return current_period
 
-    def advance(self, now=None):
+    def advance(self):
         """ Advance planner state to next day, updating week and month info
-        as necessary. 'now' arg used only for testing
+        as necessary.
         If successful, the date (self.date) is advanced to the next day
 
         Note that for the filesystem planner, after the advance() returns, the
         file handles will have been updated to the (possibly new) buffers (but
         still not persisted until save() is called).
 
-        :param :class:`datetime.datetime` now: The time to use as the current
-            real world time
         :returns :class:`~composer.timeperiod.Period`: The highest period
             advanced
         """
-        if not now:
-            now = datetime.datetime.now()
-
         next_day = self.next_day()  # the new day to advance to
 
         # essentially create a clone of the planner to be populated
@@ -290,8 +285,6 @@ class PlannerBase(ABC):
         # the same tasklist instance
         self.next_day_planner.tasklist = self.tasklist
         self.next_day_planner.date = next_day
-
-        self.now = now
 
         status = self.advance_period(Zero, next_day)
         if status == Zero:

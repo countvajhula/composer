@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import unittest
-import datetime
 
 from composer.backend import FilesystemPlanner
 from composer.timeperiod import (
@@ -21,9 +20,8 @@ class AdvancePlanner(unittest.TestCase):
         happened (git status / diff if git managed test wikis)
         """
         WIKIPATH = 'tests/testwikis/daywiki'
-        now = datetime.datetime(2012, 12, 6, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
-        status, next_day_planner = planner.advance(now)
+        status, next_day_planner = planner.advance()
         next_period = get_next_period(status) if status < Year else status
         planner.save(next_period)
         next_day_planner.save(status)
@@ -35,11 +33,10 @@ class AdvancePlanner(unittest.TestCase):
         happened (git status / diff if git managed test wikis)
         """
         WIKIPATH = 'tests/testwikis/weekwiki'
-        now = datetime.datetime(2012, 12, 8, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
         preferences = {'week_theme': ''}
         planner.set_preferences(preferences)
-        status, next_day_planner = planner.advance(now)
+        status, next_day_planner = planner.advance()
         next_period = get_next_period(status) if status < Year else status
         planner.save(next_period)
         next_day_planner.save(status)
@@ -51,11 +48,10 @@ class AdvancePlanner(unittest.TestCase):
         happened (git status / diff if git managed test wikis)
         """
         WIKIPATH = 'tests/testwikis/monthwiki'
-        now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
         preferences = {'week_theme': ''}
         planner.set_preferences(preferences)
-        status, next_day_planner = planner.advance(now)
+        status, next_day_planner = planner.advance()
         next_period = get_next_period(status) if status < Year else status
         planner.save(next_period)
         next_day_planner.save(status)
@@ -67,11 +63,10 @@ class AdvancePlanner(unittest.TestCase):
         happened (git status / diff if git managed test wikis)
         """
         WIKIPATH = 'tests/testwikis/quarterwiki'
-        now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
         preferences = {'week_theme': ''}
         planner.set_preferences(preferences)
-        status, next_day_planner = planner.advance(now)
+        status, next_day_planner = planner.advance()
         next_period = get_next_period(status) if status < Year else status
         planner.save(next_period)
         next_day_planner.save(status)
@@ -83,11 +78,10 @@ class AdvancePlanner(unittest.TestCase):
         happened (git status / diff if git managed test wikis)
         """
         WIKIPATH = 'tests/testwikis/yearwiki'
-        now = datetime.datetime(2012, 12, 31, 19, 0, 0)
         planner = FilesystemPlanner(WIKIPATH)
         preferences = {'week_theme': ''}
         planner.set_preferences(preferences)
-        status, next_day_planner = planner.advance(now)
+        status, next_day_planner = planner.advance()
         next_period = get_next_period(status) if status < Year else status
         planner.save(next_period)
         next_day_planner.save(status)

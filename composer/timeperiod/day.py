@@ -1,3 +1,4 @@
+import datetime
 from datetime import timedelta
 
 from ..errors import PlannerIsInTheFutureError
@@ -8,14 +9,13 @@ class _Day(Period):
 
     duration = 24 * 60 * 60
 
-    def advance_criteria_met(self, to_date, now):
+    def advance_criteria_met(self, to_date):
         """ Have criteria for advancement to the next day been met?
 
         :param :class:`datetime.date` to_date: The date to advance to
-        :param :class:`datetime.datetime` now: The time to treat as current
-            real world time
         :returns bool: Whether the criteria have been met
         """
+        now = datetime.datetime.now()
         today = now.date()
         tomorrow = today + timedelta(days=1)
 

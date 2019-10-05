@@ -73,9 +73,7 @@ class TestAdvance(object):
 
 class TestAdvancePeriod(object):
     def _set_up_advance(self, mock_next_period, planner, n=1):
-        now = datetime.datetime(2013, 1, 1)
-        planner.now = now
-        current_day = now.date()
+        current_day = datetime.date(2013, 1, 1)
         planner.date = current_day
         planner.week_theme = ''
         planner.agenda_reviewed = Year
