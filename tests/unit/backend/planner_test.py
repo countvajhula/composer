@@ -3,7 +3,7 @@ import pytest
 
 from composer.config import LOGFILE_CHECKING
 from composer.errors import AgendaNotReviewedError
-from composer.timeperiod import Zero, Day, Week, Month, Year
+from composer.timeperiod import Zero, Day, Week, Month, Quarter, Year
 
 from mock import MagicMock, patch
 from ..fixtures import planner_base
@@ -124,6 +124,136 @@ class TestAdvancePeriod(object):
         planner_base.continue_period = MagicMock()
         planner_base.advance_period(Day)
         assert planner_base.continue_period.called
+
+    def _set_up_advance_decision(self, planner, current_day):
+        planner.date = current_day
+        planner.week_theme = ''
+        planner.agenda_reviewed = Year
+        mock_get_log = MagicMock()
+        mock_get_log.return_value = True
+        planner.get_log = mock_get_log
+        planner.begin_period = MagicMock()
+        planner.end_period = MagicMock()
+        planner.continue_period = MagicMock()
+
+    def test_decision_for_typical_day_advance(self, planner_base):
+        """ Check that planner advance takes the correct decision to advance
+        day on a typical day change boundary
+        """
+        current_day = datetime.date(2012, 12, 5)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Day
+
+    def test_decision_for_first_week_too_short_day_advance(self, planner_base):
+        """ Check that planner advance takes the correct decision to advance
+        only day when first week is too short
+        """
+        # 3/3/2012 is a Saturday, but since current week is only 3 days (too
+        # short), should advance only day
+        current_day = datetime.date(2012, 3, 3)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Day
+
+    def test_decision_for_first_week_borderline_too_short_day_advance(
+        self, planner_base
+    ):
+        """ Check that planner advance takes the correct decision to advance
+        only day when first week is just below minimum length
+        """
+        # 2/4/2012 is a Saturday, but since current week is 4 days (just short
+        # of requirement), should advance only day
+        current_day = datetime.date(2012, 2, 4)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Day
+
+    def test_decision_for_last_week_too_short_day_advance(self, planner_base):
+        """ Check that planner advance takes the correct decision to advance
+        only day when last week would be too short
+        """
+        # 12/29/2012 is a Saturday, but since new week would be too short,
+        # should advance only day
+        current_day = datetime.date(2012, 12, 29)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Day
+
+    def test_decision_for_last_week_borderline_too_short_day_advance(
+        self, planner_base
+    ):
+        """ Check that planner advance takes the correct decision to advance
+        only day when last week would be just below minimum length
+        """
+        # 2/25/2012 is a Saturday, but since new week is 4 days (just short of
+        # requirement), should advance only day
+        current_day = datetime.date(2012, 2, 25)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Day
+
+    def test_decision_for_typical_week_advance(self, planner_base):
+        """ Check that planner advance takes the correct decision to advance
+        week on a typical week change boundary
+        """
+        current_day = datetime.date(2012, 12, 8)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Week
+
+    def test_decision_for_first_week_borderline_long_enough_week_advance(
+        self, planner_base
+    ):
+        """ Check that planner advance takes the correct decision to advance
+        week when last week would be just at minimum length
+        """
+        # 5/5/2012 is Sat, and current week is exactly 5 days long (long
+        # enough), so should advance week
+        current_day = datetime.date(2012, 5, 5)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Week
+
+    def test_decision_for_last_week_borderline_long_enough_week_advance(
+        self, planner_base
+    ):
+        """ Check that planner advance takes the correct decision to advance
+        week when last week would be just at minimum length
+        """
+        # 5/26/2012 is Sat, and new week would be exactly 5 days long (long
+        # enough), so should advance week
+        current_day = datetime.date(2012, 5, 26)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Week
+
+    def test_decision_for_month_advance(self, planner_base):
+        """ Check that planner advance takes the correct decision to advance
+        month on a month change boundary
+        """
+        current_day = datetime.date(2012, 11, 30)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Month
+
+    def test_decision_for_quarter_advance(self, planner_base):
+        """ Check that planner advance takes the correct decision to advance
+        quarter on a quarter change boundary
+        """
+        current_day = datetime.date(2012, 3, 31)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Quarter
+
+    def test_decision_for_year_advance(self, planner_base):
+        """ Check that planner advance takes the correct decision to advance
+        year on a year change boundary
+        """
+        current_day = datetime.date(2012, 12, 31)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Year
 
 
 class TestBeginPeriod(object):
