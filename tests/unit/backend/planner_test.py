@@ -9,18 +9,20 @@ from mock import MagicMock, patch
 from ..fixtures import planner_base
 
 
-class TrueTimes(object):
+class ReturnTimes(object):
 
     times = 0
 
-    def __init__(self, n):
+    def __init__(self, n, what, then):
         self.n = n
+        self.what = what
+        self.then = then
 
     def __call__(self, *args, **kwargs):
         if self.times < self.n:
             self.times += 1
-            return True
-        return False
+            return self.what
+        return self.then
 
 
 class TestAdvance(object):
@@ -87,7 +89,7 @@ class TestAdvancePeriod(object):
         next_period = (
             Week.__class__()
         )  # patching the singleton directly has global effect
-        mock_criteria_met = TrueTimes(n)
+        mock_criteria_met = ReturnTimes(n, True, False)
         next_period.advance_criteria_met = mock_criteria_met
         mock_next_period.return_value = next_period
 
@@ -252,6 +254,46 @@ class TestAdvancePeriod(object):
         """
         current_day = datetime.date(2012, 12, 31)
         self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Year
+
+    def test_decision_for_jump_in_week(self, planner_base):
+        current_day = datetime.date(2012, 11, 13)
+        self._set_up_advance_decision(planner_base, current_day)
+        planner_base.jump_to_date = datetime.date(2012, 11, 17)
+        planner_base.get_log.return_value = True
+        status = planner_base.advance_period()
+        assert status == Day
+
+    def test_decision_for_jump_outside_week(self, planner_base):
+        current_day = datetime.date(2012, 11, 13)
+        self._set_up_advance_decision(planner_base, current_day)
+        planner_base.jump_to_date = datetime.date(2012, 11, 19)
+        planner_base.get_log = ReturnTimes(1, False, True)
+        status = planner_base.advance_period()
+        assert status == Week
+
+    def test_decision_for_jump_outside_month(self, planner_base):
+        current_day = datetime.date(2012, 11, 13)
+        self._set_up_advance_decision(planner_base, current_day)
+        planner_base.jump_to_date = datetime.date(2012, 12, 19)
+        planner_base.get_log = ReturnTimes(2, False, True)
+        status = planner_base.advance_period()
+        assert status == Month
+
+    def test_decision_for_jump_outside_quarter(self, planner_base):
+        current_day = datetime.date(2012, 9, 13)
+        self._set_up_advance_decision(planner_base, current_day)
+        planner_base.jump_to_date = datetime.date(2012, 10, 19)
+        planner_base.get_log = ReturnTimes(3, False, True)
+        status = planner_base.advance_period()
+        assert status == Quarter
+
+    def test_decision_for_jump_outside_year(self, planner_base):
+        current_day = datetime.date(2012, 9, 13)
+        self._set_up_advance_decision(planner_base, current_day)
+        planner_base.jump_to_date = datetime.date(2013, 10, 19)
+        planner_base.get_log = ReturnTimes(4, False, True)
         status = planner_base.advance_period()
         assert status == Year
 
