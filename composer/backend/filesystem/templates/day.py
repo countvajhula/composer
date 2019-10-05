@@ -12,7 +12,6 @@ def _get_theme_for_the_day(day, daythemesfile):
 
 
 class DayTemplate(Template):
-
     def _file_handle(self):
         return 'dayfile'
 

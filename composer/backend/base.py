@@ -72,7 +72,9 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
     def next_day(self):
-        return self.jump_to_date if self.jump_to_date else get_next_day(self.date)
+        return (
+            self.jump_to_date if self.jump_to_date else get_next_day(self.date)
+        )
 
     @abc.abstractmethod
     def get_log(self, for_day, period):
@@ -235,9 +237,7 @@ class PlannerBase(ABC):
 
         next_period = get_next_period(current_period)
         try:
-            criteria_met = next_period.advance_criteria_met(
-                next_day, self.now
-            )
+            criteria_met = next_period.advance_criteria_met(next_day, self.now)
         except PlannerIsInTheFutureError:
             raise
 

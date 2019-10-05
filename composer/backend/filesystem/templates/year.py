@@ -3,7 +3,6 @@ from .base import Template
 
 
 class YearTemplate(Template):
-
     def _file_handle(self):
         return 'yearfile'
 

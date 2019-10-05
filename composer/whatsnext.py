@@ -15,15 +15,7 @@ from .backend import (
     get_month_name,
     quarter_for_month,
 )
-from .timeperiod import (
-    Day,
-    Month,
-    Quarter,
-    Week,
-    Year,
-    get_next_period,
-    get_next_day,
-)
+from .timeperiod import Day, Month, Quarter, Week, Year, get_next_period
 from .utils import display_message, ask_input
 
 from .errors import (

@@ -32,8 +32,7 @@ class _Week(Period):
             day_criteria_met
             and dow.lower() == "sunday"
             and to_date.day > MIN_WEEK_LENGTH
-            and calendar.monthrange(year, to_date.month)[1]
-            - to_date.day + 1
+            and calendar.monthrange(year, to_date.month)[1] - to_date.day + 1
             >= MIN_WEEK_LENGTH
         ):
             return True

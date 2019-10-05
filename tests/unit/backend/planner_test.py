@@ -24,9 +24,7 @@ class TrueTimes(object):
 
 
 class TestAdvance(object):
-    def _set_up_no_advance(
-        self, planner, current_day, next_day
-    ):
+    def _set_up_no_advance(self, planner, current_day, next_day):
         planner.date = current_day
         mock_next_day = MagicMock()
         mock_next_day.return_value = next_day
@@ -47,44 +45,34 @@ class TestAdvance(object):
     def test_no_advance_status(self, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
-        self._set_up_no_advance(
-            planner_base, current_day, next_day
-        )
+        self._set_up_no_advance(planner_base, current_day, next_day)
         status, _ = planner_base.advance()
         assert status == Zero
 
     def test_no_advance_next_planner(self, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
-        self._set_up_no_advance(
-            planner_base, current_day, next_day
-        )
+        self._set_up_no_advance(planner_base, current_day, next_day)
         _, next_day_planner = planner_base.advance()
         assert next_day_planner is None
 
     def test_advance_status(self, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
-        self._set_up_advance(
-            planner_base, current_day, next_day
-        )
+        self._set_up_advance(planner_base, current_day, next_day)
         status, _ = planner_base.advance()
         assert status == Day
 
     def test_advance_next_planner(self, planner_base):
         current_day = datetime.date(2013, 1, 1)
         next_day = datetime.date(2013, 1, 2)
-        self._set_up_advance(
-            planner_base, current_day, next_day
-        )
+        self._set_up_advance(planner_base, current_day, next_day)
         _, next_day_planner = planner_base.advance()
         assert next_day_planner.date == next_day
 
 
 class TestAdvancePeriod(object):
-    def _set_up_advance(
-        self, mock_next_period, planner, n=1
-    ):
+    def _set_up_advance(self, mock_next_period, planner, n=1):
         now = datetime.datetime(2013, 1, 1)
         planner.now = now
         current_day = now.date()
@@ -106,18 +94,14 @@ class TestAdvancePeriod(object):
         mock_next_period.return_value = next_period
 
     @patch('composer.backend.base.get_next_period')
-    def test_advance_ends_period(
-        self, mock_next_period, planner_base
-    ):
+    def test_advance_ends_period(self, mock_next_period, planner_base):
         self._set_up_advance(mock_next_period, planner_base)
         planner_base.end_period = MagicMock()
         planner_base.advance_period(Day)
         assert planner_base.end_period.called
 
     @patch('composer.backend.base.get_next_period')
-    def test_advance_begins_period(
-        self, mock_next_period, planner_base
-    ):
+    def test_advance_begins_period(self, mock_next_period, planner_base):
         self._set_up_advance(mock_next_period, planner_base)
         planner_base.end_period = MagicMock()
         planner_base.begin_period = MagicMock()
@@ -128,21 +112,15 @@ class TestAdvancePeriod(object):
     def test_advance_attempts_encompassing_period(
         self, mock_next_period, planner_base
     ):
-        self._set_up_advance(
-            mock_next_period, planner_base, n=2
-        )
+        self._set_up_advance(mock_next_period, planner_base, n=2)
         planner_base.end_period = MagicMock()
         planner_base.begin_period = MagicMock()
         result = planner_base.advance_period(Day)
         assert result == Week
 
     @patch('composer.backend.base.get_next_period')
-    def test_no_advance_continues_period(
-        self, mock_next_period, planner_base
-    ):
-        self._set_up_advance(
-            mock_next_period, planner_base, n=0
-        )
+    def test_no_advance_continues_period(self, mock_next_period, planner_base):
+        self._set_up_advance(mock_next_period, planner_base, n=0)
         planner_base.end_period = MagicMock()
         planner_base.begin_period = MagicMock()
         planner_base.continue_period = MagicMock()
