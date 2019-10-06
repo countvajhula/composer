@@ -13,20 +13,17 @@ class TestCreateLog(object):
     def _year_template(self, planner, for_day):
         (month, year) = (for_day.strftime('%B'), for_day.year)
         template = ""
-        template += "= 2013 =\n"
+        template += "= %s =\n" % year
         template += "\n"
-        template += "\t* [[Q2 2013]]\n"
+        template += "\t* [[%s 2013]]\n" % quarter_for_month(month)
         template += "\n"
         template += "CHECKPOINTS:\n"
-        template += "[ ] Q1 - []\n"
-        template += "[ ] Q2 - []\n"
-        template += "[ ] Q3 - []\n"
-        template += "[ ] Q4 - []\n"
+        template += planner.checkpoints_year_file.getvalue()
         template += "\n"
         template += "AGENDA:\n"
         template += "\n"
         template += "YEARLYs:\n"
-        template += "[ ] 1 significant life achievement\n"
+        template += planner.periodic_year_file.getvalue()
         template += "\n"
         template += "NOTES:\n"
         template += "\n"
