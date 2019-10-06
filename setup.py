@@ -1,8 +1,6 @@
 from setuptools import setup
 
-requirements = [
-    'click',
-]
+requirements = ['click']
 
 test_requirements = [
     'pytest',
@@ -13,15 +11,9 @@ test_requirements = [
     'mock',  # py2 only
 ]
 
-dev_requirements = [
-    'flake8',
-    'bump2version',
-    'sphinx',
-]
+dev_requirements = ['flake8', 'bump2version', 'sphinx', 'pre-commit']
 
-setup_requirements = [
-    'pytest-runner',
-]
+setup_requirements = ['pytest-runner']
 
 setup(
     name='composer',
@@ -36,13 +28,13 @@ setup(
     install_requires=requirements,
     setup_requires=setup_requirements,
     tests_require=test_requirements,
-    extras_require={
-        'dev': dev_requirements,
-    },
+    extras_require={'dev': dev_requirements},
     entry_points={
-        'console_scripts': ['whats-next=composer.whatsnext:main',
-                            'collect-logs=composer.collectlogs:main',
-                            'update-index=composer.updateindex:main',
-                            'show-advice=composer.advice:main'],
+        'console_scripts': [
+            'whats-next=composer.whatsnext:main',
+            'collect-logs=composer.collectlogs:main',
+            'update-index=composer.updateindex:main',
+            'show-advice=composer.advice:main',
+        ]
     },
 )
