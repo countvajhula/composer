@@ -7,7 +7,7 @@ from mock import patch, MagicMock
 
 import composer.config as config
 from composer.backend import FilesystemPlanner, FilesystemTasklist
-from composer.timeperiod import Day, Week, Month, Quarter, Year
+from composer.timeperiod import Day, Week, Month, Quarter, Year, is_weekend
 
 try:  # py2
     from StringIO import StringIO
@@ -39,18 +39,22 @@ class PlannerPeriodIntegrityTester(unittest.TestCase):
 
 
 class PlannerFilesystemIntegrityTester(unittest.TestCase):
-    """ check exceptions if file exists (e.g. running twice). Check symlinks are updated """
+    """ check exceptions if file exists (e.g. running twice). Check symlinks
+    are updated
+    """
 
     pass
 
 
 class PlannerInvalidStateFailGracefullyTester(unittest.TestCase):
-    """ check that if any needed files are missing it fails gracefully with exception and without making changes """
+    """ check that if any needed files are missing it fails gracefully with
+    exception and without making changes
+    """
 
     pass
 
 
-class PlannerAdvanceTester(unittest.TestCase):
+class PlannerIntegrationTest(unittest.TestCase):
     """ Check that planner advances and updates templates correctly """
 
     tasklist = (
@@ -97,7 +101,7 @@ class PlannerAdvanceTester(unittest.TestCase):
 
     yeartemplate = (
         "= 2012 =\n"
-        "\t* [[Q4 2012]]\n"
+        "\t* [[Q3 2012]]\n"
         "\n"
         "CHECKPOINTS:\n"
         "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
@@ -112,24 +116,194 @@ class PlannerAdvanceTester(unittest.TestCase):
         "TIME SPENT ON PLANNER: "
     )
 
-    yeartemplate_agendaupdated = (
-        "= 2012 =\n"
-        "\t* [[Q4 2012]]\n"
+    quartertemplate = (
+        "= Q4 2012 =\n"
+        "\n"
+        "\t* [[Month of October, 2012]]\n"
         "\n"
         "CHECKPOINTS:\n"
-        "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+        "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
         "\n"
         "AGENDA:\n"
-        "[x] take out trash\n"
-        "[x] floss\n"
         "\n"
-        "YEARLYs:\n"
-        "[ ] 1 significant life achievement\n"
+        "QUARTERLYs:\n"
+        "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
         "\n"
         "NOTES:\n"
         "\n\n"
         "TIME SPENT ON PLANNER: "
     )
+
+    monthtemplate = (
+        "= DECEMBER 2012 =\n"
+        "\n"
+        "\t* [[Week of December 1, 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "\n"
+        "MONTHLYs:\n"
+        "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    weektemplate = (
+        "= WEEK OF DECEMBER 1, 2012 =\n"
+        "\n"
+        "Theme: *WEEK OF THEME*\n"
+        "\n"
+        "\t* [[December 5, 2012]]\n"
+        "\t* [[December 4, 2012]]\n"
+        "\t* [[December 3, 2012]]\n"
+        "\t* [[December 2, 2012]]\n"
+        "\t* [[December 1, 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
+        "\n"
+        "AGENDA:\n"
+        "\n"
+        "WEEKLYs:\n"
+        "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    daytemplate = (
+        "CHECKPOINTS:\n"
+        "[x] 7:00am - wake up [9:00]\n"
+        "[x] 7:05am - brush + change [11:00]\n"
+        "[ ] 7:10am - protein []\n"
+        "[ ] 7:15am - gym []\n"
+        "[x] 8:00am - shower [11:10]\n"
+        "[ ] 11:05pm - $nasal irrigation$ []\n"
+        "[x] 11:10pm - update schedule [12:25]\n"
+        "[x] 11:15pm - get stuff ready for morning((1) clothes:shirt,underwear,jeans,jacket,belt; (2) laptop+charger; (3) binder+texts+pen+pencil; (4) headphones) [8:45]\n"
+        "[x] 11:30pm - sleep [12:45]\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
+        "\n"
+        "DAILYs:\n"
+        "[ ] 40 mins gym\n"
+        "[x] Make bed\n"
+        "[x] 5 mins housework (dishes, clearing, folding, trash, ...)\n"
+        "\n"
+        "NOTES:\n"
+        "\n"
+        "\n"
+        "TIME SPENT ON PLANNER: 15 mins"
+    )
+
+    default_weekdaytemplate = (
+        "CHECKPOINTS:\n"
+        "[ ] 7:00am - wake up []\n[ ] 7:05am - brush + change []\n[ ] 7:10am - protein []\n"
+        "[ ] 7:15am - gym []\n[ ] 8:00am - shower []\n[ ] 8:15am - dump []\n"
+        "[ ] 11:00pm - (start winding down) brush []\n[ ] 11:05pm - $nasal irrigation$ []\n"
+        "[ ] 11:10pm - update schedule []\n[ ] 11:15pm - get stuff ready for morning"
+        "((1) clothes:shirt,underwear,jeans,jacket,belt; (2) laptop+charger; (3) binder+texts+pen+pencil; (4) headphones"
+        ") []\n[ ] 11:30pm - sleep []\n"
+        "\n"
+        "AGENDA:\n"
+        "\n"
+        "DAILYs:\n"
+        "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    default_weekendtemplate = (
+        "CHECKPOINTS:\n"
+        "[ ] 8:00am - wake up []\n[ ] 8:05am - brush + change []\n[ ] 8:10am - protein []\n"
+        "[ ] 8:15am - gym []\n[ ] 9:00am - shower []\n[ ] 9:15am - weigh yourself (saturday) []\n"
+        "\n"
+        "AGENDA:\n"
+        "\n"
+        "DAILYs:\n"
+        "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    checkpoints_year = "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+    checkpoints_quarter = (
+        "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
+    )
+    checkpoints_month = (
+        "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
+    )
+    checkpoints_week = "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
+    checkpoints_weekday = (
+        "[ ] 7:00am - wake up []\n[ ] 7:05am - brush + change []\n[ ] 7:10am - protein []\n"
+        "[ ] 7:15am - gym []\n[ ] 8:00am - shower []\n[ ] 8:15am - dump []\n"
+        "[ ] 11:00pm - (start winding down) brush []\n[ ] 11:05pm - $nasal irrigation$ []\n"
+        "[ ] 11:10pm - update schedule []\n[ ] 11:15pm - get stuff ready for morning"
+        "((1) clothes:shirt,underwear,jeans,jacket,belt; (2) laptop+charger; (3) binder+texts+pen+pencil; (4) headphones"
+        ") []\n[ ] 11:30pm - sleep []\n"
+    )
+    checkpoints_weekend = (
+        "[ ] 8:00am - wake up []\n[ ] 8:05am - brush + change []\n[ ] 8:10am - protein []\n"
+        "[ ] 8:15am - gym []\n[ ] 9:00am - shower []\n[ ] 9:15am - weigh yourself (saturday) []\n"
+    )
+
+    periodic_year = "[ ] 1 significant life achievement\n"
+    periodic_quarter = "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
+    periodic_month = "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
+    periodic_week = "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
+    periodic_day = "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
+    daythemes = "SUNDAY: Groceries Day\nMONDAY: \nTUESDAY:Cleaning Day\nWEDNESDAY:\nTHURSDAY:\nFRIDAY:\nSATURDAY: LAUNDRY DAY\n"
+
+    def setUp(self):
+        self.planner = FilesystemPlanner()
+        self.planner.date = datetime.date.today()
+        tasklist = FilesystemTasklist()
+        tasklist.file = StringIO(self.tasklist)
+        self.planner.tasklist = tasklist
+        self.planner.daythemesfile = StringIO(self.daythemes)
+        self.planner.dayfile = StringIO(self.daytemplate)
+        self.planner.weekfile = StringIO(self.weektemplate)
+        self.planner.monthfile = StringIO(self.monthtemplate)
+        self.planner.quarterfile = StringIO(self.quartertemplate)
+        self.planner.yearfile = StringIO(self.yeartemplate)
+        self.planner.checkpoints_year_file = StringIO(self.checkpoints_year)
+        self.planner.checkpoints_quarter_file = StringIO(
+            self.checkpoints_quarter
+        )
+        self.planner.checkpoints_month_file = StringIO(self.checkpoints_month)
+        self.planner.checkpoints_week_file = StringIO(self.checkpoints_week)
+        self.planner.checkpoints_weekday_file = StringIO(
+            self.checkpoints_weekday
+        )
+        self.planner.checkpoints_weekend_file = StringIO(
+            self.checkpoints_weekend
+        )
+        self.planner.periodic_year_file = StringIO(self.periodic_year)
+        self.planner.periodic_quarter_file = StringIO(self.periodic_quarter)
+        self.planner.periodic_month_file = StringIO(self.periodic_month)
+        self.planner.periodic_week_file = StringIO(self.periodic_week)
+        self.planner.periodic_day_file = StringIO(self.periodic_day)
+        self.planner.week_theme = ''
+        self.planner.location = ''
+        self.planner.next_day_planner = FilesystemPlanner()
+        self.planner.agenda_reviewed = Year
+        mock_get_log = MagicMock()
+        mock_get_log.return_value = True
+        self.planner.get_log = mock_get_log
+
+
+class PlannerAdvanceTester(PlannerIntegrationTest):
 
     yearadvance_yeartemplate = (
         "= 2013 =\n"
@@ -203,10 +377,28 @@ class PlannerAdvanceTester(unittest.TestCase):
         "TIME SPENT ON PLANNER: "
     )
 
-    quartertemplate = (
-        "= Q4 2012 =\n"
+    yearadvance_yeartemplate_jump = (
+        "= 2013 =\n"
         "\n"
-        "\t* [[Month of October, 2012]]\n"
+        "\t* [[Q3 2013]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "\n"
+        "YEARLYs:\n"
+        "[ ] 1 significant life achievement\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    yearadvance_quartertemplate_jump = (
+        "= Q3 2013 =\n"
+        "\n"
+        "\t* [[Month of August, 2013]]\n"
         "\n"
         "CHECKPOINTS:\n"
         "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
@@ -221,20 +413,36 @@ class PlannerAdvanceTester(unittest.TestCase):
         "TIME SPENT ON PLANNER: "
     )
 
-    quartertemplate_agendaupdated = (
-        "= Q4 2012 =\n"
+    yearadvance_monthtemplate_jump = (
+        "= AUGUST 2013 =\n"
         "\n"
-        "\t* [[Month of October, 2012]]\n"
+        "\t* [[Week of August 18, 2013]]\n"
         "\n"
         "CHECKPOINTS:\n"
-        "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
+        "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
         "\n"
         "AGENDA:\n"
-        "[x] take out trash\n"
-        "[x] floss\n"
         "\n"
-        "QUARTERLYs:\n"
-        "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
+        "MONTHLYs:\n"
+        "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    yearadvance_weektemplate_jump = (
+        "= WEEK OF AUGUST 18, 2013 =\n"
+        "\n"
+        "\t* [[August 20, 2013]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
+        "\n"
+        "AGENDA:\n"
+        "\n"
+        "WEEKLYs:\n"
+        "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
         "\n"
         "NOTES:\n"
         "\n\n"
@@ -259,7 +467,7 @@ class PlannerAdvanceTester(unittest.TestCase):
         "TIME SPENT ON PLANNER: "
     )
 
-    quarteradvance_quartertemplate = quartertemplate
+    quarteradvance_quartertemplate = PlannerIntegrationTest.quartertemplate
 
     quarteradvance_monthtemplate = (
         "= OCTOBER 2012 =\n"
@@ -297,10 +505,29 @@ class PlannerAdvanceTester(unittest.TestCase):
         "TIME SPENT ON PLANNER: "
     )
 
-    monthtemplate = (
-        "= DECEMBER 2012 =\n"
+    monthadvance_quartertemplate = (
+        "= Q4 2012 =\n"
         "\n"
-        "\t* [[Week of December 1, 2012]]\n"
+        "\t* [[Month of November, 2012]]\n"
+        "\t* [[Month of October, 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "\n"
+        "QUARTERLYs:\n"
+        "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    monthadvance_monthtemplate = (
+        "= NOVEMBER 2012 =\n"
+        "\n"
+        "\t* [[Week of November 1, 2012]]\n"
         "\n"
         "CHECKPOINTS:\n"
         "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
@@ -314,91 +541,11 @@ class PlannerAdvanceTester(unittest.TestCase):
         "\n\n"
         "TIME SPENT ON PLANNER: "
     )
-
-    monthtemplate_agendaupdated = (
-        "= DECEMBER 2012 =\n"
-        "\n"
-        "\t* [[Week of December 1, 2012]]\n"
-        "\n"
-        "CHECKPOINTS:\n"
-        "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
-        "\n"
-        "AGENDA:\n"
-        "[x] take out trash\n"
-        "[x] floss\n"
-        "\n"
-        "MONTHLYs:\n"
-        "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
-        "\n"
-        "NOTES:\n"
-        "\n\n"
-        "TIME SPENT ON PLANNER: "
-    )
-
-    monthadvance_monthtemplate = monthtemplate
 
     monthadvance_weektemplate = (
-        "= WEEK OF DECEMBER 1, 2012 =\n"
+        "= WEEK OF NOVEMBER 1, 2012 =\n"
         "\n"
-        "\t* [[December 1, 2012]]\n"
-        "\n"
-        "CHECKPOINTS:\n"
-        "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
-        "\n"
-        "AGENDA:\n"
-        "\n"
-        "WEEKLYs:\n"
-        "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
-        "\n"
-        "NOTES:\n"
-        "\n\n"
-        "TIME SPENT ON PLANNER: "
-    )
-
-    default_weekdaytemplate = (
-        "CHECKPOINTS:\n"
-        "[ ] 7:00am - wake up []\n[ ] 7:05am - brush + change []\n[ ] 7:10am - protein []\n"
-        "[ ] 7:15am - gym []\n[ ] 8:00am - shower []\n[ ] 8:15am - dump []\n"
-        "[ ] 11:00pm - (start winding down) brush []\n[ ] 11:05pm - $nasal irrigation$ []\n"
-        "[ ] 11:10pm - update schedule []\n[ ] 11:15pm - get stuff ready for morning"
-        "((1) clothes:shirt,underwear,jeans,jacket,belt; (2) laptop+charger; (3) binder+texts+pen+pencil; (4) headphones"
-        ") []\n[ ] 11:30pm - sleep []\n"
-        "\n"
-        "AGENDA:\n"
-        "\n"
-        "DAILYs:\n"
-        "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
-        "\n"
-        "NOTES:\n"
-        "\n\n"
-        "TIME SPENT ON PLANNER: "
-    )
-
-    default_weekendtemplate = (
-        "CHECKPOINTS:\n"
-        "[ ] 8:00am - wake up []\n[ ] 8:05am - brush + change []\n[ ] 8:10am - protein []\n"
-        "[ ] 8:15am - gym []\n[ ] 9:00am - shower []\n[ ] 9:15am - weigh yourself (saturday) []\n"
-        "\n"
-        "AGENDA:\n"
-        "\n"
-        "DAILYs:\n"
-        "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
-        "\n"
-        "NOTES:\n"
-        "\n\n"
-        "TIME SPENT ON PLANNER: "
-    )
-
-    weektemplate = (
-        "= WEEK OF DECEMBER 1, 2012 =\n"
-        "\n"
-        "Theme: *WEEK OF THEME*\n"
-        "\n"
-        "\t* [[December 5, 2012]]\n"
-        "\t* [[December 4, 2012]]\n"
-        "\t* [[December 3, 2012]]\n"
-        "\t* [[December 2, 2012]]\n"
-        "\t* [[December 1, 2012]]\n"
+        "\t* [[November 1, 2012]]\n"
         "\n"
         "CHECKPOINTS:\n"
         "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
@@ -452,59 +599,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         "TIME SPENT ON PLANNER: "
     )
 
-    weektemplate_agendaupdated = (
-        "= WEEK OF DECEMBER 1, 2012 =\n"
-        "\n"
-        "Theme: *WEEK OF THEME*\n"
-        "\n"
-        "\t* [[December 5, 2012]]\n"
-        "\t* [[December 4, 2012]]\n"
-        "\t* [[December 3, 2012]]\n"
-        "\t* [[December 2, 2012]]\n"
-        "\t* [[December 1, 2012]]\n"
-        "\n"
-        "CHECKPOINTS:\n"
-        "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
-        "\n"
-        "AGENDA:\n"
-        "[x] take out trash\n"
-        "[x] floss\n"
-        "\n"
-        "WEEKLYs:\n"
-        "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
-        "\n"
-        "NOTES:\n"
-        "\n\n"
-        "TIME SPENT ON PLANNER: "
-    )
-
-    daytemplate = (
-        "CHECKPOINTS:\n"
-        "[x] 7:00am - wake up [9:00]\n"
-        "[x] 7:05am - brush + change [11:00]\n"
-        "[ ] 7:10am - protein []\n"
-        "[ ] 7:15am - gym []\n"
-        "[x] 8:00am - shower [11:10]\n"
-        "[ ] 11:05pm - $nasal irrigation$ []\n"
-        "[x] 11:10pm - update schedule [12:25]\n"
-        "[x] 11:15pm - get stuff ready for morning((1) clothes:shirt,underwear,jeans,jacket,belt; (2) laptop+charger; (3) binder+texts+pen+pencil; (4) headphones) [8:45]\n"
-        "[x] 11:30pm - sleep [12:45]\n"
-        "\n"
-        "AGENDA:\n"
-        "[x] take out trash\n"
-        "[x] floss\n"
-        "\n"
-        "DAILYs:\n"
-        "[ ] 40 mins gym\n"
-        "[x] Make bed\n"
-        "[x] 5 mins housework (dishes, clearing, folding, trash, ...)\n"
-        "\n"
-        "NOTES:\n"
-        "\n"
-        "\n"
-        "TIME SPENT ON PLANNER: 15 mins"
-    )
-
     dayadvance_weektemplate = (
         "= WEEK OF DECEMBER 1, 2012 =\n"
         "\n"
@@ -531,71 +625,6 @@ class PlannerAdvanceTester(unittest.TestCase):
         "\n\n"
         "TIME SPENT ON PLANNER: "
     )
-
-    checkpoints_year = "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
-    checkpoints_quarter = (
-        "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
-    )
-    checkpoints_month = (
-        "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
-    )
-    checkpoints_week = "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
-    checkpoints_weekday = (
-        "[ ] 7:00am - wake up []\n[ ] 7:05am - brush + change []\n[ ] 7:10am - protein []\n"
-        "[ ] 7:15am - gym []\n[ ] 8:00am - shower []\n[ ] 8:15am - dump []\n"
-        "[ ] 11:00pm - (start winding down) brush []\n[ ] 11:05pm - $nasal irrigation$ []\n"
-        "[ ] 11:10pm - update schedule []\n[ ] 11:15pm - get stuff ready for morning"
-        "((1) clothes:shirt,underwear,jeans,jacket,belt; (2) laptop+charger; (3) binder+texts+pen+pencil; (4) headphones"
-        ") []\n[ ] 11:30pm - sleep []\n"
-    )
-    checkpoints_weekend = (
-        "[ ] 8:00am - wake up []\n[ ] 8:05am - brush + change []\n[ ] 8:10am - protein []\n"
-        "[ ] 8:15am - gym []\n[ ] 9:00am - shower []\n[ ] 9:15am - weigh yourself (saturday) []\n"
-    )
-
-    periodic_year = "[ ] 1 significant life achievement\n"
-    periodic_quarter = "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
-    periodic_month = "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
-    periodic_week = "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
-    periodic_day = "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
-    daythemes = "SUNDAY: Groceries Day\nMONDAY: \nTUESDAY:Cleaning Day\nWEDNESDAY:\nTHURSDAY:\nFRIDAY:\nSATURDAY: LAUNDRY DAY\n"
-
-    def setUp(self):
-        self.planner = FilesystemPlanner()
-        self.planner.date = datetime.date.today()
-        tasklist = FilesystemTasklist()
-        tasklist.file = StringIO(self.tasklist)
-        self.planner.tasklist = tasklist
-        self.planner.daythemesfile = StringIO(self.daythemes)
-        self.planner.dayfile = StringIO(self.daytemplate)
-        self.planner.weekfile = StringIO(self.weektemplate)
-        self.planner.monthfile = StringIO(self.monthtemplate)
-        self.planner.quarterfile = StringIO(self.quartertemplate)
-        self.planner.yearfile = StringIO(self.yeartemplate)
-        self.planner.checkpoints_year_file = StringIO(self.checkpoints_year)
-        self.planner.checkpoints_quarter_file = StringIO(
-            self.checkpoints_quarter
-        )
-        self.planner.checkpoints_month_file = StringIO(self.checkpoints_month)
-        self.planner.checkpoints_week_file = StringIO(self.checkpoints_week)
-        self.planner.checkpoints_weekday_file = StringIO(
-            self.checkpoints_weekday
-        )
-        self.planner.checkpoints_weekend_file = StringIO(
-            self.checkpoints_weekend
-        )
-        self.planner.periodic_year_file = StringIO(self.periodic_year)
-        self.planner.periodic_quarter_file = StringIO(self.periodic_quarter)
-        self.planner.periodic_month_file = StringIO(self.periodic_month)
-        self.planner.periodic_week_file = StringIO(self.periodic_week)
-        self.planner.periodic_day_file = StringIO(self.periodic_day)
-        self.planner.week_theme = ''
-        self.planner.location = ''
-        self.planner.next_day_planner = FilesystemPlanner()
-        self.planner.agenda_reviewed = Year
-        mock_get_log = MagicMock()
-        mock_get_log.return_value = True
-        self.planner.get_log = mock_get_log
 
     @patch('composer.backend.filesystem.base.full_file_path')
     @patch('composer.backend.filesystem.base.read_file')
@@ -625,29 +654,13 @@ class PlannerAdvanceTester(unittest.TestCase):
             == self.planner.tasklist.file.getvalue()
         )
 
-    @patch('composer.backend.filesystem.base.read_file')
-    @patch('composer.backend.filesystem.base.full_file_path')
-    @patch('composer.backend.filesystem.base.string_to_date')
-    def test_planner_advance_year(
-        self, mock_get_date, mock_file_path, mock_read_file
-    ):
-        """ Check that planner advance returns the correct new year, quarter, month, week, and day templates when advancing year """
-        today = datetime.date(2012, 12, 31)
-        mock_get_date.return_value = (today, Day)
-        mock_file_path.return_value = ''
-        mock_read_file.return_value = StringIO('')
-        next_day = today + datetime.timedelta(days=1)
+    def _day_template(self, for_date):
         (date, day, month, year) = (
-            next_day.day,
-            next_day.strftime('%A'),
-            next_day.strftime('%B'),
-            next_day.year,
+            for_date.day,
+            for_date.strftime('%A'),
+            for_date.strftime('%B'),
+            for_date.year,
         )
-        dailythemes = self.daythemes.lower()
-        theme = dailythemes[dailythemes.index(day.lower()) :]
-        theme = theme[theme.index(':') :].strip(': ')
-        theme = theme[: theme.index('\n')].strip().upper()
-        theme = "*" + theme + "*"
         daytemplate = ""
         daytemplate += "= %s %s %d, %d =\n" % (
             day.upper(),
@@ -656,10 +669,33 @@ class PlannerAdvanceTester(unittest.TestCase):
             year,
         )
         daytemplate += "\n"
+        dailythemes = self.daythemes.lower()
+        theme = dailythemes[dailythemes.index(day.lower()) :]
+        theme = theme[theme.index(':') :].strip(': ')
+        theme = theme[: theme.index('\n')].strip().upper()
+        theme = "*" + theme + "*"
         if len(theme) > 2:
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
-        daytemplate += self.default_weekdaytemplate
+        if is_weekend(for_date):
+            daytemplate += self.default_weekendtemplate
+        else:
+            daytemplate += self.default_weekdaytemplate
+        return daytemplate
+
+    @patch('composer.backend.filesystem.base.read_file')
+    @patch('composer.backend.filesystem.base.full_file_path')
+    @patch('composer.backend.filesystem.base.string_to_date')
+    def test_advance_year(self, mock_get_date, mock_file_path, mock_read_file):
+        """ Check that planner advance returns the correct new year, quarter,
+        month, week, and day templates when advancing year
+        """
+        today = datetime.date(2012, 12, 31)
+        mock_get_date.return_value = (today, Day)
+        mock_file_path.return_value = ''
+        mock_read_file.return_value = StringIO('')
+        next_day = today + datetime.timedelta(days=1)
+        daytemplate = self._day_template(next_day)
         self.planner.date = today
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
@@ -690,43 +726,70 @@ class PlannerAdvanceTester(unittest.TestCase):
     @patch('composer.backend.filesystem.base.read_file')
     @patch('composer.backend.filesystem.base.full_file_path')
     @patch('composer.backend.filesystem.base.string_to_date')
-    def test_planner_advance_quarter(
+    def test_advance_year_with_jump(
         self, mock_get_date, mock_file_path, mock_read_file
     ):
-        """ Check that planner advance returns the correct new quarter, month, week, and day templates when advancing quarter """
+        """ Check that planner advance returns the correct new year, quarter,
+        month, week, and day templates when advancing year as part of a jump
+        """
+        today = datetime.date(2012, 12, 31)
+        mock_get_date.return_value = (today, Day)
+        mock_file_path.return_value = ''
+        mock_read_file.return_value = StringIO('')
+        next_day = datetime.date(2013, 8, 20)
+        daytemplate = self._day_template(next_day)
+        self.planner.get_log.return_value = False
+        self.planner.date = today
+        self.planner.jump_to_date = next_day
+        self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
+            'LAX'
+        ]
+
+        self.planner.advance()
+
+        self.assertEqual(
+            self.planner.next_day_planner.yearfile.read(),
+            self.yearadvance_yeartemplate_jump,
+        )
+        self.assertEqual(
+            self.planner.next_day_planner.quarterfile.read(),
+            self.yearadvance_quartertemplate_jump,
+        )
+        self.assertEqual(
+            self.planner.next_day_planner.monthfile.read(),
+            self.yearadvance_monthtemplate_jump,
+        )
+        self.assertEqual(
+            self.planner.next_day_planner.weekfile.read(),
+            self.yearadvance_weektemplate_jump,
+        )
+        self.assertEqual(
+            self.planner.next_day_planner.dayfile.read(), daytemplate
+        )
+
+    @patch('composer.backend.filesystem.base.read_file')
+    @patch('composer.backend.filesystem.base.full_file_path')
+    @patch('composer.backend.filesystem.base.string_to_date')
+    def test_advance_quarter(
+        self, mock_get_date, mock_file_path, mock_read_file
+    ):
+        """ Check that planner advance returns the correct new quarter, month,
+        week, and day templates when advancing quarter
+        """
         today = datetime.date(2012, 9, 30)
         self.planner.date = today
         mock_get_date.return_value = (today, Day)
         mock_file_path.return_value = ''
         mock_read_file.return_value = StringIO('')
         next_day = today + datetime.timedelta(days=1)
-        (date, day, month, year) = (
-            next_day.day,
-            next_day.strftime('%A'),
-            next_day.strftime('%B'),
-            next_day.year,
-        )
-        dailythemes = self.daythemes.lower()
-        theme = dailythemes[dailythemes.index(day.lower()) :]
-        theme = theme[theme.index(':') :].strip(': ')
-        theme = theme[: theme.index('\n')].strip().upper()
-        theme = "*" + theme + "*"
-        daytemplate = ""
-        daytemplate += "= %s %s %d, %d =\n" % (
-            day.upper(),
-            month[:3].upper(),
-            date,
-            year,
-        )
-        daytemplate += "\n"
-        if len(theme) > 2:
-            daytemplate += "Theme: %s\n" % theme
-            daytemplate += "\n"
-        daytemplate += self.default_weekdaytemplate
+        daytemplate = self._day_template(next_day)
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
         self.planner.advance()
+        self.assertEqual(
+            self.planner.yearfile.read(), self.quarteradvance_yeartemplate
+        )
         self.assertEqual(
             self.planner.next_day_planner.quarterfile.read(),
             self.quarteradvance_quartertemplate,
@@ -746,43 +809,26 @@ class PlannerAdvanceTester(unittest.TestCase):
     @patch('composer.backend.filesystem.base.read_file')
     @patch('composer.backend.filesystem.base.full_file_path')
     @patch('composer.backend.filesystem.base.string_to_date')
-    def test_planner_advance_month(
+    def test_advance_month(
         self, mock_get_date, mock_file_path, mock_read_file
     ):
-        """ Check that planner advance returns the correct new month, week, and day templates when advancing month """
-        today = datetime.date(2012, 11, 30)
+        """ Check that planner advance returns the correct new month, week, and
+        day templates when advancing month
+        """
+        today = datetime.date(2012, 10, 31)
         mock_get_date.return_value = (today, Day)
         mock_file_path.return_value = ''
         mock_read_file.return_value = StringIO('')
         next_day = today + datetime.timedelta(days=1)
-        (date, day, month, year) = (
-            next_day.day,
-            next_day.strftime('%A'),
-            next_day.strftime('%B'),
-            next_day.year,
-        )
-        dailythemes = self.daythemes.lower()
-        theme = dailythemes[dailythemes.index(day.lower()) :]
-        theme = theme[theme.index(':') :].strip(': ')
-        theme = theme[: theme.index('\n')].strip().upper()
-        theme = "*" + theme + "*"
-        daytemplate = ""
-        daytemplate += "= %s %s %d, %d =\n" % (
-            day.upper(),
-            month[:3].upper(),
-            date,
-            year,
-        )
-        daytemplate += "\n"
-        if len(theme) > 2:
-            daytemplate += "Theme: %s\n" % theme
-            daytemplate += "\n"
-        daytemplate += self.default_weekendtemplate
+        daytemplate = self._day_template(next_day)
         self.planner.date = today
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
         self.planner.advance()
+        self.assertEqual(
+            self.planner.quarterfile.read(), self.monthadvance_quartertemplate
+        )
         self.assertEqual(
             self.planner.next_day_planner.monthfile.read(),
             self.monthadvance_monthtemplate,
@@ -798,100 +844,149 @@ class PlannerAdvanceTester(unittest.TestCase):
     @patch('composer.backend.filesystem.base.read_file')
     @patch('composer.backend.filesystem.base.full_file_path')
     @patch('composer.backend.filesystem.base.string_to_date')
-    def test_planner_advance_week(
-        self, mock_get_date, mock_file_path, mock_read_file
-    ):
-        """ Check that planner advance returns the correct new week and day templates, and updates the existing month template correctly, when advancing week """
+    def test_advance_week(self, mock_get_date, mock_file_path, mock_read_file):
+        """ Check that planner advance returns the correct new week and day
+        templates, and updates the existing month template correctly, when
+        advancing week
+        """
         today = datetime.date(2012, 12, 8)
         mock_get_date.return_value = (today, Day)
         mock_file_path.return_value = ''
         mock_read_file.return_value = StringIO('')
         next_day = today + datetime.timedelta(days=1)
-        (date, day, month, year) = (
-            next_day.day,
-            next_day.strftime('%A'),
-            next_day.strftime('%B'),
-            next_day.year,
-        )
-        dailythemes = self.daythemes.lower()
-        theme = dailythemes[dailythemes.index(day.lower()) :]
-        theme = theme[theme.index(':') :].strip(': ')
-        theme = theme[: theme.index('\n')].strip().upper()
-        theme = "*" + theme + "*"
-        daytemplate = ""
-        daytemplate += "= %s %s %d, %d =\n" % (
-            day.upper(),
-            month[:3].upper(),
-            date,
-            year,
-        )
-        daytemplate += "\n"
-        if len(theme) > 2:
-            daytemplate += "Theme: %s\n" % theme
-            daytemplate += "\n"
-        daytemplate += self.default_weekendtemplate
+        daytemplate = self._day_template(next_day)
         self.planner.date = today
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
         self.planner.advance()
+        self.assertEqual(
+            self.planner.monthfile.read(), self.weekadvance_monthtemplate
+        )
         self.assertEqual(
             self.planner.next_day_planner.weekfile.read(),
             self.weekadvance_weektemplate,
         )
         self.assertEqual(
-            self.planner.monthfile.read(), self.weekadvance_monthtemplate
+            self.planner.next_day_planner.dayfile.read(), daytemplate
         )
 
     @patch('composer.backend.filesystem.base.read_file')
     @patch('composer.backend.filesystem.base.full_file_path')
     @patch('composer.backend.filesystem.base.string_to_date')
-    def test_planner_advance_day(
-        self, mock_get_date, mock_file_path, mock_read_file
-    ):
-        """ Check that planner advance returns the correct new day template, and updates the existing week template, when advancing day """
+    def test_advance_day(self, mock_get_date, mock_file_path, mock_read_file):
+        """ Check that planner advance returns the correct new day template,
+        and updates the existing week template, when advancing day
+        """
         today = datetime.date(2012, 12, 5)
         mock_get_date.return_value = (today, Day)
         mock_file_path.return_value = ''
         mock_read_file.return_value = StringIO('')
         next_day = today + datetime.timedelta(days=1)
-        (date, day, month, year) = (
-            next_day.day,
-            next_day.strftime('%A'),
-            next_day.strftime('%B'),
-            next_day.year,
-        )
-        dailythemes = self.daythemes.lower()
-        theme = dailythemes[dailythemes.index(day.lower()) :]
-        theme = theme[theme.index(':') :].strip(': ')
-        theme = theme[: theme.index('\n')].strip().upper()
-        theme = "*" + theme + "*"
-        daytemplate = ""
-        daytemplate += "= %s %s %d, %d =\n" % (
-            day.upper(),
-            month[:3].upper(),
-            date,
-            year,
-        )
-        daytemplate += "\n"
-        if len(theme) > 2:
-            daytemplate += "Theme: %s\n" % theme
-            daytemplate += "\n"
-        daytemplate += self.default_weekdaytemplate
+        daytemplate = self._day_template(next_day)
         self.planner.date = today
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
         self.planner.advance()
         self.assertEqual(
-            self.planner.next_day_planner.dayfile.read(), daytemplate
-        )
-        self.assertEqual(
             self.planner.weekfile.read(), self.dayadvance_weektemplate
         )
+        self.assertEqual(
+            self.planner.next_day_planner.dayfile.read(), daytemplate
+        )
 
-    def test_planner_advance_week_agenda(self):
-        """ Check that, on day advance, current day's agenda is appended to the current week """
+
+class TestAgendaCascade(PlannerIntegrationTest):
+    yeartemplate_agendaupdated = (
+        "= 2012 =\n"
+        "\t* [[Q3 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
+        "\n"
+        "YEARLYs:\n"
+        "[ ] 1 significant life achievement\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    quartertemplate_agendaupdated = (
+        "= Q4 2012 =\n"
+        "\n"
+        "\t* [[Month of October, 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
+        "\n"
+        "QUARTERLYs:\n"
+        "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    monthtemplate_agendaupdated = (
+        "= DECEMBER 2012 =\n"
+        "\n"
+        "\t* [[Week of December 1, 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
+        "\n"
+        "MONTHLYs:\n"
+        "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    weektemplate_agendaupdated = (
+        "= WEEK OF DECEMBER 1, 2012 =\n"
+        "\n"
+        "Theme: *WEEK OF THEME*\n"
+        "\n"
+        "\t* [[December 5, 2012]]\n"
+        "\t* [[December 4, 2012]]\n"
+        "\t* [[December 3, 2012]]\n"
+        "\t* [[December 2, 2012]]\n"
+        "\t* [[December 1, 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
+        "\n"
+        "WEEKLYs:\n"
+        "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    def test_day_to_week(self):
+        """ Check that, on day advance, current day's agenda is appended to the
+        current week
+        """
         current_day = datetime.date(2012, 12, 5)
         self.planner.date = current_day
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
@@ -903,8 +998,10 @@ class PlannerAdvanceTester(unittest.TestCase):
             self.planner.weekfile.read(), self.weektemplate_agendaupdated
         )
 
-    def test_planner_advance_month_agenda(self):
-        """ Check that, on week advance, current week's agenda is appended to the current month """
+    def test_week_to_month(self):
+        """ Check that, on week advance, current week's agenda is appended to
+        the current month
+        """
         current_day = datetime.date(2012, 12, 5)
         self.planner.date = current_day
         self.planner.weekfile = StringIO(self.weektemplate_agendaupdated)
@@ -917,8 +1014,10 @@ class PlannerAdvanceTester(unittest.TestCase):
             self.planner.monthfile.read(), self.monthtemplate_agendaupdated
         )
 
-    def test_planner_advance_quarter_agenda(self):
-        """ Check that, on month advance, current month's agenda is appended to the current quarter """
+    def test_month_to_quarter(self):
+        """ Check that, on month advance, current month's agenda is appended to
+        the current quarter
+        """
         current_day = datetime.date(2012, 12, 5)
         self.planner.date = current_day
         self.planner.monthfile = StringIO(self.monthtemplate_agendaupdated)
@@ -931,9 +1030,11 @@ class PlannerAdvanceTester(unittest.TestCase):
             self.planner.quarterfile.read(), self.quartertemplate_agendaupdated
         )
 
-    def test_planner_advance_year_agenda(self):
-        """ Check that, on quarter advance, current quarter's agenda is appended to the current year """
-        current_day = datetime.date(2012, 12, 5)
+    def test_quarter_to_year(self):
+        """ Check that, on quarter advance, current quarter's agenda is
+        appended to the current year
+        """
+        current_day = datetime.date(2012, 9, 30)
         self.planner.date = current_day
         self.planner.quarterfile = StringIO(self.quartertemplate_agendaupdated)
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[

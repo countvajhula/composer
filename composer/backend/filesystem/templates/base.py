@@ -28,8 +28,8 @@ class Template(ABC):
     periodicfile = None
     checkpointsfile = None
 
-    def __init__(self, planner, start_date):
-        self.load_context(planner, start_date)
+    def __init__(self, planner, for_date):
+        self.load_context(planner, for_date)
 
     @abc.abstractmethod
     def _file_handle(self):
@@ -37,18 +37,17 @@ class Template(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def load_context(self, planner, start_date):
+    def load_context(self, planner, for_date):
         """ Store any relevant context that may be needed in populating a
         logfile from a template.
 
         :param :class:`~composer.backend.filesystem.base.FilesystemPlanner`
             planner: The planner instance in connection with which log files
             are to be populated.
-        :param :class:`datetime.date` start_date: The start date of the
-            new period
+        :param :class:`datetime.date` for_date: The reference date
         """
         self.tasklistfile = planner.tasklist.file
-        self.start_date = start_date
+        self.for_date = for_date
         self.bullet_character = planner.preferred_bullet_char
 
     @abc.abstractmethod

@@ -26,3 +26,13 @@ def get_next_period(current_period, decreasing=False):
     except (IndexError, ValueError):
         raise
     return next_period
+
+
+def is_weekend(date):
+    """ Check whether the date falls on a weekend.
+    """
+    dow = date.strftime('%A')
+    if dow.lower() in ('saturday', 'sunday'):
+        return True
+    else:
+        return False

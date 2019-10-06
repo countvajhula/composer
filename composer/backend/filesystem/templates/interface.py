@@ -7,7 +7,7 @@ from .quarter import QuarterTemplate
 from .year import YearTemplate
 
 
-def get_template(planner, period, start_date):
+def get_template(planner, period, for_date):
     """ Get a template for the given period to mediate log file creation and
     modification.
 
@@ -15,21 +15,21 @@ def get_template(planner, period, start_date):
         planner: The planner instance in connection with which log files
         are to be populated.
     :param :class:`~composer.timeperiod.Period` period: A time period
-    :param :class:`datetime.date` start_date: The start date for the period
-        for which we are getting a log
+    :param :class:`datetime.date` for_date: The date for which we are getting a
+        log
     :returns :class:`~composer.backend.filesystem.templates.Template`: A
         template instance
     """
     if period == Day:
-        template = DayTemplate(planner, start_date)
+        template = DayTemplate(planner, for_date)
     elif period == Week:
-        template = WeekTemplate(planner, start_date)
+        template = WeekTemplate(planner, for_date)
     elif period == Month:
-        template = MonthTemplate(planner, start_date)
+        template = MonthTemplate(planner, for_date)
     elif period == Quarter:
-        template = QuarterTemplate(planner, start_date)
+        template = QuarterTemplate(planner, for_date)
     elif period == Year:
-        template = YearTemplate(planner, start_date)
+        template = YearTemplate(planner, for_date)
     else:
-        template = ZeroTemplate(planner, start_date)
+        template = ZeroTemplate(planner, for_date)
     return template

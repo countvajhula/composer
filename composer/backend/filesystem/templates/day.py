@@ -1,4 +1,5 @@
 from .base import Template
+from ....timeperiod import is_weekend
 
 
 def _get_theme_for_the_day(day, daythemesfile):
@@ -15,11 +16,10 @@ class DayTemplate(Template):
     def _file_handle(self):
         return 'dayfile'
 
-    def load_context(self, planner, start_date):
-        super(DayTemplate, self).load_context(planner, start_date)
+    def load_context(self, planner, for_date):
+        super(DayTemplate, self).load_context(planner, for_date)
         self.logfile = planner.dayfile
-        nextdow = start_date.strftime("%A")
-        if nextdow.lower() in ("saturday", "sunday"):
+        if is_weekend(for_date):
             self.checkpointsfile = planner.checkpoints_weekend_file
         else:
             self.checkpointsfile = planner.checkpoints_weekday_file
@@ -32,10 +32,10 @@ class DayTemplate(Template):
         tomorrow = kwargs.get('tomorrow')
         undone = kwargs.get('undone')
         (date, day, month, year) = (
-            self.start_date.day,
-            self.start_date.strftime("%A"),
-            self.start_date.strftime("%B"),
-            self.start_date.year,
+            self.for_date.day,
+            self.for_date.strftime("%A"),
+            self.for_date.strftime("%B"),
+            self.for_date.year,
         )
         self.title = (
             "= %s %s %d, %d =\n" % (day, month[:3], date, year)

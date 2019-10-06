@@ -1,7 +1,7 @@
 import datetime
 import pytest
 
-from composer.timeperiod import Day, Week, Month
+from composer.timeperiod import Day, Week, Month, is_weekend
 
 from ...fixtures import planner
 
@@ -31,7 +31,9 @@ class TestNewTemplateIntegrity(object):
         return monthtemplate
 
     def test_month_template(self, planner):
-        """ Test that month template is generated correctly by integrating checkpoints, periodic, etc."""
+        """ Test that month template is generated correctly by integrating
+        checkpoints, periodic, etc.
+        """
         for_day = datetime.date(2012, 12, 5)
 
         planner.create_log(Month, for_day)
@@ -39,13 +41,18 @@ class TestNewTemplateIntegrity(object):
         assert planner.next_day_planner.monthfile.read() == expected
 
     def _week_template(self, planner, for_day):
-        (month, year) = (for_day.strftime('%B'), for_day.year)
+        (date, month, year) = (
+            for_day.day,
+            for_day.strftime('%B'),
+            for_day.year,
+        )
         weektemplate = (
             "= WEEK OF %s %d, %d =\n"
             % (month, 1, year)  # this week begins on the 1st
         ).upper()
         weektemplate += "\n"
-        weektemplate += "\t* [[%s %d, %d]]\n" % (month, 1, year)
+        # the entry is for the actual day, not necessarily the 1st
+        weektemplate += "\t* [[%s %d, %d]]\n" % (month, date, year)
         weektemplate += "\n"
         weektemplate += "CHECKPOINTS:\n"
         weektemplate += planner.checkpoints_week_file.getvalue()
@@ -59,7 +66,9 @@ class TestNewTemplateIntegrity(object):
         return weektemplate
 
     def test_week_template(self, planner):
-        """ Test that week template is generated correctly by integrating checkpoints, periodic, etc."""
+        """ Test that week template is generated correctly by integrating
+        checkpoints, periodic, etc.
+        """
         for_day = datetime.date(2012, 12, 1)
 
         planner.create_log(Week, for_day)
@@ -68,7 +77,9 @@ class TestNewTemplateIntegrity(object):
         assert planner.next_day_planner.weekfile.read() == expected
 
     def test_template_begins_at_start_of_period(self, planner):
-        """ Test that week template is generated correctly by integrating checkpoints, periodic, etc."""
+        """ Test that week template is generated correctly by integrating
+        checkpoints, periodic, etc.
+        """
         for_day = datetime.date(2012, 12, 5)
 
         planner.create_log(Week, for_day)
@@ -154,7 +165,7 @@ class TestNewTemplateIntegrity(object):
             daytemplate += "Theme: %s\n" % theme
             daytemplate += "\n"
         daytemplate += "CHECKPOINTS:\n"
-        if day.lower() in ('saturday', 'sunday'):
+        if is_weekend(for_day):
             daytemplate += planner.checkpoints_weekend_file.getvalue()
         else:
             daytemplate += planner.checkpoints_weekday_file.getvalue()
@@ -176,8 +187,11 @@ class TestNewTemplateIntegrity(object):
 
     @pytest.mark.parametrize("offset", range(7))
     def test_daily_templates(self, planner, offset):
-        """ Test that templates for each day are generated correctly by integrating checkpoints, periodic, etc.
-        Currently only 2 templates - weekday, and weekend are used. TODO: Add individual templates for each day of the week """
+        """ Test that templates for each day are generated correctly by
+        integrating checkpoints, periodic, etc.
+        Currently only 2 templates - weekday, and weekend are used.
+        TODO: Add individual templates for each day of the week
+        """
 
         for_day = datetime.date(2012, 12, 8) + datetime.timedelta(days=offset)
         expected_dayfile = self._day_template(planner, for_day)
@@ -190,15 +204,19 @@ class TestNewTemplateIntegrity(object):
 
 
 class TestExistingTemplateUpdateIntegrity(object):
-    """ Check that updates on existing templates modifies the file as expected - does the right thing, does only that thing """
+    """ Check that updates on existing templates modifies the file as expected
+    - does the right thing, does only that thing
+    """
 
-    def test_update_existing_month_template(self, planner):
-        """ Check that writing over an existing month template adds the new week, and that there are no other changes """
-        for_day = datetime.date(2012, 12, 5)
+    def test_month(self, planner):
+        """ Check that writing over an existing month template adds the new
+        week, and that there are no other changes
+        """
+        for_day = datetime.date(2012, 12, 9)
 
         monthtemplate_updated = (
             "= DECEMBER 2012 =\n"
-            "\t* [[Week of December 5, 2012]]\n"
+            "\t* [[Week of December 9, 2012]]\n"
             "\t* [[Week of December 1, 2012]]\n"
             "\n"
             "CHECKPOINTS:\n"
@@ -217,8 +235,10 @@ class TestExistingTemplateUpdateIntegrity(object):
         planner.update_log(Month, for_day)
         assert planner.monthfile.read() == monthtemplate_updated
 
-    def test_update_existing_week_template(self, planner):
-        """ Check that writing over an existing week template adds the new day, and that there are no other changes """
+    def test_week(self, planner):
+        """ Check that writing over an existing week template adds the new day,
+        and that there are no other changes
+        """
         for_day = datetime.date(2012, 12, 5)
 
         weektemplate_updated = (
@@ -227,6 +247,39 @@ class TestExistingTemplateUpdateIntegrity(object):
             "Theme: *WEEK OF THEME*\n"
             "\n"
             "\t* [[December 5, 2012]]\n"
+            "\t* [[December 4, 2012]]\n"
+            "\t* [[December 3, 2012]]\n"
+            "\t* [[December 2, 2012]]\n"
+            "\t* [[December 1, 2012]]\n"
+            "\n"
+            "CHECKPOINTS:\n"
+            "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
+            "\n"
+            "AGENDA:\n"
+            "\n"
+            "WEEKLYs:\n"
+            "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
+            "\n"
+            "NOTES:\n"
+            "\n\n"
+            "TIME SPENT ON PLANNER: "
+        )
+
+        planner.update_log(Week, for_day)
+        assert planner.weekfile.read() == weektemplate_updated
+
+    def test_jump_in_week(self, planner):
+        """ Check that writing over an existing week template in a jump adds
+        the new day, and that there are no other changes
+        """
+        for_day = datetime.date(2012, 12, 8)
+
+        weektemplate_updated = (
+            "= WEEK OF DECEMBER 1, 2012 =\n"
+            "\n"
+            "Theme: *WEEK OF THEME*\n"
+            "\n"
+            "\t* [[December 8, 2012]]\n"
             "\t* [[December 4, 2012]]\n"
             "\t* [[December 3, 2012]]\n"
             "\t* [[December 2, 2012]]\n"

@@ -377,9 +377,7 @@ class FilesystemPlanner(PlannerBase):
             tomorrow = self.tasklist.get_tasks_for_tomorrow()
             undone = self.get_todays_unfinished_tasks()
 
-        # for jumps, start date of the period may not equal next day
-        start_date = period.get_start_date(for_day)
-        template = get_template(self, period, start_date)
+        template = get_template(self, period, for_day)
         contents = template.build(
             scheduled=scheduled, tomorrow=tomorrow, undone=undone
         )
