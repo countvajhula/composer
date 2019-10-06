@@ -235,10 +235,8 @@ def _planner():
         "\n"
         'Theme: *"PUT IT BACK" 2012*\n'
         "\n"
-        "\t* [[Q4 2015]]\n"
-        "\t* [[Q3 2015]]\n"
-        "\t* [[Q2 2015]]\n"
-        "\t* [[Q1 2015]]\n"
+        "\t* [[Q2 2012]]\n"
+        "\t* [[Q1 2012]]\n"
         "\n"
         "CHECKPOINTS:\n"
         "[ ] Q1 - []\n"
@@ -258,11 +256,9 @@ def _planner():
     )
 
     quartertemplate = (
-        "= Q4 2012 =\n"
+        "= Q3 2012 =\n"
         "\n"
-        "\t* [[Month of December, 2012]]\n"
-        "\t* [[Month of November, 2012]]\n"
-        "\t* [[Month of October, 2012]]\n"
+        "\t* [[Month of July, 2012]]\n"
         "\n"
         "CHECKPOINTS:\n"
         "[ ] MONTH 1 - []\n"
@@ -356,6 +352,10 @@ def _planner():
         "TIME SPENT ON PLANNER: 15 mins"
     )
 
+    checkpoints_year = "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+    checkpoints_quarter = (
+        "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
+    )
     checkpoints_month = (
         "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
     )
@@ -373,6 +373,8 @@ def _planner():
         "[ ] 8:15am - gym []\n[ ] 9:00am - shower []\n[ ] 9:15am - weigh yourself (saturday) []\n"
     )
 
+    periodic_year = "[ ] 1 significant life achievement\n"
+    periodic_quarter = "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
     periodic_month = "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
     periodic_week = "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
     periodic_day = "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
@@ -394,10 +396,14 @@ def _planner():
     planner.periodic_day_file = StringIO(periodic_day)
     planner.periodic_week_file = StringIO(periodic_week)
     planner.periodic_month_file = StringIO(periodic_month)
+    planner.periodic_quarter_file = StringIO(periodic_quarter)
+    planner.periodic_year_file = StringIO(periodic_year)
     planner.checkpoints_weekday_file = StringIO(checkpoints_weekday)
     planner.checkpoints_weekend_file = StringIO(checkpoints_weekend)
     planner.checkpoints_week_file = StringIO(checkpoints_week)
     planner.checkpoints_month_file = StringIO(checkpoints_month)
+    planner.checkpoints_quarter_file = StringIO(checkpoints_quarter)
+    planner.checkpoints_year_file = StringIO(checkpoints_year)
     planner.dayfile = StringIO(daytemplate)
     planner.weekfile = StringIO(weektemplate)
     planner.monthfile = StringIO(monthtemplate)
