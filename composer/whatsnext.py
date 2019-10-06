@@ -246,17 +246,11 @@ def process_wiki(wikidir, preferences):
                 _post_advance_tasks(
                     wikidir, next_day_planner.date, preferences
                 )
-                if (
-                    planner.jump_to_date
-                ):  # if jumping, keep repeating until present-day error thrown
-                    preferences['week_theme'] = None  # reset week theme
-                else:
-                    break
             else:
                 display_message(
                     "Current day is still in progress! Try again after 6pm."
                 )
-                break
+            break
 
 
 @click.command(

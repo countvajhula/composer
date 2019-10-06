@@ -387,6 +387,7 @@ class TestPreferences(object):
             "week_theme": "revival",
         }
         today = datetime.date.today()
+        planner.date = today - datetime.timedelta(days=10)
         mock_datetime.date.today.return_value = today
         planner.set_preferences(preferences)
         assert planner.schedule == preferences['schedule']
@@ -394,3 +395,17 @@ class TestPreferences(object):
         assert planner.jump_to_date == today
         assert planner.logfile_completion_checking == LOGFILE_CHECKING['LAX']
         assert planner.week_theme == preferences.get("week_theme")
+
+
+class TestJumpDate(object):
+    def test_jump_date(self, planner_base):
+        planner = planner_base
+        jump_to_date = planner.date + datetime.timedelta(days=10)
+        planner.set_jump_date(jump_to_date)
+        assert planner.jump_to_date == jump_to_date
+
+    def test_date_in_past_is_ignored(self, planner_base):
+        planner = planner_base
+        jump_to_date = planner.date
+        planner.set_jump_date(jump_to_date)
+        assert planner.jump_to_date is None

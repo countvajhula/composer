@@ -53,7 +53,8 @@ class PlannerBase(ABC):
             "bullet_character", self.preferred_bullet_char
         )
         if preferences.get("jump"):
-            self.jump_to_date = datetime.date.today()
+            today = datetime.date.today()
+            self.set_jump_date(today)
 
         self.logfile_completion_checking = preferences.get(
             "logfile_completion_checking", self.logfile_completion_checking
@@ -66,6 +67,14 @@ class PlannerBase(ABC):
             # jumping overrides preferences for logfile checking
             # TODO: not needed anymore?
             self.logfile_completion_checking = LOGFILE_CHECKING["LAX"]
+
+    def set_jump_date(self, date):
+        """ Set the date to jump to. If this date is in the past (relative to
+        planner state), then it is ignored.
+
+        :param :class:`datetime.date` date: The date to jump to
+        """
+        self.jump_to_date = date if date > self.date else None
 
     @abc.abstractmethod
     def construct(self, location=None, tasklist=None):
