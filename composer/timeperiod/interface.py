@@ -30,6 +30,8 @@ def get_next_period(current_period, decreasing=False):
 
 def is_weekend(date):
     """ Check whether the date falls on a weekend.
+
+    :param :class:`datetime.date` date: The date to check
     """
     dow = date.strftime('%A')
     if dow.lower() in ('saturday', 'sunday'):
