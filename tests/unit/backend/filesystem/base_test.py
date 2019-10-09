@@ -55,9 +55,46 @@ class TestGetAgenda(TestPlanner):
             "\t[ ] first thing\n"
             "\tclarification of first thing\n"
             "\t[ ] second thing\n"
+            "[x] a done task\n"
+            "\t[x] with\n"
+            "\t[x] subtasks\n"
             "[ ] another task\n"
+            "[x] also a done task\n"
+            "[-] an invalid task\n"
         )
         result = planner.get_agenda(Day)
+        assert result == expected
+
+    def test_get_agenda_completed_only(self, planner, logfile):
+        mock_get_logfile = MagicMock()
+        mock_get_logfile.return_value = logfile
+        planner._get_logfile = mock_get_logfile
+        expected = (
+            "[o] a scheduled task [$TOMORROW$]\n"
+            "[x] a done task\n"
+            "\t[x] with\n"
+            "\t[x] subtasks\n"
+            "[x] also a done task\n"
+            "[-] an invalid task\n"
+        )
+        result = planner.get_agenda(Day, complete=True)
+        assert result == expected
+
+    def test_get_agenda_not_completed_only(self, planner, logfile):
+        mock_get_logfile = MagicMock()
+        mock_get_logfile.return_value = logfile
+        planner._get_logfile = mock_get_logfile
+        expected = (
+            "[ ] a task\n"
+            "[\\] a WIP task\n"
+            "Just some additional clarifications\n"
+            "[ ] a task with subtasks\n"
+            "\t[ ] first thing\n"
+            "\tclarification of first thing\n"
+            "\t[ ] second thing\n"
+            "[ ] another task\n"
+        )
+        result = planner.get_agenda(Day, complete=False)
         assert result == expected
 
 
@@ -88,7 +125,12 @@ class TestUpdateAgenda(TestPlanner):
                 "\t[ ] first thing\n"
                 "\tclarification of first thing\n"
                 "\t[ ] second thing\n"
+                "[x] a done task\n"
+                "\t[x] with\n"
+                "\t[x] subtasks\n"
                 "[ ] another task\n"
+                "[x] also a done task\n"
+                "[-] an invalid task\n"
             )
             + updates
             + ("\n" "NOTES:\n")

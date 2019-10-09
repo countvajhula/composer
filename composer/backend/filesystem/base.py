@@ -421,11 +421,15 @@ class FilesystemPlanner(PlannerBase):
             completed = True
         return completed
 
-    def get_agenda(self, period):
+    def get_agenda(self, period, complete=None):
         """ Go through logfile and extract all tasks under AGENDA
 
         :param :class:`~composer.timeperiod.Period` period: Get the agenda
             for this time period
+        :param bool complete: If true, get only completed (e.g. either done,
+            invalid or rescheduled) entries; if False, get all other
+            (e.g. undone or WIP) entries; if not specified (None), then get the
+            full agenda including all entries
         :returns str: The agenda
         """
         if period is Zero:
@@ -438,7 +442,14 @@ class FilesystemPlanner(PlannerBase):
                 "No AGENDA section found in {period} log file!"
                 " Add one and try again.".format(period=period)
             )
-        agenda = agenda.read()
+        if complete:
+            of_type = is_completed
+        elif complete is False:
+            of_type = is_not_completed
+        else:
+            of_type = None
+        agenda = get_entries(agenda, of_type)
+        agenda = entries_to_string(agenda)
         return agenda
 
     def update_agenda(self, period, agenda):

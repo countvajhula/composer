@@ -191,6 +191,8 @@ class PlannerIntegrationTest(unittest.TestCase):
         "AGENDA:\n"
         "[x] take out trash\n"
         "[x] floss\n"
+        "[ ] get groceries\n"
+        "[\\] do dishes\n"
         "\n"
         "DAILYs:\n"
         "[ ] 40 mins gym\n"
@@ -213,6 +215,8 @@ class PlannerIntegrationTest(unittest.TestCase):
         ") []\n[ ] 11:30pm - sleep []\n"
         "\n"
         "AGENDA:\n"
+        "[ ] get groceries\n"
+        "[\\] do dishes\n"
         "\n"
         "DAILYs:\n"
         "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
@@ -228,6 +232,8 @@ class PlannerIntegrationTest(unittest.TestCase):
         "[ ] 8:15am - gym []\n[ ] 9:00am - shower []\n[ ] 9:15am - weigh yourself (saturday) []\n"
         "\n"
         "AGENDA:\n"
+        "[ ] get groceries\n"
+        "[\\] do dishes\n"
         "\n"
         "DAILYs:\n"
         "[ ] 40 mins gym\n[ ] Make bed\n[ ] 3 meals\n[ ] $nasal spray$\n[ ] Update schedule\n"
@@ -458,6 +464,8 @@ class PlannerAdvanceTester(PlannerIntegrationTest):
         "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
         "\n"
         "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
         "\n"
         "YEARLYs:\n"
         "[ ] 1 significant life achievement\n"
@@ -515,6 +523,8 @@ class PlannerAdvanceTester(PlannerIntegrationTest):
         "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
         "\n"
         "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
         "\n"
         "QUARTERLYs:\n"
         "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
@@ -898,7 +908,7 @@ class PlannerAdvanceTester(PlannerIntegrationTest):
 
 
 class TestAgendaCascade(PlannerIntegrationTest):
-    yeartemplate_agendaupdated = (
+    yeartemplate_agendaupdated_completed = (
         "= 2012 =\n"
         "\t* [[Q3 2012]]\n"
         "\n"
@@ -917,7 +927,28 @@ class TestAgendaCascade(PlannerIntegrationTest):
         "TIME SPENT ON PLANNER: "
     )
 
-    quartertemplate_agendaupdated = (
+    yeartemplate_agendaupdated_all = (
+        "= 2012 =\n"
+        "\t* [[Q3 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
+        "[ ] get groceries\n"
+        "[\\] do dishes\n"
+        "\n"
+        "YEARLYs:\n"
+        "[ ] 1 significant life achievement\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    quartertemplate_agendaupdated_completed = (
         "= Q4 2012 =\n"
         "\n"
         "\t* [[Month of October, 2012]]\n"
@@ -937,7 +968,29 @@ class TestAgendaCascade(PlannerIntegrationTest):
         "TIME SPENT ON PLANNER: "
     )
 
-    monthtemplate_agendaupdated = (
+    quartertemplate_agendaupdated_all = (
+        "= Q4 2012 =\n"
+        "\n"
+        "\t* [[Month of October, 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
+        "[ ] get groceries\n"
+        "[\\] do dishes\n"
+        "\n"
+        "QUARTERLYs:\n"
+        "[ ] 1 major research achievement\n[ ] 1 major coding achievement\n[ ] 1 unique achievement\n[ ] update financials\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    monthtemplate_agendaupdated_completed = (
         "= DECEMBER 2012 =\n"
         "\n"
         "\t* [[Week of December 1, 2012]]\n"
@@ -957,7 +1010,29 @@ class TestAgendaCascade(PlannerIntegrationTest):
         "TIME SPENT ON PLANNER: "
     )
 
-    weektemplate_agendaupdated = (
+    monthtemplate_agendaupdated_all = (
+        "= DECEMBER 2012 =\n"
+        "\n"
+        "\t* [[Week of December 1, 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] WEEK 1 - []\n[ ] WEEK 2 - []\n[ ] WEEK 3 - []\n[ ] WEEK 4 - []\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
+        "[ ] get groceries\n"
+        "[\\] do dishes\n"
+        "\n"
+        "MONTHLYs:\n"
+        "[ ] Read 1 book\n[ ] Complete 1 nontrivial coding objective\n[ ] publish 1 blog post\n[ ] backup laptop data\n[ ] update financials\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
+    weektemplate_agendaupdated_completed = (
         "= WEEK OF DECEMBER 1, 2012 =\n"
         "\n"
         "Theme: *WEEK OF THEME*\n"
@@ -983,6 +1058,34 @@ class TestAgendaCascade(PlannerIntegrationTest):
         "TIME SPENT ON PLANNER: "
     )
 
+    weektemplate_agendaupdated_all = (
+        "= WEEK OF DECEMBER 1, 2012 =\n"
+        "\n"
+        "Theme: *WEEK OF THEME*\n"
+        "\n"
+        "\t* [[December 5, 2012]]\n"
+        "\t* [[December 4, 2012]]\n"
+        "\t* [[December 3, 2012]]\n"
+        "\t* [[December 2, 2012]]\n"
+        "\t* [[December 1, 2012]]\n"
+        "\n"
+        "CHECKPOINTS:\n"
+        "[ ] SUN - []\n[ ] MON - []\n[ ] TUE - []\n[ ] WED - []\n[ ] THU - []\n[ ] FRI - []\n[ ] SAT - []\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] take out trash\n"
+        "[x] floss\n"
+        "[ ] get groceries\n"
+        "[\\] do dishes\n"
+        "\n"
+        "WEEKLYs:\n"
+        "[ ] Complete 1 nontrivial research objective\n[ ] Meet+followup >= 1 person\n[ ] 6-10 hrs coding\n[ ] teach ferdy 1 trick\n"
+        "\n"
+        "NOTES:\n"
+        "\n\n"
+        "TIME SPENT ON PLANNER: "
+    )
+
     def test_day_to_week(self):
         """ Check that, on day advance, current day's agenda is appended to the
         current week
@@ -992,58 +1095,101 @@ class TestAgendaCascade(PlannerIntegrationTest):
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        dayagenda = self.planner.get_agenda(Day)
-        self.planner.update_agenda(Week, dayagenda)
+        self.planner.cascade_agenda(Day)
         self.assertEqual(
-            self.planner.weekfile.read(), self.weektemplate_agendaupdated
+            self.planner.weekfile.read(), self.weektemplate_agendaupdated_completed
         )
 
-    def test_week_to_month(self):
+    def test_month_for_week_to_month(self):
         """ Check that, on week advance, current week's agenda is appended to
         the current month
         """
         current_day = datetime.date(2012, 12, 5)
         self.planner.date = current_day
-        self.planner.weekfile = StringIO(self.weektemplate_agendaupdated)
+        self.planner.weekfile = StringIO(self.weektemplate_agendaupdated_all)
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        weekagenda = self.planner.get_agenda(Week)
-        self.planner.update_agenda(Month, weekagenda)
+        self.planner.cascade_agenda(Week)
         self.assertEqual(
-            self.planner.monthfile.read(), self.monthtemplate_agendaupdated
+            self.planner.monthfile.read(), self.monthtemplate_agendaupdated_completed
         )
 
-    def test_month_to_quarter(self):
+    def test_week_for_week_to_month(self):
+        """ Check that, on week advance, current week's agenda is appended to
+        the current month
+        """
+        current_day = datetime.date(2012, 12, 5)
+        self.planner.date = current_day
+        self.planner.weekfile = StringIO(self.weektemplate_agendaupdated_completed)
+        self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
+            'LAX'
+        ]
+        self.planner.cascade_agenda(Week)
+        self.assertEqual(
+            self.planner.weekfile.read(), self.weektemplate_agendaupdated_all
+        )
+
+    def test_quarter_for_month_to_quarter(self):
         """ Check that, on month advance, current month's agenda is appended to
         the current quarter
         """
         current_day = datetime.date(2012, 12, 5)
         self.planner.date = current_day
-        self.planner.monthfile = StringIO(self.monthtemplate_agendaupdated)
+        self.planner.monthfile = StringIO(self.monthtemplate_agendaupdated_all)
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        monthagenda = self.planner.get_agenda(Month)
-        self.planner.update_agenda(Quarter, monthagenda)
+        self.planner.cascade_agenda(Month)
         self.assertEqual(
-            self.planner.quarterfile.read(), self.quartertemplate_agendaupdated
+            self.planner.quarterfile.read(), self.quartertemplate_agendaupdated_completed
         )
 
-    def test_quarter_to_year(self):
+    def test_month_for_month_to_quarter(self):
+        """ Check that, on month advance, current month's agenda is appended to
+        the current quarter
+        """
+        current_day = datetime.date(2012, 12, 5)
+        self.planner.date = current_day
+        self.planner.weekfile = StringIO(self.weektemplate_agendaupdated_all)
+        self.planner.monthfile = StringIO(self.monthtemplate_agendaupdated_completed)
+        self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
+            'LAX'
+        ]
+        self.planner.cascade_agenda(Month)
+        self.assertEqual(
+            self.planner.monthfile.read(), self.monthtemplate_agendaupdated_all
+        )
+
+    def test_year_for_quarter_to_year(self):
         """ Check that, on quarter advance, current quarter's agenda is
         appended to the current year
         """
         current_day = datetime.date(2012, 9, 30)
         self.planner.date = current_day
-        self.planner.quarterfile = StringIO(self.quartertemplate_agendaupdated)
+        self.planner.quarterfile = StringIO(self.quartertemplate_agendaupdated_all)
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
-        quarteragenda = self.planner.get_agenda(Quarter)
-        self.planner.update_agenda(Year, quarteragenda)
+        self.planner.cascade_agenda(Quarter)
         self.assertEqual(
-            self.planner.yearfile.read(), self.yeartemplate_agendaupdated
+            self.planner.yearfile.read(), self.yeartemplate_agendaupdated_completed
+        )
+
+    def test_quarter_for_quarter_to_year(self):
+        """ Check that, on quarter advance, current quarter's agenda is
+        appended to the current year
+        """
+        current_day = datetime.date(2012, 9, 30)
+        self.planner.date = current_day
+        self.planner.monthfile = StringIO(self.monthtemplate_agendaupdated_all)
+        self.planner.quarterfile = StringIO(self.quartertemplate_agendaupdated_completed)
+        self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
+            'LAX'
+        ]
+        self.planner.cascade_agenda(Quarter)
+        self.assertEqual(
+            self.planner.quarterfile.read(), self.quartertemplate_agendaupdated_all
         )
 
 

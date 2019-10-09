@@ -90,7 +90,7 @@ class PlannerBase(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_agenda(self, period):
+    def get_agenda(self, period, complete=None):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -117,8 +117,15 @@ class PlannerBase(ABC):
     def update_log(self, period, for_day):
         raise NotImplementedError
 
+    def _cascade_up(self, period, complete):
+        agenda = self.get_agenda(period, complete)
+
+        next_period = get_next_period(period)
+        if agenda:
+            self.update_agenda(next_period, agenda)
+
     def cascade_agenda(self, period):
-        """ Append the current period's agenda to the next higher period's
+        """ Append the specified period's agenda to the next higher period's
         agenda.  This 'cascades' actvities up through encompassing time
         periods, since something worked on on a given day is also worked on
         during the containing periods (like the week).
@@ -127,20 +134,16 @@ class PlannerBase(ABC):
             (e.g. Day) whose agenda will be cascaded up to the next one
             (e.g. Week)
         """
-
-        # TODO: at the moment this doesn't do any parsing or deduplication of
-        # tasks. As a result, containing periods contain the same tasks over
-        # and over again, and often without any changes or only minor
-        # changes. While the feature is somewhat useful for grep style
-        # searching in order to find when things were done, it is minimally
-        # functional and not suitable for perusing. This should be improved,
-        # but for now, to minimize unreasonably large file sizes from
-        # duplication, limit cascade to only day->week->month
-
-        agenda = self.get_agenda(period)
-        next_period = get_next_period(period)
-        if agenda:
-            self.update_agenda(next_period, agenda)
+        if period > Day:
+            # cascade the incomplete agenda items from the last lesser
+            # contained period (complete have already been cascaded by this
+            # point)
+            # TODO: non-task entries would be out of context if not moved
+            # wholesale with all tasks
+            lower_period = get_next_period(period, decreasing=True)
+            self._cascade_up(lower_period, complete=False)
+        if period < Year:
+            self._cascade_up(period, complete=True)
 
     def end_period(self, period):
         """ Perform any tasks needed to close out a period.
@@ -150,10 +153,6 @@ class PlannerBase(ABC):
 
         :param :class:`~composer.timeperiod.Period` period: The period to end
         """
-        # we need to do the cascade before writing the new template for the
-        # period since at that stage the logfile attribute would reflect the
-        # newly written one rather than the closing state of the one at the end
-        # of the period in question.
         display_message(
             "Performing bookkeeping for {period}'s end".format(period=period),
             interactive=True,
@@ -168,9 +167,7 @@ class PlannerBase(ABC):
         if period == Day:
             self.schedule_tasks()
 
-        if period < Month:
-            # limit to month to minimize extravagant duplication
-            self.cascade_agenda(period)
+        self.cascade_agenda(period)
 
     def begin_period(self, period, for_day):
         """ Perform any tasks needed to begin a new period.

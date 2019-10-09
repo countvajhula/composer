@@ -53,7 +53,12 @@ def _logfile():
         "\t[ ] first thing\n"
         "\tclarification of first thing\n"
         "\t[ ] second thing\n"
+        "[x] a done task\n"
+        "\t[x] with\n"
+        "\t[x] subtasks\n"
         "[ ] another task\n"
+        "[x] also a done task\n"
+        "[-] an invalid task\n"
         "\n"
         "NOTES:\n"
     )
@@ -126,7 +131,7 @@ def _tasklist_base():
 
     tasklist = DummyTasklist()
     tasklist.location = ''
-    return planner
+    return tasklist
 
 
 @pytest.fixture
@@ -145,7 +150,7 @@ def _planner_base():
         def get_log(self, for_day, period):
             pass
 
-        def get_agenda(self, period):
+        def get_agenda(self, period, complete=None):
             pass
 
         def update_agenda(self, period, agenda):
