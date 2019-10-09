@@ -54,6 +54,7 @@ class PlannerInvalidStateFailGracefullyTester(unittest.TestCase):
     pass
 
 
+# TODO: use (merge into as needed) planner fixture instead of this base class
 class PlannerIntegrationTest(unittest.TestCase):
     """ Check that planner advances and updates templates correctly """
 
