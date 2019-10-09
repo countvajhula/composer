@@ -36,8 +36,11 @@ from .interface import ensure_file_does_not_exist, get_log_for_date
 from .primitives import (
     is_blank_line,
     is_scheduled_task,
-    is_completed_task,
+    is_done_task,
     is_invalid_task,
+    is_unfinished,
+    is_completed,
+    is_not_completed,
     get_log_filename,
     parse_task,
     make_file,
@@ -340,16 +343,6 @@ class FilesystemPlanner(PlannerBase):
             raise LogfileLayoutError(
                 "No AGENDA section found in today's log file!"
                 " Add one and try again."
-            )
-
-        def is_unfinished(entry):
-            return not any(
-                (
-                    is_completed_task(entry),
-                    is_invalid_task(entry),
-                    is_blank_line(entry),  # probably don't want blank lines
-                    is_scheduled_task(entry),  # handled elsewhere
-                )
             )
 
         tasks = entries_to_string(get_entries(tasks, is_unfinished))

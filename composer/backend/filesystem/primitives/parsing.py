@@ -2,6 +2,8 @@ import re
 
 from .files import make_file
 
+# TODO: probably best to enforce section names as all caps to avoid
+# parsing ambiguity with arbitrary non-task entries
 SECTION_PATTERN = re.compile(r"^[A-Z][A-Z][A-Za-z ]+:")
 SECTION_OR_EOF_PATTERN = re.compile(r"(^[A-Z][A-Z][A-Za-z ]+:|\A\Z)")
 TASK_PATTERN = re.compile(r"^\t*\[")
@@ -39,7 +41,7 @@ def is_blank_line(line):
 is_section_separator = is_blank_line
 
 
-def is_completed_task(line):
+def is_done_task(line):
     return line.startswith("[x")
 
 
@@ -57,6 +59,39 @@ def is_wip_task(line):
 
 def is_eof(line):
     return line == ""
+
+
+def is_completed(entry):
+    """ A predicate function that is true if an entry is 'complete'.
+
+    Note that is_completed and is_unfinished assert opposite cases, but are not
+    exhaustive, since there are entries for which completeness is not
+    applicable.
+    """
+    return any(
+        (
+            is_done_task(entry),
+            is_invalid_task(entry),
+            is_scheduled_task(entry),  # handled elsewhere
+        )
+    )
+
+
+def is_not_completed(entry):
+    """ A predicate function that is true if an entry is not 'complete'. This
+    additionally excludes blank lines.
+    """
+    return not is_completed(entry) and not is_blank_line(entry)
+
+
+def is_unfinished(entry):
+    """ A predicate function that is true if an entry is 'incomplete'.
+
+    Note that is_completed and is_unfinished assert opposite cases, but are not
+    exhaustive, since there are entries for which completeness is not
+    applicable.
+    """
+    return is_task(entry) and not is_completed(entry)
 
 
 def parse_task(task):

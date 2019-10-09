@@ -11,11 +11,13 @@ from composer.backend.filesystem.primitives.entries import (
 )
 from composer.backend.filesystem.primitives.files import make_file
 from composer.backend.filesystem.primitives.parsing import (
-    is_completed_task,
+    is_done_task,
     is_undone_task,
+    is_completed,
+    is_unfinished,
 )
 
-from ...fixtures import logfile, empty_logfile, tasklist_file  # noqa
+from ....fixtures import logfile, empty_logfile, tasklist_file  # noqa
 
 
 class TestReadEntry(object):
@@ -311,13 +313,13 @@ class TestGetTaskEntries(object):
         assert entries_string == ""
 
     def test_no_matching_entries(self, tasklist_file):
-        entries = get_entries(tasklist_file, of_type=is_completed_task)
+        entries = get_entries(tasklist_file, of_type=is_done_task)
         entries_string = "".join(entries)
         assert entries_string == ""
 
     def test_all_matching_entries(self, tasklist_file):
         entries = get_entries(
-            tasklist_file, of_type=lambda x: not is_completed_task(x)
+            tasklist_file, of_type=lambda x: not is_done_task(x)
         )
         entries_string = "".join(entries)
         assert entries_string == tasklist_file.read()
@@ -402,3 +404,96 @@ class TestPartitionEntries(object):
             entries, lambda entry: entry > 2
         )
         assert set(filtered + excluded) == set(entries)
+
+
+class TestIsCompleted(object):
+    def test_done(self):
+        entry = "[x] do this"
+        assert is_completed(entry)
+
+    def test_done_with_subtasks(self):
+        entry = "[x] do this\n" "\t[ ] a subtask\n" "\t[ ] another subtask"
+        assert is_completed(entry)
+
+    def test_invalid(self):
+        entry = "[-] do this"
+        assert is_completed(entry)
+
+    def test_scheduled(self):
+        entry = "[o] do this [$TOMORROW$]"
+        assert is_completed(entry)
+
+    def test_undone(self):
+        entry = "[ ] do this"
+        assert not is_completed(entry)
+
+    def test_undone_with_subtasks(self):
+        entry = "[ ] do this\n" "\t[x] a subtask\n" "\t[x] another subtask"
+        assert not is_completed(entry)
+
+    def test_wip(self):
+        entry = "[\\] do this"
+        assert not is_completed(entry)
+
+    def test_text(self):
+        entry = "do this"
+        assert not is_completed(entry)
+
+    def test_blank_line(self):
+        entry = "\n"
+        assert not is_completed(entry)
+
+    def test_whitespace(self):
+        entry = "  "
+        assert not is_completed(entry)
+
+    def test_empty(self):
+        entry = ""
+        assert not is_completed(entry)
+
+
+class TestIsUnfinished(object):
+    def test_done(self):
+        entry = "[x] do this"
+        assert not is_unfinished(entry)
+
+    def test_done_with_subtasks(self):
+        entry = "[x] do this\n" "\t[ ] a subtask\n" "\t[ ] another subtask"
+        assert not is_unfinished(entry)
+
+    def test_invalid(self):
+        entry = "[-] do this"
+        assert not is_unfinished(entry)
+
+    def test_scheduled(self):
+        entry = "[o] do this [$TOMORROW$]"
+        assert not is_unfinished(entry)
+
+    def test_undone(self):
+        entry = "[ ] do this"
+        assert is_unfinished(entry)
+
+    def test_undone_with_subtasks(self):
+        entry = "[ ] do this\n" "\t[x] a subtask\n" "\t[x] another subtask"
+        assert is_unfinished(entry)
+
+    def test_wip(self):
+        entry = "[\\] do this"
+        assert is_unfinished(entry)
+
+    def test_text(self):
+        entry = "do this"
+        assert not is_unfinished(entry)
+
+    def test_blank_line(self):
+        entry = "\n"
+        assert not is_unfinished(entry)
+
+    def test_whitespace(self):
+        entry = "  "
+        assert not is_unfinished(entry)
+
+    def test_empty(self):
+        entry = ""
+        assert not is_unfinished(entry)
+

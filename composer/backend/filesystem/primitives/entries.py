@@ -119,14 +119,6 @@ def get_entries(file, of_type=None):
     any subtask entries that fall under it.
 
     :param :class:`io.StringIO` file: The file to read from
-    :param :class:`_sre.SRE_Pattern` until_pattern: A pattern to look for.
-        When this pattern is encountered, parsing stops.
-    :param bool or_eof: If reading until the end of the file (without
-        the pattern having been encountered) is acceptable
-    :param bool inclusive: Whether to include the line at the stopping
-        point, i.e. the one containing the pattern.
-    :param int starting_position: Buffer position to start reading the
-        input file from.
     :param function of_type: Get only entries that match this type. This
         argument should be a predicate function that returns true or
         false based on a type determination on the argument.
