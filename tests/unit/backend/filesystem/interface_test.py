@@ -42,6 +42,6 @@ class TestGetConstituentLogs(object):
     @patch('composer.backend.filesystem.interface.get_log_for_date')
     def test_for_completed_period(self, mock_get_log):
         mock_get_log.side_effect = LogTimes(10)
-        for_date = date.today() - timedelta(days=15)
+        for_date = date(2012, 10, 16)
         logs = get_constituent_logs(Week, for_date, '/path/to/root')
         assert logs == [str(i) for i in range(1, 8)]
