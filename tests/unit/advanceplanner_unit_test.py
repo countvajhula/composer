@@ -1097,7 +1097,8 @@ class TestAgendaCascade(PlannerIntegrationTest):
         ]
         self.planner.cascade_agenda(Day)
         self.assertEqual(
-            self.planner.weekfile.read(), self.weektemplate_agendaupdated_completed
+            self.planner.weekfile.read(),
+            self.weektemplate_agendaupdated_completed,
         )
 
     def test_month_for_week_to_month(self):
@@ -1112,7 +1113,8 @@ class TestAgendaCascade(PlannerIntegrationTest):
         ]
         self.planner.cascade_agenda(Week)
         self.assertEqual(
-            self.planner.monthfile.read(), self.monthtemplate_agendaupdated_completed
+            self.planner.monthfile.read(),
+            self.monthtemplate_agendaupdated_completed,
         )
 
     def test_week_for_week_to_month(self):
@@ -1121,7 +1123,9 @@ class TestAgendaCascade(PlannerIntegrationTest):
         """
         current_day = datetime.date(2012, 12, 5)
         self.planner.date = current_day
-        self.planner.weekfile = StringIO(self.weektemplate_agendaupdated_completed)
+        self.planner.weekfile = StringIO(
+            self.weektemplate_agendaupdated_completed
+        )
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -1142,7 +1146,8 @@ class TestAgendaCascade(PlannerIntegrationTest):
         ]
         self.planner.cascade_agenda(Month)
         self.assertEqual(
-            self.planner.quarterfile.read(), self.quartertemplate_agendaupdated_completed
+            self.planner.quarterfile.read(),
+            self.quartertemplate_agendaupdated_completed,
         )
 
     def test_month_for_month_to_quarter(self):
@@ -1152,7 +1157,9 @@ class TestAgendaCascade(PlannerIntegrationTest):
         current_day = datetime.date(2012, 12, 5)
         self.planner.date = current_day
         self.planner.weekfile = StringIO(self.weektemplate_agendaupdated_all)
-        self.planner.monthfile = StringIO(self.monthtemplate_agendaupdated_completed)
+        self.planner.monthfile = StringIO(
+            self.monthtemplate_agendaupdated_completed
+        )
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
@@ -1167,13 +1174,16 @@ class TestAgendaCascade(PlannerIntegrationTest):
         """
         current_day = datetime.date(2012, 9, 30)
         self.planner.date = current_day
-        self.planner.quarterfile = StringIO(self.quartertemplate_agendaupdated_all)
+        self.planner.quarterfile = StringIO(
+            self.quartertemplate_agendaupdated_all
+        )
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
         self.planner.cascade_agenda(Quarter)
         self.assertEqual(
-            self.planner.yearfile.read(), self.yeartemplate_agendaupdated_completed
+            self.planner.yearfile.read(),
+            self.yeartemplate_agendaupdated_completed,
         )
 
     def test_quarter_for_quarter_to_year(self):
@@ -1183,13 +1193,16 @@ class TestAgendaCascade(PlannerIntegrationTest):
         current_day = datetime.date(2012, 9, 30)
         self.planner.date = current_day
         self.planner.monthfile = StringIO(self.monthtemplate_agendaupdated_all)
-        self.planner.quarterfile = StringIO(self.quartertemplate_agendaupdated_completed)
+        self.planner.quarterfile = StringIO(
+            self.quartertemplate_agendaupdated_completed
+        )
         self.planner.logfile_completion_checking = config.LOGFILE_CHECKING[
             'LAX'
         ]
         self.planner.cascade_agenda(Quarter)
         self.assertEqual(
-            self.planner.quarterfile.read(), self.quartertemplate_agendaupdated_all
+            self.planner.quarterfile.read(),
+            self.quartertemplate_agendaupdated_all,
         )
 
 

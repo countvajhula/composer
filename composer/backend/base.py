@@ -19,7 +19,6 @@ from ..timeperiod import (
     Zero,
     Day,
     Week,
-    Month,
     Year,
 )
 from ..utils import display_message

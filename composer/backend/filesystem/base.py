@@ -34,10 +34,7 @@ from .interface import ensure_file_does_not_exist, get_log_for_date
 # lower abstraction level to leverage the low level operations at the higher
 # level in a formal way
 from .primitives import (
-    is_blank_line,
     is_scheduled_task,
-    is_done_task,
-    is_invalid_task,
     is_unfinished,
     is_completed,
     is_not_completed,

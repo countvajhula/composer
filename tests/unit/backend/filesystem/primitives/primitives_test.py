@@ -511,4 +511,3 @@ class TestIsUnfinished(object):
     def test_empty(self):
         entry = ""
         assert not is_unfinished(entry)
-
