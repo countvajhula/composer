@@ -124,9 +124,9 @@ endif
 test-wiki: build
 	@echo "Operating on TEST wiki at location:" ${TEST_WIKI_PATH}
 ifeq ($(jump),1)
-	whats-next ${TEST_WIKI_PATH} --test --jump
+	whats-next ${TEST_WIKI_PATH} --jump
 else
-	whats-next ${TEST_WIKI_PATH} --test
+	whats-next ${TEST_WIKI_PATH}
 endif
 
 # ideally this should launch pudb to step through the specified tests
