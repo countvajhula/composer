@@ -1,6 +1,6 @@
 import os
 
-from ....timeperiod import Day, Week, Month, Quarter, Year
+from ....timeperiod import Day, Week, Month, Quarter, Year, quarter_for_month
 
 PATH_SPECIFICATION = "{prefix}/{filename}"
 FILENAME_TEMPLATE = {
@@ -10,22 +10,6 @@ FILENAME_TEMPLATE = {
     Quarter: "{quarter} {year}.wiki",
     Year: "{year}.wiki",
 }
-
-
-def quarter_for_month(month):
-    """ Given a month, return the quarter that it's part of.
-
-    :param str month: The month
-    :returns str: The corresponding quarter
-    """
-    if month.lower() in ("january", "february", "march"):
-        return "Q1"
-    elif month.lower() in ("april", "may", "june"):
-        return "Q2"
-    elif month.lower() in ("july", "august", "september"):
-        return "Q3"
-    elif month.lower() in ("october", "november", "december"):
-        return "Q4"
 
 
 def get_log_filename(for_date, period, root=None):

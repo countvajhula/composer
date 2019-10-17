@@ -1,8 +1,15 @@
 import datetime
 import pytest
 
-from composer.backend import quarter_for_month
-from composer.timeperiod import Day, Week, Month, Quarter, Year, is_weekend
+from composer.timeperiod import (
+    Day,
+    Week,
+    Month,
+    Quarter,
+    Year,
+    is_weekend,
+    quarter_for_month,
+)
 
 from ...fixtures import planner
 

@@ -8,15 +8,18 @@ from ...errors import (
     LogfileLayoutError,
     RelativeDateError,
     SchedulingDateError,
-    ScheduledTaskParsingError,
 )
-from ...timeperiod import get_next_day, Day, Week, Month
-from .primitives import (
-    get_entries,
-    read_section,
-    is_scheduled_task,
-    parse_task,
+from ...timeperiod import (
+    get_next_day,
+    Day,
+    Week,
+    Month,
+    Quarter,
+    Year,
+    month_for_quarter,
+    quarter_for_month,
 )
+from .primitives import read_section, parse_task
 
 SCHEDULED_DATE_PATTERN = re.compile(r"\[\$?([^\[\$]*)\$?\]$")
 
@@ -66,7 +69,9 @@ def get_appropriate_year(month, day, reference_date):
 def date_to_string(date, period):
     """
     For each time period define a "standard format" for the date string
-    representation that unambiguously represents the date.
+    representation that unambiguously represents the date. This simply produces
+    the appropriate string representation for the given date and time period
+    does NOT check actual period boundary conditions.
 
     :param :class:`datetime.date` date: A date
     :param :class:`~composer.timeperiod.Period` period: The relevant time
@@ -74,20 +79,27 @@ def date_to_string(date, period):
     :returns str: a "standard format" string representing the provided date
         for the relevant time period
     """
-    if period == Day:
-        date_string = "%s %s, %s" % (
-            get_month_name(date.month),
-            date.day,
-            date.year,
-        )
-    elif period == Week:
+    if period == Week:
         date_string = "WEEK OF %s %s, %s" % (
             get_month_name(date.month).upper(),
             date.day,
             date.year,
         )
-    else:  # TODO: standard format for other time periods
+    elif period == Month:
         date_string = "%s %s" % (get_month_name(date.month), date.year)
+    elif period == Quarter:
+        month = get_month_name(date.month)
+        quarter = quarter_for_month(month)
+        date_string = "{} {}".format(quarter, date.year)
+    elif period == Year:
+        date_string = "{}".format(date.year)
+    else:
+        # default to Day
+        date_string = "%s %s, %s" % (
+            get_month_name(date.month),
+            date.day,
+            date.year,
+        )
     return date_string.upper()
 
 
@@ -104,6 +116,7 @@ def string_to_date(datestr, reference_date=None):
         by the string representation
     """
     date = None
+    # TODO: THIS WEEKEND, NEXT WEEKEND
     # TODO: change these to annotated regex's
     # MONTH DD, YYYY (w optional space or comma or both)
     dateformat1 = re.compile(
@@ -154,6 +167,12 @@ def string_to_date(datestr, reference_date=None):
     dateformat17 = re.compile(
         r"^(MON|TUE|WED|THU|FRI|SAT|SUN)$", re.IGNORECASE
     )
+    # QN YYYY
+    dateformat18 = re.compile(r"^(Q\d) (\d{4})$", re.IGNORECASE)
+    # NEXT YEAR
+    dateformat19 = re.compile(r"^NEXT YEAR$", re.IGNORECASE)
+    # YYYY
+    dateformat20 = re.compile(r"^(\d\d\d\d)$", re.IGNORECASE)
 
     if dateformat1.search(datestr):
         (month, day, year) = dateformat1.search(datestr).groups()
@@ -167,6 +186,15 @@ def string_to_date(datestr, reference_date=None):
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Day
+    elif dateformat18.search(datestr):
+        (quarter, year) = dateformat18.search(datestr).groups()
+        month = month_for_quarter(quarter)
+        month = get_month_name(month)
+        day = str(1)
+        date = datetime.datetime.strptime(
+            month + "-" + day + "-" + year, "%B-%d-%Y"
+        ).date()
+        period = Quarter
     elif dateformat3.search(datestr):
         if not reference_date:
             raise RelativeDateError(
@@ -197,6 +225,8 @@ def string_to_date(datestr, reference_date=None):
         (monthn, dayn, yearn) = (get_month_number(month), int(day), int(year))
         date = datetime.date(yearn, monthn, dayn)
         dow = date.strftime("%A")
+        # TODO: this should defer to advance criteria checking and not
+        # perform an independent assessment here
         if dayn != 1:
             while dow.lower() != "sunday":
                 date = date - datetime.timedelta(days=1)
@@ -360,6 +390,18 @@ def string_to_date(datestr, reference_date=None):
         dates = [d.day for d in upcomingmonth]
         date = upcomingmonth[dates.index(1)]
         period = Month
+    elif dateformat19.search(datestr):  # NEXT YEAR
+        if not reference_date:
+            raise RelativeDateError(
+                "Relative date found, but no context available"
+            )
+        year = reference_date.year + 1
+        date = datetime.date(year, 1, 1)
+        period = Year
+    elif dateformat20.search(datestr):  # YYYY
+        year = int(dateformat20.search(datestr).groups()[0])
+        date = datetime.date(year, 1, 1)
+        period = Year
     else:
         raise DateFormatError(
             "Date format does not match any acceptable formats! " + datestr
@@ -369,8 +411,11 @@ def string_to_date(datestr, reference_date=None):
     return None
 
 
-def sanitize_entry(entry, reference_date=None):
-    """ Convert a parsed scheduled task into a standard format.
+def standardize_entry_date(entry, reference_date=None):
+    """ Convert a parsed scheduled task into a standard format. In addition to
+    providing uniformity, this also contextualizes dates that may have been
+    relatively specified so that it is unambiguous and time-invariant (e.g.
+    dates like "next week").
 
     :param str entry: The entry with a scheduled date
     :param :class:`datetime.date` reference_date: Reference date to use in
@@ -379,17 +424,7 @@ def sanitize_entry(entry, reference_date=None):
         format
     """
     task_header, task_contents = parse_task(entry)
-    if SCHEDULED_DATE_PATTERN.search(task_header):
-        datestr = SCHEDULED_DATE_PATTERN.search(task_header).groups()[0]
-        try:
-            matched_date = string_to_date(datestr, reference_date)
-        except SchedulingDateError:
-            raise
-    else:
-        raise BlockedTaskNotScheduledError(
-            "No scheduled date for blocked task -- add a date for it: "
-            + task_header
-        )
+    matched_date = get_due_date(task_header, reference_date)
     datestr = date_to_string(*matched_date)
     task_header = SCHEDULED_DATE_PATTERN.sub(
         "[$" + datestr + "$]", task_header
@@ -398,24 +433,35 @@ def sanitize_entry(entry, reference_date=None):
     return task
 
 
-def check_scheduled_section_for_errors(tasklistfile):
-    """ Check that the tasklist includes a scheduled section and that
-    it contains only scheduled tasks.
+def get_due_date(task, reference_date=None):
+    """ Get the due date for a task.
 
-    :param :class:`io.StringIO` tasklistfile: The tasklist
+    :param str task: The task
+    :param :class:`datetime.date` reference_date: A reference date to use
+        in case the due date is specified relatively
     """
-    section, _ = read_section(tasklistfile, 'SCHEDULED')
-    entries = get_entries(section)
-    for entry in entries:
-        entry_string = entry.splitlines()[0]
-        entry_string = (
-            entry_string + '\n' if entry.endswith('\n') else entry_string
+    header, _ = parse_task(task)
+    if not SCHEDULED_DATE_PATTERN.search(header):
+        raise BlockedTaskNotScheduledError(
+            "No scheduled date for blocked task -- add a date for it: "
+            + header
         )
-        if not is_scheduled_task(entry_string):
-            raise ScheduledTaskParsingError(
-                "Task in SCHEDULED section does not appear to be formatted"
-                " correctly: " + entry_string
-            )
+    datestr = SCHEDULED_DATE_PATTERN.search(header).groups()[0]
+    try:
+        matched_date, period = string_to_date(datestr, reference_date)
+    except SchedulingDateError:
+        raise
+    return matched_date, period
+
+
+def is_task_due(task, for_day):
+    """ Check if the task is due (or past due) on the specified day.
+
+    :param str task: The task
+    :param :class:`datetime.date` for_day: The date
+    """
+    date, _ = get_due_date(task)
+    return for_day >= date
 
 
 def check_logfile_for_errors(logfile):

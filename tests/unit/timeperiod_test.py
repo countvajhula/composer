@@ -1,6 +1,15 @@
 import datetime
 
-from composer.timeperiod import Day, Week, Month, Quarter, Year
+from composer.timeperiod import (
+    Day,
+    Week,
+    Month,
+    Quarter,
+    Year,
+    Zero,
+    Eternity,
+    get_time_periods,
+)
 
 
 class TestStartDate(object):
@@ -199,3 +208,19 @@ class TestYearEndDate(TestEndDate):
         expected = datetime.date(2013, 12, 31)
         result = Year.get_end_date(current_date)
         assert result == expected
+
+
+class TestGetTimePeriods(object):
+    _time_periods = (Zero, Day, Week, Month, Quarter, Year, Eternity)
+
+    def test_get_time_periods(self):
+        result = get_time_periods()
+        assert result == self._time_periods
+
+    def test_starting_from(self):
+        result = get_time_periods(starting_from=Week)
+        assert result == self._time_periods[2:]
+
+    def test_decreasing(self):
+        result = get_time_periods(decreasing=True)
+        assert result == tuple(reversed(self._time_periods))

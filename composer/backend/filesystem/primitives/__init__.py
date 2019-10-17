@@ -20,7 +20,6 @@ from .parsing import (  # noqa
 from .storage import (
     full_file_path,
     get_log_filename,
-    quarter_for_month,
     bare_filename,
     strip_extension,
 )  # noqa
@@ -46,7 +45,6 @@ __all__ = (
     "parse_task",
     "full_file_path",
     "get_log_filename",
-    "quarter_for_month",
     "bare_filename",
     "strip_extension",
 )

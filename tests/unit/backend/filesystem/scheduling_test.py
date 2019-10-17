@@ -4,8 +4,14 @@ import unittest
 from mock import patch
 
 from composer.backend import FilesystemPlanner, FilesystemTasklist
-from composer.backend.filesystem.scheduling import sanitize_entry
-from composer.timeperiod import Day
+from composer.backend.filesystem.scheduling import (
+    standardize_entry_date,
+    get_due_date,
+    string_to_date,
+    is_task_due,
+    date_to_string,
+)
+from composer.timeperiod import Day, Week, Month, Quarter, Year
 from composer.errors import (
     BlockedTaskNotScheduledError,
     ScheduledTaskParsingError,
@@ -17,7 +23,7 @@ except ImportError:  # py3
     from io import StringIO
 
 
-class TestToStandardDateFormat(object):
+class TestStandardizeEntryDate(object):
     def test_already_standard(self):
         date = datetime.datetime(2012, 12, 12)
         entry = "[o] do this [$DECEMBER 12, 2012$]"
@@ -26,7 +32,7 @@ class TestToStandardDateFormat(object):
             "composer.backend.filesystem.scheduling" ".string_to_date"
         ) as mock_get_date:
             mock_get_date.return_value = (date, Day)
-            standard = sanitize_entry(entry)
+            standard = standardize_entry_date(entry)
         assert standard == expected
 
     def test_nonstandard(self):
@@ -37,7 +43,7 @@ class TestToStandardDateFormat(object):
             "composer.backend.filesystem.scheduling" ".string_to_date"
         ) as mock_get_date:
             mock_get_date.return_value = (date, Day)
-            standard = sanitize_entry(entry)
+            standard = standardize_entry_date(entry)
         assert standard == expected
 
     def test_retains_subtasks(self):
@@ -56,11 +62,286 @@ class TestToStandardDateFormat(object):
             "composer.backend.filesystem.scheduling" ".string_to_date"
         ) as mock_get_date:
             mock_get_date.return_value = (date, Day)
-            standard = sanitize_entry(entry)
+            standard = standardize_entry_date(entry)
         assert standard == expected
 
 
+class TestStringToDate(object):
+    def test_format1(self):
+        date_string = "OCTOBER 12, 2013"
+        expected_date = datetime.date(2013, 10, 12)
+        expected_period = Day
+        date, period = string_to_date(date_string)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format2(self):
+        date_string = "12 OCTOBER, 2013"
+        expected_date = datetime.date(2013, 10, 12)
+        expected_period = Day
+        date, period = string_to_date(date_string)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format3(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "OCTOBER 12"
+        expected_date = datetime.date(2013, 10, 12)
+        expected_period = Day
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format4(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "12 OCTOBER"
+        expected_date = datetime.date(2013, 10, 12)
+        expected_period = Day
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format5(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "WEEK OF OCTOBER 13, 2013"
+        expected_date = datetime.date(2013, 10, 13)
+        expected_period = Week
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format5_non_week_boundary(self):
+        # TODO: should this be handled by a higher-level function?
+        today = datetime.date(2013, 6, 1)
+        date_string = "WEEK OF OCTOBER 15, 2013"
+        expected_date = datetime.date(2013, 10, 13)
+        expected_period = Week
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format6(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "WEEK OF 13 OCTOBER, 2013"
+        expected_date = datetime.date(2013, 10, 13)
+        expected_period = Week
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format7(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "WEEK OF 13 OCTOBER"
+        expected_date = datetime.date(2013, 10, 13)
+        expected_period = Week
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format8(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "WEEK OF OCTOBER 13"
+        expected_date = datetime.date(2013, 10, 13)
+        expected_period = Week
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format9(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "OCTOBER 2013"
+        expected_date = datetime.date(2013, 10, 1)
+        expected_period = Month
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format10(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "OCTOBER"
+        expected_date = datetime.date(2013, 10, 1)
+        expected_period = Month
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format11(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "10/14/2013"
+        expected_date = datetime.date(2013, 10, 14)
+        expected_period = Day
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format12(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "10-14-2013"
+        expected_date = datetime.date(2013, 10, 14)
+        expected_period = Day
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format13(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "TOMORROW"
+        expected_date = datetime.date(2013, 6, 2)
+        expected_period = Day
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format14(self):
+        today = datetime.date(2013, 10, 9)
+        date_string = "NEXT WEEK"
+        expected_date = datetime.date(2013, 10, 13)
+        expected_period = Week
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format15(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "NEXT MONTH"
+        expected_date = datetime.date(2013, 7, 1)
+        expected_period = Month
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format16(self):
+        today = datetime.date(2013, 10, 10)
+        date_string = "TUESDAY"
+        expected_date = datetime.date(2013, 10, 15)
+        expected_period = Day
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format17(self):
+        today = datetime.date(2013, 10, 10)
+        date_string = "TUE"
+        expected_date = datetime.date(2013, 10, 15)
+        expected_period = Day
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format18(self):
+        today = datetime.date(2013, 10, 10)
+        date_string = "Q4 2013"
+        expected_date = datetime.date(2013, 10, 1)
+        expected_period = Quarter
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format19(self):
+        today = datetime.date(2012, 10, 10)
+        date_string = "NEXT YEAR"
+        expected_date = datetime.date(2013, 1, 1)
+        expected_period = Year
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    def test_format20(self):
+        today = datetime.date(2012, 10, 10)
+        date_string = "2013"
+        expected_date = datetime.date(2013, 1, 1)
+        expected_period = Year
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+
+class TestDateToString(object):
+    def test_day(self):
+        today = datetime.date(2012, 10, 14)
+        expected = "OCTOBER 14, 2012"
+        result = date_to_string(today, Day)
+        assert result == expected
+
+    def test_week(self):
+        today = datetime.date(2012, 10, 14)
+        expected = "WEEK OF OCTOBER 14, 2012"
+        result = date_to_string(today, Week)
+        assert result == expected
+
+    def test_month(self):
+        today = datetime.date(2012, 10, 14)
+        expected = "OCTOBER 2012"
+        result = date_to_string(today, Month)
+        assert result == expected
+
+    def test_quarter(self):
+        today = datetime.date(2012, 10, 14)
+        expected = "Q4 2012"
+        result = date_to_string(today, Quarter)
+        assert result == expected
+
+    def test_year(self):
+        today = datetime.date(2012, 10, 14)
+        expected = "2012"
+        result = date_to_string(today, Year)
+        assert result == expected
+
+
+class TestDueDate(object):
+    def test_day_format(self):
+        task = "[o] something [$OCTOBER 12, 2013$]"
+        expected = datetime.date(2013, 10, 12)
+        result, _ = get_due_date(task)
+        assert result == expected
+
+    def test_week_format(self):
+        task = "[o] something [$WEEK OF OCTOBER 13, 2013$]"
+        expected = datetime.date(2013, 10, 13)
+        result, _ = get_due_date(task)
+        assert result == expected
+
+    def test_month_format(self):
+        task = "[o] something [$OCTOBER 2013$]"
+        expected = datetime.date(2013, 10, 1)
+        result, _ = get_due_date(task)
+        assert result == expected
+
+    def test_quarter_format(self):
+        task = "[o] something [$Q4 2013$]"
+        expected = datetime.date(2013, 10, 1)
+        result, _ = get_due_date(task)
+        assert result == expected
+
+    def test_year_format(self):
+        task = "[o] something [$2013$]"
+        expected = datetime.date(2013, 1, 1)
+        result, _ = get_due_date(task)
+        assert result == expected
+
+
+class TestIsTaskDue(object):
+    def test_due_date_in_past(self):
+        today = datetime.date(2013, 10, 14)
+        task = "[o] something [$OCTOBER 13, 2013$]"
+        assert is_task_due(task, for_day=today)
+
+    def test_on_due_date(self):
+        today = datetime.date(2013, 10, 14)
+        task = "[o] something [$OCTOBER 14, 2013$]"
+        assert is_task_due(task, for_day=today)
+
+    def test_due_date_in_future(self):
+        today = datetime.date(2013, 10, 14)
+        task = "[o] something [$OCTOBER 15, 2013$]"
+        assert not is_task_due(task, for_day=today)
+
+
 class PlannerTaskSchedulingTester(unittest.TestCase):
+    """ Check the logfile -> tasklist flow. This adds any newly scheduled tasks
+    in the logfile to the tasklist in the appropriate section.
+    """
+
     # TODO: test when week of is set at an actual sunday, and at 1st of month
     # TODO: "first/second/third/fourth week of month"
     # TODO: "next week/month/year"
@@ -102,144 +383,9 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "[ ] do residual monthlys\n"
         "[ ] get a good scratchy post for ferdy (fab?)\n"
         "\n"
-        "UNSCHEDULED:\n"
+        "THIS QUARTER:\n"
         "\n"
-        "SCHEDULED:\n"
-    )
-
-    tasklist_tomorrow = (
-        "TOMORROW:\n"
-        "[ ] contact dude\n"
-        "[\\] make X\n"
-        "[o] call somebody [$DECEMBER 12, 2012$]\n"
-        "[o] apply for something [DECEMBER 26, 2012]\n"
-        "[ ] finish project\n"
-        "\n"
-        "THIS WEEK:\n"
-        "[\\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
-        "[ ] help meags set up planner\n"
-        "\t[x] create life mindmap with meags\n"
-        "\t[x] incorporate life mindmap into planner with meags\n"
-        "\t[x] swap meags' Esc and CapsLock on personal laptop\n"
-        "\t[x] vim education and workflow\n"
-        "\t[x] help meags build a routine of entering data for the day\n"
-        "\t[ ] meags to schedule all activities (currently unscheduled)\n"
-        "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
-        "\t[-] set up git access on your domain\n"
-        "\t[ ] set up dropbox+truecrypt planner access for meags\n"
-        "\n"
-        "THIS MONTH:\n"
-        "[ ] get India Tour reimbursement\n"
-        "\t[x] resend all receipts and info to Amrit\n"
-        "\t[x] send reminder email to Amrit\n"
-        "\t[x] coordinate with amrit to go to stanford campus\n"
-        "\t[x] remind amrit if no response\n"
-        "\t[x] check Stanford calendar for appropriate time\n"
-        "\t[x] email amrit re: thursday?\n"
-        "\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
-        "\t[x] wait for response\n"
-        "\t[-] send reminder on Wed night\n"
-        "\t[x] respond to amrit's email re: amount correction\n"
-        "\t[x] wait to hear back [remind $MONDAY$]\n"
-        "\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
-        "\t[x] pick up reimbursement, give difference check to raag\n"
-        "\t[x] cash check\n"
-        "\t[x] confirm deposit\n"
-        "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
-        "[ ] do residual monthlys\n"
-        "[ ] get a good scratchy post for ferdy (fab?)\n"
-        "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
-    )
-
-    tasklist_scheduledbadformat = (
-        "TOMORROW:\n"
-        "\n"
-        "THIS WEEK:\n"
-        "[\\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
-        "[ ] help meags set up planner\n"
-        "\t[x] create life mindmap with meags\n"
-        "\t[x] incorporate life mindmap into planner with meags\n"
-        "\t[x] swap meags' Esc and CapsLock on personal laptop\n"
-        "\t[x] vim education and workflow\n"
-        "\t[x] help meags build a routine of entering data for the day\n"
-        "\t[ ] meags to schedule all activities (currently unscheduled)\n"
-        "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
-        "\t[-] set up git access on your domain\n"
-        "\t[ ] set up dropbox+truecrypt planner access for meags\n"
-        "\n"
-        "THIS MONTH:\n"
-        "[ ] get India Tour reimbursement\n"
-        "\t[x] resend all receipts and info to Amrit\n"
-        "\t[x] send reminder email to Amrit\n"
-        "\t[x] coordinate with amrit to go to stanford campus\n"
-        "\t[x] remind amrit if no response\n"
-        "\t[x] check Stanford calendar for appropriate time\n"
-        "\t[x] email amrit re: thursday?\n"
-        "\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
-        "\t[x] wait for response\n"
-        "\t[-] send reminder on Wed night\n"
-        "\t[x] respond to amrit's email re: amount correction\n"
-        "\t[x] wait to hear back [remind $MONDAY$]\n"
-        "\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
-        "\t[x] pick up reimbursement, give difference check to raag\n"
-        "\t[x] cash check\n"
-        "\t[x] confirm deposit\n"
-        "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
-        "[ ] do residual monthlys\n"
-        "[ ] get a good scratchy post for ferdy (fab?)\n"
-        "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
-        "[ ] remember to do this\n"
-    )
-
-    tasklist_somescheduled = (
-        "TOMORROW:\n"
-        "[ ] contact dude\n"
-        "[\\] make X\n"
-        "[o] call somebody [$DECEMBER 12, 2012$]\n"
-        "[o] apply for something [DECEMBER 26, 2012]\n"
-        "[ ] finish project\n"
-        "\n"
-        "THIS WEEK:\n"
-        "[\\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
-        "[o] some misplaced scheduled task [$DECEMBER 14, 2012$]\n"
-        "[o] another scheduled task that's lost its way [$DECEMBER 19, 2012$]\n"
-        "[ ] help meags set up planner\n"
-        "\t[x] create life mindmap with meags\n"
-        "\t[x] incorporate life mindmap into planner with meags\n"
-        "\t[x] swap meags' Esc and CapsLock on personal laptop\n"
-        "\t[x] vim education and workflow\n"
-        "\t[x] help meags build a routine of entering data for the day\n"
-        "\t[ ] meags to schedule all activities (currently unscheduled)\n"
-        "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
-        "\t[-] set up git access on your domain\n"
-        "\t[ ] set up dropbox+truecrypt planner access for meags\n"
-        "\n"
-        "THIS MONTH:\n"
-        "[ ] get India Tour reimbursement\n"
-        "\t[x] resend all receipts and info to Amrit\n"
-        "\t[x] send reminder email to Amrit\n"
-        "\t[x] coordinate with amrit to go to stanford campus\n"
-        "\t[x] remind amrit if no response\n"
-        "\t[x] check Stanford calendar for appropriate time\n"
-        "\t[x] email amrit re: thursday?\n"
-        "\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
-        "\t[x] wait for response\n"
-        "\t[-] send reminder on Wed night\n"
-        "\t[x] respond to amrit's email re: amount correction\n"
-        "\t[x] wait to hear back [remind $MONDAY$]\n"
-        "\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
-        "\t[x] pick up reimbursement, give difference check to raag\n"
-        "\t[x] cash check\n"
-        "\t[x] confirm deposit\n"
-        "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
-        "[ ] do residual monthlys\n"
-        "[ ] get a good scratchy post for ferdy (fab?)\n"
+        "THIS YEAR:\n"
         "\n"
         "UNSCHEDULED:\n"
         "\n"
@@ -261,6 +407,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
         "\t[-] set up git access on your domain\n"
         "\t[ ] set up dropbox+truecrypt planner access for meags\n"
+        "[o] i'm waitin on you! [$DECEMBER 20, 2012$]\n"
         "\n"
         "THIS MONTH:\n"
         "[ ] get India Tour reimbursement\n"
@@ -283,156 +430,17 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "[ ] do residual monthlys\n"
         "[ ] get a good scratchy post for ferdy (fab?)\n"
         "\n"
+        "THIS QUARTER:\n"
+        "\n"
+        "THIS YEAR:\n"
+        "\n"
         "UNSCHEDULED:\n"
+        "[o] still waitin on you [$JANUARY 14, 2013$]\n"
         "\n"
         "SCHEDULED:\n"
-        "[o] i'm waitin on you! [$DECEMBER 20, 2012$]\n"
-        "[o] still waitin on you [$JANUARY 14, 2013$]\n"
     )
 
-    tasklist_tasklist = (
-        "TOMORROW:\n"
-        "[ ] contact dude\n"
-        "[\\] make X\n"
-        "[o] call somebody [$DECEMBER 12, 2012$]\n"
-        "[o] apply for something [DECEMBER 26, 2012]\n"
-        "[ ] finish project\n"
-        "\n"
-        "THIS WEEK:\n"
-        "[\\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
-        "[ ] help meags set up planner\n"
-        "\t[x] create life mindmap with meags\n"
-        "\t[x] incorporate life mindmap into planner with meags\n"
-        "\t[x] swap meags' Esc and CapsLock on personal laptop\n"
-        "\t[x] vim education and workflow\n"
-        "\t[x] help meags build a routine of entering data for the day\n"
-        "\t[ ] meags to schedule all activities (currently unscheduled)\n"
-        "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
-        "\t[-] set up git access on your domain\n"
-        "\t[ ] set up dropbox+truecrypt planner access for meags\n"
-        "\n"
-        "THIS MONTH:\n"
-        "[ ] get India Tour reimbursement\n"
-        "\t[x] resend all receipts and info to Amrit\n"
-        "\t[x] send reminder email to Amrit\n"
-        "\t[x] coordinate with amrit to go to stanford campus\n"
-        "\t[x] remind amrit if no response\n"
-        "\t[x] check Stanford calendar for appropriate time\n"
-        "\t[x] email amrit re: thursday?\n"
-        "\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
-        "\t[x] wait for response\n"
-        "\t[-] send reminder on Wed night\n"
-        "\t[x] respond to amrit's email re: amount correction\n"
-        "\t[x] wait to hear back [remind $MONDAY$]\n"
-        "\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
-        "\t[x] pick up reimbursement, give difference check to raag\n"
-        "\t[x] cash check\n"
-        "\t[x] confirm deposit\n"
-        "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
-        "[ ] do residual monthlys\n"
-        "[ ] get a good scratchy post for ferdy (fab?)\n"
-        "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
-        "[o] some misplaced scheduled task [$DECEMBER 14, 2012$]\n"
-        "[o] another scheduled task that's lost its way [$DECEMBER 19, 2012$]\n"
-    )
-
-    tasklist_tasklist_agenda = (
-        "TOMORROW:\n"
-        "[ ] contact dude\n"
-        "[\\] make X\n"
-        "[o] call somebody [$DECEMBER 12, 2012$]\n"
-        "[o] apply for something [DECEMBER 26, 2012]\n"
-        "[ ] finish project\n"
-        "\n"
-        "THIS WEEK:\n"
-        "[\\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
-        "[ ] help meags set up planner\n"
-        "\t[x] create life mindmap with meags\n"
-        "\t[x] incorporate life mindmap into planner with meags\n"
-        "\t[x] swap meags' Esc and CapsLock on personal laptop\n"
-        "\t[x] vim education and workflow\n"
-        "\t[x] help meags build a routine of entering data for the day\n"
-        "\t[ ] meags to schedule all activities (currently unscheduled)\n"
-        "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
-        "\t[-] set up git access on your domain\n"
-        "\t[ ] set up dropbox+truecrypt planner access for meags\n"
-        "\n"
-        "THIS MONTH:\n"
-        "[ ] get India Tour reimbursement\n"
-        "\t[x] resend all receipts and info to Amrit\n"
-        "\t[x] send reminder email to Amrit\n"
-        "\t[x] coordinate with amrit to go to stanford campus\n"
-        "\t[x] remind amrit if no response\n"
-        "\t[x] check Stanford calendar for appropriate time\n"
-        "\t[x] email amrit re: thursday?\n"
-        "\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
-        "\t[x] wait for response\n"
-        "\t[-] send reminder on Wed night\n"
-        "\t[x] respond to amrit's email re: amount correction\n"
-        "\t[x] wait to hear back [remind $MONDAY$]\n"
-        "\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
-        "\t[x] pick up reimbursement, give difference check to raag\n"
-        "\t[x] cash check\n"
-        "\t[x] confirm deposit\n"
-        "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
-        "[ ] do residual monthlys\n"
-        "[ ] get a good scratchy post for ferdy (fab?)\n"
-        "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
-        "[o] some misplaced scheduled task [$DECEMBER 14, 2012$]\n"
-        "[o] another scheduled task that's lost its way [$DECEMBER 19, 2012$]\n"
-        "[o] i'm waitin on you! [$DECEMBER 20, 2012$]\n"
-        "[o] still waitin on you [$JANUARY 14, 2013$]\n"
-    )
-
-    tasklist_scheduled_formats1to4and11to13 = (
-        "TOMORROW:\n"
-        "\n"
-        "THIS WEEK:\n"
-        "[\\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
-        "[ ] help meags set up planner\n"
-        "\t[x] create life mindmap with meags\n"
-        "\t[x] incorporate life mindmap into planner with meags\n"
-        "\t[x] swap meags' Esc and CapsLock on personal laptop\n"
-        "\t[x] vim education and workflow\n"
-        "\t[x] help meags build a routine of entering data for the day\n"
-        "\t[ ] meags to schedule all activities (currently unscheduled)\n"
-        "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
-        "\t[-] set up git access on your domain\n"
-        "\t[ ] set up dropbox+truecrypt planner access for meags\n"
-        "\n"
-        "THIS MONTH:\n"
-        "[ ] get India Tour reimbursement\n"
-        "\t[x] resend all receipts and info to Amrit\n"
-        "\t[x] send reminder email to Amrit\n"
-        "\t[x] coordinate with amrit to go to stanford campus\n"
-        "\t[x] remind amrit if no response\n"
-        "\t[x] check Stanford calendar for appropriate time\n"
-        "\t[x] email amrit re: thursday?\n"
-        "\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
-        "\t[x] wait for response\n"
-        "\t[-] send reminder on Wed night\n"
-        "\t[x] respond to amrit's email re: amount correction\n"
-        "\t[x] wait to hear back [remind $MONDAY$]\n"
-        "\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
-        "\t[x] pick up reimbursement, give difference check to raag\n"
-        "\t[x] cash check\n"
-        "\t[x] confirm deposit\n"
-        "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
-        "[ ] do residual monthlys\n"
-        "[ ] get a good scratchy post for ferdy (fab?)\n"
-        "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
-        "[o] i'm waitin on you! [$DECEMBER 20, 2012$]\n"
-        "[o] still waitin on you [$JANUARY 14, 2013$]\n"
-    )
+    tasklist_scheduled_formats1to4and11to13 = tasklist_agenda
 
     tasklist_scheduled_formats5to8and14 = (
         "TOMORROW:\n"
@@ -470,15 +478,19 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
         "[ ] do residual monthlys\n"
         "[ ] get a good scratchy post for ferdy (fab?)\n"
+        "[o] i'm waitin on you! [$WEEK OF DECEMBER 16, 2012$]\n"
+        "\n"
+        "THIS QUARTER:\n"
+        "\n"
+        "THIS YEAR:\n"
         "\n"
         "UNSCHEDULED:\n"
+        "[o] still waitin on you [$WEEK OF JANUARY 13, 2013$]\n"
         "\n"
         "SCHEDULED:\n"
-        "[o] i'm waitin on you! [$WEEK OF DECEMBER 16, 2012$]\n"
-        "[o] still waitin on you [$WEEK OF JANUARY 13, 2013$]\n"
     )
 
-    tasklist_scheduled_formats9to10and15 = (
+    tasklist_scheduled_formats9to10 = (
         "TOMORROW:\n"
         "\n"
         "THIS WEEK:\n"
@@ -515,11 +527,63 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "[ ] do residual monthlys\n"
         "[ ] get a good scratchy post for ferdy (fab?)\n"
         "\n"
+        "THIS QUARTER:\n"
+        "[o] i'm waitin on you! [$DECEMBER 2012$]\n"
+        "\n"
+        "THIS YEAR:\n"
+        "\n"
         "UNSCHEDULED:\n"
+        "[o] still waitin on you [$JANUARY 2013$]\n"
         "\n"
         "SCHEDULED:\n"
+    )
+
+    tasklist_scheduled_format15 = (
+        "TOMORROW:\n"
         "[o] i'm waitin on you! [$DECEMBER 2012$]\n"
+        "\n"
+        "THIS WEEK:\n"
+        "[\\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
+        "[ ] help meags set up planner\n"
+        "\t[x] create life mindmap with meags\n"
+        "\t[x] incorporate life mindmap into planner with meags\n"
+        "\t[x] swap meags' Esc and CapsLock on personal laptop\n"
+        "\t[x] vim education and workflow\n"
+        "\t[x] help meags build a routine of entering data for the day\n"
+        "\t[ ] meags to schedule all activities (currently unscheduled)\n"
+        "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
+        "\t[-] set up git access on your domain\n"
+        "\t[ ] set up dropbox+truecrypt planner access for meags\n"
+        "\n"
+        "THIS MONTH:\n"
+        "[ ] get India Tour reimbursement\n"
+        "\t[x] resend all receipts and info to Amrit\n"
+        "\t[x] send reminder email to Amrit\n"
+        "\t[x] coordinate with amrit to go to stanford campus\n"
+        "\t[x] remind amrit if no response\n"
+        "\t[x] check Stanford calendar for appropriate time\n"
+        "\t[x] email amrit re: thursday?\n"
+        "\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
+        "\t[x] wait for response\n"
+        "\t[-] send reminder on Wed night\n"
+        "\t[x] respond to amrit's email re: amount correction\n"
+        "\t[x] wait to hear back [remind $MONDAY$]\n"
+        "\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
+        "\t[x] pick up reimbursement, give difference check to raag\n"
+        "\t[x] cash check\n"
+        "\t[x] confirm deposit\n"
+        "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
+        "[ ] do residual monthlys\n"
+        "[ ] get a good scratchy post for ferdy (fab?)\n"
+        "\n"
+        "THIS QUARTER:\n"
+        "\n"
+        "THIS YEAR:\n"
+        "\n"
+        "UNSCHEDULED:\n"
         "[o] still waitin on you [$JANUARY 2013$]\n"
+        "\n"
+        "SCHEDULED:\n"
     )
 
     tasklist_scheduled_formats16and17 = (
@@ -537,6 +601,11 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
         "\t[-] set up git access on your domain\n"
         "\t[ ] set up dropbox+truecrypt planner access for meags\n"
+        "[o] i'm waitin till tuesday! [$DECEMBER 4, 2012$]\n"
+        "[o] i'm waitin till wednesday! [$DECEMBER 5, 2012$]\n"
+        "[o] i'm waitin till thursday! [$DECEMBER 6, 2012$]\n"
+        "[o] i'm waitin till friday! [$DECEMBER 7, 2012$]\n"
+        "[o] i'm waitin till saturday! [$DECEMBER 8, 2012$]\n"
         "\n"
         "THIS MONTH:\n"
         "[ ] get India Tour reimbursement\n"
@@ -558,17 +627,16 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
         "[ ] do residual monthlys\n"
         "[ ] get a good scratchy post for ferdy (fab?)\n"
+        "[o] i'm waitin till monday! [$DECEMBER 10, 2012$]\n"
+        "[o] i'm waitin till sunday! [$DECEMBER 9, 2012$]\n"
+        "\n"
+        "THIS QUARTER:\n"
+        "\n"
+        "THIS YEAR:\n"
         "\n"
         "UNSCHEDULED:\n"
         "\n"
         "SCHEDULED:\n"
-        "[o] i'm waitin till monday! [$DECEMBER 10, 2012$]\n"
-        "[o] i'm waitin till tuesday! [$DECEMBER 4, 2012$]\n"
-        "[o] i'm waitin till wednesday! [$DECEMBER 5, 2012$]\n"
-        "[o] i'm waitin till thursday! [$DECEMBER 6, 2012$]\n"
-        "[o] i'm waitin till friday! [$DECEMBER 7, 2012$]\n"
-        "[o] i'm waitin till saturday! [$DECEMBER 8, 2012$]\n"
-        "[o] i'm waitin till sunday! [$DECEMBER 9, 2012$]\n"
     )
 
     yeartemplate = (
@@ -765,8 +833,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\t[x] this\n"
         "[ ] s'posed to do\n"
         "[\\] kinda did\n"
-        "[o] i'm waitin on you! [$WEEK OF DECEMBER 20, 2012$]\n"
-        "[o] still waitin on you [$WEEK OF JANUARY 14, 2013$]\n"
+        "[o] i'm waitin on you! [$WEEK OF DECEMBER 16, 2012$]\n"
+        "[o] still waitin on you [$WEEK OF JANUARY 13, 2013$]\n"
         "[x] take out trash\n"
         "\n"
         "DAILYs:\n"
@@ -787,8 +855,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\t[x] this\n"
         "[ ] s'posed to do\n"
         "[\\] kinda did\n"
-        "[o] i'm waitin on you! [$WEEK OF 20 DECEMBER, 2012$]\n"
-        "[o] still waitin on you [$WEEK OF 14 JANUARY, 2013$]\n"
+        "[o] i'm waitin on you! [$WEEK OF 16 DECEMBER, 2012$]\n"
+        "[o] still waitin on you [$WEEK OF 13 JANUARY, 2013$]\n"
         "[x] take out trash\n"
         "\n"
         "DAILYs:\n"
@@ -809,8 +877,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\t[x] this\n"
         "[ ] s'posed to do\n"
         "[\\] kinda did\n"
-        "[o] i'm waitin on you! [$WEEK OF DECEMBER 20$]\n"
-        "[o] still waitin on you [$WEEK OF JANUARY 14$]\n"
+        "[o] i'm waitin on you! [$WEEK OF DECEMBER 16$]\n"
+        "[o] still waitin on you [$WEEK OF JANUARY 13$]\n"
         "[x] take out trash\n"
         "\n"
         "DAILYs:\n"
@@ -831,8 +899,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\t[x] this\n"
         "[ ] s'posed to do\n"
         "[\\] kinda did\n"
-        "[o] i'm waitin on you! [$WEEK OF 20 DECEMBER$]\n"
-        "[o] still waitin on you [$WEEK OF 14 JANUARY$]\n"
+        "[o] i'm waitin on you! [$WEEK OF 16 DECEMBER$]\n"
+        "[o] still waitin on you [$WEEK OF 13 JANUARY$]\n"
         "[x] take out trash\n"
         "\n"
         "DAILYs:\n"
@@ -1163,44 +1231,12 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
             self.planner.tasklist.file.read(), self.tasklist_agenda
         )
 
-    def test_task_list_scheduled_tasks_are_scheduled(self):
-        """ Check that scheduling tasks pulls all scheduled tasks from the TaskList
-        into the SCHEDULED section of the tasklist """
-        tasklist = FilesystemTasklist()
-        tasklist.file = StringIO(self.tasklist_somescheduled)
-        self.planner.tasklist = tasklist
-        self.planner.schedule_tasks()
-        self.assertEqual(
-            self.planner.tasklist.file.read(), self.tasklist_tasklist
-        )
-
-    def test_both_agenda_and_task_list_scheduled_tasks_are_scheduled(self):
-        """ Check that scheduling tasks pulls all scheduled tasks from the TaskList and
-        today's agenda into the SCHEDULED section of the tasklist """
-        tasklist = FilesystemTasklist()
-        tasklist.file = StringIO(self.tasklist_somescheduled)
-        self.planner.tasklist = tasklist
-        self.planner.dayfile = StringIO(self.daytemplate_scheduled)
-        self.planner.schedule_tasks()
-        self.assertEqual(
-            self.planner.tasklist.file.read(), self.tasklist_tasklist_agenda
-        )
-
     def test_scheduled_task_without_date_raises_exception(self):
         """ Check that is a task is marked as scheduled but no date is provided, that
         an exception is thrown """
         self.planner.dayfile = StringIO(self.daytemplate_noscheduledate)
         self.assertRaises(
             BlockedTaskNotScheduledError, self.planner.schedule_tasks
-        )
-
-    def test_badly_formatted_scheduled_task_raises_exception(self):
-        """ Check that a task already present in the SCHEDULED section and formatted incorrectly raises an Exception """
-        tasklist = FilesystemTasklist()
-        tasklist.file = StringIO(self.tasklist_scheduledbadformat)
-        self.planner.tasklist = tasklist
-        self.assertRaises(
-            ScheduledTaskParsingError, self.planner.schedule_tasks
         )
 
     def test_schedule_date_format1(self):
@@ -1223,7 +1259,6 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format3(self):
         """ Check that the format MONTH DD works """
-        self.planner.date = datetime.date(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format3)
         self.planner.schedule_tasks()
         self.assertEqual(
@@ -1233,7 +1268,6 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format4(self):
         """ Check that the format DD MONTH works """
-        self.planner.date = datetime.date(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format4)
         self.planner.schedule_tasks()
         self.assertEqual(
@@ -1243,6 +1277,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format5(self):
         """ Check that the format WEEK OF MONTH DD, YYYY works (w optional space or comma or both) """
+        self.planner.date = datetime.date(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format5)
         self.planner.schedule_tasks()
         self.assertEqual(
@@ -1252,6 +1287,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format6(self):
         """ Check that the format WEEK OF DD MONTH, YYYY works (w optional space or comma or both) """
+        self.planner.date = datetime.date(2012, 12, 3)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format6)
         self.planner.schedule_tasks()
         self.assertEqual(
@@ -1281,11 +1317,12 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     def test_schedule_date_format9(self):
         """ Check that the format MONTH YYYY works (w optional space or comma or both) """
+        self.planner.date = datetime.date(2012, 11, 4)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format9)
         self.planner.schedule_tasks()
         self.assertEqual(
             self.planner.tasklist.file.read(),
-            self.tasklist_scheduled_formats9to10and15,
+            self.tasklist_scheduled_formats9to10,
         )
 
     def test_schedule_date_format10(self):
@@ -1295,7 +1332,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.schedule_tasks()
         self.assertEqual(
             self.planner.tasklist.file.read(),
-            self.tasklist_scheduled_formats9to10and15,
+            self.tasklist_scheduled_formats9to10,
         )
 
     def test_schedule_date_format11(self):
@@ -1342,8 +1379,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.dayfile = StringIO(self.daytemplate_scheduled_format15)
         self.planner.schedule_tasks()
         self.assertEqual(
-            self.planner.tasklist.file.read(),
-            self.tasklist_scheduled_formats9to10and15,
+            self.planner.tasklist.file.read(), self.tasklist_scheduled_format15
         )
 
     def test_schedule_date_format16(self):
@@ -1375,5 +1411,5 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.schedule_tasks()
         self.assertEqual(
             self.planner.tasklist.file.read(),
-            self.tasklist_scheduled_formats9to10and15,
+            self.tasklist_scheduled_formats9to10,
         )

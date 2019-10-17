@@ -13,14 +13,7 @@ from ..errors import (
     PlannerIsInTheFutureError,
     MissingThemeError,
 )
-from ..timeperiod import (
-    get_next_day,
-    get_next_period,
-    Zero,
-    Day,
-    Week,
-    Year,
-)
+from ..timeperiod import get_next_day, get_next_period, Zero, Day, Week, Year
 from ..utils import display_message
 
 ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
@@ -167,6 +160,7 @@ class PlannerBase(ABC):
             self.schedule_tasks()
 
         self.cascade_agenda(period)
+        self.tasklist.standardize_entries(self.date)
 
     def begin_period(self, period, for_day):
         """ Perform any tasks needed to begin a new period.
@@ -179,6 +173,7 @@ class PlannerBase(ABC):
             "Beginning new {period}".format(period=str(period).upper()),
             interactive=True,
         )
+        self.tasklist.advance(for_day)
         self.create_log(period, for_day)
         if self.agenda_reviewed < period:
             if period == Day:
@@ -307,13 +302,29 @@ class PlannerBase(ABC):
 
 class TasklistBase(ABC):
     @abc.abstractmethod
+    def construct(self, location=None):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def advance(self, period, to_date):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def place_tasks(self, scheduled_tasks, reference_date):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def standardize_entries(self, reference_date):
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_tasks(self, period):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_due_tasks(self, for_day):
+    def get_tasks_for_tomorrow(self):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_tasks_for_tomorrow(self):
+    def save(self):
         raise NotImplementedError

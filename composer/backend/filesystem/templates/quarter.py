@@ -1,4 +1,4 @@
-from ..primitives import quarter_for_month
+from ....timeperiod import quarter_for_month
 from .base import Template
 
 

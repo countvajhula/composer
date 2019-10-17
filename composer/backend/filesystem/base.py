@@ -1,28 +1,25 @@
 import os
+from collections import defaultdict
 
 from ..base import PlannerBase, TasklistBase
 from ...config import LOGFILE_CHECKING
 from ...timeperiod import (
     get_next_period,
+    get_time_periods,
     Day,
     Week,
     Month,
     Quarter,
     Year,
     Zero,
+    Eternity,
 )
-from ...errors import (
-    BlockedTaskNotScheduledError,
-    LogfileLayoutError,
-    SchedulingDateError,
-    TasklistLayoutError,
-)
+from ...errors import LogfileLayoutError, TasklistLayoutError
 from ...utils import display_message
 from .scheduling import (
     check_logfile_for_errors,
-    check_scheduled_section_for_errors,
-    sanitize_entry,
-    SCHEDULED_DATE_PATTERN,
+    get_due_date,
+    standardize_entry_date,
     string_to_date,
 )
 from .templates import get_template
@@ -39,7 +36,6 @@ from .primitives import (
     is_completed,
     is_not_completed,
     get_log_filename,
-    parse_task,
     make_file,
     full_file_path,
     read_file,
@@ -271,11 +267,9 @@ class FilesystemPlanner(PlannerBase):
             return log
 
     def schedule_tasks(self):
-        """ Parse tasklist and today's agenda for any (e.g. newly-added)
-        scheduled tasks, and move them to the scheduled section of the tasklist
-        after converting them to a standard format.  This ignores any tasks
-        manually added for tomorrow (these will be handled as tasks for
-        tomorrow, not as scheduled tasks).
+        """ Parse today's agenda for any (e.g. newly-added) scheduled tasks,
+        and move them to the appropriate section of the tasklist after
+        converting them to a standard format.
 
         If task is marked as scheduled/blocked (i.e. "[o]"), then make sure
         a follow-up date is indicated (via "[$<date>$]") and that it is
@@ -291,37 +285,20 @@ class FilesystemPlanner(PlannerBase):
         # additional interfaces as needed
         # TODO: these diagnostics are not covered by tests
         display_message("Tracking any newly scheduled tasks", interactive=True)
-        check_scheduled_section_for_errors(self.tasklist.file)
         check_logfile_for_errors(self.dayfile)
-        # ignore tasks in tomorrow since actively scheduled by you
-        tomorrow, tasklist_no_tomorrow = read_section(
-            self.tasklist.file, 'TOMORROW'
-        )
-        entries = get_entries(tasklist_no_tomorrow)
-        tasklist_tasks, tasklist_no_scheduled = partition_entries(
-            entries, is_scheduled_task
-        )
-        # TODO: these interfaces should operate at a high level and translate
-        # up/down only at the beginning and end
-        tasklist_no_scheduled = make_file(
-            entries_to_string(tasklist_no_scheduled)
-        )
-        day_tasks = get_entries(self.dayfile, of_type=is_scheduled_task)
-        tasks = tasklist_tasks + day_tasks
+
+        tasks = get_entries(self.dayfile, of_type=is_scheduled_task)
+
         tasks = [
             (
-                sanitize_entry(task, self.date)
+                standardize_entry_date(task, self.date)
                 if is_scheduled_task(task)
                 else task
             )
             for task in tasks
         ]
-        tasks = entries_to_string(tasks)
-        new_file = add_to_section(tasklist_no_scheduled, "SCHEDULED", tasks)
-        new_file = add_to_section(
-            new_file, "TOMORROW", tomorrow.read()
-        )  # add tomorrow tasks back
-        self.tasklist.file = new_file
+
+        self.tasklist.place_tasks(tasks, self.date)
 
     def get_todays_unfinished_tasks(self):
         """ Get tasks from today's agenda that are either undone or in
@@ -361,16 +338,14 @@ class FilesystemPlanner(PlannerBase):
             "Creating log file for {period}".format(period=period),
             interactive=True,
         )
-        scheduled = tomorrow = undone = None
+        agenda = None
         if period == Day:
-            scheduled = self.tasklist.get_due_tasks(for_day)
             tomorrow = self.tasklist.get_tasks_for_tomorrow()
             undone = self.get_todays_unfinished_tasks()
+            agenda = undone + tomorrow
 
         template = get_template(self, period, for_day)
-        contents = template.build(
-            scheduled=scheduled, tomorrow=tomorrow, undone=undone
-        )
+        contents = template.build(with_agenda=agenda)
         # set the logfile on the next day's planner instance to the
         # newly created file, to be saved later
         log_attr = self._logfile_attribute(period)
@@ -550,6 +525,17 @@ class FilesystemTasklist(TasklistBase):
 
     _file = None
 
+    section_name = {
+        Zero: None,
+        Day: "TOMORROW",
+        Week: "THIS WEEK",
+        Month: "THIS MONTH",
+        Quarter: "THIS QUARTER",
+        Year: "THIS YEAR",
+        # TODO: introduce "LATER," separate from UNSCHEDULED
+        Eternity: "UNSCHEDULED",
+    }
+
     def __init__(self, location=None):
         self.construct(location)
 
@@ -562,6 +548,10 @@ class FilesystemTasklist(TasklistBase):
         self._file = value
 
     def construct(self, location=None):
+        """ Construct a tasklist object from a filesystem representation.
+
+        :param str location: Filesystem path to planner wiki
+        """
         if location is None:
             # needed for tests atm -- eventually make location a required arg
             return
@@ -570,58 +560,76 @@ class FilesystemTasklist(TasklistBase):
             full_file_path(root=location, filename=PLANNERTASKLISTFILE)
         )
 
-    def get_due_tasks(self, for_day):
-        """ Look at the SCHEDULED section of the tasklist and retrieve any
-        tasks that are due/overdue for the given day (e.g. tomorrow, if
-        preparing tomorrow's agenda). **This also mutates the tasklist by
-        removing these tasks from it.**
+    def place_tasks(self, scheduled_tasks, reference_date):
+        """ Given a list of scheduled tasks, place them in the appropriate
+        section of the tasklist relative to the specified reference date. For
+        example, a task due on Wednesday would be filed under "this week" in
+        the tasklist relative to the Monday of that week (when provided as
+        reference date).
 
-        This only operates on explicitly scheduled tasks, not tasks manually
-        set aside for tomorrow or which may happen to be appropriate for the
-        given day as determined in some other way (e.g. periodic tasks).
-
-        Note: task scheduling should already have been performed on relevant
-        logfiles (like the previous day's) to migrate those tasks to the
-        tasklist.
-
-        :param :class:`datetime.date` for_day: The date to get due tasks for
-        :returns str: The tasks that are due
+        :param list scheduled_tasks: The list of entries to be placed
+        :param :class:`datetime.date` reference_date: The reference date
+            for task placement
         """
+        # remember that each section corresponds to static date boundaries of
+        # the "current" periods
+        tasks = defaultdict(lambda: [])
+        for entry in scheduled_tasks:
+            due_date, _ = get_due_date(entry, reference_date)
+            for period in get_time_periods(Day):
+                # append and break if within time window
+                end_date = period.get_end_date(reference_date)
+                if due_date <= end_date:
+                    tasks[period].append(entry)
+                    break
+        for period in get_time_periods(Day):
+            tasks_to_add = entries_to_string(tasks[period])
+            self.file = add_to_section(
+                self.file, self.section_name[period], tasks_to_add, above=False
+            )
 
-        def is_task_due(task):
-            header, _ = parse_task(task)
-            if not SCHEDULED_DATE_PATTERN.search(header):
-                raise BlockedTaskNotScheduledError(
-                    "Scheduled task has no date!" + header
-                )
-            datestr = SCHEDULED_DATE_PATTERN.search(header).groups()[0]
-            try:
-                matched_date, _ = string_to_date(datestr)
-            except SchedulingDateError:
-                raise
-            return for_day >= matched_date
+    def advance(self, to_date):
+        """ 'Reverse cascade' tasks from a higher period to an upcoming lower
+        period to account for advancement to a future date.
 
+        :param :class:`datetime.date` to_date: The date to advance to
+        """
         display_message(
-            "Checking previously scheduled tasks for any that "
-            "are due tomorrow",
+            "Advancing tasklist to check for any upcoming tasks that "
+            "are due tomorrow",  # improve
             interactive=True,
         )
-        try:
-            scheduled, tasklist_no_scheduled = read_section(
-                self.file, "scheduled"
-            )
-        except ValueError:
-            raise TasklistLayoutError(
-                "No SCHEDULED section found in TaskList!"
-            )
-        entries = get_entries(scheduled)
-        due, not_due = partition_entries(entries, is_task_due)
-        due, not_due = map(entries_to_string, (due, not_due))
-        new_tasklist = add_to_section(
-            tasklist_no_scheduled, 'scheduled', not_due
+        entries = get_entries(self.file)
+        scheduled, tasklist_no_scheduled = partition_entries(
+            entries, is_scheduled_task
         )
-        self.file = new_tasklist
-        return due
+        tasklist_no_scheduled = make_file(
+            entries_to_string(tasklist_no_scheduled)
+        )
+        self.file = tasklist_no_scheduled
+        # TODO: consider first sorting tasks by implied due date so that they
+        # are placed in (the correct) chronological order within each section
+        self.place_tasks(scheduled, to_date)
+
+    def standardize_entries(self, reference_date):
+        """ Convert all entries in the tasklist to a standard and unambiguous
+        (esp. non-relative) date format. This should be done at the time the
+        tasks are actually scheduled so that they are disambiguated relative to
+        the actual date relative to which the user would have specified them.
+        In particular, this should be done prior to 'advance' to any future
+        date.
+
+        :param :class:`datetime.date` reference_date: The date relative to
+            which entries are to be standardized
+        """
+        entries = get_entries(self.file)
+        entries = [
+            standardize_entry_date(entry, reference_date)
+            if is_scheduled_task(entry)
+            else entry
+            for entry in entries
+        ]
+        self.file = make_file(entries_to_string(entries))
 
     def get_tasks(self, period):
         """ Read the tasklist, parse all tasks under a specific time period

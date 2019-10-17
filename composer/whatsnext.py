@@ -8,13 +8,16 @@ import click
 from . import advice
 from . import config
 from . import updateindex
-from .backend import (
-    FilesystemPlanner,
-    FilesystemTasklist,
-    get_month_name,
+from .backend import FilesystemPlanner, FilesystemTasklist, get_month_name
+from .timeperiod import (
+    Day,
+    Month,
+    Quarter,
+    Week,
+    Year,
+    get_next_period,
     quarter_for_month,
 )
-from .timeperiod import Day, Month, Quarter, Week, Year, get_next_period
 from .utils import display_message, ask_input
 
 from .errors import (

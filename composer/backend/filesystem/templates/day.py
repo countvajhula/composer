@@ -28,9 +28,7 @@ class DayTemplate(Template):
         self.daythemesfile = planner.daythemesfile
 
     def build(self, **kwargs):
-        scheduled = kwargs.get('scheduled')
-        tomorrow = kwargs.get('tomorrow')
-        undone = kwargs.get('undone')
+        agenda = kwargs.get('with_agenda')
         (date, day, month, year) = (
             self.for_date.day,
             self.for_date.strftime("%A"),
@@ -47,16 +45,10 @@ class DayTemplate(Template):
             self.title += "Theme: %s\n" % theme
         self.periodicname = "DAILYs:\n"
 
-        self.agenda = ""
+        self.agenda = agenda if agenda else ""
         # if we have successfully ensured that every entry ends in a
         # newline character, then we can safely assume here that section
         # components can be neatly concatenated
-        if scheduled:
-            self.agenda += scheduled
-        if undone:
-            self.agenda += undone
-        if tomorrow:
-            self.agenda += tomorrow
         daytemplate = super(DayTemplate, self).build()
         return daytemplate
 

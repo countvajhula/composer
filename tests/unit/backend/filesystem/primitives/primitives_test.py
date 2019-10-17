@@ -181,12 +181,14 @@ class TestReadSection(object):
         expected = (
             "TOMORROW:\n"
             "[ ] a task\n"
-            "[\\] a WIP task\n"
             "Just some additional clarifications\n"
             "\n"
+            "[\\] a WIP task\n"
             "[o] a scheduled task [$TOMORROW$]\n"
             "THIS WEEK:\n"
             "THIS MONTH:\n"
+            "THIS QUARTER:\n"
+            "THIS YEAR:\n"
             "UNSCHEDULED:\n"
             "[ ] another task\n"
         )
@@ -213,9 +215,9 @@ class TestAddToSection(object):
         expected = (
             "TOMORROW:\n"
             "[ ] a task\n"
-            "[\\] a WIP task\n"
             "Just some additional clarifications\n"
             "\n"
+            "[\\] a WIP task\n"
             "[o] a scheduled task [$TOMORROW$]\n"
             "THIS WEEK:\n"
             "[ ] a task with subtasks\n"
@@ -224,6 +226,8 @@ class TestAddToSection(object):
             "\t[ ] second thing\n"
             "THIS MONTH:\n"
             "[ ] one more thing to do!\n"
+            "THIS QUARTER:\n"
+            "THIS YEAR:\n"
             "UNSCHEDULED:\n"
             "[ ] another task\n"
         )
@@ -240,9 +244,9 @@ class TestAddToSection(object):
         expected = (
             "TOMORROW:\n"
             "[ ] a task\n"
-            "[\\] a WIP task\n"
             "Just some additional clarifications\n"
             "\n"
+            "[\\] a WIP task\n"
             "[o] a scheduled task [$TOMORROW$]\n"
             "THIS WEEK:\n"
             "[ ] one more thing to do!\n"
@@ -251,6 +255,8 @@ class TestAddToSection(object):
             "\tclarification of first thing\n"
             "\t[ ] second thing\n"
             "THIS MONTH:\n"
+            "THIS QUARTER:\n"
+            "THIS YEAR:\n"
             "UNSCHEDULED:\n"
             "[ ] another task\n"
         )
@@ -264,9 +270,9 @@ class TestAddToSection(object):
         expected = (
             "TOMORROW:\n"
             "[ ] a task\n"
-            "[\\] a WIP task\n"
             "Just some additional clarifications\n"
             "\n"
+            "[\\] a WIP task\n"
             "[o] a scheduled task [$TOMORROW$]\n"
             "THIS WEEK:\n"
             "[ ] a task with subtasks\n"
@@ -275,8 +281,36 @@ class TestAddToSection(object):
             "\t[ ] second thing\n"
             "[ ] one more thing to do!\n"
             "THIS MONTH:\n"
+            "THIS QUARTER:\n"
+            "THIS YEAR:\n"
             "UNSCHEDULED:\n"
             "[ ] another task\n"
+        )
+        assert updated.read() == expected
+
+    def test_add_to_bottom_of_file(self, tasklist_file):
+        new_tasks = "[ ] one more thing to do!\n"
+        updated = add_to_section(
+            tasklist_file, 'UNSCHEDULED', new_tasks, above=False
+        )
+        expected = (
+            "TOMORROW:\n"
+            "[ ] a task\n"
+            "Just some additional clarifications\n"
+            "\n"
+            "[\\] a WIP task\n"
+            "[o] a scheduled task [$TOMORROW$]\n"
+            "THIS WEEK:\n"
+            "[ ] a task with subtasks\n"
+            "\t[\\] first thing\n"
+            "\tclarification of first thing\n"
+            "\t[ ] second thing\n"
+            "THIS MONTH:\n"
+            "THIS QUARTER:\n"
+            "THIS YEAR:\n"
+            "UNSCHEDULED:\n"
+            "[ ] another task\n"
+            "[ ] one more thing to do!\n"
         )
         assert updated.read() == expected
 
@@ -298,9 +332,9 @@ class TestAddToSection(object):
         expected = (
             "TOMORROW:\n"
             "[ ] a task\n"
-            "[\\] a WIP task\n"
             "Just some additional clarifications\n"
             "\n"
+            "[\\] a WIP task\n"
             "[o] a scheduled task [$TOMORROW$]\n"
             "THIS WEEK:\n"
             "[ ] one more thing to do!\n"
@@ -310,6 +344,8 @@ class TestAddToSection(object):
             "\t[ ] second thing\n"
             "\n"
             "THIS MONTH:\n"
+            "THIS QUARTER:\n"
+            "THIS YEAR:\n"
             "UNSCHEDULED:\n"
             "[ ] another task\n"
         )
@@ -359,12 +395,14 @@ class TestGetTaskEntries(object):
         entries_string = "".join(entries)
         expected = (
             "TOMORROW:\n"
-            "[\\] a WIP task\n"
             "Just some additional clarifications\n"
             "\n"
+            "[\\] a WIP task\n"
             "[o] a scheduled task [$TOMORROW$]\n"
             "THIS WEEK:\n"
             "THIS MONTH:\n"
+            "THIS QUARTER:\n"
+            "THIS YEAR:\n"
             "UNSCHEDULED:\n"
         )
         assert entries_string == expected

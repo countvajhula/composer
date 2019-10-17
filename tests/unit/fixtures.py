@@ -7,7 +7,7 @@ except ImportError:  # py3
     from io import StringIO
 
 from composer.backend import FilesystemPlanner, FilesystemTasklist
-from composer.backend.base import PlannerBase
+from composer.backend.base import PlannerBase, TasklistBase
 from composer.timeperiod import Year
 
 
@@ -92,9 +92,9 @@ def _tasklistfile():
     contents = (
         "TOMORROW:\n"
         "[ ] a task\n"
-        "[\\] a WIP task\n"
         "Just some additional clarifications\n"
         "\n"
+        "[\\] a WIP task\n"
         "[o] a scheduled task [$TOMORROW$]\n"
         "THIS WEEK:\n"
         "[ ] a task with subtasks\n"
@@ -102,6 +102,8 @@ def _tasklistfile():
         "\tclarification of first thing\n"
         "\t[ ] second thing\n"
         "THIS MONTH:\n"
+        "THIS QUARTER:\n"
+        "THIS YEAR:\n"
         "UNSCHEDULED:\n"
         "[ ] another task\n"
     )
@@ -122,11 +124,26 @@ def tasklist():
 
 
 def _tasklist_base():
-    class DummyTasklist(PlannerBase):
-        def get_due_tasks(self, for_day):
+    class DummyTasklist(TasklistBase):
+        def construct(self, location=None):
+            pass
+
+        def place_tasks(self, scheduled_tasks, reference_date):
+            pass
+
+        def standardize_entries(self, reference_date):
+            pass
+
+        def get_tasks(self, period):
+            pass
+
+        def advance(self, to_date):
             pass
 
         def get_tasks_for_tomorrow(self):
+            pass
+
+        def save(self):
             pass
 
     tasklist = DummyTasklist()
@@ -180,6 +197,7 @@ def _planner_base():
     planner = DummyPlanner()
     planner.date = datetime.date.today()
     planner.location = ''
+    planner.tasklist = _tasklist_base()
     return planner
 
 
