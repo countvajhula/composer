@@ -4,7 +4,7 @@ import os
 import click
 
 from composer.utils import display_message
-from composer.backend.filesystem.primitives import strip_extension
+from composer.backend.filesystem.primitives import bare_filename
 
 # TODO: need to improve this script to do regex matching on wiki page names,
 # and sort the pages by type and in chronological order + Misc/uncategorized
@@ -17,40 +17,50 @@ def is_wiki(filename):
     return filename[-5:] == ".wiki"
 
 
-def get_wiki_pages_among_files(fileslist):
-    """ Identify files in the given list that are wiki files, and return these
-    sans the .wiki extension.
+def get_files(path, of_type=None):
+    """ Get all files at the specified path of the specified type.
 
-    :param list fileslist: A list of filenames
+    :param str plannerpath: The location of the wiki
     :returns list: Only the wiki files, with extensions truncated
     """
-    return map(strip_extension, filter(is_wiki, fileslist))
+    files = os.listdir(path)
+    if of_type:
+        files = filter(of_type, files)
+    files = [os.path.join(path, f) for f in files]
+    return files
 
 
-def update_index(plannerpath, indexfile=None, indextitle=None):
+def sort_files(files):
+    return sorted(files)  # alphabetical order
+
+
+def format_for_display(files):
+    return map(bare_filename, files)
+
+
+def update_index(plannerpath, filename=None, title=None):
     """ Generate the index from all .wiki files present at the provided
     path. Use the provided filename and title string, if any, or use defaults.
     This generates the index from scratch and overwrites any existing index
     file that may be present.
 
     :param str plannerpath: The location of the wiki
-    :param str indexfile: The filename to use when saving the generated index
-    :param str indextitle: A title string to use at the top of the file
+    :param str filename: The filename to use when saving the generated index
+    :param str title: A title string to use at the top of the file
     """
-    if not indexfile:
-        indexfile = INDEXFILE
-    if not indextitle:
-        indextitle = INDEXTITLE
-    fileslist = os.listdir(plannerpath)
-    wikipages = get_wiki_pages_among_files(fileslist)
-    wikipages = sorted(wikipages)  # alphabetical order
+    if not filename:
+        filename = INDEXFILE
+    if not title:
+        title = INDEXTITLE
+    files = get_files(plannerpath, is_wiki)
+    files = sort_files(files)
+    files = format_for_display(files)
     # print "%d wiki pages found: %s" % (len(wikipages), str(wikipages))
-    indexfilename = "%s/%s" % (plannerpath, indexfile)
-    wikiindex = open(indexfilename, "w")
-    wikiindex.write(indextitle + "\n")
-    for page in wikipages:
-        wikiindex.write("\t* [[" + page + "]]\n")
-    wikiindex.close()
+    index_filename = os.path.join(plannerpath, filename)
+    with open(index_filename, "w") as f:
+        f.write(title + "\n")
+        for page in files:
+            f.write("\t* [[" + page + "]]\n")
 
 
 @click.command(
@@ -63,7 +73,7 @@ def update_index(plannerpath, indexfile=None, indextitle=None):
 @click.argument("wikipath")
 @click.option(
     "-f",
-    "--file",
+    "--filename",
     help=("Filename to use for the index (default '{}').".format(INDEXFILE)),
 )
 @click.option(
@@ -71,10 +81,10 @@ def update_index(plannerpath, indexfile=None, indextitle=None):
     "--title",
     help=("Title for the index page (default '{}')".format(INDEXTITLE)),
 )
-def main(wikipath, file=None, title=None):
+def main(wikipath, filename=None, title=None):
     wikipath = wikipath.rstrip("/")
     display_message()
     display_message(">>> Operating on wiki at location: %s <<<" % wikipath)
     display_message()
 
-    update_index(wikipath, file, title)
+    update_index(wikipath, filename, title)
