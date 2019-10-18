@@ -83,15 +83,14 @@ def wikify(entry, prefix=None):
         return "\t* [[{name}]]\n".format(name=entry)
 
 
-def format_for_display(pages):
-    """ Format a representation of a list of wiki pages into a readable
+def format_for_display(page):
+    """ Format a representation of a wiki page into a readable
     form for display in the index.
 
-    :param list pages: The list of wiki filenames
-    :retutns list: The list of wiki pages
+    :param str page: The name of the wiki file
+    :returns str: The formatted wiki page name
     """
-    filenames = map(wikify, map(bare_filename, pages))
-    return filenames
+    return wikify(bare_filename(page))
 
 
 def prepare_root_index(contents, path, file_prefix, title):
@@ -127,8 +126,11 @@ def prepare_index(contents, path, file_prefix, root_title, preindex):
     :returns Index: The prepared index
     """
     index_name, sort_fn, is_reversed = preindex
-    entries = format_for_display(
-        sorted(contents, key=sort_fn, reverse=is_reversed)
+    entries = list(
+        map(
+            format_for_display,
+            sorted(contents, key=sort_fn, reverse=is_reversed),
+        )
     )
     title = "= {} ({}) =".format(root_title, index_name).upper()
 

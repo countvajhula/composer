@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 import os
+import pytest
 from mock import patch
 
-from composer.updateindex import get_files, format_for_display, is_wiki
+from composer.updateindex import (
+    get_files,
+    format_for_display,
+    is_wiki,
+    prepare_index,
+    Index,
+    PreIndex,
+)
 
 
 class TestGetFiles(object):
@@ -62,24 +70,41 @@ class TestGetFiles(object):
 
 class TestFormatForDisplay(object):
     dummypath = '/dummy/path'
-    wiki_entries = [
-        '\t* [[hold on thar]]\n',
-        "\t* [[what's this?]]\n",
-        "\t* [[blah]]\n",
-        "\t* [[bleh]]\n",
-    ]
-    wiki_files = [
-        'hold on thar.wiki',
-        "what's this?.wiki",
-        "blah.wiki",
-        "bleh.wiki",
-    ]
 
-    def _wiki_files(self):
-        return [os.path.join(self.dummypath, f) for f in self.wiki_files]
+    def _wiki_file(self, filename):
+        return os.path.join(self.dummypath, filename)
 
-    def test_format_for_display(self):
-        wikipages = self._wiki_files()
-        result = format_for_display(wikipages)
-        expected = self.wiki_entries
-        assert set(result) == set(expected)
+    @pytest.mark.parametrize(
+        "filename, entry",
+        [
+            ("hold on thar.wiki", "\t* [[hold on thar]]\n"),
+            ("what's this?.wiki", "\t* [[what's this?]]\n"),
+            ("blah.wiki", "\t* [[blah]]\n"),
+            ("bleh.wiki", "\t* [[bleh]]\n"),
+        ],
+    )
+    def test_format_for_display(self, filename, entry):
+        page = self._wiki_file(filename)
+        result = format_for_display(page)
+        assert result == entry
+
+
+class TestPrepareIndex(object):
+    dummypath = '/dummy/path'
+
+    def test_prepare_index(self):
+        contents = ['a', 'c', 'b']
+        index_name = 'by date'
+        preindex = PreIndex(index_name, None, False)
+        path = self.dummypath
+        filename = os.path.join(path, "Pages_By date.wiki")
+        file_prefix = 'pages'
+        root_title = 'index'
+        result = prepare_index(
+            contents, path, file_prefix, root_title, preindex
+        )
+        formatted_entries = ['\t* [[a]]\n', '\t* [[b]]\n', '\t* [[c]]\n']
+        expected = Index(
+            index_name, "= INDEX (BY DATE) =", formatted_entries, filename
+        )
+        assert result == expected
