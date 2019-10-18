@@ -99,9 +99,7 @@ class PlannerIntegrationTest(unittest.TestCase):
         "\n"
         "THIS YEAR:\n"
         "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
+        "SOMEDAY:\n"
     )
 
     yeartemplate = (

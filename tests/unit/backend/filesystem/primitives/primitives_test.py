@@ -189,7 +189,7 @@ class TestReadSection(object):
             "THIS MONTH:\n"
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[ ] another task\n"
         )
         assert complement.read() == expected
@@ -228,7 +228,7 @@ class TestAddToSection(object):
             "[ ] one more thing to do!\n"
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[ ] another task\n"
         )
         assert updated.read() == expected
@@ -257,7 +257,7 @@ class TestAddToSection(object):
             "THIS MONTH:\n"
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[ ] another task\n"
         )
         assert updated.read() == expected
@@ -283,7 +283,7 @@ class TestAddToSection(object):
             "THIS MONTH:\n"
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[ ] another task\n"
         )
         assert updated.read() == expected
@@ -291,7 +291,7 @@ class TestAddToSection(object):
     def test_add_to_bottom_of_file(self, tasklist_file):
         new_tasks = "[ ] one more thing to do!\n"
         updated = add_to_section(
-            tasklist_file, 'UNSCHEDULED', new_tasks, above=False
+            tasklist_file, 'SOMEDAY', new_tasks, above=False
         )
         expected = (
             "TOMORROW:\n"
@@ -308,7 +308,7 @@ class TestAddToSection(object):
             "THIS MONTH:\n"
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[ ] another task\n"
             "[ ] one more thing to do!\n"
         )
@@ -346,7 +346,7 @@ class TestAddToSection(object):
             "THIS MONTH:\n"
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[ ] another task\n"
         )
         assert updated.read() == expected
@@ -403,7 +403,7 @@ class TestGetTaskEntries(object):
             "THIS MONTH:\n"
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
         )
         assert entries_string == expected
 

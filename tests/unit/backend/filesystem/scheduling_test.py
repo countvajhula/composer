@@ -387,9 +387,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\n"
         "THIS YEAR:\n"
         "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
+        "SOMEDAY:\n"
     )
 
     tasklist_agenda = (
@@ -434,10 +432,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\n"
         "THIS YEAR:\n"
         "\n"
-        "UNSCHEDULED:\n"
+        "SOMEDAY:\n"
         "[o] still waitin on you [$JANUARY 14, 2013$]\n"
-        "\n"
-        "SCHEDULED:\n"
     )
 
     tasklist_scheduled_formats1to4and11to13 = tasklist_agenda
@@ -484,10 +480,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\n"
         "THIS YEAR:\n"
         "\n"
-        "UNSCHEDULED:\n"
+        "SOMEDAY:\n"
         "[o] still waitin on you [$WEEK OF JANUARY 13, 2013$]\n"
-        "\n"
-        "SCHEDULED:\n"
     )
 
     tasklist_scheduled_formats9to10 = (
@@ -532,10 +526,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\n"
         "THIS YEAR:\n"
         "\n"
-        "UNSCHEDULED:\n"
+        "SOMEDAY:\n"
         "[o] still waitin on you [$JANUARY 2013$]\n"
-        "\n"
-        "SCHEDULED:\n"
     )
 
     tasklist_scheduled_format15 = (
@@ -580,10 +572,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\n"
         "THIS YEAR:\n"
         "\n"
-        "UNSCHEDULED:\n"
+        "SOMEDAY:\n"
         "[o] still waitin on you [$JANUARY 2013$]\n"
-        "\n"
-        "SCHEDULED:\n"
     )
 
     tasklist_scheduled_formats16and17 = (
@@ -634,9 +624,7 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\n"
         "THIS YEAR:\n"
         "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
+        "SOMEDAY:\n"
     )
 
     yeartemplate = (

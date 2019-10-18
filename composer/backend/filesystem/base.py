@@ -532,8 +532,7 @@ class FilesystemTasklist(TasklistBase):
         Month: "THIS MONTH",
         Quarter: "THIS QUARTER",
         Year: "THIS YEAR",
-        # TODO: introduce "LATER," separate from UNSCHEDULED
-        Eternity: "UNSCHEDULED",
+        Eternity: "SOMEDAY",
     }
 
     def __init__(self, location=None):

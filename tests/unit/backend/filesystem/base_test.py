@@ -238,7 +238,7 @@ class TestTasklist(TestFilesystemBase):
             + (task if period == Quarter else "")
             + ("THIS YEAR:\n")
             + (task if period == Year else "")
-            + ("UNSCHEDULED:\n" "[ ] another task\n")
+            + ("SOMEDAY:\n" "[ ] another task\n")
             + (task if period == Eternity else "")
         )
         return contents
@@ -355,7 +355,7 @@ class TestTasklistAdvance(TestTasklist):
             "[o] do this quarter [$MARCH 11, 2013$]\n"
             "THIS YEAR:\n"
             "[o] do this year [$MAY 29, 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do later [$JULY 12, 2014$]\n"
         )
         return contents
@@ -371,7 +371,7 @@ class TestTasklistAdvance(TestTasklist):
             "[o] do next month [$MARCH 2013$]\n"
             "THIS YEAR:\n"
             "[o] do next quarter [$Q2 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do next year [$2014$]\n"
             "[o] do later [$2015$]\n"
         )
@@ -393,7 +393,7 @@ class TestTasklistAdvance(TestTasklist):
             "[o] do this quarter [$MARCH 11, 2013$]\n"
             "THIS YEAR:\n"
             "[o] do this year [$MAY 29, 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do later [$JULY 12, 2014$]\n"
         )
         assert tasklist.file.getvalue() == expected
@@ -414,7 +414,7 @@ class TestTasklistAdvance(TestTasklist):
             "[o] do this quarter [$MARCH 11, 2013$]\n"
             "THIS YEAR:\n"
             "[o] do this year [$MAY 29, 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do later [$JULY 12, 2014$]\n"
         )
         assert tasklist.file.getvalue() == expected
@@ -435,7 +435,7 @@ class TestTasklistAdvance(TestTasklist):
             "[o] do this quarter [$MARCH 11, 2013$]\n"
             "THIS YEAR:\n"
             "[o] do this year [$MAY 29, 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do later [$JULY 12, 2014$]\n"
         )
         assert tasklist.file.getvalue() == expected
@@ -456,7 +456,7 @@ class TestTasklistAdvance(TestTasklist):
             "[o] do this quarter [$MARCH 11, 2013$]\n"
             "THIS YEAR:\n"
             "[o] do this year [$MAY 29, 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do later [$JULY 12, 2014$]\n"
         )
         assert tasklist.file.getvalue() == expected
@@ -477,7 +477,7 @@ class TestTasklistAdvance(TestTasklist):
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
             "[o] do this year [$MAY 29, 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do later [$JULY 12, 2014$]\n"
         )
         assert tasklist.file.getvalue() == expected
@@ -498,7 +498,7 @@ class TestTasklistAdvance(TestTasklist):
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
             "[o] do this year [$MAY 29, 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do later [$JULY 12, 2014$]\n"
         )
         assert tasklist.file.getvalue() == expected
@@ -519,7 +519,7 @@ class TestTasklistAdvance(TestTasklist):
             "THIS QUARTER:\n"
             "[o] do this year [$MAY 29, 2013$]\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do later [$JULY 12, 2014$]\n"
         )
         assert tasklist.file.getvalue() == expected
@@ -540,7 +540,7 @@ class TestTasklistAdvance(TestTasklist):
             "THIS MONTH:\n"
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do later [$JULY 12, 2014$]\n"
         )
         assert tasklist.file.getvalue() == expected
@@ -562,7 +562,7 @@ class TestTasklistAdvance(TestTasklist):
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
             "[o] do later [$JULY 12, 2014$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
         )
         assert tasklist.file.getvalue() == expected
 
@@ -732,7 +732,7 @@ class TestTasklistAdvance(TestTasklist):
             "[o] do next month [$MARCH 2013$]\n"
             "THIS YEAR:\n"
             "[o] do next quarter [$Q2 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do next year [$2014$]\n"
             "[o] do later [$2015$]\n"
         )
@@ -753,7 +753,7 @@ class TestTasklistAdvance(TestTasklist):
             "[o] do next month [$MARCH 2013$]\n"
             "THIS YEAR:\n"
             "[o] do next quarter [$Q2 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do next year [$2014$]\n"
             "[o] do later [$2015$]\n"
         )
@@ -774,7 +774,7 @@ class TestTasklistAdvance(TestTasklist):
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
             "[o] do next quarter [$Q2 2013$]\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do next year [$2014$]\n"
             "[o] do later [$2015$]\n"
         )
@@ -795,7 +795,7 @@ class TestTasklistAdvance(TestTasklist):
             "THIS MONTH:\n"
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do next year [$2014$]\n"
             "[o] do later [$2015$]\n"
         )
@@ -817,7 +817,7 @@ class TestTasklistAdvance(TestTasklist):
             "THIS MONTH:\n"
             "THIS QUARTER:\n"
             "THIS YEAR:\n"
-            "UNSCHEDULED:\n"
+            "SOMEDAY:\n"
             "[o] do later [$2015$]\n"
         )
         assert tasklist.file.getvalue() == expected

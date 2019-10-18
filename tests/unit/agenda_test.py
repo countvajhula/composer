@@ -55,9 +55,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         "[ ] do residual monthlys\n"
         "[ ] get a good scratchy post for ferdy (fab?)\n"
         "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
+        "SOMEDAY:\n"
     )
 
     tasklist_tomorrow = (
@@ -102,9 +100,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         "[ ] do residual monthlys\n"
         "[ ] get a good scratchy post for ferdy (fab?)\n"
         "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
+        "SOMEDAY:\n"
     )
 
     monthtemplate = (

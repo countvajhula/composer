@@ -104,7 +104,7 @@ def _tasklistfile():
         "THIS MONTH:\n"
         "THIS QUARTER:\n"
         "THIS YEAR:\n"
-        "UNSCHEDULED:\n"
+        "SOMEDAY:\n"
         "[ ] another task\n"
     )
     return StringIO(contents)
@@ -248,9 +248,7 @@ def _planner():
         "[ ] do residual monthlys\n"
         "[ ] get a good scratchy post for ferdy (fab?)\n"
         "\n"
-        "UNSCHEDULED:\n"
-        "\n"
-        "SCHEDULED:\n"
+        "SOMEDAY:\n"
     )
 
     yeartemplate = (

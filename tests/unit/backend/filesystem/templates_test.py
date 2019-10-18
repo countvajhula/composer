@@ -195,9 +195,7 @@ class TestCreateLog(object):
             "[ ] do residual monthlys\n"
             "[ ] get a good scratchy post for ferdy (fab?)\n"
             "\n"
-            "UNSCHEDULED:\n"
-            "\n"
-            "SCHEDULED:\n"
+            "SOMEDAY:\n"
         )
 
     def _day_template(self, planner, for_day):
