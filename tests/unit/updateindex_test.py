@@ -18,7 +18,12 @@ class TestGetFiles(object):
         "bleh.wiki",
     ]
     wiki_titles = ['hold on thar', "what's this?", "blah", "bleh"]
-    wiki_files = ['hold on thar.wiki', "what's this?.wiki", "blah.wiki", "bleh.wiki"]
+    wiki_files = [
+        'hold on thar.wiki',
+        "what's this?.wiki",
+        "blah.wiki",
+        "bleh.wiki",
+    ]
 
     def _all_files(self):
         return [os.path.join(self.dummypath, f) for f in self.dummyfiles]
@@ -57,8 +62,18 @@ class TestGetFiles(object):
 
 class TestFormatForDisplay(object):
     dummypath = '/dummy/path'
-    wiki_entries = ['\t* [[hold on thar]]\n', "\t* [[what's this?]]\n", "\t* [[blah]]\n", "\t* [[bleh]]\n"]
-    wiki_files = ['hold on thar.wiki', "what's this?.wiki", "blah.wiki", "bleh.wiki"]
+    wiki_entries = [
+        '\t* [[hold on thar]]\n',
+        "\t* [[what's this?]]\n",
+        "\t* [[blah]]\n",
+        "\t* [[bleh]]\n",
+    ]
+    wiki_files = [
+        'hold on thar.wiki',
+        "what's this?.wiki",
+        "blah.wiki",
+        "bleh.wiki",
+    ]
 
     def _wiki_files(self):
         return [os.path.join(self.dummypath, f) for f in self.wiki_files]

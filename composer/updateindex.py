@@ -49,20 +49,18 @@ def creation_date(path_to_file):
             return stat.st_mtime
 
 
-def sort_alphabetically(files):
-    return sorted(files)
+def identity(x):
+    return x
 
 
-def sort_by_date_modified(files):
-    return sorted(files, key=os.path.getmtime)
+def format_for_display(pages):
+    """ Format a representation of a list of wiki pages into a readable
+    form for display in the index.
 
-
-def sort_by_date_created(files):
-    return sorted(files, key=creation_date)
-
-
-def format_for_display(files):
-    filenames = map(bare_filename, files)
+    :param list pages: The list of wiki filenames
+    :retutns list: The list of wiki pages
+    """
+    filenames = map(bare_filename, pages)
     filenames = ["\t* [[" + page + "]]\n" for page in filenames]
     return filenames
 
@@ -84,35 +82,36 @@ def update_index(path, filename=None, title=None):
     if not title:
         title = INDEXTITLE
     files = get_files(path, is_wiki)
-    files_alphabetical = sort_alphabetically(files)
-    files_by_date_modified = sort_by_date_modified(files)
-    files_by_date_created = sort_by_date_created(files)
-    files_alphabetical, files_by_date_modified, files_by_date_created = (
-        format_for_display(files_alphabetical),
-        format_for_display(files_by_date_modified),
-        format_for_display(files_by_date_created),
-    )
-    indexes = {
-        'alphabetical': files_alphabetical,
-        'by date modified': files_by_date_modified,
-        'by date created': files_by_date_created,
+
+    index_sorter = {
+        'alphabetical': identity,
+        'by date modified': os.path.getmtime,
+        'by date created': creation_date,
     }
+
+    indexes = {}
+    for index_name, sorter in index_sorter.items():
+        entries = format_for_display(sorted(files, key=sorter))
+        indexes[index_name] = entries
+
+    # write main index file
     root_entries = []
     for name in indexes.keys():
-        root_entries += (
-            "\t* [[{prefix}_{name}|{name}]]\n".format(prefix=filename.capitalize(), name=name.capitalize())
+        root_entries += "\t* [[{prefix}_{name}|{name}]]\n".format(
+            prefix=filename.capitalize(), name=name.capitalize()
         )
     root_filename = os.path.join(path, "{}.wiki".format(filename))
     root_title = "= {} =".format(title).upper()
-    # write main index file
     write_index(root_filename, root_title, root_entries)
-    # print "%d wiki pages found: %s" % (len(wikipages), str(wikipages))
-    for k, v in indexes.items():
-        index_filename = os.path.join(path, "{prefix}_{name}.wiki".format(prefix=filename, name=k))
+
+    # write each of the sorted index files
+    for index_name, entries in indexes.items():
+        index_filename = os.path.join(
+            path,
+            "{prefix}_{name}.wiki".format(prefix=filename, name=index_name),
+        )
         index_title = "= {} =".format(title).upper()
-        write_index(index_filename,
-                    index_title,
-                    v)
+        write_index(index_filename, index_title, entries)
 
 
 def write_index(path_to_file, title, entries):
