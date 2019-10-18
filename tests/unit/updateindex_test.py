@@ -2,7 +2,7 @@
 import os
 from mock import patch
 
-from composer.updateindex import get_files, format_for_display, sort_files, is_wiki
+from composer.updateindex import get_files, format_for_display, is_wiki
 
 
 class TestGetFiles(object):
@@ -57,7 +57,7 @@ class TestGetFiles(object):
 
 class TestFormatForDisplay(object):
     dummypath = '/dummy/path'
-    wiki_titles = ['hold on thar', "what's this?", "blah", "bleh"]
+    wiki_entries = ['\t* [[hold on thar]]\n', "\t* [[what's this?]]\n", "\t* [[blah]]\n", "\t* [[bleh]]\n"]
     wiki_files = ['hold on thar.wiki', "what's this?.wiki", "blah.wiki", "bleh.wiki"]
 
     def _wiki_files(self):
@@ -66,5 +66,5 @@ class TestFormatForDisplay(object):
     def test_format_for_display(self):
         wikipages = self._wiki_files()
         result = format_for_display(wikipages)
-        expected = self.wiki_titles
+        expected = self.wiki_entries
         assert set(result) == set(expected)
