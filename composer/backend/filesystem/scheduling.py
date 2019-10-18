@@ -173,6 +173,10 @@ def string_to_date(datestr, reference_date=None):
     dateformat19 = re.compile(r"^NEXT YEAR$", re.IGNORECASE)
     # YYYY
     dateformat20 = re.compile(r"^(\d\d\d\d)$", re.IGNORECASE)
+    # THIS WEEKEND
+    dateformat21 = re.compile(r"^THIS WEEKEND$", re.IGNORECASE)
+    # NEXT MONTH
+    dateformat22 = re.compile(r"^NEXT WEEKEND$", re.IGNORECASE)
 
     if dateformat1.search(datestr):
         (month, day, year) = dateformat1.search(datestr).groups()
@@ -398,6 +402,36 @@ def string_to_date(datestr, reference_date=None):
         year = reference_date.year + 1
         date = datetime.date(year, 1, 1)
         period = Year
+    elif dateformat21.search(datestr):  # THIS WEEKEND
+        if not reference_date:
+            raise RelativeDateError(
+                "Relative date found, but no context available"
+            )
+        upcomingweek = [
+            # 6 days, doesn't include same DOW next week
+            reference_date + datetime.timedelta(days=d)
+            for d in range(0, 7)
+        ]
+        dow = [d.strftime("%A").upper() for d in upcomingweek]
+        index = dow.index("SATURDAY")
+        date = upcomingweek[index]
+        period = Day
+    elif dateformat22.search(datestr):  # NEXT WEEKEND
+        if not reference_date:
+            raise RelativeDateError(
+                "Relative date found, but no context available"
+            )
+        upcomingweeks = [
+            # 13 days, doesn't include same DOW 2 weeks hence
+            reference_date + datetime.timedelta(days=d)
+            for d in range(1, 14)
+        ]
+        # we want the first saturday going backwards from 2 weeks
+        # (non-inclusive) in the future
+        upcomingweeks.reverse()
+        dow = [d.strftime("%A").upper() for d in upcomingweeks]
+        date = upcomingweeks[dow.index("SATURDAY")]
+        period = Day
     elif dateformat20.search(datestr):  # YYYY
         year = int(dateformat20.search(datestr).groups()[0])
         date = datetime.date(year, 1, 1)
