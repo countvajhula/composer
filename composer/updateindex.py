@@ -65,6 +65,35 @@ def format_for_display(pages):
     return filenames
 
 
+def _write_indexes(path, filename, title, indexes):
+    for index_name, entries in indexes.items():
+        index_filename = os.path.join(
+            path,
+            "{prefix}_{name}.wiki".format(prefix=filename, name=index_name),
+        )
+        index_title = "= {} ({}) =".format(title, index_name).upper()
+        write_index(index_filename, index_title, entries)
+
+
+def _write_root_index(path, filename, title, indexes):
+    root_filename = os.path.join(path, "{}.wiki".format(filename))
+    root_title = "= {} =".format(title).upper()
+    root_entries = []
+    for name in indexes.keys():
+        root_entries += "\t* [[{prefix}_{name}|{name}]]\n".format(
+            prefix=filename.capitalize(), name=name.capitalize()
+        )
+    write_index(root_filename, root_title, root_entries)
+
+
+def _prepare_indexes(files, index_sorter):
+    indexes = {}
+    for index_name, sorter in index_sorter.items():
+        entries = format_for_display(sorted(files, key=sorter))
+        indexes[index_name] = entries
+    return indexes
+
+
 def update_index(path, filename=None, title=None):
     """ Generate the index from all .wiki files present at the provided
     path. Use the provided filename and title string, if any, or use defaults.
@@ -89,29 +118,13 @@ def update_index(path, filename=None, title=None):
         'by date created': creation_date,
     }
 
-    indexes = {}
-    for index_name, sorter in index_sorter.items():
-        entries = format_for_display(sorted(files, key=sorter))
-        indexes[index_name] = entries
+    indexes = _prepare_indexes(files, index_sorter)
 
     # write main index file
-    root_entries = []
-    for name in indexes.keys():
-        root_entries += "\t* [[{prefix}_{name}|{name}]]\n".format(
-            prefix=filename.capitalize(), name=name.capitalize()
-        )
-    root_filename = os.path.join(path, "{}.wiki".format(filename))
-    root_title = "= {} =".format(title).upper()
-    write_index(root_filename, root_title, root_entries)
+    _write_root_index(path, filename, title, indexes)
 
     # write each of the sorted index files
-    for index_name, entries in indexes.items():
-        index_filename = os.path.join(
-            path,
-            "{prefix}_{name}.wiki".format(prefix=filename, name=index_name),
-        )
-        index_title = "= {} =".format(title).upper()
-        write_index(index_filename, index_title, entries)
+    _write_indexes(path, filename, title, indexes)
 
 
 def write_index(path_to_file, title, entries):
