@@ -319,6 +319,23 @@ class TestTasklistPlaceTasks(TestTasklist):
         tasklist.place_tasks([task], today)
         assert tasklist.file.getvalue() == expected
 
+    def test_tasks_ordered_chronologically_within_section(self, tasklist):
+        today = datetime.date(2013, 2, 14)
+        original = self._tasklist()
+        tasklist.file = make_file(original)
+        tasks = [
+            "[o] something [$JULY 18, 2013$]\n",
+            "[o] something else [$JULY 17, 2013$]\n",
+            "[o] something too [$JULY 19, 2013$]\n",
+        ]
+        tasklist.place_tasks(tasks, today)
+        result = tasklist.file.getvalue()
+        assert (
+            result.index(tasks[1])
+            < result.index(tasks[0])
+            < result.index(tasks[2])
+        )
+
 
 class TestStandardizeEntries(TestTasklist):
     def test_standardize_entries(self, tasklist):

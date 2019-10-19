@@ -116,7 +116,6 @@ def string_to_date(datestr, reference_date=None):
         by the string representation
     """
     date = None
-    # TODO: THIS WEEKEND, NEXT WEEKEND
     # TODO: change these to annotated regex's
     # MONTH DD, YYYY (w optional space or comma or both)
     dateformat1 = re.compile(

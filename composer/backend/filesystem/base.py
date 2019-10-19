@@ -564,14 +564,22 @@ class FilesystemTasklist(TasklistBase):
         section of the tasklist relative to the specified reference date. For
         example, a task due on Wednesday would be filed under "this week" in
         the tasklist relative to the Monday of that week (when provided as
-        reference date).
+        reference date). Note that each section in the tasklist corresponds to
+        static date boundaries of the actual "current" periods -- they are
+        not "rolling." For instance, on a typical Friday, only tasks due by
+        Saturday, i.e. the very next day, would still be filed under "this
+        week."
 
         :param list scheduled_tasks: The list of entries to be placed
         :param :class:`datetime.date` reference_date: The reference date
             for task placement
         """
-        # remember that each section corresponds to static date boundaries of
-        # the "current" periods
+        # sort them first so that they are placed in chronological order within
+        # each section
+        scheduled_tasks = sorted(
+            scheduled_tasks,
+            key=lambda entry: get_due_date(entry, reference_date)[0],
+        )
         tasks = defaultdict(lambda: [])
         for entry in scheduled_tasks:
             due_date, _ = get_due_date(entry, reference_date)
@@ -606,8 +614,6 @@ class FilesystemTasklist(TasklistBase):
             entries_to_string(tasklist_no_scheduled)
         )
         self.file = tasklist_no_scheduled
-        # TODO: consider first sorting tasks by implied due date so that they
-        # are placed in (the correct) chronological order within each section
         self.place_tasks(scheduled, to_date)
 
     def standardize_entries(self, reference_date):
