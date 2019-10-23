@@ -253,55 +253,35 @@ class TestStringToDate(object):
         assert date == expected_date
         assert period == expected_period
 
-    def test_format21(self):
-        today = datetime.date(2013, 10, 9)
+    @pytest.mark.parametrize(
+        "today, expected_date",
+        [
+            (datetime.date(2013, 10, 9), datetime.date(2013, 10, 12)),
+            # start of weekend
+            (datetime.date(2013, 10, 12), datetime.date(2013, 10, 12)),
+            # start of week
+            (datetime.date(2013, 10, 13), datetime.date(2013, 10, 19)),
+        ],
+    )
+    def test_format21(self, today, expected_date):
         date_string = "THIS WEEKEND"
-        expected_date = datetime.date(2013, 10, 12)
         expected_period = Day
         date, period = string_to_date(date_string, reference_date=today)
         assert date == expected_date
         assert period == expected_period
 
-    def test_format21_on_start_of_weekend(self):
-        today = datetime.date(2013, 10, 12)
-        date_string = "THIS WEEKEND"
-        expected_date = datetime.date(2013, 10, 12)
-        expected_period = Day
-        date, period = string_to_date(date_string, reference_date=today)
-        assert date == expected_date
-        assert period == expected_period
-
-    def test_format21_on_start_of_week(self):
-        today = datetime.date(2013, 10, 13)
-        date_string = "THIS WEEKEND"
-        expected_date = datetime.date(2013, 10, 19)
-        expected_period = Day
-        date, period = string_to_date(date_string, reference_date=today)
-        assert date == expected_date
-        assert period == expected_period
-
-    def test_format22(self):
-        today = datetime.date(2013, 10, 9)
+    @pytest.mark.parametrize(
+        "today, expected_date",
+        [
+            (datetime.date(2013, 10, 9), datetime.date(2013, 10, 19)),
+            # start of weekend
+            (datetime.date(2013, 10, 12), datetime.date(2013, 10, 19)),
+            # start of week
+            (datetime.date(2013, 10, 13), datetime.date(2013, 10, 26)),
+        ],
+    )
+    def test_format22(self, today, expected_date):
         date_string = "NEXT WEEKEND"
-        expected_date = datetime.date(2013, 10, 19)
-        expected_period = Day
-        date, period = string_to_date(date_string, reference_date=today)
-        assert date == expected_date
-        assert period == expected_period
-
-    def test_format22_on_start_of_weekend(self):
-        today = datetime.date(2013, 10, 12)
-        date_string = "NEXT WEEKEND"
-        expected_date = datetime.date(2013, 10, 19)
-        expected_period = Day
-        date, period = string_to_date(date_string, reference_date=today)
-        assert date == expected_date
-        assert period == expected_period
-
-    def test_format22_on_start_of_week(self):
-        today = datetime.date(2013, 10, 13)
-        date_string = "NEXT WEEKEND"
-        expected_date = datetime.date(2013, 10, 26)
         expected_period = Day
         date, period = string_to_date(date_string, reference_date=today)
         assert date == expected_date
