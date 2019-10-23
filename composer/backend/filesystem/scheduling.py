@@ -180,6 +180,7 @@ def string_to_date(datestr, reference_date=None):
     # NEXT QUARTER
     dateformat23 = re.compile(r"^NEXT QUARTER$", re.IGNORECASE)
     # QN
+    dateformat24 = re.compile(r"^(Q\d)$", re.IGNORECASE)
 
     if dateformat1.search(datestr):  # MONTH DD, YYYY
         (month, day, year) = dateformat1.search(datestr).groups()
@@ -414,6 +415,25 @@ def string_to_date(datestr, reference_date=None):
         next_quarter = present_quarter
         next_date = reference_date
         while next_quarter == present_quarter:
+            next_date += relativedelta(months=1)
+            next_quarter = quarter_for_month(next_date.month)
+        date = datetime.date(next_date.year, next_date.month, 1)
+        period = Quarter
+    elif dateformat24.search(datestr):  # QN
+        if not reference_date:
+            raise RelativeDateError(
+                "Relative date found, but no context available"
+            )
+        quarter = dateformat24.search(datestr).groups()[0]
+        present_quarter = quarter_for_month(reference_date.month)
+        next_quarter = present_quarter
+        next_date = reference_date
+        # go to the next quarter first
+        while next_quarter == present_quarter:
+            next_date += relativedelta(months=1)
+            next_quarter = quarter_for_month(next_date.month)
+        # find the specified quarter
+        while next_quarter != quarter:
             next_date += relativedelta(months=1)
             next_quarter = quarter_for_month(next_date.month)
         date = datetime.date(next_date.year, next_date.month, 1)

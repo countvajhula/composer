@@ -323,6 +323,22 @@ class TestStringToDate(object):
         assert date == expected_date
         assert period == expected_period
 
+    @pytest.mark.parametrize(
+        "today, expected_date",
+        [
+            (datetime.date(2012, 7, 12), datetime.date(2012, 10, 1)),
+            (datetime.date(2012, 8, 12), datetime.date(2012, 10, 1)),
+            (datetime.date(2012, 9, 12), datetime.date(2012, 10, 1)),
+            (datetime.date(2012, 10, 12), datetime.date(2013, 10, 1)),
+        ],
+    )
+    def test_format24(self, today, expected_date):
+        date_string = "Q4"
+        expected_period = Quarter
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
 
 class TestDateToString(object):
     def test_day(self):
