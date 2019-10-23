@@ -472,11 +472,13 @@ def get_due_date(task, reference_date=None):
     :param str task: The task
     :param :class:`datetime.date` reference_date: A reference date to use
         in case the due date is specified relatively
+    :returns tuple: The due date, together with the implied period
+        for the date
     """
     header, _ = parse_task(task)
     if not SCHEDULED_DATE_PATTERN.search(header):
         raise BlockedTaskNotScheduledError(
-            "No scheduled date for blocked task -- add a date for it: "
+            "No scheduled date for blocked task -- add a date for it:\n"
             + header
         )
     datestr = SCHEDULED_DATE_PATTERN.search(header).groups()[0]
@@ -492,6 +494,7 @@ def is_task_due(task, for_day):
 
     :param str task: The task
     :param :class:`datetime.date` for_day: The date
+    :returns bool: Whether the task is due
     """
     date, _ = get_due_date(task)
     return for_day >= date

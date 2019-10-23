@@ -134,7 +134,8 @@ def process_wiki(wikidir, preferences):
         except PlannerStateError as err:
             raise
         except SchedulingError as err:
-            raise
+            display_message(err.value, newline=False, prompt=True)
+            ask_input()
         except LayoutError as err:
             raise
         except MissingThemeError as err:

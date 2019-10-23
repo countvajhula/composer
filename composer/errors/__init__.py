@@ -22,6 +22,7 @@ from .scheduling import (  # noqa
     SchedulingDateError,
     ScheduledTaskParsingError,
     DateFormatError,
+    InvalidDateError,
     RelativeDateError,
 )
 
@@ -32,6 +33,7 @@ __all__ = (
     "BlockedTaskNotScheduledError",
     "SchedulingDateError",
     "DateFormatError",
+    "InvalidDateError",
     "RelativeDateError",
     "LayoutError",
     "TasklistLayoutError",

@@ -14,7 +14,7 @@ from ...timeperiod import (
     Zero,
     Eternity,
 )
-from ...errors import LogfileLayoutError, TasklistLayoutError
+from ...errors import LogfileLayoutError, TasklistLayoutError, InvalidDateError
 from ...utils import display_message
 from .scheduling import (
     check_logfile_for_errors,
@@ -46,6 +46,7 @@ from .primitives import (
     partition_entries,
     read_section,
     bare_filename,
+    parse_task,
 )
 
 try:  # py3
@@ -297,6 +298,24 @@ class FilesystemPlanner(PlannerBase):
             )
             for task in tasks
         ]
+        # check that any blocked tasks have due dates in the future
+        # this is usually because a blocked task became due today and
+        # wasn't updated to reflect that it isn't blocked anymore
+        # we want to be strict about this case since if left unchanged,
+        # it is treated as a "rescheduled" task, i.e. a "completed" task
+        # for the purposes of the agenda cascade, which would lead to
+        # unnecessary duplication in the log file of the higher period
+        # which would show it as being rescheduled every day
+        for task in tasks:
+            due_date, _ = get_due_date(task, self.date)
+            if due_date <= self.date:
+                header, _ = parse_task(task)
+                raise InvalidDateError(
+                    "Due date for blocked task is in the past! If the task "
+                    "is no longer blocked, then remove the blocked "
+                    "indicator. Otherwise, set a follow-up date in the "
+                    "future:\n" + header
+                )
 
         self.tasklist.place_tasks(tasks, self.date)
 

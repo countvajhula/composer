@@ -12,10 +12,7 @@ from composer.backend.filesystem.scheduling import (
     date_to_string,
 )
 from composer.timeperiod import Day, Week, Month, Quarter, Year
-from composer.errors import (
-    BlockedTaskNotScheduledError,
-    ScheduledTaskParsingError,
-)
+from composer.errors import BlockedTaskNotScheduledError, InvalidDateError
 
 try:  # py2
     from StringIO import StringIO
@@ -586,7 +583,6 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
 
     tasklist_scheduled_format15 = (
         "TOMORROW:\n"
-        "[o] i'm waitin on you! [$DECEMBER 2012$]\n"
         "\n"
         "THIS WEEK:\n"
         "[\\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
@@ -1117,7 +1113,6 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "\t[x] this\n"
         "[ ] s'posed to do\n"
         "[\\] kinda did\n"
-        "[o] i'm waitin on you! [$DECEMBER 2012$]\n"
         "[o] still waitin on you [$NEXT MONTH$]\n"
         "[x] take out trash\n"
         "\n"
@@ -1274,12 +1269,19 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         )
 
     def test_scheduled_task_without_date_raises_exception(self):
-        """ Check that is a task is marked as scheduled but no date is provided, that
+        """ Check that if a task is marked as scheduled but no date is provided, that
         an exception is thrown """
         self.planner.dayfile = StringIO(self.daytemplate_noscheduledate)
         self.assertRaises(
             BlockedTaskNotScheduledError, self.planner.schedule_tasks
         )
+
+    def test_scheduled_task_with_date_in_the_past_raises_exception(self):
+        """ Check that if a task is marked as scheduled but a date in the past
+        is provided, that an exception is thrown """
+        self.planner.date = datetime.date(2012, 12, 20)
+        self.planner.dayfile = StringIO(self.daytemplate_scheduled)
+        self.assertRaises(InvalidDateError, self.planner.schedule_tasks)
 
     def test_schedule_date_format1(self):
         """ Check that the format MONTH DD, YYYY works (w optional space or comma or both) """
