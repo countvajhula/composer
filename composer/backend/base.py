@@ -173,7 +173,16 @@ class PlannerBase(ABC):
             "Beginning new {period}".format(period=str(period).upper()),
             interactive=True,
         )
-        self.tasklist.advance(for_day)
+        if period == Day:
+            # technically, advancing a period only needs to "reverse cascade"
+            # tasks from the higher period in the tasklist to the current
+            # period. But since we do full task placement here in relation to
+            # the new date, doing the tasklist advance just once (at day
+            # advance) is sufficient, and doing it again for higher-period
+            # advances would make no difference since it should be
+            # idempotent. Still, it does result in a message to the user, which
+            # we want to avoid, so just doing this for day advance here
+            self.tasklist.advance(for_day)
         self.create_log(period, for_day)
         if self.agenda_reviewed < period:
             if period == Day:
