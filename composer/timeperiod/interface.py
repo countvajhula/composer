@@ -58,16 +58,16 @@ def is_weekend(date):
 def quarter_for_month(month):
     """ Given a month, return the quarter that it's part of.
 
-    :param str month: The month
+    :param int month: The month
     :returns str: The corresponding quarter
     """
-    if month.lower() in ("january", "february", "march"):
+    if month in range(1, 4):
         return "Q1"
-    elif month.lower() in ("april", "may", "june"):
+    elif month in range(4, 7):
         return "Q2"
-    elif month.lower() in ("july", "august", "september"):
+    elif month in range(7, 10):
         return "Q3"
-    elif month.lower() in ("october", "november", "december"):
+    elif month in range(10, 13):
         return "Q4"
 
 

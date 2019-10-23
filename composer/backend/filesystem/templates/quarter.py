@@ -13,12 +13,15 @@ class QuarterTemplate(Template):
         self.periodicfile = planner.periodic_quarter_file
 
     def build(self, **kwargs):
-        (month, year) = (self.for_date.strftime("%B"), self.for_date.year)
-        self.title = "= %s %d =\n" % (quarter_for_month(month), year)
+        self.title = "= %s %d =\n" % (
+            quarter_for_month(self.for_date.month),
+            self.for_date.year,
+        )
+        month_name = self.for_date.strftime("%B")
         self.entry = "\t%s [[Month of %s, %d]]\n" % (
             self.bullet_character,
-            month,
-            year,
+            month_name,
+            self.for_date.year,
         )
         self.periodicname = "QUARTERLYs:\n"
         self.agenda = ""
@@ -31,15 +34,15 @@ class QuarterTemplate(Template):
 
         :returns str: The updated log file
         """
-        (month, year) = (self.for_date.strftime("%B"), self.for_date.year)
         quartercontents = self.logfile.read()
         last_month_entry = "Month of"
         previdx = quartercontents.find(last_month_entry)
         idx = quartercontents.rfind("\n", 0, previdx)
+        month_name = self.for_date.strftime("%B")
         newquartercontents = (
             quartercontents[: idx + 1]
             + "\t%s [[Month of %s, %d]]\n"
-            % (self.bullet_character, month, year)
+            % (self.bullet_character, month_name, self.for_date.year)
             + quartercontents[idx + 1 :]
         )
         return newquartercontents

@@ -13,12 +13,11 @@ class YearTemplate(Template):
         self.periodicfile = planner.periodic_year_file
 
     def build(self, **kwargs):
-        month, year = (self.for_date.strftime("%B"), self.for_date.year)
-        self.title = "= %d =\n" % year
+        self.title = "= %d =\n" % self.for_date.year
         self.entry = "\t%s [[%s %d]]\n" % (
             self.bullet_character,
-            quarter_for_month(month),
-            year,
+            quarter_for_month(self.for_date.month),
+            self.for_date.year,
         )
         self.periodicname = "YEARLYs:\n"
         self.agenda = ""
@@ -31,7 +30,6 @@ class YearTemplate(Template):
 
         :returns str: The updated log file
         """
-        (month, year) = (self.for_date.strftime("%B"), self.for_date.year)
         yearcontents = self.logfile.read()
         last_quarter_entry = "Q"
         previdx = yearcontents.find(last_quarter_entry)
@@ -39,7 +37,11 @@ class YearTemplate(Template):
         newyearcontents = (
             yearcontents[: idx + 1]
             + "\t%s [[%s %d]]\n"
-            % (self.bullet_character, quarter_for_month(month), year)
+            % (
+                self.bullet_character,
+                quarter_for_month(self.for_date.month),
+                self.for_date.year,
+            )
             + yearcontents[idx + 1 :]
         )
         return newyearcontents

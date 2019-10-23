@@ -2,6 +2,8 @@ import calendar
 import datetime
 import re
 
+from dateutil.relativedelta import relativedelta
+
 from ...errors import (
     BlockedTaskNotScheduledError,
     DateFormatError,
@@ -88,8 +90,7 @@ def date_to_string(date, period):
     elif period == Month:
         date_string = "%s %s" % (get_month_name(date.month), date.year)
     elif period == Quarter:
-        month = get_month_name(date.month)
-        quarter = quarter_for_month(month)
+        quarter = quarter_for_month(date.month)
         date_string = "{} {}".format(quarter, date.year)
     elif period == Year:
         date_string = "{}".format(date.year)
@@ -174,22 +175,25 @@ def string_to_date(datestr, reference_date=None):
     dateformat20 = re.compile(r"^(\d\d\d\d)$", re.IGNORECASE)
     # THIS WEEKEND
     dateformat21 = re.compile(r"^THIS WEEKEND$", re.IGNORECASE)
-    # NEXT MONTH
+    # NEXT WEEKEND
     dateformat22 = re.compile(r"^NEXT WEEKEND$", re.IGNORECASE)
+    # NEXT QUARTER
+    dateformat23 = re.compile(r"^NEXT QUARTER$", re.IGNORECASE)
+    # QN
 
-    if dateformat1.search(datestr):
+    if dateformat1.search(datestr):  # MONTH DD, YYYY
         (month, day, year) = dateformat1.search(datestr).groups()
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Day
-    elif dateformat2.search(datestr):
+    elif dateformat2.search(datestr):  # DD MONTH, YYYY
         (day, month, year) = dateformat2.search(datestr).groups()
         date = datetime.datetime.strptime(
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Day
-    elif dateformat18.search(datestr):
+    elif dateformat18.search(datestr):  # QN YYYY
         (quarter, year) = dateformat18.search(datestr).groups()
         month = month_for_quarter(quarter)
         month = get_month_name(month)
@@ -198,7 +202,7 @@ def string_to_date(datestr, reference_date=None):
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Quarter
-    elif dateformat3.search(datestr):
+    elif dateformat3.search(datestr):  # MONTH DD
         if not reference_date:
             raise RelativeDateError(
                 "Relative date found, but no context available"
@@ -210,7 +214,7 @@ def string_to_date(datestr, reference_date=None):
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Day
-    elif dateformat4.search(datestr):
+    elif dateformat4.search(datestr):  # DD MONTH
         if not reference_date:
             raise RelativeDateError(
                 "Relative date found, but no context available"
@@ -222,7 +226,7 @@ def string_to_date(datestr, reference_date=None):
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Day
-    elif dateformat5.search(datestr):
+    elif dateformat5.search(datestr):  # WEEK OF MONTH DD, YYYY
         # std = Week of Month dd(sunday/1), yyyy
         (month, day, year) = dateformat5.search(datestr).groups()
         (monthn, dayn, yearn) = (get_month_number(month), int(day), int(year))
@@ -243,7 +247,7 @@ def string_to_date(datestr, reference_date=None):
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Week
-    elif dateformat6.search(datestr):
+    elif dateformat6.search(datestr):  # WEEK OF DD MONTH, YYYY
         (day, month, year) = dateformat6.search(datestr).groups()
         (monthn, dayn, yearn) = (get_month_number(month), int(day), int(year))
         date = datetime.date(yearn, monthn, dayn)
@@ -261,7 +265,7 @@ def string_to_date(datestr, reference_date=None):
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Week
-    elif dateformat7.search(datestr):
+    elif dateformat7.search(datestr):  # WEEK OF MONTH DD
         if not reference_date:
             raise RelativeDateError(
                 "Relative date found, but no context available"
@@ -285,7 +289,7 @@ def string_to_date(datestr, reference_date=None):
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Week
-    elif dateformat8.search(datestr):
+    elif dateformat8.search(datestr):  # WEEK OF DD MONTH
         if not reference_date:
             raise RelativeDateError(
                 "Relative date found, but no context available"
@@ -309,7 +313,7 @@ def string_to_date(datestr, reference_date=None):
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Week
-    elif dateformat9.search(datestr):
+    elif dateformat9.search(datestr):  # MONTH YYYY
         (month, year) = dateformat9.search(datestr).groups()
         day = str(1)
         date = datetime.datetime.strptime(
@@ -362,11 +366,11 @@ def string_to_date(datestr, reference_date=None):
             month + "-" + day + "-" + year, "%B-%d-%Y"
         ).date()
         period = Month
-    elif dateformat11.search(datestr):
+    elif dateformat11.search(datestr):  # MM/DD/YYYY
         (monthn, dayn, yearn) = map(int, dateformat11.search(datestr).groups())
         date = datetime.date(yearn, monthn, dayn)
         period = Day
-    elif dateformat12.search(datestr):
+    elif dateformat12.search(datestr):  # MM-DD-YYYY
         (monthn, dayn, yearn) = map(int, dateformat12.search(datestr).groups())
         date = datetime.date(yearn, monthn, dayn)
         period = Day
@@ -401,6 +405,19 @@ def string_to_date(datestr, reference_date=None):
         year = reference_date.year + 1
         date = datetime.date(year, 1, 1)
         period = Year
+    elif dateformat23.search(datestr):  # NEXT QUARTER
+        if not reference_date:
+            raise RelativeDateError(
+                "Relative date found, but no context available"
+            )
+        present_quarter = quarter_for_month(reference_date.month)
+        next_quarter = present_quarter
+        next_date = reference_date
+        while next_quarter == present_quarter:
+            next_date += relativedelta(months=1)
+            next_quarter = quarter_for_month(next_date.month)
+        date = datetime.date(next_date.year, next_date.month, 1)
+        period = Quarter
     elif dateformat21.search(datestr):  # THIS WEEKEND
         if not reference_date:
             raise RelativeDateError(

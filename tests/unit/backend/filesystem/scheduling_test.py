@@ -1,5 +1,6 @@
 import datetime
 import unittest
+import pytest
 
 from mock import patch
 
@@ -302,6 +303,22 @@ class TestStringToDate(object):
         date_string = "NEXT WEEKEND"
         expected_date = datetime.date(2013, 10, 26)
         expected_period = Day
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
+    @pytest.mark.parametrize(
+        "today, expected_date",
+        [
+            (datetime.date(2012, 7, 12), datetime.date(2012, 10, 1)),
+            (datetime.date(2012, 8, 12), datetime.date(2012, 10, 1)),
+            (datetime.date(2012, 9, 12), datetime.date(2012, 10, 1)),
+            (datetime.date(2012, 10, 12), datetime.date(2013, 1, 1)),
+        ],
+    )
+    def test_format23(self, today, expected_date):
+        date_string = "NEXT QUARTER"
+        expected_period = Quarter
         date, period = string_to_date(date_string, reference_date=today)
         assert date == expected_date
         assert period == expected_period

@@ -27,15 +27,11 @@ def get_log_filename(for_date, period, root=None):
         the filename
     """
     # compute a filename based on the reference date
-    (date, month, year) = (
-        for_date.day,
-        for_date.strftime("%B"),
-        for_date.year,
-    )
+    (date, month, year) = (for_date.day, for_date.month, for_date.year)
     quarter = quarter_for_month(month)
-
+    month_name = for_date.strftime("%B")
     filename = FILENAME_TEMPLATE[period].format(
-        month=month, date=date, quarter=quarter, year=year
+        month=month_name, date=date, quarter=quarter, year=year
     )
     if root:
         path = full_file_path(filename, root=root)

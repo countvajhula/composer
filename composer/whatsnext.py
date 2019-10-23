@@ -165,8 +165,7 @@ def process_wiki(wikidir, preferences):
             elif err.period == Month:
                 period_string = month_name
             elif err.period == Quarter:
-                month = get_month_name(next_day.month)
-                period_string = quarter_for_month(month_name)
+                period_string = quarter_for_month(next_day.month)
             elif err.period == Year:
                 period_string = str(next_day.year)
 

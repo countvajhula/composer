@@ -1,4 +1,5 @@
 import datetime
+import pytest
 
 from composer.timeperiod import (
     Day,
@@ -9,6 +10,8 @@ from composer.timeperiod import (
     Zero,
     Eternity,
     get_time_periods,
+    quarter_for_month,
+    month_for_quarter,
 )
 
 
@@ -224,3 +227,116 @@ class TestGetTimePeriods(object):
     def test_decreasing(self):
         result = get_time_periods(decreasing=True)
         assert result == tuple(reversed(self._time_periods))
+
+
+class TestMonthForQuarter(object):
+    def test_q1(self):
+        result = month_for_quarter('Q1')
+        expected = 1
+        assert result == expected
+
+    def test_q2(self):
+        result = month_for_quarter('Q2')
+        expected = 4
+        assert result == expected
+
+    def test_q3(self):
+        result = month_for_quarter('Q3')
+        expected = 7
+        assert result == expected
+
+    def test_q4(self):
+        result = month_for_quarter('Q4')
+        expected = 10
+        assert result == expected
+
+
+class TestQuarterForMonth(object):
+    @pytest.mark.parametrize(
+        "date",
+        [
+            datetime.date(2012, 1, 12),
+            datetime.date(2012, 2, 12),
+            datetime.date(2012, 3, 12),
+        ],
+    )
+    def test_q1(self, date):
+        result = quarter_for_month(date.month)
+        expected = 'Q1'
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        "date",
+        [
+            datetime.date(2012, 4, 12),
+            datetime.date(2012, 5, 12),
+            datetime.date(2012, 6, 12),
+        ],
+    )
+    def test_q2(self, date):
+        date = datetime.date(2012, 4, 12)
+        result = quarter_for_month(date.month)
+        expected = 'Q2'
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        "date",
+        [
+            datetime.date(2012, 7, 12),
+            datetime.date(2012, 8, 12),
+            datetime.date(2012, 9, 12),
+        ],
+    )
+    def test_q3(self, date):
+        date = datetime.date(2012, 7, 12)
+        result = quarter_for_month(date.month)
+        expected = 'Q3'
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        "date",
+        [
+            datetime.date(2012, 10, 12),
+            datetime.date(2012, 11, 12),
+            datetime.date(2012, 12, 12),
+        ],
+    )
+    def test_q4(self, date):
+        date = datetime.date(2012, 10, 12)
+        result = quarter_for_month(date.month)
+        expected = 'Q4'
+        assert result == expected
+
+
+class TestMonthToQuarterSanity(object):
+    @pytest.mark.parametrize(
+        "date, expected",
+        [
+            (datetime.date(2012, 1, 12), 'Q1'),
+            (datetime.date(2012, 2, 12), 'Q1'),
+            (datetime.date(2012, 3, 12), 'Q1'),
+            (datetime.date(2012, 4, 12), 'Q2'),
+            (datetime.date(2012, 5, 12), 'Q2'),
+            (datetime.date(2012, 6, 12), 'Q2'),
+            (datetime.date(2012, 7, 12), 'Q3'),
+            (datetime.date(2012, 8, 12), 'Q3'),
+            (datetime.date(2012, 9, 12), 'Q3'),
+            (datetime.date(2012, 10, 12), 'Q4'),
+            (datetime.date(2012, 11, 12), 'Q4'),
+            (datetime.date(2012, 12, 12), 'Q4'),
+        ],
+    )
+    def test_quarter_month_quarter(self, date, expected):
+        result = quarter_for_month(
+            month_for_quarter(quarter_for_month(date.month))
+        )
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        "quarter, expected", [('Q1', 1), ('Q2', 4), ('Q3', 7), ('Q4', 10)]
+    )
+    def test_month_quarter_month(self, quarter, expected):
+        result = month_for_quarter(
+            quarter_for_month(month_for_quarter(quarter))
+        )
+        assert result == expected
