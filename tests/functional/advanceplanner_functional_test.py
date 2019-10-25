@@ -25,6 +25,7 @@ def test_advance_planner_day():
     next_period = get_next_period(status) if status < Year else status
     planner.save(next_period)
     next_day_planner.save(status)
+    planner.tasklist.save()
     assert status == Day
 
 
@@ -42,6 +43,7 @@ def test_advance_planner_week():
     next_period = get_next_period(status) if status < Year else status
     planner.save(next_period)
     next_day_planner.save(status)
+    planner.tasklist.save()
     assert status == Week
 
 
@@ -59,6 +61,7 @@ def test_advance_planner_month():
     next_period = get_next_period(status) if status < Year else status
     planner.save(next_period)
     next_day_planner.save(status)
+    planner.tasklist.save()
     assert status == Month
 
 
@@ -76,6 +79,7 @@ def test_advance_planner_quarter():
     next_period = get_next_period(status) if status < Year else status
     planner.save(next_period)
     next_day_planner.save(status)
+    planner.tasklist.save()
     assert status == Quarter
 
 
@@ -93,4 +97,5 @@ def test_advance_planner_year():
     next_period = get_next_period(status) if status < Year else status
     planner.save(next_period)
     next_day_planner.save(status)
+    planner.tasklist.save()
     assert status == Year
