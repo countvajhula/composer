@@ -319,6 +319,15 @@ class TestStringToDate(object):
         assert date == expected_date
         assert period == expected_period
 
+    def test_format25(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "DAY AFTER TOMORROW"
+        expected_date = datetime.date(2013, 6, 3)
+        expected_period = Day
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
 
 class TestDateToString(object):
     def test_day(self):

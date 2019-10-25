@@ -181,6 +181,8 @@ def string_to_date(datestr, reference_date=None):
     dateformat23 = re.compile(r"^NEXT QUARTER$", re.IGNORECASE)
     # QN
     dateformat24 = re.compile(r"^(Q\d)$", re.IGNORECASE)
+    # DAY AFTER TOMORROW
+    dateformat25 = re.compile(r"^DAY AFTER TOMORROW$", re.IGNORECASE)
 
     if dateformat1.search(datestr):  # MONTH DD, YYYY
         (month, day, year) = dateformat1.search(datestr).groups()
@@ -327,6 +329,13 @@ def string_to_date(datestr, reference_date=None):
                 "Relative date found, but no context available"
             )
         date = get_next_day(reference_date)
+        period = Day
+    elif dateformat25.search(datestr):  # DAY AFTER TOMORROW
+        if not reference_date:
+            raise RelativeDateError(
+                "Relative date found, but no context available"
+            )
+        date = get_next_day(get_next_day(reference_date))
         period = Day
     elif dateformat16.search(datestr):  # <DOW> e.g. MONDAY
         if not reference_date:
