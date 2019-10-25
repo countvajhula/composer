@@ -10,7 +10,7 @@ PROGRESS_DELAY = 0
 
 
 def _write_out(message):
-    sys.stdout.write(message)
+    sys.stdout.write(str(message))
     sys.stdout.flush()
 
 
