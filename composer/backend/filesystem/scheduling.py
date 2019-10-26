@@ -2,8 +2,6 @@ import calendar
 import datetime
 import re
 
-from dateutil.relativedelta import relativedelta
-
 from ...errors import (
     BlockedTaskNotScheduledError,
     DateFormatError,
@@ -370,48 +368,32 @@ def string_to_date(datestr, reference_date=None):
                 "Relative date found, but no context available"
             )
         quarter = dateformat24.search(datestr).groups()[0]
-        present_quarter = quarter_for_month(reference_date.month)
-        next_quarter = present_quarter
-        next_date = reference_date
-        # go to the next quarter first
-        while next_quarter == present_quarter:
-            next_date += relativedelta(months=1)
-            next_quarter = quarter_for_month(next_date.month)
+        # start date of next quarter
+        date = Quarter.get_end_date(reference_date) + datetime.timedelta(
+            days=1
+        )
+        next_quarter = quarter_for_month(date.month)
         # find the specified quarter
         while next_quarter != quarter:
-            next_date += relativedelta(months=1)
-            next_quarter = quarter_for_month(next_date.month)
-        date = datetime.date(next_date.year, next_date.month, 1)
+            date = Quarter.get_end_date(date) + datetime.timedelta(days=1)
+            next_quarter = quarter_for_month(date.month)
         period = Quarter
     elif dateformat21.search(datestr):  # THIS WEEKEND
         if not reference_date:
             raise RelativeDateError(
                 "Relative date found, but no context available"
             )
-        upcomingweek = [
-            # 6 days, doesn't include same DOW next week
-            reference_date + datetime.timedelta(days=d)
-            for d in range(0, 7)
-        ]
-        dow = [d.strftime("%A").upper() for d in upcomingweek]
-        index = dow.index("SATURDAY")
-        date = upcomingweek[index]
+        date = Week.get_end_date(reference_date)
         period = Day
     elif dateformat22.search(datestr):  # NEXT WEEKEND
         if not reference_date:
             raise RelativeDateError(
                 "Relative date found, but no context available"
             )
-        upcomingweeks = [
-            # 13 days, doesn't include same DOW 2 weeks hence
-            reference_date + datetime.timedelta(days=d)
-            for d in range(1, 14)
-        ]
-        # we want the first saturday going backwards from 2 weeks
-        # (non-inclusive) in the future
-        upcomingweeks.reverse()
-        dow = [d.strftime("%A").upper() for d in upcomingweeks]
-        date = upcomingweeks[dow.index("SATURDAY")]
+        start_of_next_week = Week.get_end_date(
+            reference_date
+        ) + datetime.timedelta(days=1)
+        date = Week.get_end_date(start_of_next_week)
         period = Day
     elif dateformat20.search(datestr):  # YYYY
         year = int(dateformat20.search(datestr).groups()[0])
