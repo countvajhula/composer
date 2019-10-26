@@ -234,39 +234,13 @@ def string_to_date(datestr, reference_date=None):
         (month, day, year) = dateformat5.search(datestr).groups()
         (monthn, dayn, yearn) = (get_month_number(month), int(day), int(year))
         date = datetime.date(yearn, monthn, dayn)
-        dow = date.strftime("%A")
-        # TODO: this should defer to advance criteria checking and not
-        # perform an independent assessment here
-        if dayn != 1:
-            while dow.lower() != "sunday":
-                date = date - datetime.timedelta(days=1)
-                dow = date.strftime("%A")
-        (month, day, year) = (
-            get_month_name(date.month),
-            str(date.day),
-            str(date.year),
-        )
-        date = datetime.datetime.strptime(
-            month + "-" + day + "-" + year, "%B-%d-%Y"
-        ).date()
+        date = Week.get_start_date(date)
         period = Week
     elif dateformat6.search(datestr):  # WEEK OF DD MONTH, YYYY
         (day, month, year) = dateformat6.search(datestr).groups()
         (monthn, dayn, yearn) = (get_month_number(month), int(day), int(year))
         date = datetime.date(yearn, monthn, dayn)
-        dow = date.strftime("%A")
-        if dayn != 1:
-            while dow.lower() != "sunday":
-                date = date - datetime.timedelta(days=1)
-                dow = date.strftime("%A")
-        (month, day, year) = (
-            get_month_name(date.month),
-            str(date.day),
-            str(date.year),
-        )
-        date = datetime.datetime.strptime(
-            month + "-" + day + "-" + year, "%B-%d-%Y"
-        ).date()
+        date = Week.get_start_date(date)
         period = Week
     elif dateformat7.search(datestr):  # WEEK OF MONTH DD
         if not reference_date:
@@ -278,19 +252,7 @@ def string_to_date(datestr, reference_date=None):
         yearn = get_appropriate_year(monthn, dayn, reference_date)
         year = str(yearn)
         date = datetime.date(yearn, monthn, dayn)
-        dow = date.strftime("%A")
-        if dayn != 1:
-            while dow.lower() != "sunday":
-                date = date - datetime.timedelta(days=1)
-                dow = date.strftime("%A")
-        (month, day, year) = (
-            get_month_name(date.month),
-            str(date.day),
-            str(date.year),
-        )
-        date = datetime.datetime.strptime(
-            month + "-" + day + "-" + year, "%B-%d-%Y"
-        ).date()
+        date = Week.get_start_date(date)
         period = Week
     elif dateformat8.search(datestr):  # WEEK OF DD MONTH
         if not reference_date:
@@ -302,19 +264,7 @@ def string_to_date(datestr, reference_date=None):
         yearn = get_appropriate_year(monthn, dayn, reference_date)
         year = str(yearn)
         date = datetime.date(yearn, monthn, dayn)
-        dow = date.strftime("%A")
-        if dayn != 1:
-            while dow.lower() != "sunday":
-                date = date - datetime.timedelta(days=1)
-                dow = date.strftime("%A")
-        (month, day, year) = (
-            get_month_name(date.month),
-            str(date.day),
-            str(date.year),
-        )
-        date = datetime.datetime.strptime(
-            month + "-" + day + "-" + year, "%B-%d-%Y"
-        ).date()
+        date = Week.get_start_date(date)
         period = Week
     elif dateformat9.search(datestr):  # MONTH YYYY
         (month, year) = dateformat9.search(datestr).groups()
@@ -389,44 +339,30 @@ def string_to_date(datestr, reference_date=None):
             raise RelativeDateError(
                 "Relative date found, but no context available"
             )
-        dowToSchedule = "SUNDAY"  # start of next week
-        upcomingweek = [
-            reference_date + datetime.timedelta(days=d) for d in range(1, 8)
-        ]
-        dow = [d.strftime("%A").upper() for d in upcomingweek]
-        date = upcomingweek[dow.index(dowToSchedule)]
+        date = Week.get_end_date(reference_date) + datetime.timedelta(days=1)
         period = Week
     elif dateformat15.search(datestr):  # NEXT MONTH
         if not reference_date:
             raise RelativeDateError(
                 "Relative date found, but no context available"
             )
-        upcomingmonth = [
-            reference_date + datetime.timedelta(days=d) for d in range(1, 31)
-        ]
-        dates = [d.day for d in upcomingmonth]
-        date = upcomingmonth[dates.index(1)]
+        date = Month.get_end_date(reference_date) + datetime.timedelta(days=1)
         period = Month
     elif dateformat19.search(datestr):  # NEXT YEAR
         if not reference_date:
             raise RelativeDateError(
                 "Relative date found, but no context available"
             )
-        year = reference_date.year + 1
-        date = datetime.date(year, 1, 1)
+        date = Year.get_end_date(reference_date) + datetime.timedelta(days=1)
         period = Year
     elif dateformat23.search(datestr):  # NEXT QUARTER
         if not reference_date:
             raise RelativeDateError(
                 "Relative date found, but no context available"
             )
-        present_quarter = quarter_for_month(reference_date.month)
-        next_quarter = present_quarter
-        next_date = reference_date
-        while next_quarter == present_quarter:
-            next_date += relativedelta(months=1)
-            next_quarter = quarter_for_month(next_date.month)
-        date = datetime.date(next_date.year, next_date.month, 1)
+        date = Quarter.get_end_date(reference_date) + datetime.timedelta(
+            days=1
+        )
         period = Quarter
     elif dateformat24.search(datestr):  # QN
         if not reference_date:

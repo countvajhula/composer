@@ -99,47 +99,35 @@ class TestStringToDate(object):
         assert date == expected_date
         assert period == expected_period
 
-    def test_format5(self):
-        today = datetime.date(2013, 6, 1)
-        date_string = "WEEK OF OCTOBER 13, 2013"
-        expected_date = datetime.date(2013, 10, 13)
-        expected_period = Week
-        date, period = string_to_date(date_string, reference_date=today)
-        assert date == expected_date
-        assert period == expected_period
-
-    def test_format5_non_week_boundary(self):
-        # TODO: should this be handled by a higher-level function?
-        today = datetime.date(2013, 6, 1)
-        date_string = "WEEK OF OCTOBER 15, 2013"
-        expected_date = datetime.date(2013, 10, 13)
-        expected_period = Week
-        date, period = string_to_date(date_string, reference_date=today)
-        assert date == expected_date
-        assert period == expected_period
-
-    def test_format6(self):
-        today = datetime.date(2013, 6, 1)
-        date_string = "WEEK OF 13 OCTOBER, 2013"
-        expected_date = datetime.date(2013, 10, 13)
-        expected_period = Week
-        date, period = string_to_date(date_string, reference_date=today)
-        assert date == expected_date
-        assert period == expected_period
-
-    def test_format7(self):
-        today = datetime.date(2013, 6, 1)
-        date_string = "WEEK OF 13 OCTOBER"
-        expected_date = datetime.date(2013, 10, 13)
-        expected_period = Week
-        date, period = string_to_date(date_string, reference_date=today)
-        assert date == expected_date
-        assert period == expected_period
-
-    def test_format8(self):
-        today = datetime.date(2013, 6, 1)
-        date_string = "WEEK OF OCTOBER 13"
-        expected_date = datetime.date(2013, 10, 13)
+    @pytest.mark.parametrize(
+        "date_string, expected_date",
+        [
+            # format 5
+            ("WEEK OF OCTOBER 13, 2013", datetime.date(2013, 10, 13)),
+            ("WEEK OF OCTOBER 15, 2013", datetime.date(2013, 10, 13)),
+            # start of week not on Sunday
+            ("WEEK OF MAY 2, 2013", datetime.date(2013, 5, 1)),
+            # format 6
+            ("WEEK OF 13 OCTOBER, 2013", datetime.date(2013, 10, 13)),
+            ("WEEK OF 15 OCTOBER, 2013", datetime.date(2013, 10, 13)),
+            # start of week not on Sunday
+            ("WEEK OF 2 MAY, 2013", datetime.date(2013, 5, 1)),
+            # format 7
+            ("WEEK OF OCTOBER 13", datetime.date(2013, 10, 13)),
+            ("WEEK OF OCTOBER 15", datetime.date(2013, 10, 13)),
+            # start of week not on Sunday
+            ("WEEK OF MAY 2", datetime.date(2013, 5, 1)),
+            # format 8
+            ("WEEK OF 13 OCTOBER", datetime.date(2013, 10, 13)),
+            ("WEEK OF 15 OCTOBER", datetime.date(2013, 10, 13)),
+            # start of week not on Sunday
+            ("WEEK OF 2 MAY", datetime.date(2013, 5, 1)),
+        ],
+    )
+    def test_format5_6_7_8(self, date_string, expected_date):
+        # TODO: should week boundary checking be handled by a higher-level
+        # function?
+        today = datetime.date(2013, 4, 1)
         expected_period = Week
         date, period = string_to_date(date_string, reference_date=today)
         assert date == expected_date
@@ -190,10 +178,16 @@ class TestStringToDate(object):
         assert date == expected_date
         assert period == expected_period
 
-    def test_format14(self):
-        today = datetime.date(2013, 10, 9)
+    @pytest.mark.parametrize(
+        "today, expected_date",
+        [
+            (datetime.date(2013, 10, 9), datetime.date(2013, 10, 13)),
+            # start of week not on Sunday
+            (datetime.date(2013, 4, 28), datetime.date(2013, 5, 1)),
+        ],
+    )
+    def test_format14(self, today, expected_date):
         date_string = "NEXT WEEK"
-        expected_date = datetime.date(2013, 10, 13)
         expected_period = Week
         date, period = string_to_date(date_string, reference_date=today)
         assert date == expected_date
