@@ -1,23 +1,17 @@
-from ..errors import PlannerIsInTheFutureError
 from .base import Period
-from .day import Day
 
 
 class _Month(Period):
 
     duration = 4 * 7 * 24 * 60 * 60
 
-    def advance_criteria_met(self, to_date):
+    def is_start_of_period(self, to_date):
         """ Have criteria for advancement to the next month been met?
 
         :param :class:`datetime.date` to_date: The date to advance to
         :returns bool: Whether the criteria have been met
         """
-        try:
-            day_criteria_met = Day.advance_criteria_met(to_date)
-        except PlannerIsInTheFutureError:
-            raise
-        if to_date.day == 1 and day_criteria_met:
+        if to_date.day == 1:
             return True
         else:
             return False

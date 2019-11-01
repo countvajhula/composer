@@ -37,7 +37,7 @@ class Period(ABC):
         return self.get_name()
 
     @abc.abstractmethod
-    def advance_criteria_met(self, to_date):
+    def is_start_of_period(self, to_date):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -53,7 +53,7 @@ class Period(ABC):
         """
         current_date = for_date
         previous_date = current_date - timedelta(days=1)
-        while not self.advance_criteria_met(current_date):
+        while not self.is_start_of_period(current_date):
             current_date = previous_date
             previous_date -= timedelta(days=1)
         return current_date
@@ -67,7 +67,7 @@ class Period(ABC):
         """
         current_date = for_date
         next_date = current_date + timedelta(days=1)
-        while not self.advance_criteria_met(next_date):
+        while not self.is_start_of_period(next_date):
             current_date = next_date
             next_date += timedelta(days=1)
         return current_date
@@ -77,7 +77,7 @@ class _Zero(Period):
 
     duration = 0
 
-    def advance_criteria_met(self, to_date):
+    def is_start_of_period(self, to_date):
         """ A null period for 'algebraic' convenience. """
         return True
 
@@ -117,7 +117,7 @@ class _Eternity(Period):
 
     duration = INFINITY
 
-    def advance_criteria_met(self, to_date):
+    def is_start_of_period(self, to_date):
         """ An infinite period for 'algebraic' convenience. """
         return True
 

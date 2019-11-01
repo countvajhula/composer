@@ -30,10 +30,22 @@ class TestDayStartDate(TestStartDate):
         result = Day.get_start_date(current_date)
         assert result == expected
 
+    def test_start_date_for_date_in_the_future(self):
+        current_date = datetime.date.today() + datetime.timedelta(days=3)
+        expected = current_date
+        result = Day.get_start_date(current_date)
+        assert result == expected
+
 
 class TestDayEndDate(TestEndDate):
     def test_end_date(self):
         current_date = datetime.date(2013, 5, 15)
+        expected = current_date
+        result = Day.get_end_date(current_date)
+        assert result == expected
+
+    def test_end_date_for_date_in_the_future(self):
+        current_date = datetime.date.today() + datetime.timedelta(days=3)
         expected = current_date
         result = Day.get_end_date(current_date)
         assert result == expected

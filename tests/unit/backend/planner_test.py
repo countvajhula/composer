@@ -2,7 +2,7 @@ import datetime
 import pytest
 
 from composer.config import LOGFILE_CHECKING
-from composer.errors import AgendaNotReviewedError
+from composer.errors import AgendaNotReviewedError, PlannerIsInTheFutureError
 from composer.timeperiod import Zero, Day, Week, Month, Quarter, Year
 
 from mock import MagicMock, patch
@@ -72,6 +72,18 @@ class TestAdvance(object):
         _, next_day_planner = planner_base.advance()
         assert next_day_planner.date == next_day
 
+    @patch('composer.backend.base.datetime')
+    def test_attempt_to_advance_from_future_raises_error(
+        self, mock_datetime, planner_base
+    ):
+        planner_day = datetime.date(2013, 1, 2)
+        today = datetime.date(2013, 1, 1)
+        next_day = datetime.date(2013, 1, 2)
+        mock_datetime.date.today.return_value = today
+        self._set_up_advance(planner_base, planner_day, next_day)
+        with pytest.raises(PlannerIsInTheFutureError):
+            _, next_day_planner = planner_base.advance()
+
 
 class TestAdvancePeriod(object):
     def _set_up_advance(self, mock_next_period, planner, n=1):
@@ -89,8 +101,8 @@ class TestAdvancePeriod(object):
         next_period = (
             Week.__class__()
         )  # patching the singleton directly has global effect
-        mock_criteria_met = ReturnTimes(n, True, False)
-        next_period.advance_criteria_met = mock_criteria_met
+        mock_start_of_period = ReturnTimes(n, True, False)
+        next_period.is_start_of_period = mock_start_of_period
         mock_next_period.return_value = next_period
 
     @patch('composer.backend.base.get_next_period')
@@ -143,6 +155,34 @@ class TestAdvancePeriod(object):
         day on a typical day change boundary
         """
         current_day = datetime.date(2012, 12, 5)
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Day
+
+    @patch('composer.backend.base.datetime')
+    def test_decision_for_present_day_in_progress_advance(
+        self, mock_datetime, planner_base
+    ):
+        current_day = datetime.date.today()
+        hour = 10
+        now = datetime.datetime(
+            current_day.year, current_day.month, current_day.day, hour
+        )
+        mock_datetime.datetime.now.return_value = now
+        self._set_up_advance_decision(planner_base, current_day)
+        status = planner_base.advance_period()
+        assert status == Zero
+
+    @patch('composer.backend.base.datetime')
+    def test_decision_for_present_day_eod_advance(
+        self, mock_datetime, planner_base
+    ):
+        current_day = datetime.date.today()
+        hour = 18
+        now = datetime.datetime(
+            current_day.year, current_day.month, current_day.day, hour
+        )
+        mock_datetime.datetime.now.return_value = now
         self._set_up_advance_decision(planner_base, current_day)
         status = planner_base.advance_period()
         assert status == Day

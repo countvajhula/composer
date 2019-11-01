@@ -225,6 +225,29 @@ class PlannerBase(ABC):
         """
         self.update_log(period, for_day)
 
+    def _advance_criteria_met(self, next_period, next_day):
+        is_period_start = next_period.is_start_of_period(next_day)
+
+        if is_period_start:
+            if next_period > Day:
+                criteria_met = True
+            else:
+                now = datetime.datetime.now()
+                if self.date == now.date() and now.hour < 18:
+                    # day still in progress
+                    criteria_met = False
+                else:
+                    # EOD
+                    criteria_met = True
+        elif next_period > Day:
+            # if we are jumping, then it's possible that even if calendar-based
+            # period boundary criteria are not met, that it still represents an
+            # advance of the concerned period since we may not already have a
+            # log file tracking the target date
+            is_date_tracked = self.get_log(next_day, next_period)
+            criteria_met = not is_date_tracked
+        return criteria_met
+
     def advance_period(self, current_period=None, next_day=None):
         """ Recursive function to advance planner by day, week, month, quarter,
         or year as the case may be.
@@ -245,21 +268,8 @@ class PlannerBase(ABC):
             return current_period
 
         next_period = get_next_period(current_period)
-        try:
-            criteria_met = next_period.advance_criteria_met(next_day)
-        except PlannerIsInTheFutureError:
-            raise
 
-        if next_period > Day and not criteria_met:
-            # if we are jumping, then it's possible that even if calendar-based
-            # period boundary criteria are not met, that it still represents an
-            # advance of the concerned period since we may not already have a
-            # log file tracking the target date
-            is_date_tracked = self.get_log(next_day, next_period)
-            if not is_date_tracked:
-                criteria_met = True
-
-        if criteria_met:
+        if self._advance_criteria_met(next_period, next_day):
             self.end_period(next_period)
             self.begin_period(next_period, next_day)
 
@@ -284,6 +294,10 @@ class PlannerBase(ABC):
         :returns :class:`~composer.timeperiod.Period`: The highest period
             advanced
         """
+
+        if self.date > datetime.date.today():
+            raise PlannerIsInTheFutureError("Planner is in the future!")
+
         next_day = self.next_day()  # the new day to advance to
 
         # essentially create a clone of the planner to be populated

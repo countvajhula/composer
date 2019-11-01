@@ -256,6 +256,8 @@ def process_wiki(wikidir, preferences):
             break
 
 
+# TODO: support version
+# TODO: help text for jump and other flags
 @click.command(
     help=(
         "Move on to the next thing in your planning, organizing, "
