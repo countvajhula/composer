@@ -164,7 +164,7 @@ def update_index(path, filename=None, title=None):
     preindexes = [
         PreIndex('alphabetical', identity, False),
         PreIndex('by date modified', os.path.getmtime, True),
-        PreIndex('by date created', creation_date, True),
+        PreIndex('by date created', creation_date, False),
     ]
 
     # prepare the individual indexes according to whatever sorting order
