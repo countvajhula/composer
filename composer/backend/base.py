@@ -1,5 +1,5 @@
 import abc
-
+import copy
 import datetime
 
 from ..config import (
@@ -30,8 +30,10 @@ class PlannerBase(ABC):
     agenda_reviewed = Zero
     tasklist = None
 
-    def __init__(self, location, tasklist):
+    def __init__(self, location, tasklist, preferences):
         self.tasklist = tasklist
+        if preferences:
+            self.set_preferences(preferences)
 
     def set_preferences(self, preferences):
         """ Set planner preferences, e.g. schedule to operate on, preferred
@@ -300,10 +302,9 @@ class PlannerBase(ABC):
 
         next_day = self.next_day()  # the new day to advance to
 
-        # essentially create a clone of the planner to be populated
+        # create a clone of the planner to be populated
         # for the next day
-        self.next_day_planner = self.__class__()
-        self.next_day_planner.construct(self.location)
+        self.next_day_planner = copy.deepcopy(self)
         # both current and next day planner instances use
         # the same tasklist instance
         self.next_day_planner.tasklist = self.tasklist

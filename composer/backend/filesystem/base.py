@@ -88,8 +88,10 @@ class FilesystemPlanner(PlannerBase):
     _periodic_quarter_file = None
     _periodic_year_file = None
 
-    def __init__(self, location=None, tasklist=None):
-        super(FilesystemPlanner, self).__init__(location, tasklist)
+    def __init__(self, location=None, tasklist=None, preferences=None):
+        super(FilesystemPlanner, self).__init__(
+            location, tasklist, preferences
+        )
         self.construct(location)
 
     # use 'getters' and 'setters' for file attributes so that any state changes

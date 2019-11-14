@@ -105,8 +105,7 @@ def process_wiki(wikidir, preferences):
         display_message()
         try:
             tasklist = FilesystemTasklist(wikidir)
-            planner = FilesystemPlanner(wikidir, tasklist)
-            planner.set_preferences(preferences)
+            planner = FilesystemPlanner(wikidir, tasklist, preferences)
             status, next_day_planner = planner.advance()
         except LogfileNotCompletedError as err:
             display_message(
