@@ -1,3 +1,5 @@
+import calendar
+
 from .base import Zero, Eternity  # noqa
 from .day import Day
 from .week import Week
@@ -85,3 +87,27 @@ def month_for_quarter(quarter):
         return 7
     elif quarter == "Q4":
         return 10
+
+
+def get_month_number(monthname):
+    """ Get the calendar number corresponding to the month of the year.
+
+    :param str monthname: The name of the month
+    :returns int: The number of the month
+    """
+    month_name_to_number = dict(
+        (v.lower(), k) for k, v in enumerate(calendar.month_name)
+    )
+    return month_name_to_number[monthname.lower()]
+
+
+def get_month_name(monthnumber):
+    """ Get the name of the month corresponding to a calendar month number.
+
+    :param int monthnumber: The number of the month
+    :returns str: The name of the month
+    """
+    month_number_to_name = dict(
+        (k, v) for k, v in enumerate(calendar.month_name)
+    )
+    return month_number_to_name[monthnumber]

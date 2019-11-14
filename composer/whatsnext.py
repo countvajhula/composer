@@ -8,7 +8,7 @@ import click
 from . import advice
 from . import config
 from . import updateindex
-from .backend import FilesystemPlanner, FilesystemTasklist, get_month_name
+from .backend import FilesystemPlanner, FilesystemTasklist
 from .timeperiod import (
     Zero,
     Day,
@@ -18,6 +18,7 @@ from .timeperiod import (
     Year,
     get_next_period,
     quarter_for_month,
+    get_month_name,
 )
 from .utils import display_message, ask_input
 

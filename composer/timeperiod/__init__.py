@@ -11,6 +11,8 @@ from .interface import (
     quarter_for_month,
     month_for_quarter,
     get_time_periods,
+    get_month_name,
+    get_month_number,
 )
 
 
@@ -21,6 +23,8 @@ __all__ = (
     "is_weekend",
     "quarter_for_month",
     "month_for_quarter",
+    "get_month_name",
+    "get_month_number",
     "Period",
     "Zero",
     "Eternity",
