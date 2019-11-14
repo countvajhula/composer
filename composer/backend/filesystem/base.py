@@ -66,7 +66,7 @@ PERIODICYEARLYFILE = "Periodic_Yearly.wiki"
 PERIODICQUARTERLYFILE = "Periodic_Quarterly.wiki"
 PERIODICMONTHLYFILE = "Periodic_Monthly.wiki"
 PERIODICWEEKLYFILE = "Periodic_Weekly.wiki"
-PERIODICDAILYFILE = "Periodic_Daily.wiki"
+PERIODIC_FILE_PREFIX = "Periodic"
 
 
 class FilesystemPlanner(PlannerBase):
@@ -241,7 +241,9 @@ class FilesystemPlanner(PlannerBase):
             'checkpoints_quarter_file': CHECKPOINTSQUARTERFILE,
             'checkpoints_year_file': CHECKPOINTSYEARFILE,
             # periodic items
-            'periodic_day_file': PERIODICDAILYFILE,
+            'periodic_day_file': "{}_Daily_{}.wiki".format(
+                PERIODIC_FILE_PREFIX, self.schedule.capitalize()
+            ),
             'periodic_week_file': PERIODICWEEKLYFILE,
             'periodic_month_file': PERIODICMONTHLYFILE,
             'periodic_quarter_file': PERIODICQUARTERLYFILE,
