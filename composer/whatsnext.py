@@ -10,6 +10,7 @@ from . import config
 from . import updateindex
 from .backend import FilesystemPlanner, FilesystemTasklist, get_month_name
 from .timeperiod import (
+    Zero,
     Day,
     Month,
     Quarter,
@@ -101,6 +102,7 @@ def process_wiki(wikidir, preferences):
         wikidir, preferences
     )  # mutates preferences
 
+    period_prompted = Zero
     while True:
         display_message()
         try:
@@ -114,6 +116,7 @@ def process_wiki(wikidir, preferences):
                 % err.period,
                 newline=False,
                 prompt=True,
+                interrupt=True,
             )
             yn = ask_input()
             if yn.lower().startswith("y"):
@@ -146,6 +149,7 @@ def process_wiki(wikidir, preferences):
                 ),
                 newline=False,
                 prompt=True,
+                interrupt=True,
             )
             theme = ask_input()
             preferences[
@@ -168,9 +172,27 @@ def process_wiki(wikidir, preferences):
             elif err.period == Year:
                 period_string = str(next_day.year)
 
+            if err.period > Day and period_prompted < err.period:
+                display_message(
+                    "It's time to review {next_period}'s tasks and identify "
+                    "any that you'd like to work on {this_period}.".format(
+                        next_period="this {}".format(next_period)
+                        if err.period < Year
+                        else "unscheduled",
+                        this_period="next {period}".format(period=err.period)
+                        if err.period > Day
+                        else "tomorrow",
+                    ),
+                    prompt=True,
+                    interrupt=True,
+                    acknowledge=True,
+                )
+                period_prompted = err.period
             display_message(
                 "This is what you have lined up for {period} "
-                "at the moment:".format(period=period_string)
+                "at the moment:".format(period=period_string),
+                prompt=True,
+                interrupt=True,
             )
             display_message(err.agenda)
             display_message(

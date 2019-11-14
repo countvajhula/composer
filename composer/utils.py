@@ -20,6 +20,7 @@ def display_message(
     interactive=False,
     prompt=False,
     acknowledge=False,
+    interrupt=False,
 ):
     """ Show a message to the user.
 
@@ -29,9 +30,15 @@ def display_message(
         in progress in some way (e.g. add ellipses).
     :param bool prompt: Whether to indicate that user input is need in some way
         (e.g. add a suitable preceding symbol to the message)
+    :param bool acknowledge: Whether to require acknowledgement from the user
+        in the form of keyboard input.
+    :param bool interrupt: Whether this message interrupts the flow or is part
+        of it. This simply precedes the message with a newline if true.
     """
     if message is None:
         message = ""
+    if interrupt:
+        _write_out(u"\n")
     if prompt:
         _write_out(u"\u266A ")
     _write_out(message)
