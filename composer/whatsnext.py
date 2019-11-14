@@ -174,9 +174,9 @@ def process_wiki(wikidir, preferences):
 
             if err.period > Day and period_prompted < err.period:
                 display_message(
-                    "It's time to review {next_period}'s tasks and identify "
-                    "any that you'd like to work on {this_period}.".format(
-                        next_period="this {}".format(next_period)
+                    "It's time to review {next_period} tasks and identify any "
+                    "that you'd like to work on {this_period}.".format(
+                        next_period="this {}'s".format(next_period)
                         if err.period < Year
                         else "unscheduled",
                         this_period="next {period}".format(period=err.period)
