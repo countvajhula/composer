@@ -97,6 +97,12 @@ def get_appropriate_year(month, day, reference_date):
 
 
 def parse_dateformat1(date_string, reference_date=None):
+    """ Parse date format
+        MONTH DD, YYYY (w optional space or comma or both)
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     (month, day, year) = dateformat1.search(date_string).groups()
     date = datetime.datetime.strptime(
         month + "-" + day + "-" + year, "%B-%d-%Y"
@@ -106,6 +112,12 @@ def parse_dateformat1(date_string, reference_date=None):
 
 
 def parse_dateformat2(date_string, reference_date=None):
+    """ Parse date format
+        DD MONTH, YYYY (w optional space or comma or both)
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     (day, month, year) = dateformat2.search(date_string).groups()
     date = datetime.datetime.strptime(
         month + "-" + day + "-" + year, "%B-%d-%Y"
@@ -115,6 +127,12 @@ def parse_dateformat2(date_string, reference_date=None):
 
 
 def parse_dateformat3(date_string, reference_date=None):
+    """ Parse date format
+        MONTH DD
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -130,6 +148,12 @@ def parse_dateformat3(date_string, reference_date=None):
 
 
 def parse_dateformat4(date_string, reference_date=None):
+    """ Parse date format
+        DD MONTH
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -145,6 +169,12 @@ def parse_dateformat4(date_string, reference_date=None):
 
 
 def parse_dateformat5(date_string, reference_date=None):
+    """ Parse date format
+        WEEK OF MONTH DD, YYYY (w optional space or comma or both)
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     # std = Week of Month dd(sunday/1), yyyy
     (month, day, year) = dateformat5.search(date_string).groups()
     (monthn, dayn, yearn) = (get_month_number(month), int(day), int(year))
@@ -155,6 +185,12 @@ def parse_dateformat5(date_string, reference_date=None):
 
 
 def parse_dateformat6(date_string, reference_date=None):
+    """ Parse date format
+        WEEK OF DD MONTH, YYYY (w optional space or comma or both)
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     (day, month, year) = dateformat6.search(date_string).groups()
     (monthn, dayn, yearn) = (get_month_number(month), int(day), int(year))
     date = datetime.date(yearn, monthn, dayn)
@@ -164,6 +200,12 @@ def parse_dateformat6(date_string, reference_date=None):
 
 
 def parse_dateformat7(date_string, reference_date=None):
+    """ Parse date format
+        WEEK OF MONTH DD
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -178,6 +220,12 @@ def parse_dateformat7(date_string, reference_date=None):
 
 
 def parse_dateformat8(date_string, reference_date=None):
+    """ Parse date format
+        WEEK OF DD MONTH
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -192,6 +240,12 @@ def parse_dateformat8(date_string, reference_date=None):
 
 
 def parse_dateformat9(date_string, reference_date=None):
+    """ Parse date format
+        MONTH YYYY (w optional space or comma or both)
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     (month, year) = dateformat9.search(date_string).groups()
     day = str(1)
     date = datetime.datetime.strptime(
@@ -202,6 +256,12 @@ def parse_dateformat9(date_string, reference_date=None):
 
 
 def parse_dateformat10(date_string, reference_date=None):
+    """ Parse date format
+        MONTH
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -220,6 +280,12 @@ def parse_dateformat10(date_string, reference_date=None):
 
 
 def parse_dateformat11(date_string, reference_date=None):
+    """ Parse date format
+        MM/DD/YYYY
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     (monthn, dayn, yearn) = map(int, dateformat11.search(date_string).groups())
     date = datetime.date(yearn, monthn, dayn)
     period = Day
@@ -227,6 +293,12 @@ def parse_dateformat11(date_string, reference_date=None):
 
 
 def parse_dateformat12(date_string, reference_date=None):
+    """ Parse date format
+        MM-DD-YYYY
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     (monthn, dayn, yearn) = map(int, dateformat12.search(date_string).groups())
     date = datetime.date(yearn, monthn, dayn)
     period = Day
@@ -234,6 +306,12 @@ def parse_dateformat12(date_string, reference_date=None):
 
 
 def parse_dateformat13(date_string, reference_date=None):
+    """ Parse date format
+        TOMORROW
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -244,6 +322,12 @@ def parse_dateformat13(date_string, reference_date=None):
 
 
 def parse_dateformat14(date_string, reference_date=None):
+    """ Parse date format
+        NEXT WEEK
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -254,6 +338,12 @@ def parse_dateformat14(date_string, reference_date=None):
 
 
 def parse_dateformat15(date_string, reference_date=None):
+    """ Parse date format
+        NEXT MONTH
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -264,6 +354,12 @@ def parse_dateformat15(date_string, reference_date=None):
 
 
 def parse_dateformat16(date_string, reference_date=None):
+    """ Parse date format
+        <DOW>
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -279,6 +375,12 @@ def parse_dateformat16(date_string, reference_date=None):
 
 
 def parse_dateformat17(date_string, reference_date=None):
+    """ Parse date format
+        <DOW> (abbrv.)
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -294,6 +396,12 @@ def parse_dateformat17(date_string, reference_date=None):
 
 
 def parse_dateformat18(date_string, reference_date=None):
+    """ Parse date format
+        QN YYYY
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     (quarter, year) = dateformat18.search(date_string).groups()
     month = month_for_quarter(quarter)
     month = get_month_name(month)
@@ -306,6 +414,12 @@ def parse_dateformat18(date_string, reference_date=None):
 
 
 def parse_dateformat19(date_string, reference_date=None):
+    """ Parse date format
+        NEXT YEAR
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -316,6 +430,12 @@ def parse_dateformat19(date_string, reference_date=None):
 
 
 def parse_dateformat20(date_string, reference_date=None):
+    """ Parse date format
+        YYYY
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     year = int(dateformat20.search(date_string).groups()[0])
     date = datetime.date(year, 1, 1)
     period = Year
@@ -323,6 +443,12 @@ def parse_dateformat20(date_string, reference_date=None):
 
 
 def parse_dateformat21(date_string, reference_date=None):
+    """ Parse date format
+        THIS WEEKEND
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -333,6 +459,12 @@ def parse_dateformat21(date_string, reference_date=None):
 
 
 def parse_dateformat22(date_string, reference_date=None):
+    """ Parse date format
+        NEXT WEEKEND
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -346,6 +478,12 @@ def parse_dateformat22(date_string, reference_date=None):
 
 
 def parse_dateformat23(date_string, reference_date=None):
+    """ Parse date format
+        NEXT QUARTER
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -356,6 +494,12 @@ def parse_dateformat23(date_string, reference_date=None):
 
 
 def parse_dateformat24(date_string, reference_date=None):
+    """ Parse date format
+        QN
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
@@ -373,6 +517,12 @@ def parse_dateformat24(date_string, reference_date=None):
 
 
 def parse_dateformat25(date_string, reference_date=None):
+    """ Parse date format
+        DAY AFTER TOMORROW
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
     if not reference_date:
         raise RelativeDateError(
             "Relative date found, but no context available"
