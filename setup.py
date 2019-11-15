@@ -17,7 +17,7 @@ setup_requirements = ['pytest-runner']
 
 setup(
     name='composer',
-    version='3.0.0',
+    version='3.1.0',
     description='A life tracking, organizing, and planning framework.',
     author='Siddhartha Kasivajhula',
     author_email='sid@countvajhula.com',
