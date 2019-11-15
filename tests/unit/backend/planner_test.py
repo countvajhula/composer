@@ -82,7 +82,7 @@ class TestAdvance(object):
         mock_datetime.date.today.return_value = today
         self._set_up_advance(planner_base, planner_day, next_day)
         with pytest.raises(PlannerIsInTheFutureError):
-            _, next_day_planner = planner_base.advance()
+            planner_base.advance()
 
 
 class TestAdvancePeriod(object):

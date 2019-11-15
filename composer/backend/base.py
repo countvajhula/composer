@@ -71,7 +71,7 @@ class PlannerBase(ABC):
         self.jump_to_date = date if date > self.date else None
 
     @abc.abstractmethod
-    def construct(self, location=None, tasklist=None):
+    def construct(self, location=None):
         raise NotImplementedError
 
     def next_day(self):
@@ -330,7 +330,7 @@ class TasklistBase(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def advance(self, period, to_date):
+    def advance(self, to_date):
         raise NotImplementedError
 
     @abc.abstractmethod
