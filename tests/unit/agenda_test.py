@@ -433,13 +433,13 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         daytemplate += self.checkpoints_weekday
         daytemplate += "\n"
         daytemplate += "AGENDA:\n"
-        daytemplate += "[ ] s'posed to do\n"
-        daytemplate += "[\\] kinda did\n"
         daytemplate += "[ ] contact dude\n"
         daytemplate += "[\\] make X\n"
         daytemplate += "[o] call somebody [$DECEMBER 12, 2012$]\n"
         daytemplate += "[o] apply for something [DECEMBER 26, 2012]\n"
         daytemplate += "[ ] finish project\n"
+        daytemplate += "[ ] s'posed to do\n"
+        daytemplate += "[\\] kinda did\n"
         daytemplate += "\n"
         daytemplate += "DAILYs:\n"
         daytemplate += self.periodic_day

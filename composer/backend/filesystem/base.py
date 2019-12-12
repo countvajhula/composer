@@ -365,7 +365,7 @@ class FilesystemPlanner(PlannerBase):
         if period == Day:
             tomorrow = self.tasklist.get_tasks_for_tomorrow()
             undone = self.get_todays_unfinished_tasks()
-            agenda = undone + tomorrow
+            agenda = tomorrow + undone
 
         template = get_template(self, period, for_day)
         contents = template.build(with_agenda=agenda)

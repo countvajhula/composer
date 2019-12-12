@@ -240,12 +240,12 @@ class TestCreateLog(object):
             template += planner.checkpoints_weekday_file.getvalue()
         template += "\n"
         template += "AGENDA:\n"
-        template += "[ ] s'posed to do\n"
-        template += "[\\] kinda did\n"
         template += "[ ] contact dude\n"
         template += "[\\] make X\n"
         template += "[ ] call somebody\n"
         template += "[ ] finish project\n"
+        template += "[ ] s'posed to do\n"
+        template += "[\\] kinda did\n"
         template += "\n"
         template += "DAILYs:\n"
         template += planner.periodic_day_file.getvalue()
