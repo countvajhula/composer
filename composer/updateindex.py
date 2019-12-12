@@ -143,7 +143,7 @@ def prepare_index(contents, path, file_prefix, root_title, preindex):
     return Index(index_name, title, entries, filename)
 
 
-def update_index(path, filename=None, title=None):
+def update_index(path, file_prefix=None, title=None):
     """ Generate the index from all .wiki files present at the provided
     path. Use the provided filename and title string, if any, or use defaults.
     This generates the index from scratch and overwrites any existing index
@@ -151,11 +151,11 @@ def update_index(path, filename=None, title=None):
     index files, each of which are sorted according to different criteria.
 
     :param str path: The location of the wiki
-    :param str filename: The filename (not including extension) to use when
-        saving the generated index
+    :param str file_prefix: The file prefix (not including extension) to
+        use in the filenames for the generated indexes
     :param str title: A title string to use at the top of the file
     """
-    if not filename:
+    if not file_prefix:
         file_prefix = INDEX_FILE_PREFIX
     if not title:
         title = INDEX_TITLE
@@ -191,9 +191,9 @@ def update_index(path, filename=None, title=None):
 @click.argument("wikipath")
 @click.option(
     "-f",
-    "--filename",
+    "--file_prefix",
     help=(
-        "Filename to use for the index (default '{}').".format(
+        "Prefix to use for index filenames (default '{}').".format(
             INDEX_FILE_PREFIX
         )
     ),
@@ -203,10 +203,10 @@ def update_index(path, filename=None, title=None):
     "--title",
     help=("Title for the index page (default '{}')".format(INDEX_TITLE)),
 )
-def main(wikipath, filename=None, title=None):
+def main(wikipath, file_prefix=None, title=None):
     wikipath = wikipath.rstrip("/")
     display_message()
     display_message(">>> Operating on wiki at location: %s <<<" % wikipath)
     display_message()
 
-    update_index(wikipath, filename, title)
+    update_index(wikipath, file_prefix, title)
