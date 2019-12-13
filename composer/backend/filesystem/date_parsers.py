@@ -9,6 +9,7 @@ from ...timeperiod import (
     Month,
     Quarter,
     Year,
+    Eternity,
     month_for_quarter,
     quarter_for_month,
     get_month_name,
@@ -76,6 +77,8 @@ dateformat23 = re.compile(r"^NEXT QUARTER$", re.IGNORECASE)
 dateformat24 = re.compile(r"^(Q\d)$", re.IGNORECASE)
 # DAY AFTER TOMORROW
 dateformat25 = re.compile(r"^DAY AFTER TOMORROW$", re.IGNORECASE)
+# SOMEDAY
+dateformat26 = re.compile(r"^SOMEDAY$", re.IGNORECASE)
 
 
 def get_appropriate_year(month, day, reference_date):
@@ -529,4 +532,20 @@ def parse_dateformat25(date_string, reference_date=None):
         )
     date = get_next_day(get_next_day(reference_date))
     period = Day
+    return date, period
+
+
+def parse_dateformat26(date_string, reference_date=None):
+    """ Parse date format
+        SOMEDAY
+    This is a special date format indicating a "suspended" task. For the
+    task scheduling logic to handle it appropriately we return a date in
+    the distant future.
+
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
+    date = Eternity.get_end_date()
+    period = Eternity
     return date, period

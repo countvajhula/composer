@@ -117,7 +117,7 @@ class _Eternity(Period):
 
     duration = INFINITY
 
-    def is_start_of_period(self, to_date):
+    def is_start_of_period(self, to_date=None):
         """ An infinite period for 'algebraic' convenience. """
         return True
 
@@ -125,7 +125,7 @@ class _Eternity(Period):
         """ An infinite period for 'algebraic' convenience. """
         return "eternity"
 
-    def get_start_date(self, for_date):
+    def get_start_date(self, for_date=None):
         """ Given a date, return the date corresponding to the
         start of the present period (e.g. Week) encompassing that date.
 
@@ -134,7 +134,7 @@ class _Eternity(Period):
         """
         return datetime.date(1, 1, 1)
 
-    def get_end_date(self, for_date):
+    def get_end_date(self, for_date=None):
         """ Given a date, return the date corresponding to the
         end of the present period (e.g. Week) encompassing that date.
 

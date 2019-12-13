@@ -318,6 +318,15 @@ class TestTasklistPlaceTasks(TestTasklist):
         tasklist.place_tasks([task], today)
         assert tasklist.file.getvalue() == expected
 
+    def test_someday(self, tasklist):
+        today = datetime.date(2013, 2, 14)
+        original = self._tasklist()
+        tasklist.file = make_file(original)
+        task = "[o] something [$SOMEDAY$]\n"
+        expected = self._tasklist(task, Eternity)
+        tasklist.place_tasks([task], today)
+        assert tasklist.file.getvalue() == expected
+
     def test_tasks_ordered_chronologically_within_section(self, tasklist):
         today = datetime.date(2013, 2, 14)
         original = self._tasklist()

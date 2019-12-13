@@ -12,7 +12,7 @@ from composer.backend.filesystem.scheduling import (
     is_task_due,
     date_to_string,
 )
-from composer.timeperiod import Day, Week, Month, Quarter, Year
+from composer.timeperiod import Day, Week, Month, Quarter, Year, Eternity
 from composer.errors import BlockedTaskNotScheduledError, InvalidDateError
 
 try:  # py2
@@ -322,6 +322,15 @@ class TestStringToDate(object):
         assert date == expected_date
         assert period == expected_period
 
+    def test_format26(self):
+        today = datetime.date(2013, 6, 1)
+        date_string = "SOMEDAY"
+        expected_date = datetime.date(9999, 12, 12)
+        expected_period = Eternity
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
 
 class TestDateToString(object):
     def test_day(self):
@@ -354,6 +363,12 @@ class TestDateToString(object):
         result = date_to_string(today, Year)
         assert result == expected
 
+    def test_eternity(self):
+        today = datetime.date(2012, 10, 14)
+        expected = "SOMEDAY"
+        result = date_to_string(today, Eternity)
+        assert result == expected
+
 
 class TestDueDate(object):
     def test_day_format(self):
@@ -383,6 +398,12 @@ class TestDueDate(object):
     def test_year_format(self):
         task = "[o] something [$2013$]"
         expected = datetime.date(2013, 1, 1)
+        result, _ = get_due_date(task)
+        assert result == expected
+
+    def test_eternity_format(self):
+        task = "[o] something [$SOMEDAY$]"
+        expected = datetime.date(9999, 12, 12)
         result, _ = get_due_date(task)
         assert result == expected
 
@@ -691,6 +712,51 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "THIS YEAR:\n"
         "\n"
         "SOMEDAY:\n"
+    )
+
+    tasklist_scheduled_format26 = (
+        "TOMORROW:\n"
+        "\n"
+        "THIS WEEK:\n"
+        "[\\] write a script to automatically pull from plan files into a current day in planner (replacing template files)\n"
+        "[ ] help meags set up planner\n"
+        "\t[x] create life mindmap with meags\n"
+        "\t[x] incorporate life mindmap into planner with meags\n"
+        "\t[x] swap meags' Esc and CapsLock on personal laptop\n"
+        "\t[x] vim education and workflow\n"
+        "\t[x] help meags build a routine of entering data for the day\n"
+        "\t[ ] meags to schedule all activities (currently unscheduled)\n"
+        "\t[ ] set up meags work laptop with vim/planner/truecrypt/dropbox\n"
+        "\t[-] set up git access on your domain\n"
+        "\t[ ] set up dropbox+truecrypt planner access for meags\n"
+        "\n"
+        "THIS MONTH:\n"
+        "[ ] get India Tour reimbursement\n"
+        "\t[x] resend all receipts and info to Amrit\n"
+        "\t[x] send reminder email to Amrit\n"
+        "\t[x] coordinate with amrit to go to stanford campus\n"
+        "\t[x] remind amrit if no response\n"
+        "\t[x] check Stanford calendar for appropriate time\n"
+        "\t[x] email amrit re: thursday?\n"
+        "\t[x] email amrit re: monday [$FRIDAY MORNING$]\n"
+        "\t[x] wait for response\n"
+        "\t[-] send reminder on Wed night\n"
+        "\t[x] respond to amrit's email re: amount correction\n"
+        "\t[x] wait to hear back [remind $MONDAY$]\n"
+        "\t[-] followup with ASSU on reimbursement [$TUESDAY$]\n"
+        "\t[x] pick up reimbursement, give difference check to raag\n"
+        "\t[x] cash check\n"
+        "\t[x] confirm deposit\n"
+        "\t[ ] confirm debit of 810 by raag [$DECEMBER 10$]\n"
+        "[ ] do residual monthlys\n"
+        "[ ] get a good scratchy post for ferdy (fab?)\n"
+        "\n"
+        "THIS QUARTER:\n"
+        "\n"
+        "THIS YEAR:\n"
+        "\n"
+        "SOMEDAY:\n"
+        "[o] still waitin on you [$SOMEDAY$]\n"
     )
 
     yeartemplate = (
@@ -1216,6 +1282,27 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "TIME SPENT ON PLANNER: 15 mins"
     )
 
+    daytemplate_scheduled_format26 = (
+        "CHECKPOINTS:\n"
+        "[x] 7:00am - wake up [9:00]\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] did do\n"
+        "\t[x] this\n"
+        "[ ] s'posed to do\n"
+        "[\\] kinda did\n"
+        "[o] still waitin on you [$SOMEDAY$]\n"
+        "[x] take out trash\n"
+        "\n"
+        "DAILYs:\n"
+        "[ ] 40 mins gym\n"
+        "\n"
+        "NOTES:\n"
+        "\n"
+        "\n"
+        "TIME SPENT ON PLANNER: 15 mins"
+    )
+
     checkpoints_year = "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
     checkpoints_quarter = (
         "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
@@ -1460,6 +1547,15 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.assertEqual(
             self.planner.tasklist.file.read(),
             self.tasklist_scheduled_formats16and17,
+        )
+
+    def test_schedule_date_format26(self):
+        """ Check that the format SOMEDAY works """
+        self.planner.date = datetime.date(2012, 12, 3)
+        self.planner.dayfile = StringIO(self.daytemplate_scheduled_format26)
+        self.planner.schedule_tasks()
+        self.assertEqual(
+            self.planner.tasklist.file.read(), self.tasklist_scheduled_format26
         )
 
     def test_schedule_date_is_case_insensitive(self):

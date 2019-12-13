@@ -11,6 +11,7 @@ from ...timeperiod import (
     Month,
     Quarter,
     Year,
+    Eternity,
     quarter_for_month,
     get_month_name,
 )
@@ -41,6 +42,7 @@ from .date_parsers import (
     dateformat23,
     dateformat24,
     dateformat25,
+    dateformat26,
     parse_dateformat1,
     parse_dateformat2,
     parse_dateformat3,
@@ -66,6 +68,7 @@ from .date_parsers import (
     parse_dateformat23,
     parse_dateformat24,
     parse_dateformat25,
+    parse_dateformat26,
 )
 
 SCHEDULED_DATE_PATTERN = re.compile(r"\[\$?([^\[\$]*)\$?\]$")
@@ -97,6 +100,8 @@ def date_to_string(date, period):
         date_string = "{} {}".format(quarter, date.year)
     elif period == Year:
         date_string = "{}".format(date.year)
+    elif period == Eternity:
+        date_string = "SOMEDAY"
     else:
         # default to Day
         date_string = "%s %s, %s" % (
@@ -120,6 +125,7 @@ def string_to_date(datestr, reference_date=None):
         by the string representation
     """
     patterns = (
+        (dateformat26, parse_dateformat26),
         (dateformat1, parse_dateformat1),
         (dateformat2, parse_dateformat2),
         (dateformat18, parse_dateformat18),

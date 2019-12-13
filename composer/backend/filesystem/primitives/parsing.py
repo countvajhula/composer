@@ -15,6 +15,9 @@ def get_section_pattern(section):
 
 
 # TODO: replace these type predicates with regexes?
+# one advantage is that they would be amenable to pattern-based
+# substitutions via re.sub, which could be used for automatic
+# processing of tasks in terms of their status
 def is_scheduled_task(line):
     return line.startswith("[o")
 
