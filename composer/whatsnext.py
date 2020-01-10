@@ -62,6 +62,27 @@ def _show_advice(wikidir, preferences):
     display_message(advice.get_advice(lessons_files))
 
 
+def _pass_baton(wikidir, preferences):
+    """ Display the contents of the "baton" file (usually Cache.wiki)
+    as the strands in progress / next steps to pick up on. Then clear
+    the file.
+    """
+    try:
+        baton_file = preferences.get('baton_file')
+        baton_file = os.path.join(wikidir, baton_file) if baton_file else None
+        if baton_file:
+            # display its contents
+            display_message("~~~ YOUR NOTES FOR TODAY ~~~")
+            display_message()
+            with open(baton_file, 'r') as f:
+                display_message(f.read().strip('\n'))
+            # clear it
+            with open(baton_file, 'w'):
+                pass
+    except FileNotFoundError:
+        pass
+
+
 def _post_advance_tasks(wikidir, plannerdate, preferences):
     """ Update the index to include any newly created files,
     Commit the post-advance state into git, and display a
@@ -82,6 +103,9 @@ def _post_advance_tasks(wikidir, plannerdate, preferences):
     datestr = "%s %d, %d" % (month, date, year)
     message = "SOD %s" % datestr
     _make_git_commit(wikidir, message)
+
+    display_message()
+    _pass_baton(wikidir, preferences)
 
     display_message()
     _show_advice(wikidir, preferences)

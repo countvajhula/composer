@@ -8,7 +8,10 @@ try:  # py3
 except ImportError:  # py2
     import ConfigParser as configparser
 
+# global config
 CONFIG_FILENAME = "config.ini"
+# wiki-specific config overrides
+WIKI_CONFIG_FILENAME = CONFIG_FILENAME
 
 LOGFILE_CHECKING = {"STRICT": 1, "LAX": 2}
 
@@ -53,7 +56,7 @@ def update_wiki_specific_preferences(wikidir, preferences):
     :param dict preferences: Preferences read from the main config file
         that we will override here with wiki-specific config
     """
-    config_path = os.path.join(wikidir, CONFIG_FILENAME)
+    config_path = os.path.join(wikidir, WIKI_CONFIG_FILENAME)
     if not os.path.isfile(config_path):
         return
     config = _read_config(config_path)
