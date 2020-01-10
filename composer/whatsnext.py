@@ -47,6 +47,7 @@ def _make_git_commit(wikidir, message):
 
 
 def _show_advice(wikidir, preferences):
+    display_message()
     display_message("~~~ THOUGHT FOR THE DAY ~~~")
     display_message()
     filepaths = map(lambda f: wikidir + "/" + f, preferences["lessons_files"])
@@ -72,10 +73,13 @@ def _pass_baton(wikidir, preferences):
         baton_file = os.path.join(wikidir, baton_file) if baton_file else None
         if baton_file:
             # display its contents
-            display_message("~~~ YOUR NOTES FOR TODAY ~~~")
-            display_message()
             with open(baton_file, 'r') as f:
-                display_message(f.read().strip('\n'))
+                notes = f.read().strip('\n')
+                if notes:
+                    display_message()
+                    display_message("~~~ YOUR NOTES FOR TODAY ~~~")
+                    display_message()
+                    display_message(notes)
             # clear it
             with open(baton_file, 'w'):
                 pass
@@ -104,10 +108,8 @@ def _post_advance_tasks(wikidir, plannerdate, preferences):
     message = "SOD %s" % datestr
     _make_git_commit(wikidir, message)
 
-    display_message()
     _pass_baton(wikidir, preferences)
 
-    display_message()
     _show_advice(wikidir, preferences)
 
 
