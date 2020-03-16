@@ -184,6 +184,8 @@ class TestStringToDate(object):
             (datetime.date(2013, 10, 9), datetime.date(2013, 10, 13)),
             # start of week not on Sunday
             (datetime.date(2013, 4, 28), datetime.date(2013, 5, 1)),
+            # on Saturday, "next week" means a week later
+            (datetime.date(2013, 1, 12), datetime.date(2013, 1, 20)),
         ],
     )
     def test_format14(self, today, expected_date):

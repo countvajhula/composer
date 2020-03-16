@@ -335,7 +335,13 @@ def parse_dateformat14(date_string, reference_date=None):
         raise RelativeDateError(
             "Relative date found, but no context available"
         )
-    date = Week.get_end_date(reference_date) + datetime.timedelta(days=1)
+    week_end_date = Week.get_end_date(reference_date)
+    if week_end_date == reference_date:
+        # on Saturday, "next week" means a week later
+        week_end_date = Week.get_end_date(
+            reference_date + datetime.timedelta(days=1)
+        )
+    date = week_end_date + datetime.timedelta(days=1)
     period = Week
     return date, period
 
