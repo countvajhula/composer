@@ -79,6 +79,8 @@ dateformat24 = re.compile(r"^(Q\d)$", re.IGNORECASE)
 dateformat25 = re.compile(r"^DAY AFTER TOMORROW$", re.IGNORECASE)
 # SOMEDAY
 dateformat26 = re.compile(r"^SOMEDAY$", re.IGNORECASE)
+# WEEK AFTER NEXT
+dateformat27 = re.compile(r"^WEEK AFTER NEXT$", re.IGNORECASE)
 
 
 def get_appropriate_year(month, day, reference_date):
@@ -554,4 +556,26 @@ def parse_dateformat26(date_string, reference_date=None):
     """
     date = Eternity.get_end_date()
     period = Eternity
+    return date, period
+
+def parse_dateformat27(date_string, reference_date=None):
+    """ Parse date format
+        WEEK AFTER NEXT
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
+    if not reference_date:
+        raise RelativeDateError(
+            "Relative date found, but no context available"
+        )
+    week_end_date = Week.get_end_date(reference_date)
+    if week_end_date == reference_date:
+        # on Saturday, "next week" means a week later
+        week_end_date = Week.get_end_date(
+            reference_date + datetime.timedelta(days=1)
+        )
+    next_week_start = week_end_date + datetime.timedelta(days=1)
+    date = Week.get_end_date(next_week_start) + datetime.timedelta(days=1)
+    period = Week
     return date, period

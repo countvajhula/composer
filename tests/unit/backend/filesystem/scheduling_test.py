@@ -333,6 +333,23 @@ class TestStringToDate(object):
         assert date == expected_date
         assert period == expected_period
 
+    @pytest.mark.parametrize(
+        "today, expected_date",
+        [
+            (datetime.date(2013, 10, 9), datetime.date(2013, 10, 20)),
+            # start of week not on Sunday
+            (datetime.date(2013, 4, 28), datetime.date(2013, 5, 12)),
+            # on Saturday, "next week" means a week later
+            (datetime.date(2013, 1, 12), datetime.date(2013, 1, 27)),
+        ],
+    )
+    def test_format27(self, today, expected_date):
+        date_string = "WEEK AFTER NEXT"
+        expected_period = Week
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
 
 class TestDateToString(object):
     def test_day(self):
@@ -1305,6 +1322,28 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         "TIME SPENT ON PLANNER: 15 mins"
     )
 
+    daytemplate_scheduled_format27 = (
+        "CHECKPOINTS:\n"
+        "[x] 7:00am - wake up [9:00]\n"
+        "\n"
+        "AGENDA:\n"
+        "[x] did do\n"
+        "\t[x] this\n"
+        "[ ] s'posed to do\n"
+        "[\\] kinda did\n"
+        "[o] i'm waitin on you! [$WEEK AFTER NEXT$]\n"
+        "[o] still waitin on you [$WEEK OF JANUARY 14$]\n"
+        "[x] take out trash\n"
+        "\n"
+        "DAILYs:\n"
+        "[ ] 40 mins gym\n"
+        "\n"
+        "NOTES:\n"
+        "\n"
+        "\n"
+        "TIME SPENT ON PLANNER: 15 mins"
+    )
+
     checkpoints_year = "[ ] Q1 - []\n[ ] Q2 - []\n[ ] Q3 - []\n[ ] Q4 - []\n"
     checkpoints_quarter = (
         "[ ] MONTH 1 - []\n[ ] MONTH 2 - []\n[ ] MONTH 3 - []\n"
@@ -1558,6 +1597,16 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.schedule_tasks()
         self.assertEqual(
             self.planner.tasklist.file.read(), self.tasklist_scheduled_format26
+        )
+
+    def test_schedule_date_format27(self):
+        """ Check that the format WEEK AFTER NEXT works """
+        self.planner.date = datetime.date(2012, 12, 3)
+        self.planner.dayfile = StringIO(self.daytemplate_scheduled_format27)
+        self.planner.schedule_tasks()
+        self.assertEqual(
+            self.planner.tasklist.file.read(),
+            self.tasklist_scheduled_formats5to8and14,
         )
 
     def test_schedule_date_is_case_insensitive(self):

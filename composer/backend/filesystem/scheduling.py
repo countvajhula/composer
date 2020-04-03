@@ -43,6 +43,7 @@ from .date_parsers import (
     dateformat24,
     dateformat25,
     dateformat26,
+    dateformat27,
     parse_dateformat1,
     parse_dateformat2,
     parse_dateformat3,
@@ -69,6 +70,7 @@ from .date_parsers import (
     parse_dateformat24,
     parse_dateformat25,
     parse_dateformat26,
+    parse_dateformat27,
 )
 
 SCHEDULED_DATE_PATTERN = re.compile(r"\[\$?([^\[\$]*)\$?\]$")
@@ -125,6 +127,7 @@ def string_to_date(datestr, reference_date=None):
         by the string representation
     """
     patterns = (
+        (dateformat27, parse_dateformat27),
         (dateformat26, parse_dateformat26),
         (dateformat1, parse_dateformat1),
         (dateformat2, parse_dateformat2),
