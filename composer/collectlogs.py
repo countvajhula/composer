@@ -46,10 +46,10 @@ def get_logs_times(wikidir, period):
     :returns tuple: The logs (str) and times (list)
     """
     planner = FilesystemPlanner(wikidir)
-    logs = get_constituent_logs(period, planner.date, wikidir)
+    current_date = period.get_start_date(planner.date)
+    logs = get_constituent_logs(period, current_date, wikidir)
     constituent_period = get_next_period(period, decreasing=True)
     (logs_string, times) = ("", [])
-    current_date = period.get_start_date(planner.date)
     for log in logs:
         (log, time) = extract_log_time_from_text(log.read())
         start_date = constituent_period.get_start_date(current_date)
