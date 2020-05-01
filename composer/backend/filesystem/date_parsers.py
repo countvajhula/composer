@@ -81,6 +81,10 @@ dateformat25 = re.compile(r"^DAY AFTER TOMORROW$", re.IGNORECASE)
 dateformat26 = re.compile(r"^SOMEDAY$", re.IGNORECASE)
 # WEEK AFTER NEXT
 dateformat27 = re.compile(r"^WEEK AFTER NEXT$", re.IGNORECASE)
+# <NTH> WEEK OF <MONTH>
+dateformat28 = re.compile(
+    r"^(FIRST|SECOND|THIRD|FOURTH|LAST) WEEK OF ([^\d]+)$", re.IGNORECASE
+)
 
 
 def get_appropriate_year(month, day, reference_date):
@@ -326,6 +330,20 @@ def parse_dateformat13(date_string, reference_date=None):
     return date, period
 
 
+def _weeks_from_now(how_many, reference_date):
+    date = reference_date
+    while how_many > 0:
+        week_end_date = Week.get_end_date(date)
+        if week_end_date == date:
+            # on Saturday, "next week" means a week later
+            week_end_date = Week.get_end_date(
+                date + datetime.timedelta(days=1)
+            )
+        date = week_end_date + datetime.timedelta(days=1)
+        how_many -= 1
+    return date
+
+
 def parse_dateformat14(date_string, reference_date=None):
     """ Parse date format
         NEXT WEEK
@@ -337,13 +355,7 @@ def parse_dateformat14(date_string, reference_date=None):
         raise RelativeDateError(
             "Relative date found, but no context available"
         )
-    week_end_date = Week.get_end_date(reference_date)
-    if week_end_date == reference_date:
-        # on Saturday, "next week" means a week later
-        week_end_date = Week.get_end_date(
-            reference_date + datetime.timedelta(days=1)
-        )
-    date = week_end_date + datetime.timedelta(days=1)
+    date = _weeks_from_now(1, reference_date)
     period = Week
     return date, period
 
@@ -558,6 +570,7 @@ def parse_dateformat26(date_string, reference_date=None):
     period = Eternity
     return date, period
 
+
 def parse_dateformat27(date_string, reference_date=None):
     """ Parse date format
         WEEK AFTER NEXT
@@ -577,5 +590,48 @@ def parse_dateformat27(date_string, reference_date=None):
         )
     next_week_start = week_end_date + datetime.timedelta(days=1)
     date = Week.get_end_date(next_week_start) + datetime.timedelta(days=1)
+    period = Week
+    return date, period
+
+
+def parse_dateformat28(date_string, reference_date=None):
+    """ Parse date format
+        (FIRST|SECOND|THIRD|FOURTH|LAST) WEEK OF <MONTH|THE MONTH>
+    :param str date_string: The string representation of the date
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    :returns tuple: The parsed date, together with the relevant time period.
+    """
+    if not reference_date:
+        raise RelativeDateError(
+            "Relative date found, but no context available"
+        )
+    which_week = dateformat28.search(date_string).groups()[0]
+    month = dateformat28.search(date_string).groups()[1]
+    if month == "THE MONTH":
+        (monthn, dayn) = (reference_date.month, 1)
+    else:
+        (monthn, dayn) = (get_month_number(month), 1)
+    (day, year) = (
+        str(dayn),
+        str(get_appropriate_year(monthn, dayn, reference_date)),
+    )
+    date = datetime.datetime.strptime(
+        month + "-" + day + "-" + year, "%B-%d-%Y"
+    ).date()
+    if which_week == "FIRST":
+        how_many_weeks = 0
+    elif which_week == "SECOND":
+        how_many_weeks = 1
+    elif which_week == "THIRD":
+        how_many_weeks = 2
+    elif which_week == "FOURTH":
+        how_many_weeks = 3
+    elif which_week == "LAST":
+        how_many_weeks = 3
+    date = _weeks_from_now(how_many_weeks, date)
+    if which_week == "LAST":
+        following_week_start = _weeks_from_now(1, date)
+        if following_week_start.month == date.month:
+            date = following_week_start
     period = Week
     return date, period

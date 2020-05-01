@@ -350,6 +350,77 @@ class TestStringToDate(object):
         assert date == expected_date
         assert period == expected_period
 
+    @pytest.mark.parametrize(
+        "date_string, today, expected_date",
+        [
+            (
+                "FIRST WEEK OF MAY",
+                datetime.date(2012, 10, 9),
+                datetime.date(2013, 5, 1),
+            ),
+            # in same month - treat as current month instead
+            # of a year from now
+            (
+                "FIRST WEEK OF MAY",
+                datetime.date(2012, 5, 1),
+                datetime.date(2012, 5, 1),
+            ),
+            # day before month
+            (
+                "FIRST WEEK OF MAY",
+                datetime.date(2013, 4, 28),
+                datetime.date(2013, 5, 1),
+            ),
+            (
+                "THIRD WEEK OF MAY",
+                datetime.date(2012, 10, 9),
+                datetime.date(2013, 5, 19),
+            ),
+            # in same month - treat as current month instead
+            # of a year from now
+            (
+                "THIRD WEEK OF MAY",
+                datetime.date(2012, 5, 1),
+                datetime.date(2012, 5, 13),
+            ),
+            # day before month
+            (
+                "THIRD WEEK OF MAY",
+                datetime.date(2013, 4, 28),
+                datetime.date(2013, 5, 19),
+            ),
+            (
+                "LAST WEEK OF MAY",
+                datetime.date(2012, 10, 9),
+                datetime.date(2013, 5, 26),
+            ),
+            # in same month - treat as current month instead
+            # of a year from now
+            (
+                "LAST WEEK OF MAY",
+                datetime.date(2012, 5, 1),
+                datetime.date(2012, 5, 27),
+            ),
+            # day before month
+            (
+                "LAST WEEK OF MAY",
+                datetime.date(2012, 4, 28),
+                datetime.date(2012, 5, 27),
+            ),
+            # day before month
+            (
+                "LAST WEEK OF MAY",
+                datetime.date(2013, 4, 28),
+                datetime.date(2013, 5, 26),
+            ),
+        ],
+    )
+    def test_format28(self, date_string, today, expected_date):
+        expected_period = Week
+        date, period = string_to_date(date_string, reference_date=today)
+        assert date == expected_date
+        assert period == expected_period
+
 
 class TestDateToString(object):
     def test_day(self):
