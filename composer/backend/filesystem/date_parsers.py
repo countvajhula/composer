@@ -609,6 +609,7 @@ def parse_dateformat28(date_string, reference_date=None):
     month = dateformat28.search(date_string).groups()[1]
     if month == "THE MONTH":
         (monthn, dayn) = (reference_date.month, 1)
+        month = get_month_name(monthn)
     else:
         (monthn, dayn) = (get_month_number(month), 1)
     (day, year) = (
