@@ -418,6 +418,11 @@ class TestStringToDate(object):
                 datetime.date(2013, 5, 1),
                 datetime.date(2013, 5, 26),
             ),
+            (
+                "THIRD WEEK OF THE MONTH",
+                datetime.date(2013, 4, 30),
+                datetime.date(2013, 5, 19),
+            ),
         ],
     )
     def test_format28(self, date_string, today, expected_date):

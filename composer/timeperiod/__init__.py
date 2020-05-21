@@ -4,7 +4,7 @@ from .week import Week
 from .month import Month
 from .quarter import Quarter
 from .year import Year
-from .utils import get_next_day
+from .utils import get_next_day, get_next_month
 from .interface import (
     get_next_period,
     is_weekend,
@@ -18,6 +18,7 @@ from .interface import (
 
 __all__ = (
     "get_next_day",
+    "get_next_month",
     "get_next_period",
     "get_time_periods",
     "is_weekend",

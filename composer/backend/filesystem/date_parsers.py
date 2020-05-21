@@ -4,6 +4,7 @@ import re
 from ...errors import RelativeDateError
 from ...timeperiod import (
     get_next_day,
+    get_next_month,
     Day,
     Week,
     Month,
@@ -330,7 +331,7 @@ def parse_dateformat13(date_string, reference_date=None):
     return date, period
 
 
-def _weeks_from_now(how_many, reference_date):
+def _weeks_from(how_many, reference_date):
     date = reference_date
     while how_many > 0:
         week_end_date = Week.get_end_date(date)
@@ -355,7 +356,7 @@ def parse_dateformat14(date_string, reference_date=None):
         raise RelativeDateError(
             "Relative date found, but no context available"
         )
-    date = _weeks_from_now(1, reference_date)
+    date = _weeks_from(1, reference_date)
     period = Week
     return date, period
 
@@ -606,11 +607,12 @@ def parse_dateformat28(date_string, reference_date=None):
             "Relative date found, but no context available"
         )
     which_week = dateformat28.search(date_string).groups()[0]
-    month = dateformat28.search(date_string).groups()[1]
-    if month == "THE MONTH":
+    month_string = dateformat28.search(date_string).groups()[1]
+    if month_string == "THE MONTH":
         (monthn, dayn) = (reference_date.month, 1)
         month = get_month_name(monthn)
     else:
+        month = month_string
         (monthn, dayn) = (get_month_number(month), 1)
     (day, year) = (
         str(dayn),
@@ -619,6 +621,13 @@ def parse_dateformat28(date_string, reference_date=None):
     date = datetime.datetime.strptime(
         month + "-" + day + "-" + year, "%B-%d-%Y"
     ).date()
+    if (
+        month_string == "THE MONTH"
+        and date - reference_date > datetime.timedelta(weeks=5)
+    ):
+        # eg. "first week of the month" in the last week
+        # of the month means the following month
+        date = get_next_month(reference_date)
     if which_week == "FIRST":
         how_many_weeks = 0
     elif which_week == "SECOND":
@@ -629,9 +638,9 @@ def parse_dateformat28(date_string, reference_date=None):
         how_many_weeks = 3
     elif which_week == "LAST":
         how_many_weeks = 3
-    date = _weeks_from_now(how_many_weeks, date)
+    date = _weeks_from(how_many_weeks, date)
     if which_week == "LAST":
-        following_week_start = _weeks_from_now(1, date)
+        following_week_start = _weeks_from(1, date)
         if following_week_start.month == date.month:
             date = following_week_start
     period = Week

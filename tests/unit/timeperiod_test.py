@@ -12,7 +12,43 @@ from composer.timeperiod import (
     get_time_periods,
     quarter_for_month,
     month_for_quarter,
+    get_next_day,
+    get_next_month,
 )
+
+
+class TestGetNextDay(object):
+    def test_smoke(self):
+        current_date = datetime.date(2013, 5, 15)
+        expected = datetime.date(2013, 5, 16)
+        result = get_next_day(current_date)
+        assert result == expected
+
+
+class TestGetNextMonth(object):
+    def test_start_of_month(self):
+        current_date = datetime.date(2013, 5, 1)
+        expected = datetime.date(2013, 6, 1)
+        result = get_next_month(current_date)
+        assert result == expected
+
+    def test_middle_of_month(self):
+        current_date = datetime.date(2013, 5, 15)
+        expected = datetime.date(2013, 6, 1)
+        result = get_next_month(current_date)
+        assert result == expected
+
+    def test_end_of_month(self):
+        current_date = datetime.date(2013, 5, 31)
+        expected = datetime.date(2013, 6, 1)
+        result = get_next_month(current_date)
+        assert result == expected
+
+    def test_end_of_year(self):
+        current_date = datetime.date(2013, 12, 31)
+        expected = datetime.date(2014, 1, 1)
+        result = get_next_month(current_date)
+        assert result == expected
 
 
 class TestStartDate(object):
