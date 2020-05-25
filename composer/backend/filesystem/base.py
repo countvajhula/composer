@@ -319,32 +319,32 @@ class FilesystemPlanner(PlannerBase):
                 SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
             ),
             'checkpoints_week_file': "{}_Week.wiki".format(
-                SCHEDULE_FILE_PREFIX,
+                SCHEDULE_FILE_PREFIX
             ),
             'checkpoints_month_file': "{}_Month.wiki".format(
-                SCHEDULE_FILE_PREFIX,
+                SCHEDULE_FILE_PREFIX
             ),
             'checkpoints_quarter_file': "{}_Quarter.wiki".format(
-                SCHEDULE_FILE_PREFIX,
+                SCHEDULE_FILE_PREFIX
             ),
             'checkpoints_year_file': "{}_Year.wiki".format(
-                SCHEDULE_FILE_PREFIX,
+                SCHEDULE_FILE_PREFIX
             ),
             # periodic items
             'periodic_day_file': "{}_Daily_{}.wiki".format(
                 PERIODIC_FILE_PREFIX, self.schedule.capitalize()
             ),
             'periodic_week_file': "{}_Weekly.wiki".format(
-                PERIODIC_FILE_PREFIX,
+                PERIODIC_FILE_PREFIX
             ),
             'periodic_month_file': "{}_Monthly.wiki".format(
-                PERIODIC_FILE_PREFIX,
+                PERIODIC_FILE_PREFIX
             ),
             'periodic_quarter_file': "{}_Quarterly.wiki".format(
-                PERIODIC_FILE_PREFIX,
+                PERIODIC_FILE_PREFIX
             ),
             'periodic_year_file': "{}_Yearly.wiki".format(
-                PERIODIC_FILE_PREFIX,
+                PERIODIC_FILE_PREFIX
             ),
         }
         for attr, filename in planner_files.items():

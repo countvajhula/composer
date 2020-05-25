@@ -1,5 +1,6 @@
 from .base import Template
 from ....timeperiod import is_weekend
+from ..primitives import append_files
 
 
 def _get_theme_for_the_day(day, daythemesfile):

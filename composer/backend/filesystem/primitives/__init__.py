@@ -5,7 +5,7 @@ from .entries import (  # noqa
     partition_entries,
     read_section,
 )
-from .files import make_file, read_file, write_file  # noqa
+from .files import make_file, read_file, write_file, append_files  # noqa
 from .parsing import (  # noqa
     is_blank_line,
     is_completed,
@@ -34,6 +34,7 @@ __all__ = (
     "make_file",
     "read_file",
     "write_file",
+    "append_files",
     "is_blank_line",
     "is_completed",
     "is_not_completed",

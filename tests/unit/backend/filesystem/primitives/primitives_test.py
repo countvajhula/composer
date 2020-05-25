@@ -4,12 +4,15 @@ import re
 from composer.backend.filesystem.primitives.entries import (
     add_to_section,
     read_section,
-    partition_at,
     partition_entries,
     get_entries,
     read_entry,
 )
-from composer.backend.filesystem.primitives.files import make_file
+from composer.backend.filesystem.primitives.files import (
+    make_file,
+    partition_at,
+    append_files,
+)
 from composer.backend.filesystem.primitives.parsing import (
     is_done_task,
     is_undone_task,
@@ -162,6 +165,44 @@ class TestPartitionAt(object):
         pattern = re.compile(r"^NOT THERE")
         first, second = partition_at(logfile, pattern, or_eof=True)
         assert first.read() == logfile.getvalue()
+        assert second.read() == ""
+
+
+class TestAppendFiles(object):
+    def test_happy(self):
+        first = make_file("Hi ")
+        second = make_file("there")
+        result = append_files(first, second)
+        expected = "Hi there"
+        assert result.read() == expected
+        assert first.read() == "Hi "
+        assert second.read() == "there"
+
+    def test_first_empty(self):
+        first = make_file("")
+        second = make_file("there")
+        result = append_files(first, second)
+        expected = "there"
+        assert result.read() == expected
+        assert first.read() == ""
+        assert second.read() == "there"
+
+    def test_second_empty(self):
+        first = make_file("Hi ")
+        second = make_file("")
+        result = append_files(first, second)
+        expected = "Hi "
+        assert result.read() == expected
+        assert first.read() == "Hi "
+        assert second.read() == ""
+
+    def test_both_empty(self):
+        first = make_file("")
+        second = make_file("")
+        result = append_files(first, second)
+        expected = ""
+        assert result.read() == expected
+        assert first.read() == ""
         assert second.read() == ""
 
 

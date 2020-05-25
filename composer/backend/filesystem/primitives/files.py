@@ -90,3 +90,47 @@ def write_file(file, filename):
     :param filename: Path to write to
     """
     _write_file(file.read(), filename)
+
+
+@contain_file_mutation
+def partition_at(file, pattern, or_eof=False, inclusive=False):
+    """ Partition a file into two files at the occurrence of a pattern.  The
+    first file will contain the contents before the pattern, while the second
+    list will contain those after it.
+
+    :param :class:`io.StringIO` file: A text file to partition
+    :param :class:`_sre.SRE_Pattern` pattern: A pattern (regex) to find
+    :param bool or_eof: If true, then handles missing pattern gracefully
+        and does not treat it as an error. Otherwise, raises an error if the
+        pattern is missing.
+    :param bool inclusive: Whether to include the pattern in the 'before' file
+    :returns tuple: A pair with a file containing the contents before
+        the pattern, and another file containing the contents after
+    """
+    before, after = make_file(), make_file()
+    line = file.readline()
+    while line:
+        if not pattern.search(line):
+            before.write(line)
+            line = file.readline()
+            continue
+        if inclusive:
+            before.write(line)
+        else:
+            after.write(line)
+        break
+    if not line and not or_eof:
+        raise ValueError("Pattern {} not found in file!".format(pattern))
+    after.write(file.read())
+
+    return before, after
+
+
+@contain_file_mutation
+def append_files(first_file, second_file):
+    """ Concatenate two files.
+
+    :param first_file: The first file
+    :param second_file: The second file
+    """
+    return make_file(first_file.read() + second_file.read())
