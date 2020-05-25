@@ -54,18 +54,12 @@ try:  # py3
 except NameError:  # py2
     FileNotFoundError = IOError
 
-SCHEDULE_FILE_PREFIX = "Checkpoints"
 PLANNERTASKLISTFILE = "TaskList.wiki"
 PLANNERDAYTHEMESFILE = "DayThemes.wiki"
 PLANNERDAYFILELINK = "currentday"
-CHECKPOINTSWEEKFILE = "Checkpoints_Week.wiki"
-CHECKPOINTSMONTHFILE = "Checkpoints_Month.wiki"
-CHECKPOINTSQUARTERFILE = "Checkpoints_Quarter.wiki"
-CHECKPOINTSYEARFILE = "Checkpoints_Year.wiki"
-PERIODICYEARLYFILE = "Periodic_Yearly.wiki"
-PERIODICQUARTERLYFILE = "Periodic_Quarterly.wiki"
-PERIODICMONTHLYFILE = "Periodic_Monthly.wiki"
-PERIODICWEEKLYFILE = "Periodic_Weekly.wiki"
+# e.g. Checkpoints_Week.wiki
+SCHEDULE_FILE_PREFIX = "Checkpoints"
+# e.g. Periodic_Weekly.wiki
 PERIODIC_FILE_PREFIX = "Periodic"
 
 
@@ -236,18 +230,34 @@ class FilesystemPlanner(PlannerBase):
             'checkpoints_weekend_file': "{}_Weekend_{}.wiki".format(
                 SCHEDULE_FILE_PREFIX, self.schedule.capitalize()
             ),
-            'checkpoints_week_file': CHECKPOINTSWEEKFILE,
-            'checkpoints_month_file': CHECKPOINTSMONTHFILE,
-            'checkpoints_quarter_file': CHECKPOINTSQUARTERFILE,
-            'checkpoints_year_file': CHECKPOINTSYEARFILE,
+            'checkpoints_week_file': "{}_Week.wiki".format(
+                SCHEDULE_FILE_PREFIX,
+            ),
+            'checkpoints_month_file': "{}_Month.wiki".format(
+                SCHEDULE_FILE_PREFIX,
+            ),
+            'checkpoints_quarter_file': "{}_Quarter.wiki".format(
+                SCHEDULE_FILE_PREFIX,
+            ),
+            'checkpoints_year_file': "{}_Year.wiki".format(
+                SCHEDULE_FILE_PREFIX,
+            ),
             # periodic items
             'periodic_day_file': "{}_Daily_{}.wiki".format(
                 PERIODIC_FILE_PREFIX, self.schedule.capitalize()
             ),
-            'periodic_week_file': PERIODICWEEKLYFILE,
-            'periodic_month_file': PERIODICMONTHLYFILE,
-            'periodic_quarter_file': PERIODICQUARTERLYFILE,
-            'periodic_year_file': PERIODICYEARLYFILE,
+            'periodic_week_file': "{}_Weekly.wiki".format(
+                PERIODIC_FILE_PREFIX,
+            ),
+            'periodic_month_file': "{}_Monthly.wiki".format(
+                PERIODIC_FILE_PREFIX,
+            ),
+            'periodic_quarter_file': "{}_Quarterly.wiki".format(
+                PERIODIC_FILE_PREFIX,
+            ),
+            'periodic_year_file': "{}_Yearly.wiki".format(
+                PERIODIC_FILE_PREFIX,
+            ),
         }
         for attr, filename in planner_files.items():
             setattr(
