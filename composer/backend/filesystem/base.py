@@ -141,6 +141,94 @@ class FilesystemPlanner(PlannerBase):
     def yearfile(self, value):
         self._yearfile = value
 
+    @property
+    def checkpoints_weekday_file(self):
+        return make_file(self._checkpoints_weekday_file.getvalue())
+
+    @checkpoints_weekday_file.setter
+    def checkpoints_weekday_file(self, value):
+        self._checkpoints_weekday_file = value
+
+    @property
+    def checkpoints_weekend_file(self):
+        return make_file(self._checkpoints_weekend_file.getvalue())
+
+    @checkpoints_weekend_file.setter
+    def checkpoints_weekend_file(self, value):
+        self._checkpoints_weekend_file = value
+
+    @property
+    def checkpoints_week_file(self):
+        return make_file(self._checkpoints_week_file.getvalue())
+
+    @checkpoints_week_file.setter
+    def checkpoints_week_file(self, value):
+        self._checkpoints_week_file = value
+
+    @property
+    def checkpoints_month_file(self):
+        return make_file(self._checkpoints_month_file.getvalue())
+
+    @checkpoints_month_file.setter
+    def checkpoints_month_file(self, value):
+        self._checkpoints_month_file = value
+
+    @property
+    def checkpoints_quarter_file(self):
+        return make_file(self._checkpoints_quarter_file.getvalue())
+
+    @checkpoints_quarter_file.setter
+    def checkpoints_quarter_file(self, value):
+        self._checkpoints_quarter_file = value
+
+    @property
+    def checkpoints_year_file(self):
+        return make_file(self._checkpoints_year_file.getvalue())
+
+    @checkpoints_year_file.setter
+    def checkpoints_year_file(self, value):
+        self._checkpoints_year_file = value
+
+    @property
+    def periodic_day_file(self):
+        return make_file(self._periodic_day_file.getvalue())
+
+    @periodic_day_file.setter
+    def periodic_day_file(self, value):
+        self._periodic_day_file = value
+
+    @property
+    def periodic_week_file(self):
+        return make_file(self._periodic_week_file.getvalue())
+
+    @periodic_week_file.setter
+    def periodic_week_file(self, value):
+        self._periodic_week_file = value
+
+    @property
+    def periodic_month_file(self):
+        return make_file(self._periodic_month_file.getvalue())
+
+    @periodic_month_file.setter
+    def periodic_month_file(self, value):
+        self._periodic_month_file = value
+
+    @property
+    def periodic_quarter_file(self):
+        return make_file(self._periodic_quarter_file.getvalue())
+
+    @periodic_quarter_file.setter
+    def periodic_quarter_file(self, value):
+        self._periodic_quarter_file = value
+
+    @property
+    def periodic_year_file(self):
+        return make_file(self._periodic_year_file.getvalue())
+
+    @periodic_year_file.setter
+    def periodic_year_file(self, value):
+        self._periodic_year_file = value
+
     def _logfile_attribute(self, period):
         """ A helper to get the name of the attribute on the planner instance
         corresponding to the log file for the given period.
