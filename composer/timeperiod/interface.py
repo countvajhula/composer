@@ -1,4 +1,5 @@
 import calendar
+from datetime import date
 
 from .base import Zero, Eternity  # noqa
 from .day import Day
@@ -6,6 +7,7 @@ from .week import Week
 from .month import Month
 from .quarter import Quarter
 from .year import Year
+from .utils import get_next_day
 
 TIME_PERIODS = (Zero, Day, Week, Month, Quarter, Year, Eternity)
 
@@ -111,3 +113,25 @@ def get_month_name(monthnumber):
         (k, v) for k, v in enumerate(calendar.month_name)
     )
     return month_number_to_name[monthnumber]
+
+
+def day_of_week(date):
+    """ Day of week for the given date.
+
+    :param :class:`datetime.date` date: The date to check
+    """
+    return date.strftime("%A")
+
+
+def upcoming_dow_to_date(dow, reference_date=None):
+    """ Date for the given upcoming day of the week.
+
+    :param str dow: The day of the week
+    :param :class:`datetime.date` reference_date: Date to be treated as "today"
+    """
+    if not reference_date:
+        reference_date = date.today()
+    d = get_next_day(reference_date)
+    while day_of_week(d).lower() != dow:
+        d = get_next_day(d)
+    return d

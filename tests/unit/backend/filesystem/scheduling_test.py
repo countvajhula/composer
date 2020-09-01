@@ -257,6 +257,9 @@ class TestStringToDate(object):
             (datetime.date(2013, 10, 12), datetime.date(2013, 10, 12)),
             # start of week
             (datetime.date(2013, 10, 13), datetime.date(2013, 10, 19)),
+            # end of month
+            (datetime.date(2013, 7, 30), datetime.date(2013, 8, 3)),
+            (datetime.date(2013, 9, 29), datetime.date(2013, 10, 5)),
         ],
     )
     def test_format21(self, today, expected_date):
@@ -274,6 +277,9 @@ class TestStringToDate(object):
             (datetime.date(2013, 10, 12), datetime.date(2013, 10, 19)),
             # start of week
             (datetime.date(2013, 10, 13), datetime.date(2013, 10, 26)),
+            # end of month
+            (datetime.date(2013, 7, 30), datetime.date(2013, 8, 10)),
+            (datetime.date(2013, 9, 29), datetime.date(2013, 10, 12)),
         ],
     )
     def test_format22(self, today, expected_date):

@@ -13,6 +13,8 @@ from .interface import (
     get_time_periods,
     get_month_name,
     get_month_number,
+    day_of_week,
+    upcoming_dow_to_date,
 )
 
 
@@ -26,6 +28,8 @@ __all__ = (
     "month_for_quarter",
     "get_month_name",
     "get_month_number",
+    "day_of_week",
+    "upcoming_dow_to_date",
     "Period",
     "Zero",
     "Eternity",

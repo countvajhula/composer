@@ -15,6 +15,8 @@ from ...timeperiod import (
     quarter_for_month,
     get_month_name,
     get_month_number,
+    day_of_week,
+    upcoming_dow_to_date,
 )
 
 # TODO: change these to annotated regex's
@@ -477,7 +479,10 @@ def parse_dateformat21(date_string, reference_date=None):
         raise RelativeDateError(
             "Relative date found, but no context available"
         )
-    date = Week.get_end_date(reference_date)
+    if day_of_week(reference_date).lower() == 'saturday':
+        date = reference_date
+    else:
+        date = upcoming_dow_to_date('saturday', reference_date)
     period = Day
     return date, period
 
@@ -493,10 +498,9 @@ def parse_dateformat22(date_string, reference_date=None):
         raise RelativeDateError(
             "Relative date found, but no context available"
         )
-    start_of_next_week = Week.get_end_date(
-        reference_date
-    ) + datetime.timedelta(days=1)
-    date = Week.get_end_date(start_of_next_week)
+    date = upcoming_dow_to_date("saturday", reference_date)
+    if day_of_week(reference_date).lower() != 'saturday':
+        date = upcoming_dow_to_date("saturday", date)
     period = Day
     return date, period
 
