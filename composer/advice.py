@@ -9,6 +9,7 @@ from random import choice
 
 from . import config
 from .utils import display_message
+from .backend.filesystem.primitives import get_entries
 
 try:  # py2
     from StringIO import StringIO
@@ -30,20 +31,17 @@ def extract_lessons(lessons_files):
     :returns list: A list containing all lessons in a file with leading
         numbering removed and a single trailing \n added
     """
+    lesson_pattern = re.compile(r"^\d+[a-z]?[A-Z]?\. ?")
 
-    def extract_lessons_raw(f):
-        line = f.readline()
-        if not line:
-            return []
-        line_fmt = re.sub(r"^\d+[a-z]?[A-Z]?\. ?", "", line)
-        if len(line_fmt) <= 1 or line_fmt == line:
-            return extract_lessons_raw(f)
-        line_fmt = line_fmt.rstrip("\n") + "\n"
-        return [line_fmt] + extract_lessons_raw(f)
+    def format_lesson(l):
+        return re.sub(lesson_pattern, "", l).rstrip("\n") + "\n"
 
-    # combine all lessons from different files into one list
-    lessons = map(extract_lessons_raw, lessons_files)
-    lessons = [item for sublist in lessons for item in sublist]  # flatten
+    lesson_sets = [get_entries(f) for f in lessons_files]
+    lessons = [item for sublist in lesson_sets for item in sublist]  # flatten
+    lessons = [
+        format_lesson(l) for l in lessons if re.match(lesson_pattern, l)
+    ]
+
     return lessons
 
 
