@@ -38,7 +38,7 @@ class Template(ABC):
 
     @abc.abstractmethod
     def load_context(self, planner, for_date):
-        """ Store any relevant context that may be needed in populating a
+        """Store any relevant context that may be needed in populating a
         logfile from a template.
 
         :param :class:`~composer.backend.filesystem.base.FilesystemPlanner`
@@ -52,7 +52,7 @@ class Template(ABC):
 
     @abc.abstractmethod
     def build(self, **kwargs):
-        """ Create a new log file for the current date by specifying a template
+        """Create a new log file for the current date by specifying a template
         and populating it with configured contents (like periodic tasks) for
         the relevant period.
 
@@ -88,7 +88,7 @@ class Template(ABC):
 
     @abc.abstractmethod
     def update(self):
-        """ Update an existing log file for the current date in relation to a
+        """Update an existing log file for the current date in relation to a
         specified template.
 
         :returns str: The updated log file

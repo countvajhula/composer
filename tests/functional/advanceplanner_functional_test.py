@@ -12,7 +12,7 @@ from composer.timeperiod import (
 
 
 def test_advance_planner_day():
-    """ Actually operate on a wiki that's configured such that only a day
+    """Actually operate on a wiki that's configured such that only a day
     advance is in order. After running the test check that this is what has
     happened (git status / diff if git managed test wikis)
     """
@@ -30,7 +30,7 @@ def test_advance_planner_day():
 
 
 def test_advance_planner_week():
-    """ Actually operate on a wiki that's configured such that a week
+    """Actually operate on a wiki that's configured such that a week
     advance is in order. After running the test check that this is what has
     happened (git status / diff if git managed test wikis)
     """
@@ -48,7 +48,7 @@ def test_advance_planner_week():
 
 
 def test_advance_planner_month():
-    """ Actually operate on a wiki that's configured such that a month
+    """Actually operate on a wiki that's configured such that a month
     advance is in order. After running the test check that this is what has
     happened (git status / diff if git managed test wikis)
     """
@@ -66,7 +66,7 @@ def test_advance_planner_month():
 
 
 def test_advance_planner_quarter():
-    """ Actually operate on a wiki that's configured such that a quarter
+    """Actually operate on a wiki that's configured such that a quarter
     advance is in order. After running the test check that this is what has
     happened (git status / diff if git managed test wikis)
     """
@@ -84,7 +84,7 @@ def test_advance_planner_quarter():
 
 
 def test_advance_planner_year():
-    """ Actually operate on a wiki that's configured such that a year
+    """Actually operate on a wiki that's configured such that a year
     advance is in order. After running the test check that this is what has
     happened (git status / diff if git managed test wikis)
     """

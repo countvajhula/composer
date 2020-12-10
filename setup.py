@@ -11,7 +11,7 @@ test_requirements = [
     'mock',  # py2 only
 ]
 
-dev_requirements = ['flake8', 'bump2version', 'sphinx', 'pre-commit']
+dev_requirements = ['flake8', 'bump2version', 'sphinx', 'pre-commit', 'black']
 
 setup_requirements = ['pytest-runner']
 

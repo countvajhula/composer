@@ -65,7 +65,7 @@ def is_eof(line):
 
 
 def is_completed(entry):
-    """ A predicate function that is true if an entry is 'complete'.
+    """A predicate function that is true if an entry is 'complete'.
 
     Note that is_completed and is_unfinished assert opposite cases, but are not
     exhaustive, since there are entries for which completeness is not
@@ -81,14 +81,14 @@ def is_completed(entry):
 
 
 def is_not_completed(entry):
-    """ A predicate function that is true if an entry is not 'complete'. This
+    """A predicate function that is true if an entry is not 'complete'. This
     additionally excludes blank lines.
     """
     return not is_completed(entry) and not is_blank_line(entry)
 
 
 def is_unfinished(entry):
-    """ A predicate function that is true if an entry is 'incomplete'.
+    """A predicate function that is true if an entry is 'incomplete'.
 
     Note that is_completed and is_unfinished assert opposite cases, but are not
     exhaustive, since there are entries for which completeness is not
@@ -98,7 +98,7 @@ def is_unfinished(entry):
 
 
 def parse_task(task):
-    """ Parse a task (in string form) into the header (first line) and contents
+    """Parse a task (in string form) into the header (first line) and contents
     (any subtasks or other contents). Useful when we need to parse the header
     independently, e.g. to check for scheduled date and ensure that it's
     present in the header specifically, and not just anywhere in the task.

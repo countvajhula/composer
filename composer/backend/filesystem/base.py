@@ -230,7 +230,7 @@ class FilesystemPlanner(PlannerBase):
         self._periodic_year_file = value
 
     def _logfile_attribute(self, period):
-        """ A helper to get the name of the attribute on the planner instance
+        """A helper to get the name of the attribute on the planner instance
         corresponding to the log file for the given period.
 
         :param :class:`~composer.timeperiod.Period` period: A time period
@@ -251,7 +251,7 @@ class FilesystemPlanner(PlannerBase):
         return attr
 
     def _get_logfile(self, period):
-        """ Time period-agnostic "getter" for the concerned logfile attribute.
+        """Time period-agnostic "getter" for the concerned logfile attribute.
         Note: This would be unnecessary if each planner instance was only
         concerned with a specific period rather than all periods.
 
@@ -264,7 +264,7 @@ class FilesystemPlanner(PlannerBase):
         return log
 
     def _update_logfile(self, period, contents):
-        """ Time period-agnostic "setter" for the concerned logfile attribute.
+        """Time period-agnostic "setter" for the concerned logfile attribute.
         Note: This would be unnecessary if each planner instance was only
         concerned with a specific period rather than all periods.
 
@@ -276,7 +276,7 @@ class FilesystemPlanner(PlannerBase):
             setattr(self, log_attr, make_file(contents))
 
     def _get_date(self):
-        """ Get date from planner's current state on disk.
+        """Get date from planner's current state on disk.
         The current date is tracked using a symbolic link which points to the
         latest daily logfile generated.
         """
@@ -288,7 +288,7 @@ class FilesystemPlanner(PlannerBase):
         return plannerdate
 
     def construct(self, location=None):
-        """ Construct a planner object from a filesystem representation.
+        """Construct a planner object from a filesystem representation.
 
         :param str location: Filesystem path to planner wiki
         """
@@ -355,7 +355,7 @@ class FilesystemPlanner(PlannerBase):
             )
 
     def get_log(self, for_day, period):
-        """ Get the log file responsible for the specified period and date.
+        """Get the log file responsible for the specified period and date.
 
         :param :class:`~composer.timeperiod.Period` period: The period for
             which to get the log file
@@ -370,7 +370,7 @@ class FilesystemPlanner(PlannerBase):
             return log
 
     def schedule_tasks(self):
-        """ Parse today's agenda for any (e.g. newly-added) scheduled tasks,
+        """Parse today's agenda for any (e.g. newly-added) scheduled tasks,
         and move them to the appropriate section of the tasklist after
         converting them to a standard format.
 
@@ -422,7 +422,7 @@ class FilesystemPlanner(PlannerBase):
         self.tasklist.place_tasks(tasks, self.date)
 
     def get_todays_unfinished_tasks(self):
-        """ Get tasks from today's agenda that are either undone or in
+        """Get tasks from today's agenda that are either undone or in
         progress.
 
         :returns str: Unfinished tasks from today's log file
@@ -445,7 +445,7 @@ class FilesystemPlanner(PlannerBase):
         return tasks
 
     def create_log(self, period, for_day):
-        """ Create a new log for the specified period and associate it with the
+        """Create a new log for the specified period and associate it with the
         current Planner instance. **This updates the logfile attribute
         corresponding to the period in question to the newly created logical
         file.**
@@ -473,7 +473,7 @@ class FilesystemPlanner(PlannerBase):
         setattr(self.next_day_planner, log_attr, make_file(contents))
 
     def update_log(self, period, for_day):
-        """ Update the existing log for the specified period to account for the
+        """Update the existing log for the specified period to account for the
         advancement of a contained period.
 
         :param :class:`~composer.timeperiod.Period` period: The period for
@@ -490,7 +490,7 @@ class FilesystemPlanner(PlannerBase):
         self._update_logfile(period, contents)
 
     def check_log_completion(self, period):
-        """ Check whether the log for a period has been completed. Uses the
+        """Check whether the log for a period has been completed. Uses the
         logfile's NOTES section as an indicator of this.
 
         :param :class:`~composer.timeperiod.Period` period: The period for
@@ -515,7 +515,7 @@ class FilesystemPlanner(PlannerBase):
         return completed
 
     def get_agenda(self, period, complete=None):
-        """ Go through logfile and extract all tasks under AGENDA
+        """Go through logfile and extract all tasks under AGENDA
 
         :param :class:`~composer.timeperiod.Period` period: Get the agenda
             for this time period
@@ -546,7 +546,7 @@ class FilesystemPlanner(PlannerBase):
         return agenda
 
     def update_agenda(self, period, agenda):
-        """ Update the agenda for the given period with the provided agenda by
+        """Update the agenda for the given period with the provided agenda by
         appending the new contents to the existing ones.
 
         :param :class:`~composer.timeperiod.Period` period: Update the agenda
@@ -566,7 +566,7 @@ class FilesystemPlanner(PlannerBase):
         self._update_logfile(period, logfile_updated.getvalue())
 
     def _get_filename(self, period):
-        """ Genenerate a full path to the current log file for a given
+        """Genenerate a full path to the current log file for a given
         period.  This file need not actually exist on disk yet (e.g. in case we
         have just advanced but haven't saved the files to disk).
 
@@ -577,7 +577,7 @@ class FilesystemPlanner(PlannerBase):
         return get_log_filename(start_date, period, root=self.location)
 
     def is_ok_to_advance(self, period=Year):
-        """ A helper to check if any time periods just advanced already have
+        """A helper to check if any time periods just advanced already have
         log files on disk, which is unexpected and an error. This is only
         appropriate to call after logical advance has occurred (but prior to
         writing to disk).
@@ -591,7 +591,7 @@ class FilesystemPlanner(PlannerBase):
         self.is_ok_to_advance(get_next_period(period, decreasing=True))
 
     def _write_log_to_file(self, period):
-        """ Write the log for the given period to the filesystem.
+        """Write the log for the given period to the filesystem.
         If this represents an advancement of the period in question,
         then also update the 'current' state of the planner on disk
         by updating the relevant symbolic link.
@@ -602,7 +602,7 @@ class FilesystemPlanner(PlannerBase):
         write_file(log, filename)
 
     def _write_files_for_contained_periods(self, period):
-        """ Write all log files corresponding to periods contained within
+        """Write all log files corresponding to periods contained within
         a given time period.
 
         :param :class:`~composer.timeperiod.Period` period: A time period
@@ -615,7 +615,7 @@ class FilesystemPlanner(PlannerBase):
         )
 
     def _update_current_date_link(self):
-        """ Update "current" link on disk to the newly created log file
+        """Update "current" link on disk to the newly created log file
         for the date to which the planner was advanced.
         """
         link_name = PLANNERDAYFILELINK
@@ -628,7 +628,7 @@ class FilesystemPlanner(PlannerBase):
         )  # don't need full path in filename since it's relative to the link
 
     def save(self, period=Year):
-        """ Write the planner object to the filesystem.
+        """Write the planner object to the filesystem.
 
         :param :class:`~composer.timeperiod.Period` period: The highest period
             advanced -- only log files encompassed by this period will be
@@ -668,7 +668,7 @@ class FilesystemTasklist(TasklistBase):
         self._file = value
 
     def construct(self, location=None):
-        """ Construct a tasklist object from a filesystem representation.
+        """Construct a tasklist object from a filesystem representation.
 
         :param str location: Filesystem path to planner wiki
         """
@@ -681,7 +681,7 @@ class FilesystemTasklist(TasklistBase):
         )
 
     def place_tasks(self, scheduled_tasks, reference_date):
-        """ Given a list of scheduled tasks, place them in the appropriate
+        """Given a list of scheduled tasks, place them in the appropriate
         section of the tasklist relative to the specified reference date. For
         example, a task due on Wednesday would be filed under "this week" in
         the tasklist relative to the Monday of that week (when provided as
@@ -717,7 +717,7 @@ class FilesystemTasklist(TasklistBase):
             )
 
     def advance(self, to_date):
-        """ 'Reverse cascade' tasks from a higher period to an upcoming lower
+        """'Reverse cascade' tasks from a higher period to an upcoming lower
         period to account for advancement to a future date.
 
         :param :class:`datetime.date` to_date: The date to advance to
@@ -738,7 +738,7 @@ class FilesystemTasklist(TasklistBase):
         self.place_tasks(scheduled, to_date)
 
     def standardize_entries(self, reference_date):
-        """ Convert all entries in the tasklist to a standard and unambiguous
+        """Convert all entries in the tasklist to a standard and unambiguous
         (esp. non-relative) date format. This should be done at the time the
         tasks are actually scheduled so that they are disambiguated relative to
         the actual date relative to which the user would have specified them.
@@ -758,7 +758,7 @@ class FilesystemTasklist(TasklistBase):
         self.file = make_file(entries_to_string(entries))
 
     def get_tasks(self, period):
-        """ Read the tasklist, parse all tasks under a specific time period
+        """Read the tasklist, parse all tasks under a specific time period
         and return those, and also return a version of the tasklist file
         with those tasks removed.
 
@@ -780,7 +780,7 @@ class FilesystemTasklist(TasklistBase):
         return tasks.read(), tasklist_complement
 
     def get_tasks_for_tomorrow(self):
-        """ Read the tasklist, parse all tasks under the TOMORROW section
+        """Read the tasklist, parse all tasks under the TOMORROW section
         and return those. **This also mutates the tasklist by removing those
         tasks from it.**
 
@@ -795,8 +795,7 @@ class FilesystemTasklist(TasklistBase):
         return tasks
 
     def save(self):
-        """ Write the tasklist object to the filesystem.
-        """
+        """Write the tasklist object to the filesystem."""
 
         tasklist_filename = full_file_path(
             root=self.location, filename=PLANNERTASKLISTFILE

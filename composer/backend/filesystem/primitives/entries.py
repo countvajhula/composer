@@ -20,7 +20,7 @@ from .parsing import (
 
 
 def entries_to_string(entries):
-    """ Convert a list of entries to a string.
+    """Convert a list of entries to a string.
 
     :param list entries: A list of entries (strings)
     :returns str: A string formed by concatenating all of the entries
@@ -29,7 +29,7 @@ def entries_to_string(entries):
 
 
 def string_to_entries(string):
-    """ Convert a string to a list of entries.
+    """Convert a string to a list of entries.
 
     :param string str: A string containing entries
     :param list entries: A list of entries (strings)
@@ -39,7 +39,7 @@ def string_to_entries(string):
 
 
 def filter_entries(entries, filter_fn):
-    """ Filter a list of entries to only those that satisfy a given filter
+    """Filter a list of entries to only those that satisfy a given filter
     function.
 
     :param list entries: A list of entries (strings)
@@ -50,7 +50,7 @@ def filter_entries(entries, filter_fn):
 
 
 def exclude_entries(entries, filter_fn):
-    """ Filter a list of entries to only those that do NOT satisfy a given
+    """Filter a list of entries to only those that do NOT satisfy a given
     filter function.
 
     :param list entries: A list of entries (strings)
@@ -61,7 +61,7 @@ def exclude_entries(entries, filter_fn):
 
 
 def partition_entries(entries, filter_fn):
-    """ Partition a list of entries into two lists based on some filter
+    """Partition a list of entries into two lists based on some filter
     predicate.  The first list will contain the elements that satisfy the
     predicate, while the second list will contain those that don't.
 
@@ -77,7 +77,7 @@ def partition_entries(entries, filter_fn):
 
 @contain_file_mutation
 def read_entry(file):
-    """ An 'entry' is any line that begins at the 0th position of the line.
+    """An 'entry' is any line that begins at the 0th position of the line.
     This could be a blank line, a task, a normal text string, a section
     header, pretty much anything EXCEPT things that begin with a tab
     character, as these are treated as subsidiary entries to be included in
@@ -114,7 +114,7 @@ def _read_entries(file):
 
 @contain_file_mutation
 def get_entries(file, of_type=None):
-    """ Parse a given file into entries, based on the supplied criteria.
+    """Parse a given file into entries, based on the supplied criteria.
     An entry generally corresponds to a line in the input file, along with
     any subtask entries that fall under it.
 
@@ -131,7 +131,7 @@ def get_entries(file, of_type=None):
 
 @contain_file_mutation
 def read_section(file, section):
-    """ Retrieve the contents of a specified section in a file.
+    """Retrieve the contents of a specified section in a file.
 
     :param :class:`io.StringIO` file: A text file to parse
     :param str section: The name of the section
@@ -169,7 +169,7 @@ def read_section(file, section):
 
 @contain_file_mutation
 def add_to_section(file, section, tasks, above=True, ensure_separator=False):
-    """ Find a given section in a file and insert tasks into it.  The new tasks
+    """Find a given section in a file and insert tasks into it.  The new tasks
     can be added either at the top or bottom of the section, and any
     pre-existing contents of the section are preserved alongside the new
     additions.

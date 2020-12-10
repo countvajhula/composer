@@ -13,7 +13,7 @@ TIME_PERIODS = (Zero, Day, Week, Month, Quarter, Year, Eternity)
 
 
 def get_next_period(current_period, decreasing=False):
-    """ Return the next time period in sequence among the tracked
+    """Return the next time period in sequence among the tracked
     time periods. The time periods are ordered in terms of magnitude.
 
     :param :class:`~composer.timeperiod.Period` current_period: A time period
@@ -33,7 +33,7 @@ def get_next_period(current_period, decreasing=False):
 
 
 def get_time_periods(starting_from=None, decreasing=False):
-    """ Return a list of all tracked time periods.
+    """Return a list of all tracked time periods.
 
     :param bool decreasing: Whether to return the periods in decreasing order
          of magnitude or increasing order (the default)
@@ -48,7 +48,7 @@ def get_time_periods(starting_from=None, decreasing=False):
 
 
 def is_weekend(date):
-    """ Check whether the date falls on a weekend.
+    """Check whether the date falls on a weekend.
 
     :param :class:`datetime.date` date: The date to check
     """
@@ -60,7 +60,7 @@ def is_weekend(date):
 
 
 def quarter_for_month(month):
-    """ Given a month, return the quarter that it's part of.
+    """Given a month, return the quarter that it's part of.
 
     :param int month: The month
     :returns str: The corresponding quarter
@@ -76,7 +76,7 @@ def quarter_for_month(month):
 
 
 def month_for_quarter(quarter):
-    """ Given a quarter, return the first month of that quarter.
+    """Given a quarter, return the first month of that quarter.
 
     :param str quarter: The quarter
     :returns int: The first month of the quarter
@@ -92,7 +92,7 @@ def month_for_quarter(quarter):
 
 
 def get_month_number(monthname):
-    """ Get the calendar number corresponding to the month of the year.
+    """Get the calendar number corresponding to the month of the year.
 
     :param str monthname: The name of the month
     :returns int: The number of the month
@@ -104,7 +104,7 @@ def get_month_number(monthname):
 
 
 def get_month_name(monthnumber):
-    """ Get the name of the month corresponding to a calendar month number.
+    """Get the name of the month corresponding to a calendar month number.
 
     :param int monthnumber: The number of the month
     :returns str: The name of the month
@@ -116,7 +116,7 @@ def get_month_name(monthnumber):
 
 
 def day_of_week(date):
-    """ Day of week for the given date.
+    """Day of week for the given date.
 
     :param :class:`datetime.date` date: The date to check
     """
@@ -124,7 +124,7 @@ def day_of_week(date):
 
 
 def upcoming_dow_to_date(dow, reference_date=None):
-    """ Date for the given upcoming day of the week.
+    """Date for the given upcoming day of the week.
 
     :param str dow: The day of the week
     :param :class:`datetime.date` reference_date: Date to be treated as "today"

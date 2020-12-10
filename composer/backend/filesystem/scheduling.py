@@ -117,7 +117,7 @@ def date_to_string(date, period):
 
 
 def string_to_date(datestr, reference_date=None):
-    """ Parse a given string representing a date.
+    """Parse a given string representing a date.
 
     Tries various acceptable date formats until one works.
 
@@ -169,7 +169,7 @@ def string_to_date(datestr, reference_date=None):
 
 
 def standardize_entry_date(entry, reference_date=None):
-    """ Convert a parsed scheduled task into a standard format. In addition to
+    """Convert a parsed scheduled task into a standard format. In addition to
     providing uniformity, this also contextualizes dates that may have been
     relatively specified so that it is unambiguous and time-invariant (e.g.
     dates like "next week").
@@ -191,7 +191,7 @@ def standardize_entry_date(entry, reference_date=None):
 
 
 def get_due_date(task, reference_date=None):
-    """ Get the due date for a task.
+    """Get the due date for a task.
 
     :param str task: The task
     :param :class:`datetime.date` reference_date: A reference date to use
@@ -214,7 +214,7 @@ def get_due_date(task, reference_date=None):
 
 
 def is_task_due(task, for_day):
-    """ Check if the task is due (or past due) on the specified day.
+    """Check if the task is due (or past due) on the specified day.
 
     :param str task: The task
     :param :class:`datetime.date` for_day: The date
@@ -225,7 +225,7 @@ def is_task_due(task, for_day):
 
 
 def check_logfile_for_errors(logfile):
-    """ Check that the logfile includes an agenda section.
+    """Check that the logfile includes an agenda section.
 
     :param :class:`io.StringIO` logfile: The log file
     """

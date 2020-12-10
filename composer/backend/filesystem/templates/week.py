@@ -46,7 +46,7 @@ class WeekTemplate(Template):
         return weektemplate
 
     def update(self):
-        """ Create a link to the new day log file in the current week log
+        """Create a link to the new day log file in the current week log
         file.
 
         :returns str: The updated log file

@@ -8,7 +8,7 @@ from .year import YearTemplate
 
 
 def get_template(planner, period, for_date):
-    """ Get a template for the given period to mediate log file creation and
+    """Get a template for the given period to mediate log file creation and
     modification.
 
     :param :class:`~composer.backend.filesystem.base.FilesystemPlanner`

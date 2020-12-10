@@ -2,7 +2,7 @@ from datetime import timedelta
 
 
 def get_next_day(date):
-    """ Given a date, return the next day by consulting
+    """Given a date, return the next day by consulting
     the python date module
 
     :param :class:`datetime.date` date: The date to increment
@@ -13,7 +13,7 @@ def get_next_day(date):
 
 
 def get_next_month(date):
-    """ Given a date, return the start of the next month by consulting
+    """Given a date, return the start of the next month by consulting
     the python date module
 
     :param :class:`datetime.date` date: The date to increment

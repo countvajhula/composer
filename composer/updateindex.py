@@ -25,7 +25,7 @@ def is_wiki(filename):
 
 
 def get_files(path, of_type=None):
-    """ Get all files at the specified path of the specified type.
+    """Get all files at the specified path of the specified type.
 
     :param str path: The location of the wiki
     :returns list: Only the wiki files, with extensions truncated
@@ -56,7 +56,7 @@ def creation_date(path_to_file):
 
 
 def write_index(path_to_file, title, entries):
-    """ Write an index file at the given path, with the given title and
+    """Write an index file at the given path, with the given title and
     contents.
 
     :param str path_to_file: The path to the index file
@@ -84,7 +84,7 @@ def wikify(entry, prefix=None):
 
 
 def format_for_display(page):
-    """ Format a representation of a wiki page into a readable
+    """Format a representation of a wiki page into a readable
     form for display in the index.
 
     :param str page: The name of the wiki file
@@ -94,7 +94,7 @@ def format_for_display(page):
 
 
 def prepare_root_index(contents, path, file_prefix, title):
-    """ Prepare the root wiki index page linking to the provided contents
+    """Prepare the root wiki index page linking to the provided contents
 
     :param list contents: A list containing the names (str) of the sorted
         indexes.
@@ -114,7 +114,7 @@ def prepare_root_index(contents, path, file_prefix, title):
 
 
 def prepare_index(contents, path, file_prefix, root_title, preindex):
-    """ Prepare a wiki index page for the provided contents, with the specified
+    """Prepare a wiki index page for the provided contents, with the specified
     properties.
 
     :param list contents: A list containing the filenames (str) to be included
@@ -144,7 +144,7 @@ def prepare_index(contents, path, file_prefix, root_title, preindex):
 
 
 def update_index(path, file_prefix=None, title=None):
-    """ Generate the index from all .wiki files present at the provided
+    """Generate the index from all .wiki files present at the provided
     path. Use the provided filename and title string, if any, or use defaults.
     This generates the index from scratch and overwrites any existing index
     files that may be present. It generates a root index linking to actual

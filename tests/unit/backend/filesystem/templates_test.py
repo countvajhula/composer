@@ -38,7 +38,7 @@ class TestCreateLog(object):
         return template
 
     def test_year(self, planner):
-        """ Test that year template is generated correctly by integrating
+        """Test that year template is generated correctly by integrating
         checkpoints, periodic, etc.
         """
         for_day = datetime.date(2013, 6, 5)
@@ -71,7 +71,7 @@ class TestCreateLog(object):
         return template
 
     def test_quarter(self, planner):
-        """ Test that quarter template is generated correctly by integrating
+        """Test that quarter template is generated correctly by integrating
         checkpoints, periodic, etc.
         """
         for_day = datetime.date(2012, 12, 5)
@@ -102,7 +102,7 @@ class TestCreateLog(object):
         return template
 
     def test_month(self, planner):
-        """ Test that month template is generated correctly by integrating
+        """Test that month template is generated correctly by integrating
         checkpoints, periodic, etc.
         """
         for_day = datetime.date(2012, 12, 5)
@@ -137,7 +137,7 @@ class TestCreateLog(object):
         return template
 
     def test_week(self, planner):
-        """ Test that week template is generated correctly by integrating
+        """Test that week template is generated correctly by integrating
         checkpoints, periodic, etc.
         """
         for_day = datetime.date(2012, 12, 1)
@@ -148,7 +148,7 @@ class TestCreateLog(object):
         assert planner.next_day_planner.weekfile.read() == expected
 
     def test_template_begins_at_start_of_period(self, planner):
-        """ Test that week template is generated correctly by integrating
+        """Test that week template is generated correctly by integrating
         checkpoints, periodic, etc.
         """
         for_day = datetime.date(2012, 12, 5)
@@ -256,7 +256,7 @@ class TestCreateLog(object):
 
     @pytest.mark.parametrize("offset", range(7))
     def test_daily(self, planner, offset):
-        """ Test that templates for each day are generated correctly by
+        """Test that templates for each day are generated correctly by
         integrating checkpoints, periodic, etc.
         Currently only 2 templates - weekday, and weekend are used.
         TODO: Add individual templates for each day of the week
@@ -273,12 +273,12 @@ class TestCreateLog(object):
 
 
 class TestUpdateLog(object):
-    """ Check that updates on existing templates modifies the file as expected
+    """Check that updates on existing templates modifies the file as expected
     - does the right thing, does only that thing
     """
 
     def test_year(self, planner):
-        """ Check that writing over an existing year template adds the new
+        """Check that writing over an existing year template adds the new
         quarter, and that there are no other changes
         """
         for_day = datetime.date(2012, 8, 9)
@@ -313,7 +313,7 @@ class TestUpdateLog(object):
         assert planner.yearfile.read() == yeartemplate_updated
 
     def test_quarter(self, planner):
-        """ Check that writing over an existing quarter template adds the new
+        """Check that writing over an existing quarter template adds the new
         month, and that there are no other changes
         """
         for_day = datetime.date(2012, 8, 9)
@@ -347,7 +347,7 @@ class TestUpdateLog(object):
         assert planner.quarterfile.read() == quartertemplate_updated
 
     def test_month(self, planner):
-        """ Check that writing over an existing month template adds the new
+        """Check that writing over an existing month template adds the new
         week, and that there are no other changes
         """
         for_day = datetime.date(2012, 12, 9)
@@ -374,7 +374,7 @@ class TestUpdateLog(object):
         assert planner.monthfile.read() == monthtemplate_updated
 
     def test_week(self, planner):
-        """ Check that writing over an existing week template adds the new day,
+        """Check that writing over an existing week template adds the new day,
         and that there are no other changes
         """
         for_day = datetime.date(2012, 12, 5)
@@ -407,7 +407,7 @@ class TestUpdateLog(object):
         assert planner.weekfile.read() == weektemplate_updated
 
     def test_jump_in_week(self, planner):
-        """ Check that writing over an existing week template in a jump adds
+        """Check that writing over an existing week template in a jump adds
         the new day, and that there are no other changes
         """
         for_day = datetime.date(2012, 12, 8)
@@ -440,7 +440,7 @@ class TestUpdateLog(object):
         assert planner.weekfile.read() == weektemplate_updated
 
     def test_jump_in_month(self, planner):
-        """ Check that writing over an existing month template in a jump adds
+        """Check that writing over an existing month template in a jump adds
         the new week, and that there are no other changes
         """
         for_day = datetime.date(2012, 12, 19)
@@ -467,7 +467,7 @@ class TestUpdateLog(object):
         assert planner.monthfile.read() == monthtemplate_updated
 
     def test_jump_in_quarter(self, planner):
-        """ Check that writing over an existing quarter template in a jump adds
+        """Check that writing over an existing quarter template in a jump adds
         the new month, and that there are no other changes
         """
         for_day = datetime.date(2012, 9, 19)
@@ -501,7 +501,7 @@ class TestUpdateLog(object):
         assert planner.quarterfile.read() == quartertemplate_updated
 
     def test_jump_in_year(self, planner):
-        """ Check that writing over an existing year template in a jump adds
+        """Check that writing over an existing year template in a jump adds
         the new quarter, and that there are no other changes
         """
         for_day = datetime.date(2012, 12, 19)

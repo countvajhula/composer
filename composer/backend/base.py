@@ -36,7 +36,7 @@ class PlannerBase(ABC):
             self.set_preferences(preferences)
 
     def set_preferences(self, preferences):
-        """ Set planner preferences, e.g. schedule to operate on, preferred
+        """Set planner preferences, e.g. schedule to operate on, preferred
         parameters for log file formatting, etc.
 
         :param dict preferences: A dictionary of user preferences, e.g. read
@@ -63,7 +63,7 @@ class PlannerBase(ABC):
             self.logfile_completion_checking = LOGFILE_CHECKING["LAX"]
 
     def set_jump_date(self, date):
-        """ Set the date to jump to. If this date is in the past (relative to
+        """Set the date to jump to. If this date is in the past (relative to
         planner state), then it is ignored.
 
         :param :class:`datetime.date` date: The date to jump to
@@ -119,7 +119,7 @@ class PlannerBase(ABC):
             self.update_agenda(next_period, agenda)
 
     def cascade_agenda(self, period):
-        """ Append the specified period's agenda to the next higher period's
+        """Append the specified period's agenda to the next higher period's
         agenda.  This 'cascades' actvities up through encompassing time
         periods, since something worked on on a given day is also worked on
         during the containing periods (like the week).
@@ -140,7 +140,7 @@ class PlannerBase(ABC):
             self._cascade_up(period, complete=True)
 
     def end_period(self, period):
-        """ Perform any tasks needed to close out a period.
+        """Perform any tasks needed to close out a period.
         At the moment this cascades the period's agenda to the containing
         period's agenda, checks log completion, and processes any tasks that
         have been scheduled / marked as blocked.
@@ -165,7 +165,7 @@ class PlannerBase(ABC):
         self.tasklist.standardize_entries(self.date)
 
     def begin_period(self, period, for_day):
-        """ Perform any tasks needed to begin a new period.
+        """Perform any tasks needed to begin a new period.
         At the moment this just creates a log for the new period.
 
         :param :class:`~composer.timeperiod.Period` period: The period to begin
@@ -216,7 +216,7 @@ class PlannerBase(ABC):
             )
 
     def continue_period(self, period, for_day):
-        """ Perform any tasks needed to continue an existing period in light of
+        """Perform any tasks needed to continue an existing period in light of
         the advance of a contained period.  At the moment this just updates the
         existing log for the period, e.g. to include a link to the newly
         created logfile for the contained period.
@@ -251,7 +251,7 @@ class PlannerBase(ABC):
         return criteria_met
 
     def advance_period(self, current_period=None, next_day=None):
-        """ Recursive function to advance planner by day, week, month, quarter,
+        """Recursive function to advance planner by day, week, month, quarter,
         or year as the case may be.
 
         :param :class:`~composer.timeperiod.Period` current_period: The period
@@ -285,7 +285,7 @@ class PlannerBase(ABC):
             return current_period
 
     def advance(self):
-        """ Advance planner state to next day, updating week and month info
+        """Advance planner state to next day, updating week and month info
         as necessary.
         If successful, the date (self.date) is advanced to the next day
 

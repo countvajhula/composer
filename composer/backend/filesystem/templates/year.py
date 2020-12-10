@@ -25,7 +25,7 @@ class YearTemplate(Template):
         return template
 
     def update(self):
-        """ Create a link to the new quarter log file in the current year log
+        """Create a link to the new quarter log file in the current year log
         file.
 
         :returns str: The updated log file

@@ -13,7 +13,7 @@ FILENAME_TEMPLATE = {
 
 
 def get_log_filename(for_date, period, root=None):
-    """ Construct a standard filename for a log based on the provided date and
+    """Construct a standard filename for a log based on the provided date and
     time period. This is simply a utility to generate a filename from the date
     based on a template for the time period, and is not aware of the actual
     period boundaries that would be used by the planner in creating new files.
@@ -42,7 +42,7 @@ def get_log_filename(for_date, period, root=None):
 
 
 def full_file_path(filename, root, dereference=False):
-    """ Given a path root and a filename, construct an OS-specific filesystem
+    """Given a path root and a filename, construct an OS-specific filesystem
     path.
 
     :param str filename: The name of the file
@@ -63,7 +63,7 @@ def full_file_path(filename, root, dereference=False):
 
 
 def strip_extension(filename):
-    """ Strip the extension from the end of the filename.
+    """Strip the extension from the end of the filename.
 
     :param str filename: The filename
     :returns str: The filename sans extension
@@ -73,7 +73,7 @@ def strip_extension(filename):
 
 
 def strip_prefix(filename):
-    """ Strip the path prefix from the start of the filename.
+    """Strip the path prefix from the start of the filename.
 
     :param str filename: The filename
     :returns str: The filename sans path prefix
@@ -83,7 +83,7 @@ def strip_prefix(filename):
 
 
 def bare_filename(filename):
-    """ Strip path prefix as well as extension from a filename.
+    """Strip path prefix as well as extension from a filename.
 
     :param str filename: The filename
     :returns str: The filename sans path prefix and extension
@@ -92,7 +92,7 @@ def bare_filename(filename):
 
 
 def read_file(path):
-    """ Read a file on disk.
+    """Read a file on disk.
 
     :param str path: Filesystem path to the file
     :returns str: Contents of the file
@@ -103,7 +103,7 @@ def read_file(path):
 
 
 def write_file(contents, path):
-    """ Write a file to disk (overwrites existing file if present).
+    """Write a file to disk (overwrites existing file if present).
 
     :param str contents: Contents to be written to the file
     :param str path: Filesystem path to the file

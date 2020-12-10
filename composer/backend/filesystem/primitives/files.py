@@ -10,7 +10,7 @@ except ImportError:  # py3
 
 
 def contain_file_mutation(fn):
-    """ For functions that operate on files, this makes is so that these file
+    """For functions that operate on files, this makes is so that these file
     arguments are passed in "by value" rather than "by reference," so that
     any mutation done on the file as part of processing (e.g. even just reading
     the file amounts to this, since it modifies the state of the file viz. its
@@ -45,7 +45,7 @@ def contain_file_mutation(fn):
 
 
 def make_file(contents=""):
-    """ 'Files' (entailing the concept of "lines") are the abstraction level at
+    """'Files' (entailing the concept of "lines") are the abstraction level at
     which the planner is implemented in terms of the filesystem. We prefer to
     work with files rather than the more elementary string representation. On
     the other hand, files also entail the idea of storage and a hierarchical
@@ -59,7 +59,7 @@ def make_file(contents=""):
 
 
 def copy_file(file):
-    """ Make a logical copy of a file (i.e. at the abstraction level of files
+    """Make a logical copy of a file (i.e. at the abstraction level of files
     rather than the filesystem).
 
     :param :class:`io.StringIO` file: The file to copy
@@ -71,7 +71,7 @@ def copy_file(file):
 
 
 def read_file(filename):
-    """ Read a file on disk and produce an in-memory logical representation
+    """Read a file on disk and produce an in-memory logical representation
     of the file. This logical representation will be used for analysis and
     processing so that the actual file on disk isn't affected until any
     such processing is complete.
@@ -84,7 +84,7 @@ def read_file(filename):
 
 
 def write_file(file, filename):
-    """ Write a logical file as an actual file on disk.
+    """Write a logical file as an actual file on disk.
 
     :param :class:`io.StringIO` file: The file to write
     :param filename: Path to write to
@@ -94,7 +94,7 @@ def write_file(file, filename):
 
 @contain_file_mutation
 def partition_at(file, pattern, or_eof=False, inclusive=False):
-    """ Partition a file into two files at the occurrence of a pattern.  The
+    """Partition a file into two files at the occurrence of a pattern.  The
     first file will contain the contents before the pattern, while the second
     list will contain those after it.
 
@@ -128,7 +128,7 @@ def partition_at(file, pattern, or_eof=False, inclusive=False):
 
 @contain_file_mutation
 def append_files(first_file, second_file):
-    """ Concatenate two files.
+    """Concatenate two files.
 
     :param first_file: The first file
     :param second_file: The second file

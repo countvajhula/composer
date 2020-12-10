@@ -41,7 +41,7 @@ class TestGetFiles(object):
 
     @patch('composer.updateindex.os')
     def test_get_files(self, mock_os):
-        """ Check that valid wiki files among known dummy file names are
+        """Check that valid wiki files among known dummy file names are
         correctly recognized as wiki files
         """
         mock_os.listdir.return_value = self.dummyfiles
@@ -52,7 +52,7 @@ class TestGetFiles(object):
 
     @patch('composer.updateindex.os')
     def test_empty_dir(self, mock_os):
-        """ Check that an empty list is returned if an empty file list is
+        """Check that an empty list is returned if an empty file list is
         supplied
         """
         mock_os.listdir.return_value = []

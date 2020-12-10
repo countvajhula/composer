@@ -39,7 +39,7 @@ class PlannerPeriodIntegrityTester(unittest.TestCase):
 
 
 class PlannerFilesystemIntegrityTester(unittest.TestCase):
-    """ check exceptions if file exists (e.g. running twice). Check symlinks
+    """check exceptions if file exists (e.g. running twice). Check symlinks
     are updated
     """
 
@@ -47,7 +47,7 @@ class PlannerFilesystemIntegrityTester(unittest.TestCase):
 
 
 class PlannerInvalidStateFailGracefullyTester(unittest.TestCase):
-    """ check that if any needed files are missing it fails gracefully with
+    """check that if any needed files are missing it fails gracefully with
     exception and without making changes
     """
 
@@ -700,7 +700,7 @@ class PlannerAdvanceTester(PlannerIntegrationTest):
     @patch('composer.backend.filesystem.base.full_file_path')
     @patch('composer.backend.filesystem.base.string_to_date')
     def test_advance_year(self, mock_get_date, mock_file_path, mock_read_file):
-        """ Check that planner advance returns the correct new year, quarter,
+        """Check that planner advance returns the correct new year, quarter,
         month, week, and day templates when advancing year
         """
         today = datetime.date(2012, 12, 31)
@@ -742,7 +742,7 @@ class PlannerAdvanceTester(PlannerIntegrationTest):
     def test_advance_year_with_jump(
         self, mock_get_date, mock_file_path, mock_read_file
     ):
-        """ Check that planner advance returns the correct new year, quarter,
+        """Check that planner advance returns the correct new year, quarter,
         month, week, and day templates when advancing year as part of a jump
         """
         today = datetime.date(2012, 12, 31)
@@ -786,7 +786,7 @@ class PlannerAdvanceTester(PlannerIntegrationTest):
     def test_advance_quarter(
         self, mock_get_date, mock_file_path, mock_read_file
     ):
-        """ Check that planner advance returns the correct new quarter, month,
+        """Check that planner advance returns the correct new quarter, month,
         week, and day templates when advancing quarter
         """
         today = datetime.date(2012, 9, 30)
@@ -825,7 +825,7 @@ class PlannerAdvanceTester(PlannerIntegrationTest):
     def test_advance_month(
         self, mock_get_date, mock_file_path, mock_read_file
     ):
-        """ Check that planner advance returns the correct new month, week, and
+        """Check that planner advance returns the correct new month, week, and
         day templates when advancing month
         """
         today = datetime.date(2012, 10, 31)
@@ -858,7 +858,7 @@ class PlannerAdvanceTester(PlannerIntegrationTest):
     @patch('composer.backend.filesystem.base.full_file_path')
     @patch('composer.backend.filesystem.base.string_to_date')
     def test_advance_week(self, mock_get_date, mock_file_path, mock_read_file):
-        """ Check that planner advance returns the correct new week and day
+        """Check that planner advance returns the correct new week and day
         templates, and updates the existing month template correctly, when
         advancing week
         """
@@ -888,7 +888,7 @@ class PlannerAdvanceTester(PlannerIntegrationTest):
     @patch('composer.backend.filesystem.base.full_file_path')
     @patch('composer.backend.filesystem.base.string_to_date')
     def test_advance_day(self, mock_get_date, mock_file_path, mock_read_file):
-        """ Check that planner advance returns the correct new day template,
+        """Check that planner advance returns the correct new day template,
         and updates the existing week template, when advancing day
         """
         today = datetime.date(2012, 12, 5)
@@ -1090,7 +1090,7 @@ class TestAgendaCascade(PlannerIntegrationTest):
     )
 
     def test_day_to_week(self):
-        """ Check that, on day advance, current day's agenda is appended to the
+        """Check that, on day advance, current day's agenda is appended to the
         current week
         """
         current_day = datetime.date(2012, 12, 5)
@@ -1105,7 +1105,7 @@ class TestAgendaCascade(PlannerIntegrationTest):
         )
 
     def test_month_for_week_to_month(self):
-        """ Check that, on week advance, current week's agenda is appended to
+        """Check that, on week advance, current week's agenda is appended to
         the current month
         """
         current_day = datetime.date(2012, 12, 5)
@@ -1121,7 +1121,7 @@ class TestAgendaCascade(PlannerIntegrationTest):
         )
 
     def test_week_for_week_to_month(self):
-        """ Check that, on week advance, current week's agenda is appended to
+        """Check that, on week advance, current week's agenda is appended to
         the current month
         """
         current_day = datetime.date(2012, 12, 5)
@@ -1138,7 +1138,7 @@ class TestAgendaCascade(PlannerIntegrationTest):
         )
 
     def test_quarter_for_month_to_quarter(self):
-        """ Check that, on month advance, current month's agenda is appended to
+        """Check that, on month advance, current month's agenda is appended to
         the current quarter
         """
         current_day = datetime.date(2012, 12, 5)
@@ -1154,7 +1154,7 @@ class TestAgendaCascade(PlannerIntegrationTest):
         )
 
     def test_month_for_month_to_quarter(self):
-        """ Check that, on month advance, current month's agenda is appended to
+        """Check that, on month advance, current month's agenda is appended to
         the current quarter
         """
         current_day = datetime.date(2012, 12, 5)
@@ -1172,7 +1172,7 @@ class TestAgendaCascade(PlannerIntegrationTest):
         )
 
     def test_year_for_quarter_to_year(self):
-        """ Check that, on quarter advance, current quarter's agenda is
+        """Check that, on quarter advance, current quarter's agenda is
         appended to the current year
         """
         current_day = datetime.date(2012, 9, 30)
@@ -1190,7 +1190,7 @@ class TestAgendaCascade(PlannerIntegrationTest):
         )
 
     def test_quarter_for_quarter_to_year(self):
-        """ Check that, on quarter advance, current quarter's agenda is
+        """Check that, on quarter advance, current quarter's agenda is
         appended to the current year
         """
         current_day = datetime.date(2012, 9, 30)

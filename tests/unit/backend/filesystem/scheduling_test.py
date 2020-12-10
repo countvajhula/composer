@@ -532,7 +532,7 @@ class TestIsTaskDue(object):
 
 
 class PlannerTaskSchedulingTester(unittest.TestCase):
-    """ Check the logfile -> tasklist flow. This adds any newly scheduled tasks
+    """Check the logfile -> tasklist flow. This adds any newly scheduled tasks
     in the logfile to the tasklist in the appropriate section.
     """
 
@@ -1491,8 +1491,8 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         self.planner.next_day_planner = FilesystemPlanner()
 
     def test_agenda_scheduled_tasks_are_scheduled(self):
-        """ Check that scheduling tasks pulls all scheduled tasks from today's Agenda
-        into the SCHEDULED section of the tasklist """
+        """Check that scheduling tasks pulls all scheduled tasks from today's Agenda
+        into the SCHEDULED section of the tasklist"""
         self.planner.dayfile = StringIO(self.daytemplate_scheduled)
         self.planner.schedule_tasks()
         self.assertEqual(
@@ -1500,16 +1500,16 @@ class PlannerTaskSchedulingTester(unittest.TestCase):
         )
 
     def test_scheduled_task_without_date_raises_exception(self):
-        """ Check that if a task is marked as scheduled but no date is provided, that
-        an exception is thrown """
+        """Check that if a task is marked as scheduled but no date is provided, that
+        an exception is thrown"""
         self.planner.dayfile = StringIO(self.daytemplate_noscheduledate)
         self.assertRaises(
             BlockedTaskNotScheduledError, self.planner.schedule_tasks
         )
 
     def test_scheduled_task_with_date_in_the_past_raises_exception(self):
-        """ Check that if a task is marked as scheduled but a date in the past
-        is provided, that an exception is thrown """
+        """Check that if a task is marked as scheduled but a date in the past
+        is provided, that an exception is thrown"""
         self.planner.date = datetime.date(2012, 12, 20)
         self.planner.dayfile = StringIO(self.daytemplate_scheduled)
         self.assertRaises(InvalidDateError, self.planner.schedule_tasks)

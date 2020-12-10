@@ -21,7 +21,7 @@ CONFIG_FILE = os.path.join(CONFIG_ROOT, config.CONFIG_FILENAME)
 
 
 def extract_lessons(lessons_files):
-    """ Extract lessons from the provided files.
+    """Extract lessons from the provided files.
 
     Note that lines beginning with a number are treated as lessons, and
     everything else is ignored.
@@ -33,20 +33,22 @@ def extract_lessons(lessons_files):
     """
     lesson_pattern = re.compile(r"^\d+[a-z]?[A-Z]?\. ?")
 
-    def format_lesson(l):
-        return re.sub(lesson_pattern, "", l).rstrip("\n") + "\n"
+    def format_lesson(lesson):
+        return re.sub(lesson_pattern, "", lesson).rstrip("\n") + "\n"
 
     lesson_sets = [get_entries(f) for f in lessons_files]
     lessons = [item for sublist in lesson_sets for item in sublist]  # flatten
     lessons = [
-        format_lesson(l) for l in lessons if re.match(lesson_pattern, l)
+        format_lesson(lesson)
+        for lesson in lessons
+        if re.match(lesson_pattern, lesson)
     ]
 
     return lessons
 
 
 def get_advice(lessons_files):
-    """ Extract individual lessons from files into a flat list.
+    """Extract individual lessons from files into a flat list.
 
     :param list lessons_files: List of files (FLOs) from which to extract
         lessons

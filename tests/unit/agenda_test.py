@@ -11,7 +11,7 @@ except ImportError:  # py3
 
 
 class PlannerAgendaConstructionTester(unittest.TestCase):
-    """ Check the tasklist -> logfile flow. This adds any tasks lined up for
+    """Check the tasklist -> logfile flow. This adds any tasks lined up for
     tomorrow to the agenda for the new log file.
     """
 
@@ -322,9 +322,9 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
 
     def test_agenda_has_tomorrows_tasks(self):
-        """ Check that tomorrow's agenda has tasks added for tomorrow, and that
+        """Check that tomorrow's agenda has tasks added for tomorrow, and that
         the tomorrow section in the tasklist is cleared once these tasks are
-        added to the next day's agenda """
+        added to the next day's agenda"""
         # TODO: separate out the tasklist test from the logfile test
         next_day = datetime.date(2012, 12, 10)
         (date, day, month, year) = (
@@ -452,7 +452,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
 
     def test_agenda_does_not_have_scheduled_tasks(self):
-        """ Check that if a scheduled task on the current day's agenda is
+        """Check that if a scheduled task on the current day's agenda is
         technically due tomorrow, it isn't carried over by the logfile
         creation process since it should happen indirectly via tasklist advance
         which would place the task in the tomorrow section if applicable.

@@ -91,7 +91,7 @@ dateformat28 = re.compile(
 
 
 def get_appropriate_year(month, day, reference_date):
-    """ For date formats where the year is unspecified, determine the
+    """For date formats where the year is unspecified, determine the
     appropriate year by ensuring that the resulting date is in the future.
 
     :param int month: Indicated month
@@ -109,7 +109,7 @@ def get_appropriate_year(month, day, reference_date):
 
 
 def parse_dateformat1(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         MONTH DD, YYYY (w optional space or comma or both)
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -124,7 +124,7 @@ def parse_dateformat1(date_string, reference_date=None):
 
 
 def parse_dateformat2(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         DD MONTH, YYYY (w optional space or comma or both)
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -139,7 +139,7 @@ def parse_dateformat2(date_string, reference_date=None):
 
 
 def parse_dateformat3(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         MONTH DD
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -160,7 +160,7 @@ def parse_dateformat3(date_string, reference_date=None):
 
 
 def parse_dateformat4(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         DD MONTH
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -181,7 +181,7 @@ def parse_dateformat4(date_string, reference_date=None):
 
 
 def parse_dateformat5(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         WEEK OF MONTH DD, YYYY (w optional space or comma or both)
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -197,7 +197,7 @@ def parse_dateformat5(date_string, reference_date=None):
 
 
 def parse_dateformat6(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         WEEK OF DD MONTH, YYYY (w optional space or comma or both)
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -212,7 +212,7 @@ def parse_dateformat6(date_string, reference_date=None):
 
 
 def parse_dateformat7(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         WEEK OF MONTH DD
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -232,7 +232,7 @@ def parse_dateformat7(date_string, reference_date=None):
 
 
 def parse_dateformat8(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         WEEK OF DD MONTH
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -252,7 +252,7 @@ def parse_dateformat8(date_string, reference_date=None):
 
 
 def parse_dateformat9(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         MONTH YYYY (w optional space or comma or both)
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -268,7 +268,7 @@ def parse_dateformat9(date_string, reference_date=None):
 
 
 def parse_dateformat10(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         MONTH
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -292,7 +292,7 @@ def parse_dateformat10(date_string, reference_date=None):
 
 
 def parse_dateformat11(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         MM/DD/YYYY
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -305,7 +305,7 @@ def parse_dateformat11(date_string, reference_date=None):
 
 
 def parse_dateformat12(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         MM-DD-YYYY
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -318,7 +318,7 @@ def parse_dateformat12(date_string, reference_date=None):
 
 
 def parse_dateformat13(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         TOMORROW
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -348,7 +348,7 @@ def _weeks_from(how_many, reference_date):
 
 
 def parse_dateformat14(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         NEXT WEEK
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -364,7 +364,7 @@ def parse_dateformat14(date_string, reference_date=None):
 
 
 def parse_dateformat15(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         NEXT MONTH
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -380,7 +380,7 @@ def parse_dateformat15(date_string, reference_date=None):
 
 
 def parse_dateformat16(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         <DOW>
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -401,7 +401,7 @@ def parse_dateformat16(date_string, reference_date=None):
 
 
 def parse_dateformat17(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         <DOW> (abbrv.)
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -422,7 +422,7 @@ def parse_dateformat17(date_string, reference_date=None):
 
 
 def parse_dateformat18(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         QN YYYY
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -440,7 +440,7 @@ def parse_dateformat18(date_string, reference_date=None):
 
 
 def parse_dateformat19(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         NEXT YEAR
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -456,7 +456,7 @@ def parse_dateformat19(date_string, reference_date=None):
 
 
 def parse_dateformat20(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         YYYY
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -469,7 +469,7 @@ def parse_dateformat20(date_string, reference_date=None):
 
 
 def parse_dateformat21(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         THIS WEEKEND
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -488,7 +488,7 @@ def parse_dateformat21(date_string, reference_date=None):
 
 
 def parse_dateformat22(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         NEXT WEEKEND
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -506,7 +506,7 @@ def parse_dateformat22(date_string, reference_date=None):
 
 
 def parse_dateformat23(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         NEXT QUARTER
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -522,7 +522,7 @@ def parse_dateformat23(date_string, reference_date=None):
 
 
 def parse_dateformat24(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         QN
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -545,7 +545,7 @@ def parse_dateformat24(date_string, reference_date=None):
 
 
 def parse_dateformat25(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         DAY AFTER TOMORROW
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -561,7 +561,7 @@ def parse_dateformat25(date_string, reference_date=None):
 
 
 def parse_dateformat26(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         SOMEDAY
     This is a special date format indicating a "suspended" task. For the
     task scheduling logic to handle it appropriately we return a date in
@@ -577,7 +577,7 @@ def parse_dateformat26(date_string, reference_date=None):
 
 
 def parse_dateformat27(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         WEEK AFTER NEXT
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"
@@ -600,7 +600,7 @@ def parse_dateformat27(date_string, reference_date=None):
 
 
 def parse_dateformat28(date_string, reference_date=None):
-    """ Parse date format
+    """Parse date format
         (FIRST|SECOND|THIRD|FOURTH|LAST) WEEK OF <MONTH|THE MONTH>
     :param str date_string: The string representation of the date
     :param :class:`datetime.date` reference_date: Date to be treated as "today"

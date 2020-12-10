@@ -26,7 +26,7 @@ def _read_config(config_path):
 
 
 def read_user_preferences(config_path):
-    """ Read composer config including wiki paths.
+    """Read composer config including wiki paths.
 
     :param str config_path: The location of the config file
     :returns dict: A dictionary corresponding to the user's preferences
@@ -47,7 +47,7 @@ def read_user_preferences(config_path):
 
 
 def update_wiki_specific_preferences(wikidir, preferences):
-    """ Read wiki-specific config, if present.
+    """Read wiki-specific config, if present.
 
     This mutates the preferences dictionary, overriding any default config
     read previously where there is overlap.

@@ -29,7 +29,7 @@ class QuarterTemplate(Template):
         return template
 
     def update(self):
-        """ Create a link to the new month log file in the current quarter log
+        """Create a link to the new month log file in the current quarter log
         file.
 
         :returns str: The updated log file

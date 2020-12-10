@@ -45,7 +45,7 @@ class Period(ABC):
         raise NotImplementedError
 
     def get_start_date(self, for_date):
-        """ Given a date, return the date corresponding to the
+        """Given a date, return the date corresponding to the
         start of the present period (e.g. Week) encompassing that date.
 
         :param :class:`datetime.date` for_date: The reference date
@@ -59,7 +59,7 @@ class Period(ABC):
         return current_date
 
     def get_end_date(self, for_date):
-        """ Given a date, return the date corresponding to the
+        """Given a date, return the date corresponding to the
         end of the present period (e.g. Week) encompassing that date.
 
         :param :class:`datetime.date` for_date: The reference date
@@ -86,7 +86,7 @@ class _Zero(Period):
         return "zero"
 
     def get_start_date(self, for_date):
-        """ Given a date, return the date corresponding to the
+        """Given a date, return the date corresponding to the
         start of the present period (e.g. Week) encompassing that date.
 
         :param :class:`datetime.date` for_date: The reference date
@@ -98,7 +98,7 @@ class _Zero(Period):
         return datetime.date(1, 1, 1)
 
     def get_end_date(self, for_date):
-        """ Given a date, return the date corresponding to the
+        """Given a date, return the date corresponding to the
         end of the present period (e.g. Week) encompassing that date.
 
         :param :class:`datetime.date` for_date: The reference date
@@ -126,7 +126,7 @@ class _Eternity(Period):
         return "eternity"
 
     def get_start_date(self, for_date=None):
-        """ Given a date, return the date corresponding to the
+        """Given a date, return the date corresponding to the
         start of the present period (e.g. Week) encompassing that date.
 
         :param :class:`datetime.date` for_date: The reference date
@@ -135,7 +135,7 @@ class _Eternity(Period):
         return datetime.date(1, 1, 1)
 
     def get_end_date(self, for_date=None):
-        """ Given a date, return the date corresponding to the
+        """Given a date, return the date corresponding to the
         end of the present period (e.g. Week) encompassing that date.
 
         :param :class:`datetime.date` for_date: The reference date

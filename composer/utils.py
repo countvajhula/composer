@@ -22,7 +22,7 @@ def display_message(
     acknowledge=False,
     interrupt=False,
 ):
-    """ Show a message to the user.
+    """Show a message to the user.
 
     :param str message: The message
     :param bool newline: Whether to add a newline after showing the message
@@ -53,7 +53,7 @@ def display_message(
 
 
 def ask_input(message=''):
-    """ Ask for input from the user.
+    """Ask for input from the user.
 
     :param str message: The message to prompt the user with
     :returns str: The input from the user

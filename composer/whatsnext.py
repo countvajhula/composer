@@ -64,7 +64,7 @@ def _show_advice(wikidir, preferences):
 
 
 def _pass_baton(wikidir, preferences):
-    """ Display the contents of the "baton" file (usually Cache.wiki)
+    """Display the contents of the "baton" file (usually Baton.wiki)
     as the strands in progress / next steps to pick up on. Then clear
     the file.
     """
@@ -88,7 +88,7 @@ def _pass_baton(wikidir, preferences):
 
 
 def _post_advance_tasks(wikidir, plannerdate, preferences):
-    """ Update the index to include any newly created files,
+    """Update the index to include any newly created files,
     Commit the post-advance state into git, and display a
     thought for the day.
     """
@@ -114,7 +114,7 @@ def _post_advance_tasks(wikidir, plannerdate, preferences):
 
 
 def process_wiki(wikidir, preferences):
-    """ Advance the wiki at the specified path, according to any configured
+    """Advance the wiki at the specified path, according to any configured
     preferences.
 
     :param str wikidir: The path to the wiki
@@ -160,12 +160,12 @@ def process_wiki(wikidir, preferences):
                 ] = config.LOGFILE_CHECKING["LAX"]
             else:
                 continue
-        except PlannerStateError as err:
+        except PlannerStateError:
             raise
         except SchedulingError as err:
             display_message(err.value, newline=False, prompt=True)
             ask_input()
-        except LayoutError as err:
+        except LayoutError:
             raise
         except MissingThemeError as err:
             display_message(

@@ -12,7 +12,7 @@ except NameError:  # py2
 
 
 def get_log_for_date(period, for_date, planner_root):
-    """ For any date, a time period uniquely maps to a single log file on disk
+    """For any date, a time period uniquely maps to a single log file on disk
     for a particular planner instance (which is tied to a wiki root path).
     This function returns that file for the given time period and date.
 
@@ -41,7 +41,7 @@ def get_log_for_date(period, for_date, planner_root):
 
 
 def get_constituent_logs(period, for_date, planner_root):
-    """ Get logfiles for the smaller time period constituting the specified
+    """Get logfiles for the smaller time period constituting the specified
     time period, e.g. all of the day logfiles for the week.
 
     :param :class:`~composer.timeperiod.Period` period: The time period
@@ -76,7 +76,7 @@ def get_constituent_logs(period, for_date, planner_root):
 
 
 def ensure_file_does_not_exist(filename, period):
-    """ Ensure that a file does not already exist on disk. Raises an
+    """Ensure that a file does not already exist on disk. Raises an
     exception if it does.
 
     :param str filename: The path to the file

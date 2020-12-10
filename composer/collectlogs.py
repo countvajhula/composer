@@ -22,7 +22,7 @@ CONFIG_FILE = os.path.join(CONFIG_ROOT, config.CONFIG_FILENAME)
 
 
 def extract_log_time_from_text(logtext):
-    """ Given the contents of a log file, return the contents of the notes
+    """Given the contents of a log file, return the contents of the notes
     section and the time taken.
 
     :param str logtext: The contents of a log file
@@ -37,7 +37,7 @@ def extract_log_time_from_text(logtext):
 
 
 def get_logs_times(wikidir, period):
-    """ Get constituent log notes and time spent for the specified period.
+    """Get constituent log notes and time spent for the specified period.
     E.g. for a month, this would return the notes and times for each contained
     week.  Return notes separated by lines and headed by dates.
 
