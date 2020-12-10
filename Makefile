@@ -121,7 +121,7 @@ else
 endif
 	python setup.py test $(OPTS)
 
-test-wiki: build
+test-wiki:
 	@echo "Operating on TEST wiki at location:" ${TEST_WIKI_PATH}
 ifeq ($(jump),1)
 	whats-next ${TEST_WIKI_PATH} --jump
