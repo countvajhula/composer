@@ -195,10 +195,16 @@ class TestStringToDate(object):
         assert date == expected_date
         assert period == expected_period
 
-    def test_format15(self):
-        today = datetime.date(2013, 6, 1)
+    @pytest.mark.parametrize(
+        "today, expected_date",
+        [
+            (datetime.date(2013, 6, 1), datetime.date(2013, 7, 1)),
+            # last day of the month
+            (datetime.date(2013, 7, 31), datetime.date(2013, 9, 1)),
+        ],
+    )
+    def test_format15(self, today, expected_date):
         date_string = "NEXT MONTH"
-        expected_date = datetime.date(2013, 7, 1)
         expected_period = Month
         date, period = string_to_date(date_string, reference_date=today)
         assert date == expected_date

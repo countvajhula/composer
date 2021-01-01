@@ -374,7 +374,13 @@ def parse_dateformat15(date_string, reference_date=None):
         raise RelativeDateError(
             "Relative date found, but no context available"
         )
-    date = Month.get_end_date(reference_date) + datetime.timedelta(days=1)
+    month_end = Month.get_end_date(reference_date)
+    date = month_end + datetime.timedelta(days=1)
+    if month_end == reference_date:
+        # on the last day of the month, we mean the following month,
+        # not tomorrow. although, maybe we should broaden this handling
+        # to the last week of the month and not just the last day
+        date = Month.get_end_date(date) + datetime.timedelta(days=1)
     period = Month
     return date, period
 
