@@ -14,7 +14,7 @@ from composer.backend import FilesystemPlanner
 from composer.backend.filesystem.interface import get_constituent_logs
 from composer.backend.filesystem.primitives import get_log_filename
 from composer.utils import display_message
-from composer.timeperiod import Week, Month, Quarter, get_next_period
+from composer.timeperiod import Week, Month, Quarter, Year, get_next_period
 from composer import config
 
 CONFIG_ROOT = os.getenv("COMPOSER_ROOT", os.path.expanduser("~/.composer"))
@@ -88,22 +88,28 @@ def main(wikipath=None):
     else:
         wikidirs = preferences["wikis"]
     for wikidir in wikidirs:
-        (weeklogs, weektimes) = get_logs_times(wikidir, Week)
-        (monthlogs, monthtimes) = get_logs_times(wikidir, Month)
-        (quarterlogs, quartertimes) = get_logs_times(wikidir, Quarter)
+        (daylogs, daytimes) = get_logs_times(wikidir, Week)
+        (weeklogs, weektimes) = get_logs_times(wikidir, Month)
+        (monthlogs, monthtimes) = get_logs_times(wikidir, Quarter)
+        (quarterlogs, quartertimes) = get_logs_times(wikidir, Year)
         display_message("Daily logs for the past week (%s)" % wikidir)
-        display_message(weeklogs)
+        display_message(daylogs)
         display_message("Daily Times:")
-        display_message(weektimes)
+        display_message(daytimes)
         display_message()
         display_message("Weekly logs for the past month (%s)" % wikidir)
-        display_message(monthlogs)
+        display_message(weeklogs)
         display_message("Weekly Times:")
-        display_message(monthtimes)
+        display_message(weektimes)
         display_message()
         display_message("Monthly logs for the past quarter (%s)" % wikidir)
-        display_message(quarterlogs)
+        display_message(monthlogs)
         display_message("Monthly Times:")
+        display_message(monthtimes)
+        display_message()
+        display_message("Quarterly logs for the past year (%s)" % wikidir)
+        display_message(quarterlogs)
+        display_message("Quarterly Times:")
         display_message(quartertimes)
         display_message()
 
