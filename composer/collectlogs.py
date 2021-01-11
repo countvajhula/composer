@@ -13,6 +13,7 @@ from datetime import timedelta
 from composer.backend import FilesystemPlanner
 from composer.backend.filesystem.interface import get_constituent_logs
 from composer.backend.filesystem.primitives import get_log_filename
+from composer.backend.filesystem.date_parsers import parse_dateformat12
 from composer.utils import display_message
 from composer.timeperiod import Week, Month, Quarter, Year, get_next_period
 from composer import config
@@ -36,7 +37,7 @@ def extract_log_time_from_text(logtext):
     return (log, time)
 
 
-def get_logs_times(wikidir, period):
+def get_logs_times(wikidir, period, reference_date=None):
     """Get constituent log notes and time spent for the specified period.
     E.g. for a month, this would return the notes and times for each contained
     week.  Return notes separated by lines and headed by dates.
@@ -46,7 +47,8 @@ def get_logs_times(wikidir, period):
     :returns tuple: The logs (str) and times (list)
     """
     planner = FilesystemPlanner(wikidir)
-    current_date = period.get_start_date(planner.date)
+    reference_date = reference_date or planner.date
+    current_date = period.get_start_date(reference_date)
     logs = get_constituent_logs(period, current_date, wikidir)
     constituent_period = get_next_period(period, decreasing=True)
     (logs_string, times) = ("", [])
@@ -79,7 +81,8 @@ def get_logs_times(wikidir, period):
     )
 )
 @click.argument("wikipath", required=False)
-def main(wikipath=None):
+@click.option("-d", "--date", help="Reference date to use (MM-DD-YYYY).")
+def main(wikipath=None, date=None):
     preferences = config.read_user_preferences(CONFIG_FILE)
     # if wikipath is specified, it should override
     # the configured paths in the ini file
@@ -87,11 +90,13 @@ def main(wikipath=None):
         wikidirs = [wikipath]
     else:
         wikidirs = preferences["wikis"]
+    if date:
+        date = parse_dateformat12(date)[0]
     for wikidir in wikidirs:
-        (daylogs, daytimes) = get_logs_times(wikidir, Week)
-        (weeklogs, weektimes) = get_logs_times(wikidir, Month)
-        (monthlogs, monthtimes) = get_logs_times(wikidir, Quarter)
-        (quarterlogs, quartertimes) = get_logs_times(wikidir, Year)
+        (daylogs, daytimes) = get_logs_times(wikidir, Week, date)
+        (weeklogs, weektimes) = get_logs_times(wikidir, Month, date)
+        (monthlogs, monthtimes) = get_logs_times(wikidir, Quarter, date)
+        (quarterlogs, quartertimes) = get_logs_times(wikidir, Year, date)
         display_message("Daily logs for the past week (%s)" % wikidir)
         display_message(daylogs)
         display_message("Daily Times:")
