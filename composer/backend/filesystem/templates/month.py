@@ -1,3 +1,4 @@
+import subprocess
 from .base import Template
 from ....timeperiod import Week
 
@@ -19,6 +20,19 @@ class MonthTemplate(Template):
             self.for_date.year,
         )
         self.title = "= %s %d =\n" % (month.upper(), year)
+
+        calendar = subprocess.check_output(
+            [
+                'cal',
+                '-h',
+                '-d',
+                '{year}-{month}'.format(year=year, month=self.for_date.month),
+            ]
+        ).decode('utf-8')
+        calendar = calendar.splitlines()
+        calendar = ["\t\t" + line for line in calendar]
+        calendar = "\n".join(calendar)
+        self.preamble = calendar
 
         # start date for WEEK here, not month
         start_date = Week.get_start_date(self.for_date)

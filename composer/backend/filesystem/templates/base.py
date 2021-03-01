@@ -7,20 +7,24 @@ ABC = abc.ABCMeta("ABC", (object,), {})  # compatible with Python 2 *and* 3
 
 
 def _tidy_item(item):
+    """Ensure that a template component if empty doesn't contribute newlines to
+    the rendered output, and if nonempty, that it has exactly one newline at
+    its tail end."""
     # TODO: need a test for a case where there are extra newlines in
     # template components, to prove that this helps by eliminating them
-    extra_newlines = re.compile('\n{2}$')
-    if item == '\n':
+    if re.match(r'\s+$', item):
         item = ''
-    elif extra_newlines.search(item):
-        item = item.rstrip('\n')
-        item += '\n'
+        return item
+
+    trailing_blanks_pattern = re.compile(r'^\s*$', re.MULTILINE)
+    item = re.sub(trailing_blanks_pattern, '', item)
     return item
 
 
 class Template(ABC):
 
     title = None
+    preamble = None
     entry = None
     agenda = None
     periodicname = None
@@ -62,6 +66,10 @@ class Template(ABC):
         if self.title:
             self.title = _tidy_item(self.title)
             template = self.title
+            template += "\n"
+        if self.preamble:
+            self.preamble = _tidy_item(self.preamble)
+            template += self.preamble
             template += "\n"
         if self.entry:
             self.entry = _tidy_item(self.entry)

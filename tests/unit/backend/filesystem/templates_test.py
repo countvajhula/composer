@@ -1,5 +1,6 @@
 import datetime
 import pytest
+import subprocess
 
 from composer.timeperiod import (
     Day,
@@ -84,6 +85,25 @@ class TestCreateLog(object):
         (month, year) = (for_day.strftime('%B'), for_day.year)
         template = "= %s %d =\n" % (month.upper(), year)
         template += "\n"
+
+        # really, this template component should probably just be excluded
+        # from tests in some way since it's externally generated. Or rather,
+        # the tests shouldn't check for equality but something weaker
+        calendar = subprocess.check_output(
+            [
+                'cal',
+                '-h',
+                '-d',
+                '{year}-{month}'.format(year=year, month=for_day.month),
+            ]
+        ).decode('utf-8')
+        calendar = calendar.splitlines()
+        calendar = ["\t\t" + line for line in calendar]
+        calendar = "\n".join(calendar)
+
+        template += calendar
+        template += "\n"
+
         template += "\t* [[Week of %s %d, %d]]\n" % (
             month,
             1,
