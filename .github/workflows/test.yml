@@ -14,7 +14,6 @@ jobs:
                     - "2.7"
                     - "3.6"
                     - "3.9"
-                    - "pypy"
                     - "pypy3"
                 os:
                     - "ubuntu-latest"
