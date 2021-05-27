@@ -39,6 +39,9 @@ help:
 build:
 	pip install -e .[dev]
 
+build-for-test:
+	pip install -e .[test]
+
 docs: build
 	rm -f docs/composer.rst
 	rm -f docs/modules.rst
@@ -148,4 +151,4 @@ sdist: clean
 	python setup.py sdist
 	ls -l dist
 
-.PHONY: help build docs clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint black test-unit test-functional test-all test test-stop test-debug test-matrix test-tldr test-wiki debug coverage sdist
+.PHONY: help build build-for-test docs clean clean-build clean-pyc clean-test lint-source lint-tests lint-all lint black test-unit test-functional test-all test test-stop test-debug test-matrix test-tldr test-wiki debug coverage cover-coveralls sdist
