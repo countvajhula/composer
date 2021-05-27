@@ -29,7 +29,7 @@ jobs:
               with:
                   python-version: ${{ matrix.py }}
                   architecture: ${{ matrix.architecture }}
-            - Install dependencies
+            - name: Install dependencies
               run: pip install -r requirements.txt
             - name: Run tests
               run: make test-matrix
