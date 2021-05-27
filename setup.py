@@ -8,6 +8,7 @@ test_requirements = [
     'pytest-sugar',
     'pytest-tldr',
     'tox',
+    'coveralls',
     'mock',  # py2 only
 ]
 

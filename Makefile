@@ -140,6 +140,10 @@ coverage: clean-test
 	coverage html
 	open coverage_html_report/index.html
 
+cover-coveralls: clean-test
+	coverage run --source composer setup.py test --addopts $(UNIT_TESTS_PATH)
+	coveralls
+
 sdist: clean
 	python setup.py sdist
 	ls -l dist
