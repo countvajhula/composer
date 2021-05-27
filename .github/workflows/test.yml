@@ -44,8 +44,8 @@ jobs:
             - name: Install dependencies
               run: make build-for-test
             - name: Report coverage
-              with:
-                  repo-token: ${{ secrets.GITHUB_TOKEN }}
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: make cover-coveralls
     lint:
         runs-on: macos-latest
