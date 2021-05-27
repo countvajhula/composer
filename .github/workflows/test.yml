@@ -34,6 +34,8 @@ jobs:
     coverage:
         runs-on: macos-latest
         name: Report coverage
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         steps:
             - uses: actions/checkout@v2
             - name: Setup python
@@ -44,8 +46,6 @@ jobs:
             - name: Install dependencies
               run: make build-for-test
             - name: Report coverage
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: make cover-coveralls
     lint:
         runs-on: macos-latest
