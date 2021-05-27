@@ -145,7 +145,7 @@ coverage: clean-test
 
 cover-coveralls: clean-test
 	coverage run --source composer setup.py test --addopts $(UNIT_TESTS_PATH)
-	coveralls --service=github
+	coveralls
 
 sdist: clean
 	python setup.py sdist
