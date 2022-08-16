@@ -78,11 +78,11 @@ class _Zero(Period):
     duration = 0
 
     def is_start_of_period(self, to_date):
-        """ A null period for 'algebraic' convenience. """
+        """A null period for 'algebraic' convenience."""
         return True
 
     def get_name(self):
-        """ A null period for 'algebraic' convenience. """
+        """A null period for 'algebraic' convenience."""
         return "zero"
 
     def get_start_date(self, for_date):
@@ -118,11 +118,11 @@ class _Eternity(Period):
     duration = INFINITY
 
     def is_start_of_period(self, to_date=None):
-        """ An infinite period for 'algebraic' convenience. """
+        """An infinite period for 'algebraic' convenience."""
         return True
 
     def get_name(self):
-        """ An infinite period for 'algebraic' convenience. """
+        """An infinite period for 'algebraic' convenience."""
         return "eternity"
 
     def get_start_date(self, for_date=None):

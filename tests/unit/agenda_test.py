@@ -206,7 +206,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
     daythemes = "SUNDAY: Groceries Day\nMONDAY: \nTUESDAY:Cleaning Day\nWEDNESDAY:\nTHURSDAY:\nFRIDAY:\nSATURDAY: LAUNDRY DAY\n"
 
     def test_agenda_is_empty_when_tomorrow_and_undone_are_empty(self):
-        """ Check that tomorrow's agenda is empty when no tasks are undone from today, and no tasks have been added for tomorrow """
+        """Check that tomorrow's agenda is empty when no tasks are undone from today, and no tasks have been added for tomorrow"""
         next_day = datetime.date(2012, 12, 10)
         (date, day, month, year) = (
             next_day.day,
@@ -263,7 +263,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         self.assertEqual(planner.next_day_planner.dayfile.read(), daytemplate)
 
     def test_agenda_has_undone_tasks(self):
-        """ Check that any undone tasks from today are carried over to tomorrow's agenda """
+        """Check that any undone tasks from today are carried over to tomorrow's agenda"""
         next_day = datetime.date(2012, 12, 10)
         (date, day, month, year) = (
             next_day.day,
@@ -388,7 +388,7 @@ class PlannerAgendaConstructionTester(unittest.TestCase):
         self.assertEqual(tasklist.file.read(), self.tasklist)
 
     def test_agenda_has_both_tomorrows_tasks_and_undone_tasks(self):
-        """ Check that tomorrow's agenda has both undone tasks from today's agenda as well as tasks added for tomorrow """
+        """Check that tomorrow's agenda has both undone tasks from today's agenda as well as tasks added for tomorrow"""
         next_day = datetime.date(2012, 12, 10)
         (date, day, month, year) = (
             next_day.day,

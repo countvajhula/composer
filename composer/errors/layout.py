@@ -2,7 +2,7 @@ from . import ComposerError
 
 
 class LayoutError(ComposerError):
-    """  Base error class for file layout errors. """
+    """Base error class for file layout errors."""
 
     def __init__(self, value):
         self.value = value

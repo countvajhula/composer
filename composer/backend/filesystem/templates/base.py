@@ -37,7 +37,7 @@ class Template(ABC):
 
     @abc.abstractmethod
     def _file_handle(self):
-        """ Return the relevant file for the template class. """
+        """Return the relevant file for the template class."""
         raise NotImplementedError
 
     @abc.abstractmethod

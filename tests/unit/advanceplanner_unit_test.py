@@ -27,7 +27,7 @@ except ImportError:  # py3
 
 
 class PlannerDateIntegrityTester(unittest.TestCase):
-    """ check dates are advanced correctly - edge cases, leap years """
+    """check dates are advanced correctly - edge cases, leap years"""
 
     pass
 
@@ -56,7 +56,7 @@ class PlannerInvalidStateFailGracefullyTester(unittest.TestCase):
 
 # TODO: use (merge into as needed) planner fixture instead of this base class
 class PlannerIntegrationTest(unittest.TestCase):
-    """ Check that planner advances and updates templates correctly """
+    """Check that planner advances and updates templates correctly"""
 
     tasklist = (
         "TOMORROW:\n"

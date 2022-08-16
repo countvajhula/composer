@@ -10,7 +10,7 @@ except ImportError:  # py3
 
 
 class TestAdvice(unittest.TestCase):
-    """ Supported numbering scheme: digit + optional letter. E.g. '12a.' """
+    """Supported numbering scheme: digit + optional letter. E.g. '12a.'"""
 
     lessons = [
         'Always do what is right; not because it is easy or prudent, but because it is right.\n',
