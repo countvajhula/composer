@@ -1,9 +1,23 @@
 import os
 from datetime import timedelta
 from ...timeperiod import get_next_period, Day
-from ...errors import LogfileAlreadyExistsError
+from ...errors import (
+    InvalidTimeFormatError,
+    LogfileLayoutError,
+    LogfileAlreadyExistsError,
+)
 
-from .primitives import get_log_filename, read_file
+from .primitives import get_log_filename, read_file, read_section
+from .time_parsers import (
+    timeformat1,
+    timeformat2,
+    timeformat3,
+    timeformat4,
+    parse_timeformat1,
+    parse_timeformat2,
+    parse_timeformat3,
+    parse_timeformat4,
+)
 
 try:  # py3
     FileNotFoundError
@@ -38,6 +52,66 @@ def get_log_for_date(period, for_date, planner_root):
     except FileNotFoundError:
         raise
     return log
+
+
+def string_to_time(time_string):
+    """Parse a given string representing a time.
+
+    Tries various acceptable time formats until one works.
+
+    :param str datestr: A string representing a time taken.
+    :returns int: The time taken in minutes.
+    """
+    patterns = (
+        (timeformat1, parse_timeformat1),
+        (timeformat2, parse_timeformat2),
+        (timeformat3, parse_timeformat3),
+        (timeformat4, parse_timeformat4),
+    )
+
+    for pattern, parse in patterns:
+        if pattern.search(time_string):
+            return parse(time_string)
+
+    raise InvalidTimeFormatError(
+        "Time format does not match any acceptable formats! " + time_string
+    )
+
+
+def time_spent_on_planner(period, for_date, planner_root):
+    """For any date, a time period uniquely maps to a single log file on disk
+    for a particular planner instance (which is tied to a wiki root path).
+    This function returns the time spent on the planner for the given time
+    period and date.
+
+    This is an interface rather than a planner method since it answers a
+    question about the historical data tracked at the path managed by the
+    planner, rather than the current actionable state of the planner.
+
+    :param :class:`~composer.timeperiod.Period` period: The time period
+        for which we want the time spent
+    :param :class:`datetime.date` for_date: The date of interest
+    :param str planner_root: The root path of the planner wiki
+    :returns int: The time spent in minutes.
+    """
+    if period < Day:
+        return 0
+    start_date = period.get_start_date(for_date)
+    log_path = get_log_filename(start_date, period, planner_root)
+    try:
+        log = read_file(log_path)
+    except FileNotFoundError:
+        raise
+    try:
+        time_spent, _ = read_section(log, 'time spent on planner')
+    except ValueError:
+        raise LogfileLayoutError(
+            "Error: No 'TIME SPENT ON PLANNER' section found in your {period} "
+            "log file!".format(period=period)
+        )
+    time_spent = string_to_time(time_spent.read())
+
+    return time_spent
 
 
 def get_constituent_logs(period, for_date, planner_root):

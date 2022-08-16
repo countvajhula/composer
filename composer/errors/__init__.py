@@ -25,6 +25,9 @@ from .scheduling import (  # noqa
     InvalidDateError,
     RelativeDateError,
 )
+from .time import (  # noqa
+    InvalidTimeFormatError,
+)
 
 __all__ = (
     "ComposerError",
@@ -46,4 +49,5 @@ __all__ = (
     "PlannerStateError",
     "MissingThemeError",
     "AgendaNotReviewedError",
+    "InvalidTimeFormatError",
 )
