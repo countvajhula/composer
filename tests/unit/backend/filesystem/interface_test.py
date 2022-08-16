@@ -3,10 +3,13 @@ from datetime import date, timedelta
 from mock import patch
 
 from composer.backend.filesystem.interface import (
+    get_log_for_date,
     get_constituent_logs,
+    compute_time_spent_on_planner,
     time_spent_on_planner,
 )
-from composer.timeperiod import Day, Week
+from composer.timeperiod import Zero, Day, Week
+from ...fixtures import logfile, complete_logfile  # noqa
 
 try:  # py2
     from StringIO import StringIO
@@ -34,6 +37,15 @@ class LogTimes(object):
         raise FileNotFoundError
 
 
+class TestGetLogForDate(object):
+    @patch('composer.backend.filesystem.interface.read_file')
+    def test_retrieves_log(self, mock_read_file, logfile):
+        mock_read_file.return_value = logfile
+        for_date = date.today() - timedelta(days=15)
+        log = get_log_for_date(Day, for_date, '/path/to/root')
+        assert log == logfile
+
+
 class TestTimeSpentOnPlanner(object):
     @pytest.mark.parametrize(
         "time_string, expected_time",
@@ -50,16 +62,55 @@ class TestTimeSpentOnPlanner(object):
             ('35 + 30 = 1hr 5 mins (completed next day)\n', 65),
         ],
     )
-    @patch('composer.backend.filesystem.interface.read_section')
+    @patch('composer.backend.filesystem.interface.get_entries')
     @patch('composer.backend.filesystem.interface.read_file')
     def test_time_is_parsed(
-        self, mock_read_file, mock_read_section, time_string, expected_time
+        self,
+        mock_read_file,
+        mock_get_entries,
+        time_string,
+        expected_time,
+        logfile,
     ):
         mock_read_file.return_value = StringIO('')
-        mock_read_section.return_value = StringIO(time_string), StringIO('')
-        for_date = date.today() - timedelta(days=15)
-        time_spent = time_spent_on_planner(Day, for_date, '/path/to/root')
+        mock_get_entries.return_value = [
+            'TIME SPENT ON PLANNER: ' + time_string
+        ]
+        time_spent = time_spent_on_planner(logfile)
         assert time_spent == expected_time
+
+
+class TestComputeTimeSpentOnPlanner(object):
+    def test_no_time_is_spent_on_zero_period(
+        self,
+    ):
+        for_date = date.today() - timedelta(days=15)
+        time_spent = compute_time_spent_on_planner(
+            Zero, for_date, '/path/to/root'
+        )
+        assert time_spent == (0, 0)
+
+    @patch('composer.backend.filesystem.interface.get_log_for_date')
+    def test_time_spent_on_day(self, mock_get_log, complete_logfile):
+        mock_get_log.return_value = complete_logfile
+        for_date = date.today() - timedelta(days=15)
+        time_spent = compute_time_spent_on_planner(
+            Day, for_date, '/path/to/root'
+        )
+        assert time_spent == (0, 25)
+
+    @patch('composer.backend.filesystem.interface.get_constituent_logs')
+    def test_time_spent_on_week(self, mock_get_logs, complete_logfile):
+        mock_get_logs.return_value = [
+            complete_logfile,
+            complete_logfile,
+            complete_logfile,
+        ]
+        for_date = date.today() - timedelta(days=15)
+        time_spent = compute_time_spent_on_planner(
+            Week, for_date, '/path/to/root'
+        )
+        assert time_spent == (1, 15)
 
 
 class TestGetConstituentLogs(object):

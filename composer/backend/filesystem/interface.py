@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import timedelta
 from ...timeperiod import get_next_period, Day
 from ...errors import (
@@ -7,7 +8,7 @@ from ...errors import (
     LogfileAlreadyExistsError,
 )
 
-from .primitives import get_log_filename, read_file, read_section
+from .primitives import get_log_filename, read_file, get_entries
 from .time_parsers import (
     timeformat1,
     timeformat2,
@@ -78,7 +79,7 @@ def string_to_time(time_string):
     )
 
 
-def time_spent_on_planner(period, for_date, planner_root):
+def time_spent_on_planner(log):
     """For any date, a time period uniquely maps to a single log file on disk
     for a particular planner instance (which is tied to a wiki root path).
     This function returns the time spent on the planner for the given time
@@ -94,24 +95,38 @@ def time_spent_on_planner(period, for_date, planner_root):
     :param str planner_root: The root path of the planner wiki
     :returns int: The time spent in minutes.
     """
-    if period < Day:
-        return 0
-    start_date = period.get_start_date(for_date)
-    log_path = get_log_filename(start_date, period, planner_root)
     try:
-        log = read_file(log_path)
-    except FileNotFoundError:
-        raise
-    try:
-        time_spent, _ = read_section(log, 'time spent on planner')
-    except ValueError:
+        time_spent_entry = get_entries(
+            log, lambda e: e.startswith("TIME SPENT")
+        )[0]
+    except IndexError:
         raise LogfileLayoutError(
-            "Error: No 'TIME SPENT ON PLANNER' section found in your {period} "
-            "log file!".format(period=period)
+            "Error: No 'TIME SPENT ON PLANNER' section found in log file!"
         )
-    time_spent = string_to_time(time_spent.read())
+    time_pattern = re.compile(r'\d.*')
+    time_spent = string_to_time(time_pattern.search(time_spent_entry).group())
 
     return time_spent
+
+
+def compute_time_spent_on_planner(period, for_date, planner_root):
+    """Go through the constituent logfiles for the period and total the
+    reported time spent to get the aggregate time spent during this period.
+
+    :param :class:`~composer.timeperiod.Period` period: The time period
+        for which we want to total time spent
+    :param :class:`datetime.date` for_date: The date of interest
+    :param str planner_root: The root path of the planner wiki
+    :returns tuple: A tuple (hours, minutes)"""
+    if period < Day:
+        return (0, 0)
+    if period == Day:
+        log = get_log_for_date(period, for_date, planner_root)
+        mins = time_spent_on_planner(log)
+    else:
+        logs = get_constituent_logs(period, for_date, planner_root)
+        mins = sum(time_spent_on_planner(log) for log in logs)
+    return (int(mins / 60), mins % 60)
 
 
 def get_constituent_logs(period, for_date, planner_root):

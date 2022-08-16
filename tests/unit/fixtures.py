@@ -80,7 +80,11 @@ def empty_logfile():
 
 
 def _complete_logfile():
-    return StringIO(_logfile().read() + "Did lots of things today.\n")
+    return StringIO(
+        _logfile().read()
+        + "Did lots of things today.\n"
+        + "TIME SPENT ON PLANNER: 25 mins\n"
+    )
 
 
 @pytest.fixture
