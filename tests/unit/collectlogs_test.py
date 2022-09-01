@@ -58,8 +58,7 @@ class TestExtractNotesFromLog(unittest.TestCase):
     def test_day_log_extraction(self):
         expected_log = "Notes for the day."
         self.assertEqual(
-            extract_notes_from_log(StringIO(self.daylog)),
-            expected_log
+            extract_notes_from_log(StringIO(self.daylog)), expected_log
         )
 
 
@@ -69,7 +68,12 @@ class TestGetLogsTimes(object):
     @patch('composer.collectlogs.extract_notes_from_log')
     @patch('composer.collectlogs.FilesystemPlanner')
     def test_get_logs_times(
-            self, mock_planner, mock_extract_log, mock_get_logs, mock_compute_time, planner
+        self,
+        mock_planner,
+        mock_extract_log,
+        mock_get_logs,
+        mock_compute_time,
+        planner,
     ):
         planner.date = date.today() - timedelta(days=15)
         mock_planner.return_value = planner

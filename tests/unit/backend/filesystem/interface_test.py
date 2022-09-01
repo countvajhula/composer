@@ -93,9 +93,7 @@ class TestTimeSpentOnPlanner(object):
         logfile,
     ):
         mock_read_file.return_value = StringIO('')
-        mock_get_entries.return_value = [
-            'TIME SPENT ON PLANNER: '
-        ]
+        mock_get_entries.return_value = ['TIME SPENT ON PLANNER: ']
         time_spent = time_spent_on_planner(logfile)
         assert time_spent == 0
 

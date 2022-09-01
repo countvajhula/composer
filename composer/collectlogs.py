@@ -15,7 +15,8 @@ from composer.backend.filesystem.interface import (
     compute_time_spent_on_planner,
 )
 from composer.backend.filesystem.primitives import (
-    get_log_filename, read_section,
+    get_log_filename,
+    read_section,
 )
 from composer.backend.filesystem.date_parsers import parse_dateformat12
 from composer.utils import display_message
@@ -95,9 +96,15 @@ def main(wikipath=None, date=None):
         date = parse_dateformat12(date)[0]
     for wikidir in wikidirs:
         (daylogs, (week_hr, week_min)) = get_logs_times(wikidir, Week, date)
-        (weeklogs, (month_hr, month_min)) = get_logs_times(wikidir, Month, date)
-        (monthlogs, (quarter_hr, quarter_min)) = get_logs_times(wikidir, Quarter, date)
-        (quarterlogs, (year_hr, year_min)) = get_logs_times(wikidir, Year, date)
+        (weeklogs, (month_hr, month_min)) = get_logs_times(
+            wikidir, Month, date
+        )
+        (monthlogs, (quarter_hr, quarter_min)) = get_logs_times(
+            wikidir, Quarter, date
+        )
+        (quarterlogs, (year_hr, year_min)) = get_logs_times(
+            wikidir, Year, date
+        )
         display_message("Daily logs for the past week (%s)" % wikidir)
         display_message(daylogs)
         display_message("Time spent this week:")

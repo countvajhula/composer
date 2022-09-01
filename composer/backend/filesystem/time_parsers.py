@@ -11,9 +11,7 @@ timeformat2 = re.compile(r"^" + _timeformat2 + r"$", re.IGNORECASE)
 timeformat3_prefix = r"^\d.*\+ ?\d.*= ?"
 valid_formats_3 = [_timeformat1, _timeformat2]
 # X + Y = Z
-_timeformat3 = [
-    timeformat3_prefix + x for x in valid_formats_3
-]
+_timeformat3 = [timeformat3_prefix + x for x in valid_formats_3]
 timeformat3 = re.compile(r'|'.join(fmt + r'$' for fmt in _timeformat3))
 valid_formats_4 = [_timeformat1, _timeformat2] + _timeformat3
 timeformat4_suffix = r' ?\(.*\)'
