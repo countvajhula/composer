@@ -21,9 +21,9 @@ jobs:
         name: "Python: ${{ matrix.py }}-${{ matrix.architecture }} on ${{ matrix.os }}"
         runs-on: ${{ matrix.os }}
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v3
             - name: Setup python
-              uses: actions/setup-python@v2
+              uses: actions/setup-python@v4
               with:
                   python-version: ${{ matrix.py }}
                   architecture: ${{ matrix.architecture }}
@@ -39,9 +39,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_SERVICE_NAME: github
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v3
             - name: Setup python
-              uses: actions/setup-python@v1
+              uses: actions/setup-python@v4
               with:
                   python-version: 3.8
                   architecture: x64
@@ -53,9 +53,9 @@ jobs:
         runs-on: macos-latest
         name: Lint the package
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v3
             - name: Setup python
-              uses: actions/setup-python@v2
+              uses: actions/setup-python@v4
               with:
                   python-version: 3.8
                   architecture: x64
