@@ -4,15 +4,19 @@
 week, month, ..., to help save time on retrospectives """
 
 import os
-import re
 
 import click
 
 from datetime import timedelta
 
 from composer.backend import FilesystemPlanner
-from composer.backend.filesystem.interface import get_constituent_logs
-from composer.backend.filesystem.primitives import get_log_filename
+from composer.backend.filesystem.interface import (
+    get_constituent_logs,
+    compute_time_spent_on_planner,
+)
+from composer.backend.filesystem.primitives import (
+    get_log_filename, read_section,
+)
 from composer.backend.filesystem.date_parsers import parse_dateformat12
 from composer.utils import display_message
 from composer.timeperiod import Week, Month, Quarter, Year, get_next_period
@@ -22,19 +26,15 @@ CONFIG_ROOT = os.getenv("COMPOSER_ROOT", os.path.expanduser("~/.composer"))
 CONFIG_FILE = os.path.join(CONFIG_ROOT, config.CONFIG_FILENAME)
 
 
-def extract_log_time_from_text(logtext):
+def extract_notes_from_log(logfile):
     """Given the contents of a log file, return the contents of the notes
-    section and the time taken.
+    section.
 
-    :param str logtext: The contents of a log file
-    :returns tuple: The log (str) and time (str)
+    :param str logfile: The log file
+    :returns str: The notes
     """
-    notes_idx = re.search(r"NOTES:\n", logtext).end()
-    end_idx = re.search(r"\nTIME", logtext).start()
-    log = logtext[notes_idx:end_idx].strip(" \n")
-    time_idx = end_idx + logtext[end_idx:].find(":") + 1
-    time = logtext[time_idx:].strip(" \n")
-    return (log, time)
+    notes, _ = read_section(logfile, "notes")
+    return notes.read().strip()
 
 
 def get_logs_times(wikidir, period, reference_date=None):
@@ -51,9 +51,11 @@ def get_logs_times(wikidir, period, reference_date=None):
     current_date = period.get_start_date(reference_date)
     logs = get_constituent_logs(period, current_date, wikidir)
     constituent_period = get_next_period(period, decreasing=True)
-    (logs_string, times) = ("", [])
+    logs_string = ""
+    time = compute_time_spent_on_planner(period, current_date, wikidir)
+    # hrs, mins
     for log in logs:
-        (log, time) = extract_log_time_from_text(log.read())
+        notes = extract_notes_from_log(log)
         start_date = constituent_period.get_start_date(current_date)
         # TODO: in case of missing logs, this mislabels the
         # log period. Instead, rely on get_constituent_logs to
@@ -62,14 +64,13 @@ def get_logs_times(wikidir, period, reference_date=None):
         logs_string += (
             get_log_filename(start_date, constituent_period)
             + "\n"
-            + log
+            + notes
             + "\n\n"
         )
-        times.append(time)
         current_date = constituent_period.get_end_date(
             current_date
         ) + timedelta(days=1)
-    return (logs_string, times)
+    return (logs_string, time)
 
 
 @click.command(
@@ -93,29 +94,29 @@ def main(wikipath=None, date=None):
     if date:
         date = parse_dateformat12(date)[0]
     for wikidir in wikidirs:
-        (daylogs, daytimes) = get_logs_times(wikidir, Week, date)
-        (weeklogs, weektimes) = get_logs_times(wikidir, Month, date)
-        (monthlogs, monthtimes) = get_logs_times(wikidir, Quarter, date)
-        (quarterlogs, quartertimes) = get_logs_times(wikidir, Year, date)
+        (daylogs, (week_hr, week_min)) = get_logs_times(wikidir, Week, date)
+        (weeklogs, (month_hr, month_min)) = get_logs_times(wikidir, Month, date)
+        (monthlogs, (quarter_hr, quarter_min)) = get_logs_times(wikidir, Quarter, date)
+        (quarterlogs, (year_hr, year_min)) = get_logs_times(wikidir, Year, date)
         display_message("Daily logs for the past week (%s)" % wikidir)
         display_message(daylogs)
-        display_message("Daily Times:")
-        display_message(daytimes)
+        display_message("Time spent this week:")
+        display_message(str(week_hr) + " hrs " + str(week_min) + " mins")
         display_message()
         display_message("Weekly logs for the past month (%s)" % wikidir)
         display_message(weeklogs)
-        display_message("Weekly Times:")
-        display_message(weektimes)
+        display_message("Time spent this month:")
+        display_message(str(month_hr) + " hrs " + str(month_min) + " mins")
         display_message()
         display_message("Monthly logs for the past quarter (%s)" % wikidir)
         display_message(monthlogs)
-        display_message("Monthly Times:")
-        display_message(monthtimes)
+        display_message("Time spent this quarter:")
+        display_message(str(quarter_hr) + " hrs " + str(quarter_min) + " mins")
         display_message()
         display_message("Quarterly logs for the past year (%s)" % wikidir)
         display_message(quarterlogs)
-        display_message("Quarterly Times:")
-        display_message(quartertimes)
+        display_message("Time spent this year:")
+        display_message(str(year_hr) + " hrs " + str(year_min) + " mins")
         display_message()
 
 

@@ -1,16 +1,21 @@
 import unittest
 
+try:  # py2
+    from StringIO import StringIO
+except ImportError:  # py3
+    from io import StringIO
+
 from datetime import date, timedelta
 
-from composer.collectlogs import extract_log_time_from_text, get_logs_times
+from composer.collectlogs import extract_notes_from_log, get_logs_times
 from composer.timeperiod import Week
 
 from mock import patch, MagicMock
 
-from .fixtures import planner
+from .fixtures import planner  # noqa
 
 
-class SampleLogs(unittest.TestCase):
+class TestExtractNotesFromLog(unittest.TestCase):
     daylog = (
         "= WEDNESDAY APR 1, 2015 =\n"
         "\n"
@@ -52,24 +57,25 @@ class SampleLogs(unittest.TestCase):
 
     def test_day_log_extraction(self):
         expected_log = "Notes for the day."
-        expected_time = "10 mins"
         self.assertEqual(
-            extract_log_time_from_text(self.daylog),
-            (expected_log, expected_time),
+            extract_notes_from_log(StringIO(self.daylog)),
+            expected_log
         )
 
 
 class TestGetLogsTimes(object):
+    @patch('composer.collectlogs.compute_time_spent_on_planner')
     @patch('composer.collectlogs.get_constituent_logs')
-    @patch('composer.collectlogs.extract_log_time_from_text')
+    @patch('composer.collectlogs.extract_notes_from_log')
     @patch('composer.collectlogs.FilesystemPlanner')
     def test_get_logs_times(
-        self, mock_planner, mock_extract_log, mock_get_logs, planner
+            self, mock_planner, mock_extract_log, mock_get_logs, mock_compute_time, planner
     ):
         planner.date = date.today() - timedelta(days=15)
         mock_planner.return_value = planner
-        mock_extract_log.return_value = ('notes', 10)
+        mock_extract_log.return_value = 'notes'
         mock_get_logs.return_value = [MagicMock(), MagicMock()]
-        (logs, times) = get_logs_times('/path/to/wiki', Week)
+        mock_compute_time.return_value = (0, 10)
+        (logs, time) = get_logs_times('/path/to/wiki', Week)
         assert 'notes' in logs
-        assert 10 in times
+        assert time == (0, 10)
