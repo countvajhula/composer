@@ -3,23 +3,23 @@ import re
 # TODO: change these to annotated regex's
 
 # N mins
-_timeformat1 = re.compile(r"(\d+) ?mins?", re.IGNORECASE)
+_timeformat1 = r"(\d+) ?mins?"
 # H hrs M mins
-_timeformat2 = re.compile(r"(\d+) ?hrs? ?(\d+) ?mins?", re.IGNORECASE)
-timeformat1 = re.compile(r"^" + _timeformat1.pattern + r"$", re.IGNORECASE)
-timeformat2 = re.compile(r"^" + _timeformat2.pattern + r"$", re.IGNORECASE)
-timeformat3_prefix = re.compile(r"^\d+ ?\+ ?\d+ ?= ?", re.IGNORECASE)
+_timeformat2 = r"(\d+) ?hrs? ?(\d+) ?mins?"
+timeformat1 = re.compile(r"^" + _timeformat1 + r"$", re.IGNORECASE)
+timeformat2 = re.compile(r"^" + _timeformat2 + r"$", re.IGNORECASE)
+timeformat3_prefix = r"^\d.*\+ ?\d.*= ?"
 valid_formats_3 = [_timeformat1, _timeformat2]
 # X + Y = Z
 _timeformat3 = [
-    re.compile(timeformat3_prefix.pattern + x.pattern) for x in valid_formats_3
+    timeformat3_prefix + x for x in valid_formats_3
 ]
-timeformat3 = re.compile(r'|'.join(fmt.pattern + r'$' for fmt in _timeformat3))
+timeformat3 = re.compile(r'|'.join(fmt + r'$' for fmt in _timeformat3))
 valid_formats_4 = [_timeformat1, _timeformat2] + _timeformat3
-timeformat4_suffix = re.compile(r' ?\(.*\)')
+timeformat4_suffix = r' ?\(.*\)'
 # T (completed next day)
 timeformat4 = re.compile(
-    r'|'.join(x.pattern + timeformat4_suffix.pattern for x in valid_formats_4)
+    r'|'.join(x + timeformat4_suffix for x in valid_formats_4)
 )
 
 
