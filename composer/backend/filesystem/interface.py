@@ -70,6 +70,9 @@ def string_to_time(time_string):
         (timeformat4, parse_timeformat4),
     )
 
+    non_syntax_chars = ['?']
+    string_lexer = {ord(i): None for i in non_syntax_chars}
+    time_string = time_string.translate(string_lexer)
     for pattern, parse in patterns:
         if pattern.search(time_string):
             return parse(time_string)
@@ -89,10 +92,9 @@ def time_spent_on_planner(log):
     question about the historical data tracked at the path managed by the
     planner, rather than the current actionable state of the planner.
 
-    :param :class:`~composer.timeperiod.Period` period: The time period
-        for which we want the time spent
-    :param :class:`datetime.date` for_date: The date of interest
-    :param str planner_root: The root path of the planner wiki
+    :param :class:`io.StringIO` log: A file-like object representing
+        the log file for a particular time period. This utility parses
+        the log to extract the time spent.
     :returns int: The time spent in minutes.
     """
     try:
@@ -104,7 +106,8 @@ def time_spent_on_planner(log):
             "Error: No 'TIME SPENT ON PLANNER' section found in log file!"
         )
     time_pattern = re.compile(r'\d.*')
-    time_spent = string_to_time(time_pattern.search(time_spent_entry).group())
+    time_spent = time_pattern.search(time_spent_entry)
+    time_spent = string_to_time(time_spent.group()) if time_spent else 0
 
     return time_spent
 

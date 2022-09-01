@@ -46,6 +46,8 @@ class TestGetLogForDate(object):
         assert log == logfile
 
 
+# TODO: better to test string_to_time for the various formats
+# and have a simple integration test for time_spent_on_planner
 class TestTimeSpentOnPlanner(object):
     @pytest.mark.parametrize(
         "time_string, expected_time",
@@ -57,6 +59,9 @@ class TestTimeSpentOnPlanner(object):
             ('2hrs 10min\n', 130),
             ('35 + 10 = 45 mins\n', 45),
             ('35 + 30 = 1hr 5 mins\n', 65),
+            ('35? + 10 = 45 mins\n', 45),
+            ('35 + 10? = 45 mins\n', 45),
+            ('2 hrs + 10 mins = 2hr 10mins', 130),
             ('5 mins (completed next day)\n', 5),
             ('1hr 5 mins (completed next day)\n', 65),
             ('35 + 30 = 1hr 5 mins (completed next day)\n', 65),
@@ -78,6 +83,21 @@ class TestTimeSpentOnPlanner(object):
         ]
         time_spent = time_spent_on_planner(logfile)
         assert time_spent == expected_time
+
+    @patch('composer.backend.filesystem.interface.get_entries')
+    @patch('composer.backend.filesystem.interface.read_file')
+    def test_missing_time(
+        self,
+        mock_read_file,
+        mock_get_entries,
+        logfile,
+    ):
+        mock_read_file.return_value = StringIO('')
+        mock_get_entries.return_value = [
+            'TIME SPENT ON PLANNER: '
+        ]
+        time_spent = time_spent_on_planner(logfile)
+        assert time_spent == 0
 
 
 class TestComputeTimeSpentOnPlanner(object):
