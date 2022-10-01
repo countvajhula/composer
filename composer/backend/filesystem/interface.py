@@ -10,14 +10,16 @@ from ...errors import (
 
 from .primitives import get_log_filename, read_file, get_entries
 from .time_parsers import (
-    timeformat1,
-    timeformat2,
-    timeformat3,
-    timeformat4,
-    parse_timeformat1,
-    parse_timeformat2,
-    parse_timeformat3,
-    parse_timeformat4,
+    timeformat_min,
+    timeformat_hr,
+    timeformat_hrmin,
+    timeformat_pfx,
+    timeformat_sfx,
+    parse_timeformat_min,
+    parse_timeformat_hr,
+    parse_timeformat_hrmin,
+    parse_timeformat_pfx,
+    parse_timeformat_sfx,
 )
 
 try:  # py3
@@ -64,10 +66,11 @@ def string_to_time(time_string):
     :returns int: The time taken in minutes.
     """
     patterns = (
-        (timeformat1, parse_timeformat1),
-        (timeformat2, parse_timeformat2),
-        (timeformat3, parse_timeformat3),
-        (timeformat4, parse_timeformat4),
+        (timeformat_min, parse_timeformat_min),
+        (timeformat_hr, parse_timeformat_hr),
+        (timeformat_hrmin, parse_timeformat_hrmin),
+        (timeformat_pfx, parse_timeformat_pfx),
+        (timeformat_sfx, parse_timeformat_sfx),
     )
 
     non_syntax_chars = ['?']
