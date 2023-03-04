@@ -1,3 +1,7 @@
+SHELL=/bin/bash
+
+PACKAGE-NAME=composer
+
 export PYTEST_DISABLE_PLUGIN_AUTOLOAD = 1
 TEST_WIKI_PATH = tests/testwikis/userwiki
 UNIT_TESTS_PATH = tests/unit
@@ -30,7 +34,7 @@ help:
 	@echo "test-tldr - run specified tests and output just the stacktrace, e.g."
 	@echo "             make test-tldr DEST=tests/unit/my_module.py"
 	@echo "             (defaults to unit tests if none specified)"
-	@echo "test-wiki - run composer against an actual wiki set up for testing. Set jump=1 to set the jump flag."
+	@echo "test-wiki - run $(PACKAGE-NAME) against an actual wiki set up for testing. Set jump=1 to set the jump flag."
 	@echo "debug - alias for test-debug"
 	@echo "tldr - alias for test-tldr"
 	@echo "coverage - check code coverage quickly with the default Python"
@@ -43,9 +47,9 @@ build-for-test:
 	pip install -e .[test]
 
 docs: build
-	rm -f docs/composer.rst
+	rm -f docs/$(PACKAGE-NAME).rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ composer
+	sphinx-apidoc -o docs/ $(PACKAGE-NAME)
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
@@ -72,7 +76,7 @@ clean-test:
 	./reset-tests.sh
 
 lint-source:
-	flake8 composer
+	flake8 $(PACKAGE-NAME)
 
 lint-tests:
 	flake8 tests
@@ -82,7 +86,7 @@ lint-all: lint-source lint-tests
 lint: lint-source
 
 black:
-	black composer tests
+	black $(PACKAGE-NAME) tests
 
 test-unit:
 	python setup.py test --addopts $(UNIT_TESTS_PATH)
@@ -138,13 +142,13 @@ debug: test-debug
 tldr: test-tldr
 
 coverage: clean-test
-	coverage run --source composer setup.py test --addopts $(UNIT_TESTS_PATH)
+	coverage run --source $(PACKAGE-NAME) setup.py test --addopts $(UNIT_TESTS_PATH)
 	coverage report -m
 	coverage html
 	open coverage_html_report/index.html
 
 cover-coveralls: clean-test
-	coverage run --source composer setup.py test --addopts $(UNIT_TESTS_PATH)
+	coverage run --source $(PACKAGE-NAME) setup.py test --addopts $(UNIT_TESTS_PATH)
 	coveralls
 
 sdist: clean
