@@ -14,7 +14,9 @@ timeformat_hrmin = re.compile(r"^" + _timeformat_hrmin + r"$", re.IGNORECASE)
 _timeformat_breakdown_prefix = r"^\d.*\+ ?\d.*= ?"
 valid_base_formats = [_timeformat_min, _timeformat_hr, _timeformat_hrmin]
 # X + Y = Z
-_timeformat_pfx = [_timeformat_breakdown_prefix + x for x in valid_base_formats]
+_timeformat_pfx = [
+    _timeformat_breakdown_prefix + x for x in valid_base_formats
+]
 timeformat_pfx = re.compile(r'|'.join(fmt + r'$' for fmt in _timeformat_pfx))
 valid_base_formats = valid_base_formats + _timeformat_pfx
 _timeformat_annotation_suffix = r' ?\(.*\)'
