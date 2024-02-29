@@ -750,9 +750,11 @@ class FilesystemTasklist(TasklistBase):
         """
         entries = get_entries(self.file)
         entries = [
-            standardize_entry_date(entry, reference_date)
-            if is_scheduled_task(entry)
-            else entry
+            (
+                standardize_entry_date(entry, reference_date)
+                if is_scheduled_task(entry)
+                else entry
+            )
             for entry in entries
         ]
         self.file = make_file(entries_to_string(entries))

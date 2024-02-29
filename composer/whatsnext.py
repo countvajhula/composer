@@ -153,9 +153,9 @@ def process_wiki(wikidir, preferences):
                 )
                 ask_input()
             elif yn.lower().startswith("n"):
-                preferences[
-                    'logfile_completion_checking'
-                ] = config.LOGFILE_CHECKING["LAX"]
+                preferences['logfile_completion_checking'] = (
+                    config.LOGFILE_CHECKING["LAX"]
+                )
             else:
                 continue
         except PlannerStateError:
@@ -177,9 +177,9 @@ def process_wiki(wikidir, preferences):
                 interrupt=True,
             )
             theme = ask_input()
-            preferences[
-                "week_theme"
-            ] = theme  # empty string if the user entered nothing
+            preferences["week_theme"] = (
+                theme  # empty string if the user entered nothing
+            )
         except AgendaNotReviewedError as err:
             next_day = planner.next_day()
             next_period = (
@@ -201,12 +201,16 @@ def process_wiki(wikidir, preferences):
                 display_message(
                     "It's time to review {next_period} tasks and identify any "
                     "that you'd like to work on {this_period}.".format(
-                        next_period="this {}'s".format(next_period)
-                        if err.period < Year
-                        else "unscheduled",
-                        this_period="next {period}".format(period=err.period)
-                        if err.period > Day
-                        else "tomorrow",
+                        next_period=(
+                            "this {}'s".format(next_period)
+                            if err.period < Year
+                            else "unscheduled"
+                        ),
+                        this_period=(
+                            "next {period}".format(period=err.period)
+                            if err.period > Day
+                            else "tomorrow"
+                        ),
                     ),
                     prompt=True,
                     interrupt=True,
@@ -232,12 +236,16 @@ def process_wiki(wikidir, preferences):
                     "that you'd like to work on {this_period}, or make any "
                     "other changes you'd like. Press any key when you are "
                     "done.".format(
-                        next_period="of this {}'s".format(next_period)
-                        if err.period < Year
-                        else "unscheduled",
-                        this_period="next {period}".format(period=err.period)
-                        if err.period > Day
-                        else "tomorrow",
+                        next_period=(
+                            "of this {}'s".format(next_period)
+                            if err.period < Year
+                            else "unscheduled"
+                        ),
+                        this_period=(
+                            "next {period}".format(period=err.period)
+                            if err.period > Day
+                            else "tomorrow"
+                        ),
                     ),
                     newline=False,
                     prompt=True,
