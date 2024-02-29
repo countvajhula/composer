@@ -8,6 +8,7 @@ import click
 from . import advice
 from . import config
 from . import updateindex
+from .cache import read_cache, archive_cache
 from .backend import FilesystemPlanner, FilesystemTasklist
 from .timeperiod import (
     Zero,
@@ -64,27 +65,24 @@ def _show_advice(wikidir, preferences):
 
 
 def _pass_baton(wikidir, preferences):
-    """Display the contents of the "baton" file (usually Baton.wiki)
+    """Display the contents of the "baton" file (usually Cache.wiki)
     as the strands in progress / next steps to pick up on. Then clear
     the file.
     """
-    try:
-        baton_file = preferences.get('baton_file')
-        baton_file = os.path.join(wikidir, baton_file) if baton_file else None
-        if baton_file:
+    cache_file = preferences.get('cache_file')
+    if cache_file:
+        cache_path = os.path.join(wikidir, cache_file)
+        archive_cache_file = "Archive_" + cache_file
+        archive_cache_path = os.path.join(wikidir, archive_cache_file)
+        notes = read_cache(cache_path)
+        if notes:
             # display its contents
-            with open(baton_file, 'r') as f:
-                notes = f.read().strip('\n')
-                if notes:
-                    display_message()
-                    display_message("~~~ YOUR NOTES FOR TODAY ~~~")
-                    display_message()
-                    display_message(notes)
-            # clear it
-            with open(baton_file, 'w'):
-                pass
-    except FileNotFoundError:
-        pass
+            display_message()
+            display_message("~~~ YOUR NOTES FROM YESTERDAY ~~~")
+            display_message()
+            display_message(notes)
+            # move it to the archive
+            archive_cache(cache_path, archive_cache_path)
 
 
 def _post_advance_tasks(wikidir, plannerdate, preferences):

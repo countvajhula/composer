@@ -70,7 +70,7 @@ def copy_file(file):
     return make_file(file.getvalue())
 
 
-def read_file(filename):
+def read_file(filename, strip_newlines=False):
     """Read a file on disk and produce an in-memory logical representation
     of the file. This logical representation will be used for analysis and
     processing so that the actual file on disk isn't affected until any
@@ -80,6 +80,8 @@ def read_file(filename):
     :returns :class:`io.StringIO`: A logical file mirroring the file on disk
     """
     contents = _read_file(filename)
+    if strip_newlines:
+        contents = contents.strip('\n')
     return make_file(contents)
 
 
@@ -127,10 +129,15 @@ def partition_at(file, pattern, or_eof=False, inclusive=False):
 
 
 @contain_file_mutation
-def append_files(first_file, second_file):
+def append_files(first_file, second_file, separator="", strip_newlines=False):
     """Concatenate two files.
 
     :param first_file: The first file
     :param second_file: The second file
     """
-    return make_file(first_file.read() + second_file.read())
+    first = first_file.read()
+    second = second_file.read()
+    if strip_newlines:
+        # we don't strip newlines from the second file
+        first = first.strip('\n')
+    return make_file(first + separator + second)

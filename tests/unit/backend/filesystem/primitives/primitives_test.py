@@ -205,6 +205,24 @@ class TestAppendFiles(object):
         assert first.read() == ""
         assert second.read() == ""
 
+    def test_separator(self):
+        first = make_file("Hi")
+        second = make_file("there")
+        result = append_files(first, second, separator=" ")
+        expected = "Hi there"
+        assert result.read() == expected
+        assert first.read() == "Hi"
+        assert second.read() == "there"
+
+    def test_strip_newlines(self):
+        first = make_file("Hi \n")
+        second = make_file("there")
+        result = append_files(first, second, separator="", strip_newlines=True)
+        expected = "Hi there"
+        assert result.read() == expected
+        assert first.read() == "Hi \n"
+        assert second.read() == "there"
+
 
 class TestReadSection(object):
     def test_read_section(self, tasklist_file):
