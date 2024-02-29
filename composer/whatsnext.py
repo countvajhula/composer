@@ -72,7 +72,7 @@ def _pass_baton(wikidir, preferences):
     cache_file = preferences.get('cache_file')
     if cache_file:
         cache_path = os.path.join(wikidir, cache_file)
-        archive_cache_file = "Archive_" + cache_file
+        archive_cache_file = "Archive" + " " + cache_file
         archive_cache_path = os.path.join(wikidir, archive_cache_file)
         notes = read_cache(cache_path)
         if notes:
