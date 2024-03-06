@@ -13,7 +13,8 @@ def read_cache(cache_file):
 
 
 def archive_cache(cache_path, archive_cache_path):
-    """Append the contents of the cache to the archive cache, and clear the cache."""
+    """Append the contents of the cache to the archive cache, and clear the
+    cache."""
     cache_file = read_file(cache_path)
     archive_cache_file = read_file(archive_cache_path)
     separator = "\n" + "\n-----\n" + "\n"
