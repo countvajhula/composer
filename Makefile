@@ -10,6 +10,8 @@ FUNCTIONAL_TESTS_PATH = tests/functional
 help:
 	@echo "clean - remove all build, test, coverage and Python artifacts, and reset test wikis"
 	@echo "build - install package and dependencies for local development"
+	@echo "install - install package and dependencies (including adding binaries to PATH)"
+	@echo "uninstall - remove package and dependencies (including binaries added to PATH)"
 	@echo "docs - generate Sphinx HTML documentation, including API docs"
 	@echo "clean - clean all build and test artifacts and reset any test wikis"
 	@echo "clean-build - remove build artifacts"
@@ -45,6 +47,12 @@ build:
 
 build-for-test:
 	pip install -e .[test]
+
+install:
+	pip install -e .
+
+uninstall:
+	pip uninstall $(PACKAGE-NAME)
 
 docs: build
 	rm -f docs/$(PACKAGE-NAME).rst
