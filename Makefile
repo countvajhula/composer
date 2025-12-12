@@ -97,44 +97,35 @@ black:
 	black $(PACKAGE-NAME) tests
 
 test-unit:
-	python setup.py test --addopts $(UNIT_TESTS_PATH)
+	pytest $(UNIT_TESTS_PATH)
 
 test-functional: clean-test
-	python setup.py test --addopts $(FUNCTIONAL_TESTS_PATH)
+	pytest $(FUNCTIONAL_TESTS_PATH)
 
 test-all: clean-test test-unit test-functional
 
 test:
 ifdef DEST
-	$(eval OPTS := --addopts $(DEST))
+	$(eval OPTS := $(DEST))
 else
-	$(eval OPTS := --addopts $(UNIT_TESTS_PATH))
+	$(eval OPTS := $(UNIT_TESTS_PATH))
 endif
-	python setup.py test $(OPTS)
+	pytest $(OPTS)
 
 # stop on first failing test
 test-stop:
-	python setup.py test --addopts -x
-
-# debug on first failing test
-test-debug:
-ifdef DEST
-	$(eval OPTS := --addopts "-x --pudb $(DEST)")
-else
-	$(eval OPTS := --addopts "-x --pudb $(UNIT_TESTS_PATH)")
-endif
-	python setup.py test $(OPTS)
+	pytest -x
 
 test-matrix:
 	tox
 
 test-tldr:
 ifdef DEST
-	$(eval OPTS := --addopts "-p tldr -p no:sugar $(DEST)")
+	$(eval OPTS := -p tldr -p no:sugar $(DEST))
 else
-	$(eval OPTS := --addopts "-p tldr -p no:sugar $(UNIT_TESTS_PATH)")
+	$(eval OPTS := -p tldr -p no:sugar $(UNIT_TESTS_PATH))
 endif
-	python setup.py test $(OPTS)
+	pytest $(OPTS)
 
 test-wiki:
 	@echo "Operating on TEST wiki at location:" ${TEST_WIKI_PATH}

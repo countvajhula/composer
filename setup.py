@@ -4,7 +4,6 @@ requirements = ['click']
 
 test_requirements = [
     'pytest',
-    'pytest-pudb',
     'pytest-sugar',
     'pytest-tldr',
     'tox',
@@ -29,7 +28,6 @@ setup(
     test_suite='tests',
     install_requires=requirements,
     setup_requires=setup_requirements,
-    tests_require=test_requirements,
     extras_require={'dev': dev_requirements, 'test': test_requirements},
     entry_points={
         'console_scripts': [
