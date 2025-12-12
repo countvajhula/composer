@@ -83,6 +83,13 @@ class FilesystemPlanner(PlannerBase):
     _periodic_year_file = None
 
     def __init__(self, location=None, tasklist=None, preferences=None):
+        if preferences and preferences.get("jump"):
+            # set these two instance attributes here as they are assumed for
+            # jump in the parent class
+            # but they are set in the normal course in the `construct` method,
+            # redundantly (in the case of jump). This should ideally be improved.
+            self.location = location
+            self.date = self._get_date()
         super(FilesystemPlanner, self).__init__(
             location, tasklist, preferences
         )
