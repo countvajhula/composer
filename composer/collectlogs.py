@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-""" Just a hacked-together script to collect notes from the present
-week, month, ..., to help save time on retrospectives """
+"""Just a hacked-together script to collect notes from the present
+week, month, ..., to help save time on retrospectives"""
 
 import os
 

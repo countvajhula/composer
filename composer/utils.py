@@ -40,7 +40,7 @@ def display_message(
     if interrupt:
         _write_out(u"\n")
     if prompt:
-        _write_out(u"\u266A ")
+        _write_out(u"\u266a ")
     _write_out(message)
     if interactive:
         for c in "...":
