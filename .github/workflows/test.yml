@@ -11,8 +11,8 @@ jobs:
         strategy:
             matrix:
                 py:
-                    - "3.9"
-                    - "pypy3.9"
+                    - "3.11"
+                    - "pypy3.11"
                 os:
                     - "macos-latest"
                 architecture:
