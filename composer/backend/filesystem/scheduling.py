@@ -146,7 +146,6 @@ def string_to_date(datestr, reference_date=None):
         (dateformat25, parse_dateformat25),
         (dateformat16, parse_dateformat16),
         (dateformat17, parse_dateformat17),
-        (dateformat10, parse_dateformat10),
         (dateformat11, parse_dateformat11),
         (dateformat12, parse_dateformat12),
         (dateformat14, parse_dateformat14),
@@ -157,6 +156,7 @@ def string_to_date(datestr, reference_date=None):
         (dateformat21, parse_dateformat21),
         (dateformat22, parse_dateformat22),
         (dateformat20, parse_dateformat20),
+        (dateformat10, parse_dateformat10),
     )
 
     for pattern, parse in patterns:
